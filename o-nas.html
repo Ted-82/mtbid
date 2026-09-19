@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>O nas — MTBID</title>
+
+<style>
+*{box-sizing:border-box}
+
+:root{
+--dark:#101114;
+--bg:#f4f5f7;
+--text:#111318;
+--muted:#737780;
+--accent:#e11d2e;
+}
+
+body{
+margin:0;
+background:var(--bg);
+color:var(--text);
+font-family:Arial,Helvetica,sans-serif;
+}
+
+header{
+background:var(--dark);
+color:white;
+}
+
+.header-inner{
+max-width:1200px;
+min-height:76px;
+margin:auto;
+padding:0 24px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+}
+
+.logo{
+color:white;
+text-decoration:none;
+font-size:28px;
+font-weight:900;
+letter-spacing:-1.5px;
+}
+
+.logo span{
+color:var(--accent);
+}
+
+nav{
+display:flex;
+gap:28px;
+}
+
+nav a{
+color:#d1d5db;
+text-decoration:none;
+font-size:14px;
+font-weight:700;
+}
+
+nav a:hover{
+color:white;
+}
+
+.container{
+max-width:1000px;
+margin:auto;
+padding:70px 24px 90px;
+}
+
+.hero{
+background:var(--dark);
+color:white;
+border-radius:22px;
+padding:60px;
+}
+
+.label{
+color:#b9bdc5;
+font-size:11px;
+font-weight:900;
+letter-spacing:1px;
+margin-bottom:15px;
+}
+
+h1{
+font-size:54px;
+line-height:1;
+letter-spacing:-2.5px;
+margin:0 0 20px;
+}
+
+.hero p{
+max-width:700px;
+color:#c4c7cd;
+font-size:17px;
+line-height:1.7;
+}
+
+.section{
+background:white;
+margin-top:25px;
+padding:35px;
+border-radius:18px;
+box-shadow:0 6px 30px rgba(0,0,0,.06);
+}
+
+.section h2{
+margin-top:0;
+font-size:25px;
+}
+
+.section p{
+color:#555b65;
+font-size:15px;
+line-height:1.8;
+}
+
+.values{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:18px;
+margin-top:25px;
+}
+
+.value{
+background:#f7f7f8;
+border-radius:14px;
+padding:22px;
+}
+
+.value h3{
+margin-top:0;
+font-size:17px;
+}
+
+.value p{
+font-size:13px;
+line-height:1.6;
+margin-bottom:0;
+}
+
+footer{
+background:var(--dark);
+color:#9ca3af;
+}
+
+.footer-inner{
+max-width:1000px;
+margin:auto;
+padding:35px 24px;
+display:flex;
+justify-content:space-between;
+gap:20px;
+}
+
+.footer-logo{
+color:white;
+font-size:20px;
+font-weight:900;
+}
+
+.footer-logo span{
+color:var(--accent);
+}
+
+@media(max-width:800px){
+nav{display:none}
+.hero{padding:40px 28px}
+h1{font-size:40px}
+.values{grid-template-columns:1fr}
+}
+
+@media(max-width:600px){
+.container{padding:40px 12px 60px}
+.hero{border-radius:16px}
+h1{font-size:35px}
+.footer-inner{flex-direction:column}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+<div class="header-inner">
+
+<a href="index.html" class="logo">
+MT<span>BID</span>
+</a>
+
+<nav>
+<a href="index.html">Aukcje</a>
+<a href="jak-to-dziala.html">Jak to działa</a>
+<a href="o-nas.html">O nas</a>
+</nav>
+
+</div>
+
+</header>
+
+
+<main class="container">
+
+
+<section class="hero">
+
+<div class="label">
+POZNAJ MTBID
+</div>
+
+<h1>
+Prościej znaleźć
+dobry samochód.
+</h1>
+
+<p>
+MTBID to projekt tworzony z myślą o osobach,
+które szukają samochodów na amerykańskich
+aukcjach i chcą mieć najważniejsze informacje
+w jednym miejscu.
+</p>
+
+</section>
+
+
+<section class="section">
+
+<h2>
+Nasza idea
+</h2>
+
+<p>
+Amerykańskie aukcje samochodowe oferują ogromny
+wybór pojazdów. Jednocześnie znalezienie konkretnego
+samochodu może wymagać przeglądania wielu ofert,
+stron i filtrów.
+</p>
+
+<p>
+MTBID ma ten proces uprościć. Chcemy stworzyć
+nowoczesną wyszukiwarkę samochodów aukcyjnych,
+która pozwoli szybko znaleźć interesujący pojazd
+i przejść do jego szczegółów.
+</p>
+
+</section>
+
+
+<section class="section">
+
+<h2>
+Na czym nam zależy?
+</h2>
+
+<div class="values">
+
+<div class="value">
+
+<h3>
+Przejrzystość
+</h3>
+
+<p>
+Najważniejsze informacje o samochodzie
+powinny być łatwe do znalezienia.
+</p>
+
+</div>
+
+
+<div class="value">
+
+<h3>
+Szybkość
+</h3>
+
+<p>
+Wyszukiwanie samochodu nie powinno
+wymagać przekopywania się przez setki stron.
+</p>
+
+</div>
+
+
+<div class="value">
+
+<h3>
+Rozwój
+</h3>
+
+<p>
+MTBID będzie rozwijane krok po kroku
+wraz z kolejnymi funkcjami i źródłami danych.
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+
+<section class="section">
+
+<h2>
+Ważna informacja
+</h2>
+
+<p>
+MTBID jest platformą informacyjną i wyszukiwarką
+ofert. Informacje prezentowane w serwisie mogą
+pochodzić z zewnętrznych źródeł i mogą się zmieniać.
+</p>
+
+<p>
+Przed zakupem samochodu zawsze należy zweryfikować
+aktualne dane, dokumentację, historię pojazdu oraz
+warunki aukcji bezpośrednio u właściwego organizatora.
+</p>
+
+</section>
+
+</main>
+
+
+<footer>
+
+<div class="footer-inner">
+
+<div>
+
+<div class="footer-logo">
+MT<span>BID</span>
+</div>
+
+<div style="margin-top:8px">
+Aukcje samochodów z USA
+</div>
+
+</div>
+
+<div>
+© 2026 MTBID
+</div>
+
+</div>
+
+</footer>
+
+</body>
+</html>
