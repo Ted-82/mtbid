@@ -31,7 +31,6 @@
       margin: auto;
       min-height: 76px;
       padding: 0 24px;
-
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -77,13 +76,10 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-
       border-radius: 9px;
       padding: 11px 16px;
-
       font-size: 14px;
       font-weight: 800;
-
       text-decoration: none;
       cursor: pointer;
       border: 0;
@@ -160,13 +156,10 @@
       position: absolute;
       top: 16px;
       left: 16px;
-
       padding: 8px 11px;
       border-radius: 8px;
-
       background: #111827;
       color: white;
-
       font-size: 12px;
       font-weight: 900;
     }
@@ -175,19 +168,14 @@
       position: absolute;
       top: 14px;
       right: 14px;
-
       width: 48px;
       height: 48px;
-
       border: 0;
       border-radius: 50%;
-
       background: white;
       color: #e11d48;
-
       font-size: 25px;
       cursor: pointer;
-
       box-shadow: 0 6px 20px rgba(0,0,0,.18);
     }
 
@@ -347,7 +335,6 @@
       display: flex;
       justify-content: space-between;
       gap: 20px;
-
       padding-bottom: 12px;
       border-bottom: 1px solid #eef0f3;
     }
@@ -430,7 +417,6 @@
     .footer-inner {
       max-width: 1250px;
       margin: auto;
-
       display: flex;
       justify-content: space-between;
       gap: 20px;
@@ -444,7 +430,6 @@
     }
 
     @media (max-width: 1000px) {
-
       .top-grid {
         grid-template-columns: 1fr;
       }
@@ -459,7 +444,6 @@
     }
 
     @media (max-width: 650px) {
-
       .header-inner {
         min-height: 65px;
         padding: 0 16px;
@@ -507,7 +491,6 @@
 <body>
 
 <header>
-
   <div class="header-inner">
 
     <a href="index.html" class="logo">
@@ -533,7 +516,6 @@
     </div>
 
   </div>
-
 </header>
 
 <main class="container">
@@ -551,7 +533,6 @@
 </main>
 
 <footer>
-
   <div class="footer-inner">
 
     <div>
@@ -569,14 +550,12 @@
     </div>
 
   </div>
-
 </footer>
 
 <script>
 
 const fallbackImage =
   "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1400&q=85";
-
 
 const demoImages = {
 
@@ -752,9 +731,7 @@ function money(value) {
   }
 
   if (typeof value === "number") {
-
     return "$" + value.toLocaleString("en-US");
-
   }
 
   return value;
@@ -780,7 +757,7 @@ function getImage(car) {
       return first;
     }
 
-    if (first.url) {
+    if (first && first.url) {
       return first.url;
     }
 
@@ -810,10 +787,21 @@ function getTitle(car) {
 }
 
 
+function escapeHtml(value) {
+
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+
 function render(car) {
 
   const image = getImage(car);
-
   const title = getTitle(car);
 
   const platform =
@@ -873,6 +861,9 @@ function render(car) {
     car.color ||
     value(car, "vehicle_specs.color", null);
 
+  const safeImage = escapeHtml(image);
+  const safeTitle = escapeHtml(title);
+  const safeVin = escapeHtml(car.vin);
 
   document.getElementById("app").innerHTML = `
 
@@ -884,12 +875,12 @@ function render(car) {
 
           <img
             id="mainImage"
-            src="${image}"
-            alt="${title}"
+            src="${safeImage}"
+            alt="${safeTitle}"
           >
 
           <div class="badge">
-            ${car.is_demo ? "DEMO" : platform}
+            ${car.is_demo ? "DEMO" : escapeHtml(platform)}
           </div>
 
           <button
@@ -906,9 +897,9 @@ function render(car) {
 
           <div
             class="thumb active"
-            onclick="changeImage('${image}', this)"
+            onclick="changeImage(${JSON.stringify(image)}, this)"
           >
-            <img src="${image}" alt="">
+            <img src="${safeImage}" alt="">
           </div>
 
           ${
@@ -922,17 +913,17 @@ function render(car) {
                   const url =
                     typeof media === "string"
                       ? media
-                      : media.url;
+                      : media && media.url;
 
                   if (!url) return "";
 
                   return `
                     <div
                       class="thumb"
-                      onclick="changeImage('${url}', this)"
+                      onclick="changeImage(${JSON.stringify(url)}, this)"
                     >
                       <img
-                        src="${url}"
+                        src="${escapeHtml(url)}"
                         alt="Zdjęcie ${index + 1}"
                       >
                     </div>
@@ -952,11 +943,11 @@ function render(car) {
       <section class="summary">
 
         <div class="platform">
-          ${platform}
+          ${escapeHtml(platform)}
         </div>
 
         <div class="title">
-          ${title}
+          ${safeTitle || "Samochód"}
         </div>
 
         <div class="price-label">
@@ -964,7 +955,7 @@ function render(car) {
         </div>
 
         <div class="price">
-          ${money(price)}
+          ${escapeHtml(money(price))}
         </div>
 
         <div class="auction-box">
@@ -976,7 +967,7 @@ function render(car) {
           <div class="auction-value">
             ${
               auctionDate
-                ? auctionDate
+                ? escapeHtml(auctionDate)
                 : "Termin aukcji zostanie podany"
             }
           </div>
@@ -994,7 +985,7 @@ function render(car) {
 
           <button
             class="btn btn-outline"
-            onclick="toggleFavorite(window.currentCar)"
+            id="favoriteAction"
           >
             ${isFavorite(car.vin)
               ? "♥ Usuń z ulubionych"
@@ -1021,75 +1012,74 @@ function render(car) {
           <div class="spec">
             <span class="spec-label">Rok</span>
             <span class="spec-value">
-              ${car.year || "-"}
+              ${escapeHtml(car.year || "-")}
             </span>
           </div>
 
           <div class="spec">
             <span class="spec-label">Przebieg</span>
             <span class="spec-value">
-              ${mileage || "-"}
+              ${escapeHtml(mileage || "-")}
             </span>
           </div>
 
           <div class="spec">
             <span class="spec-label">Uszkodzenie</span>
             <span class="spec-value">
-              ${damage || "-"}
+              ${escapeHtml(damage || "-")}
             </span>
           </div>
 
           <div class="spec">
             <span class="spec-label">Paliwo</span>
             <span class="spec-value">
-              ${fuel || "-"}
+              ${escapeHtml(fuel || "-")}
             </span>
           </div>
 
           <div class="spec">
             <span class="spec-label">Skrzynia</span>
             <span class="spec-value">
-              ${transmission || "-"}
+              ${escapeHtml(transmission || "-")}
             </span>
           </div>
 
           <div class="spec">
             <span class="spec-label">Napęd</span>
             <span class="spec-value">
-              ${drive || "-"}
+              ${escapeHtml(drive || "-")}
             </span>
           </div>
 
           <div class="spec">
             <span class="spec-label">Silnik</span>
             <span class="spec-value">
-              ${engine || "-"}
+              ${escapeHtml(engine || "-")}
             </span>
           </div>
 
           <div class="spec">
             <span class="spec-label">Nadwozie</span>
             <span class="spec-value">
-              ${body || "-"}
+              ${escapeHtml(body || "-")}
             </span>
           </div>
 
           <div class="spec">
             <span class="spec-label">Kolor</span>
             <span class="spec-value">
-              ${color || "-"}
+              ${escapeHtml(color || "-")}
             </span>
           </div>
 
           <div class="spec">
             <span class="spec-label">Lokalizacja</span>
             <span class="spec-value">
-              ${location || "-"}
+              ${escapeHtml(location || "-")}
             </span>
           </div>
 
         </div>
-
 
         <div class="vin-box">
 
@@ -1098,7 +1088,7 @@ function render(car) {
           </div>
 
           <div class="vin">
-            ${car.vin || "-"}
+            ${safeVin || "-"}
           </div>
 
         </div>
@@ -1116,36 +1106,35 @@ function render(car) {
 
           <div class="auction-row">
             <span>Platforma</span>
-            <span>${platform}</span>
+            <span>${escapeHtml(platform)}</span>
           </div>
 
           <div class="auction-row">
             <span>Numer lotu</span>
-            <span>${lot || "-"}</span>
+            <span>${escapeHtml(lot || "-")}</span>
           </div>
 
           <div class="auction-row">
             <span>Lokalizacja</span>
-            <span>${location || "-"}</span>
+            <span>${escapeHtml(location || "-")}</span>
           </div>
 
           <div class="auction-row">
             <span>Rok produkcji</span>
-            <span>${car.year || "-"}</span>
+            <span>${escapeHtml(car.year || "-")}</span>
           </div>
 
           <div class="auction-row">
             <span>Przebieg</span>
-            <span>${mileage || "-"}</span>
+            <span>${escapeHtml(mileage || "-")}</span>
           </div>
 
           <div class="auction-row">
             <span>Uszkodzenie</span>
-            <span>${damage || "-"}</span>
+            <span>${escapeHtml(damage || "-")}</span>
           </div>
 
         </div>
-
 
         <div class="notice">
 
@@ -1164,21 +1153,48 @@ function render(car) {
 
   `;
 
-
   const favoriteButton =
     document.getElementById("favoriteButton");
 
-  favoriteButton.onclick = () => {
+  const favoriteAction =
+    document.getElementById("favoriteAction");
 
-    toggleFavorite(car);
+  function refreshFavorite() {
 
-    updateFavoriteButton(car.vin);
+    const favorite = isFavorite(car.vin);
 
-    favoriteButton.textContent =
-      isFavorite(car.vin) ? "♥" : "♡";
+    if (favoriteButton) {
+      favoriteButton.textContent =
+        favorite ? "♥" : "♡";
 
-  };
+      favoriteButton.title =
+        favorite
+          ? "Usuń z ulubionych"
+          : "Dodaj do ulubionych";
+    }
 
+    if (favoriteAction) {
+      favoriteAction.textContent =
+        favorite
+          ? "♥ Usuń z ulubionych"
+          : "♡ Dodaj do ulubionych";
+    }
+
+  }
+
+  if (favoriteButton) {
+    favoriteButton.onclick = () => {
+      toggleFavorite(car);
+      refreshFavorite();
+    };
+  }
+
+  if (favoriteAction) {
+    favoriteAction.onclick = () => {
+      toggleFavorite(car);
+      refreshFavorite();
+    };
+  }
 
   window.currentCar = car;
 
@@ -1213,20 +1229,45 @@ async function loadCar() {
 
     document.getElementById("app").innerHTML = `
       <div class="error">
-        Nie podano numeru VIN samochodu.
+
+        <h2>
+          Nie podano numeru VIN samochodu
+        </h2>
+
+        <p>
+          Otwórz samochód z listy aukcji.
+        </p>
+
+        <br>
+
+        <a
+          href="index.html"
+          class="btn btn-red"
+        >
+          Wróć do aukcji
+        </a>
+
       </div>
     `;
 
     return;
   }
 
-
   try {
 
     const response =
-      await fetch(
-        "/api/cars"
+      await fetch("/api/cars", {
+        method: "GET",
+        headers: {
+          "Accept": "application/json"
+        }
+      });
+
+    if (!response.ok) {
+      throw new Error(
+        "API /api/cars zwróciło HTTP " + response.status
       );
+    }
 
     const data =
       await response.json();
@@ -1236,10 +1277,12 @@ async function loadCar() {
         ? data
         : data.cars || data.data || [];
 
-
     let car =
-      cars.find(item => item.vin === vin);
-
+      cars.find(item =>
+        item &&
+        String(item.vin || "").toUpperCase() ===
+        String(vin).toUpperCase()
+      );
 
     if (!car) {
 
@@ -1253,10 +1296,12 @@ async function loadCar() {
             typeof item === "object" &&
             item !== null
           ) {
-            return item.vin === vin;
+            return String(item.vin || "").toUpperCase() ===
+              String(vin).toUpperCase();
           }
 
-          return item === vin;
+          return String(item).toUpperCase() ===
+            String(vin).toUpperCase();
 
         });
 
@@ -1269,7 +1314,6 @@ async function loadCar() {
 
     }
 
-
     if (!car) {
 
       document.getElementById("app").innerHTML = `
@@ -1281,7 +1325,7 @@ async function loadCar() {
 
           <p>
             Samochód o VIN:
-            <strong>${vin}</strong>
+            <strong>${escapeHtml(vin)}</strong>
             nie jest obecnie dostępny.
           </p>
 
@@ -1298,15 +1342,13 @@ async function loadCar() {
       `;
 
       return;
-
     }
-
 
     render(car);
 
   } catch (error) {
 
-    console.error(error);
+    console.error("Błąd ładowania samochodu:", error);
 
     document.getElementById("app").innerHTML = `
       <div class="error">
@@ -1316,8 +1358,21 @@ async function loadCar() {
         </h2>
 
         <p>
-          Spróbuj odświeżyć stronę.
+          API samochodów nie odpowiedziało prawidłowo.
         </p>
+
+        <p style="font-size:12px;color:#6b7280;">
+          ${escapeHtml(error.message)}
+        </p>
+
+        <br>
+
+        <a
+          href="index.html"
+          class="btn btn-red"
+        >
+          Wróć do aukcji
+        </a>
 
       </div>
     `;
