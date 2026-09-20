@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Kontakt — MTBID</title>
+
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+
+:root {
+
+    --dark: #101114;
+    --bg: #f4f5f7;
+    --text: #111318;
+    --muted: #737780;
+    --border: #e5e7eb;
+    --accent: #e11d2e;
+
+}
+
+
+body {
+
+    margin: 0;
+
+    background: var(--bg);
+
+    color: var(--text);
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+}
+
+
+/* HEADER */
+
+
+header {
+
+    background: var(--dark);
+
+    color: white;
+
+}
+
+
+.header-inner {
+
+    max-width: 1200px;
+
+    min-height: 76px;
+
+    margin: auto;
+
+    padding: 0 24px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+}
+
+
+.logo {
+
+    color: white;
+
+    text-decoration: none;
+
+    font-size: 28px;
+
+    font-weight: 900;
+
+    letter-spacing: -1.5px;
+
+}
+
+
+.logo span {
+
+    color: var(--accent);
+
+}
+
+
+nav {
+
+    display: flex;
+
+    gap: 28px;
+
+}
+
+
+nav a {
+
+    color: #d1d5db;
+
+    text-decoration: none;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+}
+
+
+nav a:hover {
+
+    color: white;
+
+}
+
+
+/* MAIN */
+
+
+.container {
+
+    max-width: 1000px;
+
+    margin: auto;
+
+    padding: 65px 24px 90px;
+
+}
+
+
+.hero {
+
+    margin-bottom: 35px;
+
+}
+
+
+.label {
+
+    font-size: 11px;
+
+    font-weight: 900;
+
+    letter-spacing: 1px;
+
+    color: var(--muted);
+
+    margin-bottom: 12px;
+
+}
+
+
+h1 {
+
+    margin: 0 0 15px;
+
+    font-size: 48px;
+
+    letter-spacing: -2px;
+
+}
+
+
+.hero p {
+
+    max-width: 650px;
+
+    color: var(--muted);
+
+    font-size: 16px;
+
+    line-height: 1.7;
+
+}
+
+
+/* GRID */
+
+
+.contact-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 22px;
+
+}
+
+
+.card {
+
+    background: white;
+
+    border-radius: 18px;
+
+    padding: 30px;
+
+    box-shadow:
+        0 6px 30px
+        rgba(0,0,0,.06);
+
+}
+
+
+.card h2 {
+
+    margin-top: 0;
+
+    font-size: 21px;
+
+}
+
+
+.card p {
+
+    color: var(--muted);
+
+    font-size: 14px;
+
+    line-height: 1.7;
+
+}
+
+
+/* CONTACT BOX */
+
+
+.contact-item {
+
+    padding: 18px 0;
+
+    border-bottom:
+        1px solid var(--border);
+
+}
+
+
+.contact-item:last-child {
+
+    border-bottom: 0;
+
+}
+
+
+.contact-label {
+
+    color: var(--muted);
+
+    font-size: 12px;
+
+    margin-bottom: 6px;
+
+}
+
+
+.contact-value {
+
+    font-size: 16px;
+
+    font-weight: 800;
+
+}
+
+
+/* FORM */
+
+
+.form-group {
+
+    margin-bottom: 16px;
+
+}
+
+
+label {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+}
+
+
+input,
+textarea {
+
+    width: 100%;
+
+    padding: 13px 14px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 9px;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    outline: none;
+
+}
+
+
+input:focus,
+textarea:focus {
+
+    border-color: var(--dark);
+
+}
+
+
+textarea {
+
+    min-height: 140px;
+
+    resize: vertical;
+
+}
+
+
+button {
+
+    width: 100%;
+
+    border: 0;
+
+    padding: 14px;
+
+    border-radius: 9px;
+
+    background: var(--dark);
+
+    color: white;
+
+    font-size: 14px;
+
+    font-weight: 900;
+
+    cursor: pointer;
+
+}
+
+
+button:hover {
+
+    opacity: .9;
+
+}
+
+
+.notice {
+
+    display: none;
+
+    margin-top: 15px;
+
+    padding: 13px;
+
+    border-radius: 8px;
+
+    background: #ecfdf3;
+
+    color: #166534;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+}
+
+
+/* FOOTER */
+
+
+footer {
+
+    background: var(--dark);
+
+    color: #9ca3af;
+
+}
+
+
+.footer-inner {
+
+    max-width: 1000px;
+
+    margin: auto;
+
+    padding: 35px 24px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+}
+
+
+.footer-logo {
+
+    color: white;
+
+    font-size: 20px;
+
+    font-weight: 900;
+
+}
+
+
+.footer-logo span {
+
+    color: var(--accent);
+
+}
+
+
+/* MOBILE */
+
+
+@media (max-width: 800px) {
+
+    nav {
+
+        display: none;
+
+    }
+
+
+    .contact-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    h1 {
+
+        font-size: 40px;
+
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .container {
+
+        padding:
+            45px
+            14px
+            65px;
+
+    }
+
+
+    h1 {
+
+        font-size: 35px;
+
+    }
+
+
+    .footer-inner {
+
+        flex-direction: column;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<div class="header-inner">
+
+
+<a
+    href="index.html"
+    class="logo"
+>
+    MT<span>BID</span>
+</a>
+
+
+<nav>
+
+<a href="index.html">
+    Aukcje
+</a>
+
+<a href="jak-to-dziala.html">
+    Jak to działa
+</a>
+
+<a href="o-nas.html">
+    O nas
+</a>
+
+<a href="kontakt.html">
+    Kontakt
+</a>
+
+</nav>
+
+
+</div>
+
+</header>
+
+
+
+<main class="container">
+
+
+<section class="hero">
+
+<div class="label">
+MTBID
+</div>
+
+
+<h1>
+Kontakt
+</h1>
+
+
+<p>
+Masz pytanie, znalazłeś błąd albo chcesz
+współpracować z MTBID? Napisz do nas.
+</p>
+
+</section>
+
+
+
+<section class="contact-grid">
+
+
+<div class="card">
+
+
+<h2>
+Skontaktuj się z nami
+</h2>
+
+
+<p>
+Na tym etapie MTBID jest rozwijanym projektem.
+Docelowo tutaj znajdziesz wszystkie informacje
+kontaktowe oraz kanały komunikacji.
+</p>
+
+
+<div class="contact-item">
+
+<div class="contact-label">
+E-mail
+</div>
+
+<div class="contact-value">
+kontakt@mtbid.pl
+</div>
+
+</div>
+
+
+<div class="contact-item">
+
+<div class="contact-label">
+Tematy współpracy
+</div>
+
+<div class="contact-value">
+Współpraca / reklama / dane
+</div>
+
+</div>
+
+
+<div class="contact-item">
+
+<div class="contact-label">
+Projekt
+</div>
+
+<div class="contact-value">
+MTBID
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<div class="card">
+
+
+<h2>
+Wyślij wiadomość
+</h2>
+
+
+<form
+    id="contactForm"
+>
+
+
+<div class="form-group">
+
+<label for="name">
+Imię
+</label>
+
+<input
+    id="name"
+    type="text"
+    placeholder="Twoje imię"
+    required
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label for="email">
+E-mail
+</label>
+
+<input
+    id="email"
+    type="email"
+    placeholder="twoj@email.pl"
+    required
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label for="message">
+Wiadomość
+</label>
+
+<textarea
+    id="message"
+    placeholder="Napisz wiadomość..."
+    required
+></textarea>
+
+</div>
+
+
+<button type="submit">
+Wyślij wiadomość
+</button>
+
+
+<div
+    id="notice"
+    class="notice"
+>
+    Wiadomość została przygotowana.
+    System wysyłania wiadomości podłączymy
+    w kolejnym etapie.
+</div>
+
+
+</form>
+
+
+</div>
+
+
+</section>
+
+</main>
+
+
+
+<footer>
+
+<div class="footer-inner">
+
+
+<div>
+
+<div class="footer-logo">
+MT<span>BID</span>
+</div>
+
+<div style="margin-top:8px">
+Aukcje samochodów z USA
+</div>
+
+</div>
+
+
+<div>
+© 2026 MTBID
+</div>
+
+
+</div>
+
+</footer>
+
+
+
+<script>
+
+document
+    .getElementById("contactForm")
+    .addEventListener(
+        "submit",
+        function(event) {
+
+            event.preventDefault();
+
+            document
+                .getElementById("notice")
+                .style.display = "block";
+
+        }
+    );
+
+</script>
+
+
+</body>
+
+</html>

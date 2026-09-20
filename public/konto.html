@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moje konto | MTBID</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f7fa;
+      color: #172033;
+    }
+
+    header {
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .header-inner {
+      max-width: 1250px;
+      margin: auto;
+      min-height: 76px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 25px;
+    }
+
+    .logo {
+      text-decoration: none;
+      color: #111827;
+      font-size: 30px;
+      font-weight: 900;
+    }
+
+    .logo span {
+      color: #e11d48;
+    }
+
+    nav {
+      display: flex;
+      gap: 22px;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #374151;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    nav a:hover {
+      color: #e11d48;
+    }
+
+    .container {
+      max-width: 1250px;
+      margin: auto;
+      padding: 45px 24px 70px;
+    }
+
+    .welcome {
+      margin-bottom: 30px;
+    }
+
+    .welcome h1 {
+      margin: 0 0 8px;
+      font-size: 36px;
+    }
+
+    .welcome p {
+      margin: 0;
+      color: #6b7280;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 25px;
+    }
+
+    .sidebar {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 12px;
+      height: fit-content;
+    }
+
+    .side-link {
+      display: block;
+      padding: 13px 14px;
+      border-radius: 9px;
+      color: #374151;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .side-link:hover,
+    .side-link.active {
+      background: #fff1f2;
+      color: #be123c;
+    }
+
+    .content {
+      display: grid;
+      gap: 22px;
+    }
+
+    .profile {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 25px;
+    }
+
+    .profile-top {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 25px;
+    }
+
+    .avatar {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: #111827;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 25px;
+      font-weight: 900;
+    }
+
+    .profile h2 {
+      margin: 0 0 5px;
+      font-size: 24px;
+    }
+
+    .profile-email {
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+
+    .stat {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .stat-number {
+      display: block;
+      font-size: 27px;
+      font-weight: 900;
+      color: #111827;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      color: #6b7280;
+      font-size: 13px;
+    }
+
+    .section {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 25px;
+    }
+
+    .section h2 {
+      margin: 0 0 18px;
+      font-size: 22px;
+    }
+
+    .account-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      padding: 16px 0;
+      border-bottom: 1px solid #eef0f3;
+    }
+
+    .account-row:last-child {
+      border-bottom: 0;
+    }
+
+    .row-label {
+      color: #6b7280;
+      font-size: 13px;
+      margin-bottom: 5px;
+    }
+
+    .row-value {
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 9px;
+      padding: 11px 16px;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+    }
+
+    .btn-red {
+      background: #e11d48;
+      color: white;
+    }
+
+    .btn-outline {
+      background: white;
+      border: 1px solid #d1d5db;
+      color: #111827;
+    }
+
+    .logout {
+      width: 100%;
+      margin-top: 12px;
+      color: #be123c;
+    }
+
+    footer {
+      background: #111827;
+      color: #d1d5db;
+      padding: 35px 24px;
+    }
+
+    .footer-inner {
+      max-width: 1250px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .footer-logo {
+      color: white;
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    @media (max-width: 850px) {
+      nav {
+        display: none;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 5px;
+      }
+
+      .logout {
+        margin-top: 0;
+      }
+    }
+
+    @media (max-width: 550px) {
+      .header-inner {
+        min-height: 65px;
+        padding: 0 16px;
+      }
+
+      .logo {
+        font-size: 25px;
+      }
+
+      .container {
+        padding: 30px 16px 50px;
+      }
+
+      .welcome h1 {
+        font-size: 30px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        grid-template-columns: 1fr;
+      }
+
+      .account-row {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-inner">
+
+    <a href="index.html" class="logo">
+      MT<span>BID</span>
+    </a>
+
+    <nav>
+      <a href="index.html">Aukcje</a>
+      <a href="jak-to-dziala.html">Jak to działa</a>
+      <a href="o-nas.html">O nas</a>
+      <a href="kontakt.html">Kontakt</a>
+      <a href="ulubione.html">♡ Ulubione</a>
+    </nav>
+
+    <a href="index.html" class="btn btn-red">
+      Aukcje
+    </a>
+
+  </div>
+</header>
+
+
+<main class="container">
+
+  <div class="welcome">
+    <h1>Moje konto</h1>
+    <p>Zarządzaj swoim kontem i obserwowanymi samochodami.</p>
+  </div>
+
+
+  <div class="layout">
+
+    <aside class="sidebar">
+
+      <a href="konto.html" class="side-link active">
+        👤 Moje konto
+      </a>
+
+      <a href="ulubione.html" class="side-link">
+        ♡ Ulubione
+      </a>
+
+      <a href="index.html" class="side-link">
+        🚗 Aukcje
+      </a>
+
+      <a href="#" class="side-link" onclick="comingSoon(event)">
+        🔨 Moje licytacje
+      </a>
+
+      <a href="#" class="side-link" onclick="comingSoon(event)">
+        📋 Zamówienia
+      </a>
+
+      <a href="#" class="side-link" onclick="comingSoon(event)">
+        ⚙ Ustawienia
+      </a>
+
+      <button
+        class="btn logout"
+        onclick="logout()"
+      >
+        Wyloguj
+      </button>
+
+    </aside>
+
+
+    <div class="content">
+
+      <section class="profile">
+
+        <div class="profile-top">
+
+          <div class="avatar">
+            M
+          </div>
+
+          <div>
+            <h2>Moje konto MTBID</h2>
+            <div class="profile-email">
+              Konto użytkownika
+            </div>
+          </div>
+
+        </div>
+
+
+        <div class="stats">
+
+          <div class="stat">
+            <span
+              class="stat-number"
+              id="favoriteCount"
+            >
+              0
+            </span>
+
+            <span class="stat-label">
+              Ulubione
+            </span>
+          </div>
+
+
+          <div class="stat">
+            <span class="stat-number">
+              0
+            </span>
+
+            <span class="stat-label">
+              Aktywne licytacje
+            </span>
+          </div>
+
+
+          <div class="stat">
+            <span class="stat-number">
+              0
+            </span>
+
+            <span class="stat-label">
+              Wygrane aukcje
+            </span>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <section class="section">
+
+        <h2>Dane konta</h2>
+
+        <div class="account-row">
+
+          <div>
+            <div class="row-label">
+              Nazwa użytkownika
+            </div>
+
+            <div class="row-value">
+              Użytkownik MTBID
+            </div>
+          </div>
+
+          <button
+            class="btn btn-outline"
+            onclick="comingSoon(event)"
+          >
+            Edytuj
+          </button>
+
+        </div>
+
+
+        <div class="account-row">
+
+          <div>
+            <div class="row-label">
+              Adres e-mail
+            </div>
+
+            <div class="row-value">
+              Konto demonstracyjne
+            </div>
+          </div>
+
+          <button
+            class="btn btn-outline"
+            onclick="comingSoon(event)"
+          >
+            Zmień
+          </button>
+
+        </div>
+
+
+        <div class="account-row">
+
+          <div>
+            <div class="row-label">
+              Hasło
+            </div>
+
+            <div class="row-value">
+              ••••••••••
+            </div>
+          </div>
+
+          <button
+            class="btn btn-outline"
+            onclick="comingSoon(event)"
+          >
+            Zmień
+          </button>
+
+        </div>
+
+      </section>
+
+
+      <section class="section">
+
+        <h2>Ulubione samochody</h2>
+
+        <p style="color:#6b7280; line-height:1.6;">
+          Masz zapisane samochody, które obserwujesz podczas
+          przeglądania aukcji.
+        </p>
+
+        <a
+          href="ulubione.html"
+          class="btn btn-red"
+        >
+          Zobacz ulubione
+        </a>
+
+      </section>
+
+    </div>
+
+  </div>
+
+</main>
+
+
+<footer>
+
+  <div class="footer-inner">
+
+    <div>
+      <div class="footer-logo">
+        MTBID
+      </div>
+
+      <div style="margin-top:8px;">
+        Platforma aukcji samochodów z USA
+      </div>
+    </div>
+
+    <div>
+      © 2026 MTBID
+    </div>
+
+  </div>
+
+</footer>
+
+
+<script>
+
+function updateFavorites() {
+
+  try {
+
+    const favorites =
+      JSON.parse(
+        localStorage.getItem("mtbid_favorites") || "[]"
+      );
+
+    document.getElementById(
+      "favoriteCount"
+    ).textContent = favorites.length;
+
+  } catch {
+
+    document.getElementById(
+      "favoriteCount"
+    ).textContent = "0";
+
+  }
+
+}
+
+
+function comingSoon(event) {
+
+  event.preventDefault();
+
+  alert(
+    "Ta funkcja zostanie podłączona w kolejnym etapie MTBID."
+  );
+
+}
+
+
+function logout() {
+
+  alert(
+    "System logowania zostanie podłączony do prawdziwego konta użytkownika w kolejnym etapie."
+  );
+
+}
+
+
+updateFavorites();
+
+</script>
+
+</body>
+</html>

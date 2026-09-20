@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Jak to działa — MTBID</title>
+
+<style>
+*{box-sizing:border-box}
+
+:root{
+--dark:#101114;
+--dark2:#191b20;
+--bg:#f4f5f7;
+--card:#fff;
+--text:#111318;
+--muted:#737780;
+--border:#e5e7eb;
+--accent:#e11d2e;
+}
+
+body{
+margin:0;
+background:var(--bg);
+color:var(--text);
+font-family:Arial,Helvetica,sans-serif;
+}
+
+header{
+background:var(--dark);
+color:white;
+}
+
+.header-inner{
+max-width:1450px;
+min-height:76px;
+margin:auto;
+padding:0 24px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+}
+
+.logo{
+color:white;
+text-decoration:none;
+font-size:28px;
+font-weight:900;
+letter-spacing:-1.5px;
+}
+
+.logo span{
+color:var(--accent);
+}
+
+nav{
+display:flex;
+gap:28px;
+}
+
+nav a{
+color:#d1d5db;
+text-decoration:none;
+font-size:14px;
+font-weight:700;
+}
+
+nav a:hover{
+color:white;
+}
+
+.container{
+max-width:1100px;
+margin:auto;
+padding:65px 24px 80px;
+}
+
+.hero{
+text-align:center;
+margin-bottom:55px;
+}
+
+.label{
+display:inline-block;
+padding:7px 12px;
+border-radius:20px;
+background:#eee;
+font-size:11px;
+font-weight:900;
+letter-spacing:.7px;
+margin-bottom:15px;
+}
+
+h1{
+font-size:52px;
+letter-spacing:-2.5px;
+margin:0 0 18px;
+}
+
+.hero p{
+max-width:680px;
+margin:auto;
+color:var(--muted);
+font-size:17px;
+line-height:1.6;
+}
+
+.steps{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:20px;
+}
+
+.step{
+background:white;
+border-radius:18px;
+padding:28px;
+box-shadow:0 6px 30px rgba(0,0,0,.06);
+}
+
+.number{
+width:42px;
+height:42px;
+display:flex;
+align-items:center;
+justify-content:center;
+background:var(--dark);
+color:white;
+border-radius:50%;
+font-weight:900;
+margin-bottom:20px;
+}
+
+.step h2{
+font-size:20px;
+margin:0 0 12px;
+}
+
+.step p{
+color:var(--muted);
+font-size:14px;
+line-height:1.7;
+margin:0;
+}
+
+.info{
+margin-top:25px;
+background:white;
+border-radius:18px;
+padding:30px;
+box-shadow:0 6px 30px rgba(0,0,0,.06);
+}
+
+.info h2{
+margin-top:0;
+}
+
+.info p{
+color:#555b65;
+line-height:1.7;
+font-size:14px;
+}
+
+.cta{
+margin-top:25px;
+background:var(--dark);
+color:white;
+border-radius:18px;
+padding:35px;
+text-align:center;
+}
+
+.cta h2{
+margin:0 0 10px;
+font-size:27px;
+}
+
+.cta p{
+color:#b9bdc5;
+}
+
+.button{
+display:inline-block;
+margin-top:10px;
+padding:13px 22px;
+border-radius:9px;
+background:var(--accent);
+color:white;
+text-decoration:none;
+font-weight:900;
+}
+
+footer{
+background:var(--dark);
+color:#9ca3af;
+}
+
+.footer-inner{
+max-width:1100px;
+margin:auto;
+padding:35px 24px;
+display:flex;
+justify-content:space-between;
+gap:20px;
+}
+
+.footer-logo{
+color:white;
+font-size:20px;
+font-weight:900;
+}
+
+.footer-logo span{
+color:var(--accent);
+}
+
+@media(max-width:800px){
+nav{display:none}
+.steps{grid-template-columns:1fr}
+h1{font-size:40px}
+}
+
+@media(max-width:600px){
+.container{padding:45px 15px 60px}
+h1{font-size:34px}
+.footer-inner{flex-direction:column}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="header-inner">
+
+<a href="index.html" class="logo">
+MT<span>BID</span>
+</a>
+
+<nav>
+<a href="index.html">Aukcje</a>
+<a href="jak-to-dziala.html">Jak to działa</a>
+<a href="o-nas.html">O nas</a>
+</nav>
+
+</div>
+</header>
+
+<main class="container">
+
+<section class="hero">
+
+<div class="label">
+MTBID
+</div>
+
+<h1>
+Jak to działa?
+</h1>
+
+<p>
+MTBID zbiera samochody z amerykańskich
+aukcji w jednym miejscu, aby łatwiej było
+je przeglądać, porównywać i wyszukiwać.
+</p>
+
+</section>
+
+<section class="steps">
+
+<div class="step">
+
+<div class="number">1</div>
+
+<h2>
+Znajdź samochód
+</h2>
+
+<p>
+Przeglądaj samochody dostępne na aukcjach
+i korzystaj z wyszukiwarki oraz filtrów,
+aby znaleźć interesujący Cię pojazd.
+</p>
+
+</div>
+
+
+<div class="step">
+
+<div class="number">2</div>
+
+<h2>
+Sprawdź szczegóły
+</h2>
+
+<p>
+Otwórz kartę samochodu i sprawdź między
+innymi rok, przebieg, VIN, uszkodzenia,
+lokalizację oraz aktualną ofertę.
+</p>
+
+</div>
+
+
+<div class="step">
+
+<div class="number">3</div>
+
+<h2>
+Podejmij decyzję
+</h2>
+
+<p>
+Po znalezieniu odpowiedniego samochodu
+możesz przejść do źródła aukcji i sprawdzić
+szczegółowe warunki sprzedaży.
+</p>
+
+</div>
+
+</section>
+
+
+<section class="info">
+
+<h2>
+IAAI i Copart w jednym miejscu
+</h2>
+
+<p>
+MTBID ma za zadanie ułatwić wyszukiwanie
+samochodów znajdujących się na amerykańskich
+aukcjach. Zamiast przeglądać wiele stron,
+użytkownik może rozpocząć poszukiwania
+w jednym miejscu.
+</p>
+
+<p>
+Dane prezentowane w serwisie mogą pochodzić
+z zewnętrznych źródeł. Przed podjęciem decyzji
+o zakupie należy zawsze sprawdzić aktualne
+informacje bezpośrednio u organizatora aukcji.
+</p>
+
+</section>
+
+
+<section class="cta">
+
+<h2>
+Gotowy znaleźć samochód?
+</h2>
+
+<p>
+Przejdź do aktualnej listy pojazdów.
+</p>
+
+<a href="index.html" class="button">
+Przeglądaj aukcje →
+</a>
+
+</section>
+
+</main>
+
+
+<footer>
+
+<div class="footer-inner">
+
+<div>
+
+<div class="footer-logo">
+MT<span>BID</span>
+</div>
+
+<div style="margin-top:8px">
+Aukcje samochodów z USA
+</div>
+
+</div>
+
+<div>
+© 2026 MTBID
+</div>
+
+</div>
+
+</footer>
+
+</body>
+</html>
