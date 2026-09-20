@@ -23,10 +23,6 @@ a {
     text-decoration: none;
 }
 
-button {
-    font: inherit;
-}
-
 .topbar {
     background: #111315;
     color: white;
@@ -223,6 +219,10 @@ button {
     font-size: 14px;
 }
 
+.info-row:last-child {
+    border-bottom: 0;
+}
+
 .info-label {
     color: #777d83;
 }
@@ -313,7 +313,6 @@ footer {
 }
 
 @media (max-width: 900px) {
-
     .main-grid {
         grid-template-columns: 1fr;
     }
@@ -328,7 +327,6 @@ footer {
 }
 
 @media (max-width: 600px) {
-
     .nav {
         padding: 15px;
     }
@@ -367,7 +365,6 @@ footer {
 <body>
 
 <header class="topbar">
-
     <div class="nav">
 
         <a href="index.html" class="logo">
@@ -387,7 +384,6 @@ footer {
         </a>
 
     </div>
-
 </header>
 
 <main class="container" id="app">
@@ -400,7 +396,6 @@ footer {
 </main>
 
 <footer>
-
     <div class="footer-inner">
 
         <div class="footer-logo">
@@ -412,7 +407,6 @@ footer {
         </div>
 
     </div>
-
 </footer>
 
 <script>
@@ -422,7 +416,6 @@ const fallbackImage =
 
 
 function safe(value, fallback = "—") {
-
     if (
         value === null ||
         value === undefined ||
@@ -451,16 +444,12 @@ function money(value) {
 
 function getMileage(car) {
 
-    if (
-        car.odometer &&
-        car.odometer.mi !== undefined
-    ) {
-        return Number(car.odometer.mi)
-            .toLocaleString("en-US") + " mi";
-    }
-
     if (car.mileage !== undefined) {
         return car.mileage;
+    }
+
+    if (car.odometer?.mi !== undefined) {
+        return Number(car.odometer.mi).toLocaleString("en-US") + " mi";
     }
 
     return "—";
@@ -469,15 +458,12 @@ function getMileage(car) {
 
 function getPrice(car) {
 
-    if (
-        car.pricing &&
-        car.pricing.current_bid_usd !== undefined
-    ) {
-        return car.pricing.current_bid_usd;
-    }
-
     if (car.price !== undefined) {
         return car.price;
+    }
+
+    if (car.pricing?.current_bid_usd !== undefined) {
+        return car.pricing.current_bid_usd;
     }
 
     return null;
@@ -486,15 +472,12 @@ function getPrice(car) {
 
 function getDamage(car) {
 
-    if (
-        car.condition &&
-        car.condition.primary_damage
-    ) {
-        return car.condition.primary_damage;
-    }
-
     if (car.damage) {
         return car.damage;
+    }
+
+    if (car.condition?.primary_damage) {
+        return car.condition.primary_damage;
     }
 
     return "—";
@@ -503,19 +486,12 @@ function getDamage(car) {
 
 function getLocation(car) {
 
-    if (
-        car.location &&
-        typeof car.location === "object" &&
-        car.location.display
-    ) {
-        return car.location.display;
+    if (typeof car.location === "string") {
+        return car.location;
     }
 
-    if (
-        car.location &&
-        typeof car.location !== "object"
-    ) {
-        return car.location;
+    if (car.location?.display) {
+        return car.location.display;
     }
 
     return "USA";
@@ -528,6 +504,10 @@ function getFuel(car) {
         return car.fuel_type;
     }
 
+    if (car.engine?.fuel_type) {
+        return car.engine.fuel_type;
+    }
+
     return "—";
 }
 
@@ -536,6 +516,10 @@ function getTransmission(car) {
 
     if (car.transmission) {
         return car.transmission;
+    }
+
+    if (car.specs?.transmission) {
+        return car.specs.transmission;
     }
 
     return "—";
@@ -548,6 +532,10 @@ function getDrive(car) {
         return car.drive_type;
     }
 
+    if (car.specs?.drive_type) {
+        return car.specs.drive_type;
+    }
+
     return "—";
 }
 
@@ -558,20 +546,20 @@ function getImages(car) {
 
     if (
         car.media &&
+        Array.isArray(car.media.thumbs)
+    ) {
+        images = car.media.thumbs;
+    }
+
+    if (
+        car.media &&
         Array.isArray(car.media.images)
     ) {
         images = car.media.images;
     }
 
-    if (
-        car.media &&
-        Array.isArray(car.media.thumbs)
-    ) {
-        images = images.concat(car.media.thumbs);
-    }
-
     if (Array.isArray(car.images)) {
-        images = images.concat(car.images);
+        images = car.images;
     }
 
     images = images.filter(Boolean);
@@ -591,9 +579,9 @@ function carTitle(car) {
     }
 
     return (
-        String(safe(car.year, "")) + " " +
-        String(safe(car.make, "")) + " " +
-        String(safe(car.model, ""))
+        safe(car.year, "") + " " +
+        safe(car.make, "") + " " +
+        safe(car.model, "")
     ).trim();
 }
 
@@ -601,15 +589,11 @@ function carTitle(car) {
 function getFavorites() {
 
     try {
-
         return JSON.parse(
             localStorage.getItem("mtbid_favorites") || "[]"
         );
-
     } catch {
-
         return [];
-
     }
 }
 
@@ -620,7 +604,6 @@ function saveFavorites(items) {
         "mtbid_favorites",
         JSON.stringify(items)
     );
-
 }
 
 
@@ -649,13 +632,9 @@ function toggleFavorite(vin) {
 function renderFavoriteButton(vin) {
 
     const button =
-        document.getElementById(
-            "favoriteButton"
-        );
+        document.getElementById("favoriteButton");
 
-    if (!button) {
-        return;
-    }
+    if (!button) return;
 
     const active =
         getFavorites().includes(vin);
@@ -672,54 +651,6 @@ function renderFavoriteButton(vin) {
 }
 
 
-function changeImage(image, element) {
-
-    const mainImage =
-        document.getElementById("mainImage");
-
-    if (mainImage) {
-        mainImage.src = image;
-    }
-
-    document
-        .querySelectorAll(".thumb")
-        .forEach(
-            thumb =>
-                thumb.classList.remove("active")
-        );
-
-    element.classList.add("active");
-}
-
-
-function setupAuctionLink(car) {
-
-    const button =
-        document.getElementById(
-            "auctionButton"
-        );
-
-    if (!button) {
-        return;
-    }
-
-    const url =
-        car.auction_url ||
-        car.url ||
-        car.source_url ||
-        "";
-
-    if (!url) {
-
-        button.style.display = "none";
-
-        return;
-    }
-
-    button.href = url;
-}
-
-
 function renderCar(car) {
 
     const app =
@@ -727,7 +658,6 @@ function renderCar(car) {
 
     const vin =
         car.vin ||
-        car.lot_number ||
         car.lot ||
         "";
 
@@ -738,9 +668,7 @@ function renderCar(car) {
         getPrice(car);
 
     const platform =
-        String(
-            safe(car.platform, "")
-        ).toUpperCase();
+        safe(car.platform, "").toUpperCase();
 
     const title =
         carTitle(car);
@@ -799,7 +727,7 @@ function renderCar(car) {
                             <img
                                 class="thumb ${index === 0 ? "active" : ""}"
                                 src="${image}"
-                                onclick="changeImage('${image.replace(/'/g, "\\'")}', this)"
+                                onclick="changeImage('${image}', this)"
                                 alt="${title}"
                             >
 
@@ -821,6 +749,7 @@ function renderCar(car) {
                     ${money(price)}
                 </div>
 
+
                 <div class="info-row">
                     <span class="info-label">
                         Rok
@@ -830,6 +759,7 @@ function renderCar(car) {
                         ${safe(car.year)}
                     </span>
                 </div>
+
 
                 <div class="info-row">
                     <span class="info-label">
@@ -841,6 +771,7 @@ function renderCar(car) {
                     </span>
                 </div>
 
+
                 <div class="info-row">
                     <span class="info-label">
                         Uszkodzenie
@@ -850,6 +781,7 @@ function renderCar(car) {
                         ${getDamage(car)}
                     </span>
                 </div>
+
 
                 <div class="info-row">
                     <span class="info-label">
@@ -861,6 +793,7 @@ function renderCar(car) {
                     </span>
                 </div>
 
+
                 <div class="info-row">
                     <span class="info-label">
                         Lot
@@ -870,6 +803,7 @@ function renderCar(car) {
                         ${safe(car.lot)}
                     </span>
                 </div>
+
 
                 <a
                     href="#"
@@ -903,6 +837,7 @@ function renderCar(car) {
                     </div>
                 </div>
 
+
                 <div class="detail">
                     <div class="detail-label">
                         Model
@@ -911,6 +846,7 @@ function renderCar(car) {
                         ${safe(car.model)}
                     </div>
                 </div>
+
 
                 <div class="detail">
                     <div class="detail-label">
@@ -921,6 +857,7 @@ function renderCar(car) {
                     </div>
                 </div>
 
+
                 <div class="detail">
                     <div class="detail-label">
                         Skrzynia
@@ -929,6 +866,7 @@ function renderCar(car) {
                         ${getTransmission(car)}
                     </div>
                 </div>
+
 
                 <div class="detail">
                     <div class="detail-label">
@@ -939,6 +877,7 @@ function renderCar(car) {
                     </div>
                 </div>
 
+
                 <div class="detail">
                     <div class="detail-label">
                         Napęd
@@ -947,6 +886,7 @@ function renderCar(car) {
                         ${getDrive(car)}
                     </div>
                 </div>
+
 
                 <div class="detail">
                     <div class="detail-label">
@@ -957,6 +897,7 @@ function renderCar(car) {
                     </div>
                 </div>
 
+
                 <div class="detail">
                     <div class="detail-label">
                         Typ nadwozia
@@ -965,6 +906,7 @@ function renderCar(car) {
                         ${safe(car.body_type)}
                     </div>
                 </div>
+
 
                 <div class="detail">
                     <div class="detail-label">
@@ -984,6 +926,49 @@ function renderCar(car) {
     renderFavoriteButton(vin);
 
     setupAuctionLink(car);
+}
+
+
+function changeImage(image, element) {
+
+    document.getElementById(
+        "mainImage"
+    ).src = image;
+
+    document
+        .querySelectorAll(".thumb")
+        .forEach(
+            thumb =>
+                thumb.classList.remove("active")
+        );
+
+    element.classList.add("active");
+}
+
+
+function setupAuctionLink(car) {
+
+    const button =
+        document.getElementById(
+            "auctionButton"
+        );
+
+    if (!button) return;
+
+    const url =
+        car.auction_url ||
+        car.url ||
+        car.source_url ||
+        "";
+
+    if (!url) {
+
+        button.style.display = "none";
+
+        return;
+    }
+
+    button.href = url;
 }
 
 
@@ -1024,15 +1009,9 @@ async function loadCar() {
 
         /*
          * WAŻNE:
-         *
-         * Nie wysyłamy tutaj:
-         * /api/cars?s=VIN
-         *
-         * Pobieramy działające API dokładnie tak,
-         * jak robi to strona główna.
-         *
-         * Następnie znajdujemy właściwy samochód
-         * po VIN.
+         * Pobieramy całą działającą listę /api/cars.
+         * Nie używamy już ?s=VIN, ponieważ nasz
+         * obecny endpoint zwraca poprawnie listę ofert.
          */
 
         const response =
@@ -1068,13 +1047,18 @@ async function loadCar() {
                 : [];
 
 
+        /*
+         * Szukamy konkretnego samochodu
+         * po VIN w danych, które już działają.
+         */
+
         const car =
             cars.find(
                 item =>
                     String(item.vin || "")
-                        .toUpperCase() ===
+                    .toLowerCase() ===
                     String(vin)
-                        .toUpperCase()
+                    .toLowerCase()
             );
 
 
@@ -1088,24 +1072,14 @@ async function loadCar() {
                         Nie znaleziono samochodu
                     </strong>
 
-                    Samochód o VIN
+                    Oferta o VIN
                     <b>${vin}</b>
                     nie znajduje się obecnie
                     na liście ofert.
 
                     <br><br>
 
-                    <a
-                        href="index.html"
-                        style="
-                            display:inline-block;
-                            padding:10px 16px;
-                            background:#111315;
-                            color:white;
-                            border-radius:7px;
-                            font-weight:800;
-                        "
-                    >
+                    <a href="index.html">
                         ← Wróć do aukcji
                     </a>
 
@@ -1123,10 +1097,9 @@ async function loadCar() {
     } catch (error) {
 
         console.error(
-            "MTBID car.html error:",
+            "MTBID car error:",
             error
         );
-
 
         app.innerHTML = `
 
@@ -1141,17 +1114,7 @@ async function loadCar() {
 
                 <br><br>
 
-                <a
-                    href="index.html"
-                    style="
-                        display:inline-block;
-                        padding:10px 16px;
-                        background:#111315;
-                        color:white;
-                        border-radius:7px;
-                        font-weight:800;
-                    "
-                >
+                <a href="index.html">
                     ← Wróć do aukcji
                 </a>
 
