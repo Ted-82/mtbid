@@ -2,7 +2,6 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // API samochodów
     if (url.pathname === "/api/cars") {
       const cars = [
         {
@@ -121,16 +120,38 @@ export default {
         }
       ];
 
-      return new Response(JSON.stringify(cars), {
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Cache-Control": "no-store"
+      const search = (url.searchParams.get("s") || "")
+        .trim()
+        .toLowerCase();
+
+      let result = cars;
+
+      if (search) {
+        result = cars.filter(car =>
+          String(car.vin).toLowerCase().includes(search) ||
+          String(car.lot).toLowerCase().includes(search) ||
+          String(car.make).toLowerCase().includes(search) ||
+          String(car.model).toLowerCase().includes(search) ||
+          String(car.title).toLowerCase().includes(search)
+        );
+      }
+
+      return new Response(
+        JSON.stringify({
+          ok: true,
+          data: result,
+          demo: true
+        }),
+        {
+          headers: {
+            "Content-Type": "application/json; charset=UTF-8",
+            "Access-Control-Allow-Origin": "*",
+            "Cache-Control": "no-store"
+          }
         }
-      });
+      );
     }
 
-    // Wszystkie pozostałe żądania → pliki z /public
     return env.ASSETS.fetch(request);
   }
 };
