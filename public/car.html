@@ -3,3797 +3,2754 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>Rex.Bid — Oferta samochodu</title>
-
-  <meta
-    name="description"
-    content="Rex.Bid — szczegóły samochodu z aukcji Copart i IAAI."
-  />
+  <title>Rex.Bid — samochód</title>
+  <meta name="description" content="Rex.Bid — szczegóły pojazdu z aukcji Copart i IAAI." />
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     :root {
-      --bg: #0b0d10;
-      --panel: #12161b;
-      --panel2: #181d23;
-      --panel3: #0f1317;
-      --border: #282e36;
-      --border2: #343b45;
-      --text: #f4f6f8;
-      --muted: #9aa3ad;
-      --accent: #ffb000;
-      --accent2: #ffcc55;
-      --green: #35d07f;
-      --red: #ff5d5d;
-      --blue: #55aaff;
+      --bg:#0b0d10;
+      --panel:#12161b;
+      --panel2:#181d23;
+      --border:#282e36;
+      --text:#f4f6f8;
+      --muted:#9aa3ad;
+      --accent:#ffb000;
+      --accent2:#ffd05c;
+      --green:#35d07f;
+      --red:#ff5d5d;
+      --orange:#ff8d3a;
+      --blue:#55aaff;
     }
 
-    html {
-      scroll-behavior: smooth;
-    }
-
+    html { scroll-behavior:smooth; }
     body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family:
-        Inter,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Roboto,
-        Arial,
-        sans-serif;
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
     }
-
-    button,
-    input,
-    select {
-      font: inherit;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    img,
-    video,
-    iframe {
-      max-width: 100%;
-    }
+    body.modal-open { overflow:hidden; }
+    button,input { font:inherit; }
+    button { cursor:pointer; }
+    a { color:inherit; text-decoration:none; }
 
     .container {
-      width: min(1440px, calc(100% - 32px));
-      margin: 0 auto;
+      width:min(1440px,calc(100% - 32px));
+      margin:0 auto;
     }
 
-    /* HEADER */
-
     header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(11, 13, 16, 0.95);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
+      position:sticky;
+      top:0;
+      z-index:100;
+      background:rgba(11,13,16,.94);
+      backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
     }
 
     .header-inner {
-      min-height: 72px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
+      min-height:72px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
     }
 
     .logo {
-      font-size: 28px;
-      font-weight: 900;
-      letter-spacing: -1.5px;
-      white-space: nowrap;
+      font-size:24px;
+      font-weight:900;
+      letter-spacing:-1.4px;
     }
-
-    .logo span {
-      color: var(--accent);
-    }
+    .logo span { color:var(--accent); }
 
     .nav {
-      display: flex;
-      gap: 24px;
-      color: var(--muted);
-      font-size: 14px;
+      display:flex;
+      gap:22px;
+      color:var(--muted);
+      font-size:13px;
     }
+    .nav a:hover { color:#fff; }
 
-    .nav a:hover {
-      color: white;
+    main { padding:18px 0 70px; }
+
+    .back {
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      margin-bottom:14px;
+      color:var(--muted);
+      font-size:12px;
     }
-
-    /* PAGE */
-
-    main {
-      padding: 24px 0 70px;
-    }
-
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 18px;
-    }
-
-    .back-link:hover {
-      color: white;
-    }
-
-    /* TOP */
+    .back:hover { color:#fff; }
 
     .top-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 2fr) minmax(320px, 0.8fr);
-      gap: 18px;
-      align-items: start;
-    }
-
-    /* GALLERY */
-
-    .gallery {
-      min-width: 0;
-    }
-
-    .main-image {
-      position: relative;
-      height: min(620px, 58vw);
-      min-height: 350px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: #07090b;
-    }
-
-    .main-image img,
-    .main-image video {
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: contain;
-      background: #07090b;
-    }
-
-    .main-image-cover img {
-      object-fit: cover;
-    }
-
-    .gallery-badge {
-      position: absolute;
-      top: 14px;
-      left: 14px;
-      z-index: 5;
-      padding: 7px 10px;
-      border-radius: 7px;
-      background: rgba(0, 0, 0, 0.78);
-      color: white;
-      font-size: 11px;
-      font-weight: 800;
-    }
-
-    .gallery-counter {
-      position: absolute;
-      right: 14px;
-      bottom: 14px;
-      z-index: 5;
-      padding: 7px 10px;
-      border-radius: 7px;
-      background: rgba(0, 0, 0, 0.78);
-      color: white;
-      font-size: 11px;
-      font-weight: 800;
-    }
-
-    .gallery-arrow {
-      position: absolute;
-      top: 50%;
-      z-index: 10;
-      width: 44px;
-      height: 44px;
-      transform: translateY(-50%);
-      border: 1px solid rgba(255,255,255,.18);
-      border-radius: 50%;
-      background: rgba(0,0,0,.65);
-      color: white;
-      cursor: pointer;
-      font-size: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .gallery-arrow:hover {
-      background: rgba(255,176,0,.9);
-      color: #111;
-    }
-
-    .gallery-arrow.prev {
-      left: 14px;
-    }
-
-    .gallery-arrow.next {
-      right: 14px;
-    }
-
-    .thumbs {
-      display: grid;
-      grid-template-columns: repeat(8, minmax(0, 1fr));
-      gap: 8px;
-      margin-top: 10px;
-      max-height: 250px;
-      overflow-y: auto;
-      padding-right: 3px;
-    }
-
-    .thumb {
-      position: relative;
-      height: 76px;
-      padding: 0;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--panel2);
-      cursor: pointer;
-    }
-
-    .thumb:hover {
-      border-color: #59616c;
-    }
-
-    .thumb.active {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px var(--accent);
-    }
-
-    .thumb img {
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: cover;
-    }
-
-    .thumb-video::after {
-      content: "▶";
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,.35);
-      font-size: 20px;
-    }
-
-    .thumb-360::after {
-      content: "360°";
-      position: absolute;
-      left: 6px;
-      bottom: 6px;
-      padding: 3px 5px;
-      border-radius: 5px;
-      background: var(--accent);
-      color: #111;
-      font-size: 9px;
-      font-weight: 900;
-    }
-
-    /* MEDIA BUTTONS */
-
-    .media-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .media-btn {
-      min-height: 42px;
-      padding: 0 15px;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      background: var(--panel);
-      color: white;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    .media-btn:hover,
-    .media-btn.active {
-      border-color: var(--accent);
-      background: rgba(255,176,0,.12);
-    }
-
-    .media-btn.accent {
-      border-color: var(--accent);
-      background: var(--accent);
-      color: #111;
-    }
-
-    /* SUMMARY */
-
-    .summary {
-      position: sticky;
-      top: 92px;
-      padding: 18px;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: var(--panel);
-    }
-
-    .summary-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-
-    .platform {
-      display: inline-flex;
-      padding: 6px 9px;
-      border-radius: 6px;
-      background: #050607;
-      color: var(--accent);
-      font-size: 10px;
-      font-weight: 900;
-    }
-
-    .status {
-      padding: 6px 9px;
-      border-radius: 6px;
-      background: rgba(53,208,127,.13);
-      color: var(--green);
-      font-size: 10px;
-      font-weight: 900;
-    }
-
-    .summary h1 {
-      margin: 0 0 15px;
-      font-size: clamp(25px, 3vw, 38px);
-      line-height: 1.05;
-      letter-spacing: -1.2px;
-    }
-
-    .vin-box {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      background: var(--panel2);
-      margin-bottom: 10px;
-    }
-
-    .vin-label {
-      display: block;
-      margin-bottom: 4px;
-      color: var(--muted);
-      font-size: 9px;
-    }
-
-    .vin-value {
-      font-size: 11px;
-      font-weight: 800;
-      word-break: break-all;
-    }
-
-    .copy-btn {
-      flex-shrink: 0;
-      padding: 7px 9px;
-      border: 0;
-      border-radius: 6px;
-      background: #252c34;
-      color: white;
-      cursor: pointer;
-      font-size: 10px;
-      font-weight: 800;
-    }
-
-    .auction-box {
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      background: var(--panel2);
-      margin-bottom: 10px;
-    }
-
-    .auction-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 6px 0;
-      font-size: 11px;
-    }
-
-    .auction-row + .auction-row {
-      border-top: 1px solid var(--border);
-    }
-
-    .auction-row span:first-child {
-      color: var(--muted);
-    }
-
-    .auction-row strong {
-      text-align: right;
-    }
-
-    .price-box {
-      padding: 16px;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      background: rgba(255,176,0,.08);
-      margin-bottom: 10px;
-    }
-
-    .price-label {
-      color: var(--muted);
-      font-size: 10px;
-      margin-bottom: 4px;
-    }
-
-    .price {
-      font-size: 30px;
-      font-weight: 900;
-      letter-spacing: -1px;
-    }
-
-    .button-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .summary-btn {
-      height: 44px;
-      border: 1px solid var(--border2);
-      border-radius: 8px;
-      background: var(--panel2);
-      color: white;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 900;
-    }
-
-    .summary-btn:hover {
-      border-color: var(--accent);
-    }
-
-    .summary-btn.primary {
-      border-color: var(--accent);
-      background: var(--accent);
-      color: #111;
-    }
-
-    /* CONTENT */
-
-    .content-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 2fr) minmax(300px, .65fr);
-      gap: 18px;
-      margin-top: 18px;
-    }
-
-    .left-column,
-    .right-column {
-      min-width: 0;
+      display:grid;
+      grid-template-columns:minmax(0,1.65fr) minmax(320px,.7fr);
+      gap:14px;
+      align-items:start;
     }
 
     .panel {
-      padding: 16px;
-      margin-bottom: 18px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: var(--panel);
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:14px;
+      overflow:hidden;
     }
 
-    .panel h2 {
-      margin: 0 0 15px;
-      font-size: 17px;
+    .gallery {
+      padding:0;
+      background:#080a0c;
+    }
+
+    .main-photo {
+      position:relative;
+      height:min(62vw,560px);
+      min-height:360px;
+      background:#080a0c;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .main-photo img {
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block;
+      user-select:none;
+      -webkit-user-drag:none;
+      cursor:zoom-in;
+    }
+
+    .main-photo .media-label {
+      position:absolute;
+      left:12px;
+      top:12px;
+      padding:7px 10px;
+      border-radius:7px;
+      background:rgba(0,0,0,.76);
+      font-size:11px;
+      font-weight:900;
+      z-index:3;
+    }
+
+    .photo-count {
+      position:absolute;
+      right:12px;
+      bottom:12px;
+      padding:7px 10px;
+      border-radius:7px;
+      background:rgba(0,0,0,.76);
+      font-size:11px;
+      z-index:3;
+    }
+
+    .gallery-arrow {
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      width:42px;
+      height:42px;
+      border:1px solid rgba(255,255,255,.15);
+      border-radius:50%;
+      background:rgba(0,0,0,.6);
+      color:#fff;
+      font-size:25px;
+      z-index:5;
+    }
+    .gallery-arrow:hover { background:rgba(0,0,0,.85); }
+    .gallery-arrow.prev { left:12px; }
+    .gallery-arrow.next { right:12px; }
+
+    .thumb-wrap {
+      padding:8px;
+      border-top:1px solid var(--border);
+      background:#0c0f12;
+    }
+
+    .thumbs {
+      display:grid;
+      grid-template-columns:repeat(8,minmax(0,1fr));
+      gap:6px;
+      max-height:220px;
+      overflow:auto;
+      scrollbar-width:thin;
+    }
+
+    .thumb {
+      position:relative;
+      aspect-ratio:4/3;
+      padding:0;
+      border:1px solid transparent;
+      border-radius:7px;
+      overflow:hidden;
+      background:#101318;
+    }
+    .thumb:hover { border-color:#6d7680; }
+    .thumb.active { border-color:var(--accent); }
+    .thumb img {
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .thumb.hd::after {
+      content:"HD";
+      position:absolute;
+      right:4px;
+      bottom:4px;
+      padding:2px 4px;
+      border-radius:3px;
+      background:rgba(0,0,0,.75);
+      color:#fff;
+      font-size:8px;
+      font-weight:900;
+    }
+
+    .media-toolbar {
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      padding:10px;
+      border-top:1px solid var(--border);
+      background:#0e1115;
+    }
+
+    .media-btn {
+      border:1px solid var(--border);
+      background:var(--panel2);
+      color:#fff;
+      padding:9px 12px;
+      border-radius:8px;
+      font-size:12px;
+      font-weight:800;
+    }
+    .media-btn:hover {
+      border-color:#59616b;
+      background:#20262d;
+    }
+    .media-btn.accent {
+      background:var(--accent);
+      color:#111;
+      border-color:var(--accent);
+    }
+
+    .summary {
+      padding:18px;
+      position:sticky;
+      top:88px;
+    }
+
+    .source-badge {
+      display:inline-flex;
+      padding:6px 9px;
+      border-radius:7px;
+      background:#20262d;
+      color:#fff;
+      font-size:10px;
+      font-weight:900;
+      margin-bottom:12px;
+    }
+
+    .summary h1 {
+      margin:0 0 12px;
+      font-size:27px;
+      line-height:1.05;
+      letter-spacing:-1px;
+    }
+
+    .live {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      margin-left:6px;
+      padding:5px 8px;
+      border-radius:6px;
+      background:rgba(53,208,127,.16);
+      color:var(--green);
+      font-size:10px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+
+    .live-dot {
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:var(--green);
+    }
+
+    .vin-row {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      padding:10px;
+      margin-bottom:10px;
+      background:var(--panel2);
+      border:1px solid var(--border);
+      border-radius:8px;
+    }
+    .vin-row small { color:var(--muted); display:block; font-size:9px; margin-bottom:3px; }
+    .vin-row strong { font-size:11px; word-break:break-all; }
+
+    .copy-btn {
+      flex:none;
+      border:1px solid var(--border);
+      background:#20262d;
+      color:#fff;
+      padding:7px 9px;
+      border-radius:6px;
+      font-size:10px;
+      font-weight:800;
+    }
+
+    .auction-box {
+      border:1px solid var(--border);
+      border-radius:9px;
+      overflow:hidden;
+      margin-bottom:10px;
+    }
+
+    .auction-row {
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:10px;
+      border-bottom:1px solid var(--border);
+    }
+    .auction-row:last-child { border-bottom:0; }
+    .auction-row small { color:var(--muted); display:block; font-size:9px; margin-bottom:3px; }
+    .auction-row strong { font-size:11px; text-align:right; }
+
+    .countdown {
+      color:var(--accent);
+      font-size:18px!important;
+    }
+
+    .price-box {
+      padding:12px;
+      border:1px solid var(--border);
+      border-radius:9px;
+      background:linear-gradient(180deg,#20221f,#171a18);
+      margin-bottom:10px;
+    }
+    .price-box small { color:var(--muted); font-size:9px; }
+    .price {
+      font-size:26px;
+      font-weight:950;
+      margin-top:2px;
+    }
+    .price-sub { color:var(--muted); font-size:9px; margin-top:2px; }
+
+    .action-row {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+    .action {
+      height:42px;
+      border-radius:8px;
+      border:1px solid var(--border);
+      background:var(--panel2);
+      color:#fff;
+      font-weight:800;
+      font-size:11px;
+    }
+    .action.primary {
+      background:var(--accent);
+      color:#111;
+      border-color:var(--accent);
+    }
+
+    .content-grid {
+      display:grid;
+      grid-template-columns:minmax(0,1.65fr) minmax(280px,.7fr);
+      gap:14px;
+      margin-top:14px;
+      align-items:start;
+    }
+
+    .section {
+      padding:14px;
+      margin-bottom:14px;
+    }
+
+    .section-title {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:12px;
+    }
+
+    .section-title h2 {
+      margin:0;
+      font-size:16px;
+    }
+
+    .section-title span {
+      color:var(--muted);
+      font-size:10px;
     }
 
     .spec-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      border-top: 1px solid var(--border);
-      border-left: 1px solid var(--border);
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      border:1px solid var(--border);
+      border-radius:9px;
+      overflow:hidden;
     }
 
     .spec {
-      min-height: 62px;
-      padding: 11px;
-      border-right: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
+      min-width:0;
+      padding:10px;
+      border-right:1px solid var(--border);
+      border-bottom:1px solid var(--border);
+      background:#11151a;
     }
-
-    .spec-label {
-      display: block;
-      margin-bottom: 5px;
-      color: var(--muted);
-      font-size: 9px;
+    .spec:nth-child(3n) { border-right:0; }
+    .spec:nth-last-child(-n+3) { border-bottom:0; }
+    .spec small {
+      display:block;
+      color:var(--muted);
+      font-size:9px;
+      margin-bottom:4px;
     }
-
-    .spec-value {
-      font-size: 12px;
-      font-weight: 800;
-      word-break: break-word;
+    .spec strong {
+      display:block;
+      font-size:11px;
+      line-height:1.35;
+      overflow-wrap:anywhere;
     }
 
     .damage-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
     }
 
-    .damage-box {
-      padding: 13px;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      background: var(--panel2);
+    .damage {
+      padding:13px;
+      border:1px solid var(--border);
+      border-radius:8px;
+      background:var(--panel2);
+    }
+    .damage.main { border-color:#8b3d3d; }
+    .damage small { color:var(--muted); font-size:9px; display:block; margin-bottom:4px; }
+    .damage strong { font-size:13px; }
+    .damage.main strong { color:var(--red); }
+
+    .side-section {
+      padding:14px;
+      margin-bottom:14px;
     }
 
-    .damage-box.primary {
-      border-color: rgba(255,93,93,.5);
+    .side-section h3 {
+      margin:0 0 10px;
+      font-size:14px;
     }
 
-    .damage-label {
-      color: var(--muted);
-      font-size: 9px;
-      margin-bottom: 5px;
+    .kv {
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:9px 0;
+      border-bottom:1px solid var(--border);
+      font-size:10px;
+    }
+    .kv:last-child { border-bottom:0; }
+    .kv span { color:var(--muted); }
+    .kv strong { text-align:right; overflow-wrap:anywhere; }
+
+    .seller-box {
+      padding:12px;
+      border-radius:9px;
+      background:var(--panel2);
+      border:1px solid var(--border);
     }
 
-    .damage-value {
-      font-size: 14px;
-      font-weight: 900;
+    .seller-rating {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:9px;
+      font-weight:900;
+      font-size:12px;
     }
 
-    .damage-box.primary .damage-value {
-      color: var(--red);
+    .risk-dot {
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:#6d747c;
+    }
+    .risk-dot.green { background:var(--green); }
+    .risk-dot.orange { background:var(--orange); }
+    .risk-dot.red { background:var(--red); }
+    .risk-dot.blue { background:var(--blue); }
+
+    .seller-note {
+      color:var(--muted);
+      font-size:10px;
+      line-height:1.5;
     }
 
-    /* MEDIA PANEL */
+    .title-verdict {
+      padding:12px;
+      border-radius:9px;
+      border:1px solid var(--border);
+      background:var(--panel2);
+      margin-bottom:9px;
+    }
+
+    .title-verdict.good { border-color:#276f4b; }
+    .title-verdict.warn { border-color:#7c5b24; }
+    .title-verdict.bad { border-color:#813c3c; }
+    .title-verdict.unknown { border-color:#39414a; }
+
+    .verdict-label {
+      font-size:13px;
+      font-weight:900;
+      margin-bottom:5px;
+    }
+
+    .verdict-text {
+      color:var(--muted);
+      font-size:10px;
+      line-height:1.5;
+    }
+
+    .materials {
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
+    }
+
+    .material {
+      padding:11px;
+      border:1px solid var(--border);
+      border-radius:8px;
+      background:var(--panel2);
+      text-align:center;
+    }
+    .material strong {
+      display:block;
+      font-size:18px;
+      margin-bottom:3px;
+    }
+    .material span {
+      color:var(--muted);
+      font-size:9px;
+    }
 
     .media-panel {
-      display: none;
+      padding:0;
     }
 
-    .media-panel.visible {
-      display: block;
+    .media-view {
+      min-height:360px;
+      background:#07090b;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .media-view iframe,
+    .media-view video {
+      width:100%;
+      height:560px;
+      border:0;
+      background:#000;
     }
 
-    .video-container,
-    .view360-container {
-      overflow: hidden;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: #050607;
-    }
-
-    .video-container video {
-      width: 100%;
-      max-height: 650px;
-      display: block;
-      background: #050607;
-    }
-
-    .view360-container iframe {
-      width: 100%;
-      height: 650px;
-      border: 0;
-      display: block;
-      background: #050607;
-    }
-
-    .media-empty {
-      padding: 55px 20px;
-      text-align: center;
-      color: var(--muted);
-    }
-
-    .media-empty strong {
-      display: block;
-      color: white;
-      margin-bottom: 8px;
-    }
-
-    /* SIDE */
-
-    .side-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 15px;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 11px;
-    }
-
-    .side-row:last-child {
-      border-bottom: 0;
-    }
-
-    .side-row span:first-child {
-      color: var(--muted);
-    }
-
-    .side-row strong {
-      text-align: right;
-    }
-
-    .location-box {
-      padding: 13px;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      background: var(--panel2);
-      font-weight: 800;
-      font-size: 13px;
-    }
-
-    /* LOADING */
-
-    .loading {
-      min-height: 65vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-
-    .spinner {
-      width: 36px;
-      height: 36px;
-      margin: 0 auto 15px;
-      border: 3px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin .8s linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
+    .empty {
+      padding:50px 20px;
+      text-align:center;
+      color:var(--muted);
     }
 
     .error {
-      max-width: 700px;
-      margin: 100px auto;
-      padding: 30px;
-      text-align: center;
-      border: 1px solid rgba(255,93,93,.4);
-      border-radius: 16px;
-      background: var(--panel);
+      margin:30px auto;
+      max-width:800px;
+      padding:25px;
+      border:1px solid #663333;
+      background:#211316;
+      border-radius:12px;
+      color:#ff8d8d;
     }
-
-    .error h2 {
-      color: var(--red);
-    }
-
-    /* FOOTER */
 
     footer {
-      padding: 35px 0;
-      border-top: 1px solid var(--border);
-      color: var(--muted);
-      text-align: center;
-      font-size: 12px;
+      padding:28px 0;
+      border-top:1px solid var(--border);
+      color:var(--muted);
+      text-align:center;
+      font-size:11px;
     }
 
-    /* RESPONSIVE */
+    /* LIGHTBOX */
+    .lightbox {
+      position:fixed;
+      inset:0;
+      z-index:1000;
+      display:none;
+      background:rgba(0,0,0,.94);
+    }
+    .lightbox.open { display:block; }
 
-    @media (max-width: 1100px) {
-      .top-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .summary {
-        position: static;
-      }
-
-      .content-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .right-column {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 18px;
-      }
-
-      .right-column .panel {
-        margin-bottom: 0;
-      }
-
-      .thumbs {
-        grid-template-columns: repeat(6, 1fr);
-      }
+    .lb-top {
+      position:absolute;
+      left:15px;
+      right:15px;
+      top:15px;
+      z-index:5;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
     }
 
-    @media (max-width: 700px) {
-      .container {
-        width: min(100% - 20px, 1440px);
-      }
-
-      .header-inner {
-        min-height: 62px;
-      }
-
-      .nav {
-        display: none;
-      }
-
-      main {
-        padding-top: 15px;
-      }
-
-      .main-image {
-        height: 72vw;
-        min-height: 260px;
-      }
-
-      .thumbs {
-        grid-template-columns: repeat(4, 1fr);
-        max-height: 210px;
-      }
-
-      .thumb {
-        height: 70px;
-      }
-
-      .summary h1 {
-        font-size: 27px;
-      }
-
-      .content-grid {
-        display: block;
-      }
-
-      .right-column {
-        display: block;
-      }
-
-      .right-column .panel {
-        margin-bottom: 18px;
-      }
-
-      .spec-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .damage-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .view360-container iframe {
-        height: 500px;
-      }
+    .lb-info {
+      color:#fff;
+      font-size:12px;
+      padding:8px 10px;
+      background:rgba(20,23,27,.9);
+      border:1px solid #343a42;
+      border-radius:7px;
     }
 
-    @media (max-width: 430px) {
-      .spec-grid {
-        grid-template-columns: 1fr;
-      }
+    .lb-controls {
+      display:flex;
+      gap:6px;
+    }
 
-      .button-row {
-        grid-template-columns: 1fr;
-      }
+    .lb-controls button {
+      width:38px;
+      height:38px;
+      border:1px solid #343a42;
+      border-radius:7px;
+      background:#171b20;
+      color:#fff;
+      font-size:18px;
+      font-weight:800;
+    }
 
-      .media-buttons {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-      }
+    .lb-stage {
+      position:absolute;
+      inset:70px 60px 65px;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      touch-action:none;
+    }
+
+    .lb-stage img {
+      max-width:100%;
+      max-height:100%;
+      object-fit:contain;
+      transform-origin:center center;
+      user-select:none;
+      -webkit-user-drag:none;
+      cursor:grab;
+    }
+    .lb-stage img.dragging { cursor:grabbing; }
+
+    .lb-bottom {
+      position:absolute;
+      left:15px;
+      right:15px;
+      bottom:12px;
+      display:flex;
+      justify-content:center;
+      color:#aaa;
+      font-size:10px;
+    }
+
+    .lightbox-nav {
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      z-index:4;
+      width:44px;
+      height:44px;
+      border:1px solid #343a42;
+      border-radius:50%;
+      background:rgba(20,23,27,.9);
+      color:#fff;
+      font-size:25px;
+    }
+    .lightbox-nav.left { left:10px; }
+    .lightbox-nav.right { right:10px; }
+
+    .viewer-modal {
+      position:fixed;
+      inset:0;
+      z-index:1100;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:rgba(0,0,0,.9);
+      padding:25px;
+    }
+    .viewer-modal.open { display:flex; }
+
+    .viewer-inner {
+      width:min(1200px,100%);
+      height:min(800px,90vh);
+      background:#0c0f13;
+      border:1px solid var(--border);
+      border-radius:12px;
+      overflow:hidden;
+      position:relative;
+    }
+
+    .viewer-close {
+      position:absolute;
+      right:10px;
+      top:10px;
+      z-index:3;
+      width:38px;
+      height:38px;
+      border:1px solid #444;
+      border-radius:8px;
+      background:rgba(0,0,0,.7);
+      color:#fff;
+      font-size:20px;
+    }
+
+    .viewer-inner iframe,
+    .viewer-inner video {
+      width:100%;
+      height:100%;
+      border:0;
+      background:#000;
+    }
+
+    @media (max-width:1050px) {
+      .top-grid,.content-grid { grid-template-columns:1fr; }
+      .summary { position:static; }
+      .spec-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .spec:nth-child(3n) { border-right:1px solid var(--border); }
+      .spec:nth-child(2n) { border-right:0; }
+      .spec:nth-last-child(-n+3) { border-bottom:1px solid var(--border); }
+      .spec:last-child,.spec:nth-last-child(2) { border-bottom:0; }
+    }
+
+    @media (max-width:700px) {
+      .container { width:calc(100% - 20px); }
+      .nav { display:none; }
+      .main-photo { height:62vw; min-height:260px; }
+      .thumbs { grid-template-columns:repeat(5,minmax(0,1fr)); max-height:180px; }
+      .summary h1 { font-size:24px; }
+      .spec-grid { grid-template-columns:1fr 1fr; }
+      .damage-grid { grid-template-columns:1fr; }
+      .media-view iframe,.media-view video { height:55vh; }
+      .lb-stage { inset:70px 12px 65px; }
+      .lightbox-nav.left { left:4px; }
+      .lightbox-nav.right { right:4px; }
     }
   </style>
 </head>
 
 <body>
-
 <header>
   <div class="container header-inner">
-
-    <a href="/" class="logo">
-      Rex<span>.Bid</span>
-    </a>
-
+    <a href="/" class="logo">Rex<span>.Bid</span></a>
     <nav class="nav">
       <a href="/">Samochody</a>
       <a href="/#search">Wyszukiwarka</a>
       <a href="/#results">Aukcje</a>
     </nav>
-
   </div>
 </header>
 
-
 <main>
+  <div class="container">
+    <a class="back" href="/">← Wróć do samochodów</a>
 
-  <div id="loading" class="loading">
-    <div>
-      <div class="spinner"></div>
-      Pobieranie danych samochodu...
+    <div id="page"></div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">Rex.Bid — Vehicle Auction Marketplace</div>
+</footer>
+
+<div id="lightbox" class="lightbox" aria-hidden="true">
+  <div class="lb-top">
+    <div id="lbInfo" class="lb-info">HD</div>
+    <div class="lb-controls">
+      <button id="lbMinus" title="Pomniejsz">−</button>
+      <button id="lbReset" title="Reset">1:1</button>
+      <button id="lbPlus" title="Powiększ">+</button>
+      <button id="lbClose" title="Zamknij">×</button>
     </div>
   </div>
 
-
-  <div id="error" style="display:none"></div>
-
-
-  <div id="page" class="container" style="display:none">
-
-    <a href="/" class="back-link">
-      ← Wróć do samochodów
-    </a>
-
-
-    <!-- =====================================================
-         TOP
-    ====================================================== -->
-
-    <section class="top-grid">
-
-
-      <!-- GALERIA -->
-
-      <div class="gallery">
-
-        <div
-          id="mainImage"
-          class="main-image"
-        >
-
-          <button
-            id="prevButton"
-            class="gallery-arrow prev"
-            type="button"
-          >
-            ‹
-          </button>
-
-          <button
-            id="nextButton"
-            class="gallery-arrow next"
-            type="button"
-          >
-            ›
-          </button>
-
-          <div
-            id="galleryPlatform"
-            class="gallery-badge"
-          >
-            —
-          </div>
-
-          <div
-            id="galleryCounter"
-            class="gallery-counter"
-          >
-            0 / 0
-          </div>
-
-          <img
-            id="mainImg"
-            src=""
-            alt=""
-          />
-
-        </div>
-
-
-        <div
-          id="thumbs"
-          class="thumbs"
-        ></div>
-
-
-        <div
-          id="mediaButtons"
-          class="media-buttons"
-        ></div>
-
-
-        <!-- VIDEO -->
-
-        <section
-          id="videoPanel"
-          class="panel media-panel"
-        >
-
-          <h2>Wideo</h2>
-
-          <div
-            id="videoContainer"
-            class="video-container"
-          ></div>
-
-        </section>
-
-
-        <!-- 360 -->
-
-        <section
-          id="view360Panel"
-          class="panel media-panel"
-        >
-
-          <h2>Widok 360°</h2>
-
-          <div
-            id="view360Container"
-            class="view360-container"
-          ></div>
-
-        </section>
-
-      </div>
-
-
-      <!-- PODSUMOWANIE -->
-
-      <aside class="summary">
-
-        <div class="summary-top">
-
-          <div
-            id="summaryPlatform"
-            class="platform"
-          >
-            —
-          </div>
-
-          <div
-            id="summaryStatus"
-            class="status"
-            style="display:none"
-          >
-            LIVE
-          </div>
-
-        </div>
-
-
-        <h1 id="title">
-          —
-        </h1>
-
-
-        <div class="vin-box">
-
-          <div>
-
-            <span class="vin-label">
-              VIN
-            </span>
-
-            <div
-              id="vin"
-              class="vin-value"
-            >
-              —
-            </div>
-
-          </div>
-
-          <button
-            id="copyVin"
-            class="copy-btn"
-            type="button"
-          >
-            Kopiuj
-          </button>
-
-        </div>
-
-
-        <div class="auction-box">
-
-          <div class="auction-row">
-
-            <span>
-              Aukcja
-            </span>
-
-            <strong id="auctionDate">
-              —
-            </strong>
-
-          </div>
-
-
-          <div class="auction-row">
-
-            <span>
-              Lot
-            </span>
-
-            <strong id="lot">
-              —
-            </strong>
-
-          </div>
-
-
-          <div class="auction-row">
-
-            <span>
-              Sprzedawca
-            </span>
-
-            <strong id="sellerSummary">
-              —
-            </strong>
-
-          </div>
-
-        </div>
-
-
-        <div class="price-box">
-
-          <div class="price-label">
-            Aktualna oferta
-          </div>
-
-          <div
-            id="price"
-            class="price"
-          >
-            —
-          </div>
-
-        </div>
-
-
-        <div class="button-row">
-
-          <button
-            id="copyLink"
-            class="summary-btn"
-            type="button"
-          >
-            Kopiuj link
-          </button>
-
-          <button
-            id="externalAuction"
-            class="summary-btn primary"
-            type="button"
-            style="display:none"
-          >
-            Zobacz aukcję →
-          </button>
-
-        </div>
-
-      </aside>
-
-    </section>
-
-
-    <!-- =====================================================
-         DETAILS
-    ====================================================== -->
-
-    <section class="content-grid">
-
-
-      <div class="left-column">
-
-
-        <!-- DANE -->
-
-        <section class="panel">
-
-          <h2>
-            Dane samochodu
-          </h2>
-
-          <div
-            id="vehicleSpecs"
-            class="spec-grid"
-          ></div>
-
-        </section>
-
-
-        <!-- USZKODZENIA -->
-
-        <section class="panel">
-
-          <h2>
-            Uszkodzenia
-          </h2>
-
-          <div class="damage-grid">
-
-            <div class="damage-box primary">
-
-              <div class="damage-label">
-                Główne uszkodzenie
-              </div>
-
-              <div
-                id="primaryDamage"
-                class="damage-value"
-              >
-                —
-              </div>
-
-            </div>
-
-
-            <div class="damage-box">
-
-              <div class="damage-label">
-                Drugorzędne uszkodzenie
-              </div>
-
-              <div
-                id="secondaryDamage"
-                class="damage-value"
-              >
-                —
-              </div>
-
-            </div>
-
-          </div>
-
-        </section>
-
-
-        <!-- INFORMACJE SPRZEDAWCY -->
-
-        <section class="panel">
-
-          <h2>
-            Sprzedawca
-          </h2>
-
-          <div
-            id="sellerSpecs"
-            class="spec-grid"
-          ></div>
-
-        </section>
-
-
-      </div>
-
-
-      <!-- PRAWA KOLUMNA -->
-
-      <aside class="right-column">
-
-
-        <!-- AUKCJA -->
-
-        <section class="panel">
-
-          <h2>
-            Informacje o aukcji
-          </h2>
-
-          <div id="auctionSpecs"></div>
-
-        </section>
-
-
-        <!-- LOKALIZACJA -->
-
-        <section class="panel">
-
-          <h2>
-            Lokalizacja
-          </h2>
-
-          <div
-            id="location"
-            class="location-box"
-          >
-            —
-          </div>
-
-        </section>
-
-
-        <!-- DOKUMENTY -->
-
-        <section class="panel">
-
-          <h2>
-            Dokumenty / tytuł
-          </h2>
-
-          <div id="titleSpecs"></div>
-
-        </section>
-
-
-        <!-- MEDIA -->
-
-        <section class="panel">
-
-          <h2>
-            Materiały
-          </h2>
-
-          <div id="mediaSpecs"></div>
-
-        </section>
-
-
-      </aside>
-
-    </section>
-
+  <button id="lbPrev" class="lightbox-nav left">‹</button>
+  <button id="lbNext" class="lightbox-nav right">›</button>
+
+  <div id="lbStage" class="lb-stage">
+    <img id="lbImage" alt="" />
   </div>
 
-</main>
+  <div class="lb-bottom">
+    Kółko myszy / przyciski + i − = zoom • przeciągnij zdjęcie po powiększeniu
+  </div>
+</div>
 
-
-<footer>
-  Rex.Bid — Vehicle Auction Marketplace
-</footer>
-
+<div id="viewerModal" class="viewer-modal" aria-hidden="true">
+  <div class="viewer-inner">
+    <button id="viewerClose" class="viewer-close">×</button>
+    <div id="viewerContent"></div>
+  </div>
+</div>
 
 <script>
-  /*
-   ============================================================
-   REX.BID — CAR DETAIL
-   ============================================================
-
-   Ten plik jest celowo samodzielny.
-
-   API:
-     /api/cars?vin=VIN&per_page=1
-
-   Dodatkowo kod obsługuje wiele możliwych struktur:
-     media[]
-     media.items[]
-     media.images[]
-     images[]
-     imageUrls[]
-     image_urls[]
-     videos[]
-     video[]
-     image360Url
-     image_360_url
-     view360
-     vr360
-     etc.
-  */
-
-
   const API_BASE = "/api";
+  const params = new URLSearchParams(location.search);
+  const VIN = (params.get("vin") || "").trim();
+  const LOT = (params.get("lot") || "").trim();
 
-
-  /* ==========================================================
-     ELEMENTY
-  ========================================================== */
-
-  const loading =
-    document.getElementById("loading");
-
-  const errorBox =
-    document.getElementById("error");
-
-  const page =
-    document.getElementById("page");
-
-  const mainImg =
-    document.getElementById("mainImg");
-
-  const mainImage =
-    document.getElementById("mainImage");
-
-  const thumbs =
-    document.getElementById("thumbs");
-
-  const galleryCounter =
-    document.getElementById("galleryCounter");
-
-  const galleryPlatform =
-    document.getElementById("galleryPlatform");
-
-  const mediaButtons =
-    document.getElementById("mediaButtons");
-
-  const videoPanel =
-    document.getElementById("videoPanel");
-
-  const videoContainer =
-    document.getElementById("videoContainer");
-
-  const view360Panel =
-    document.getElementById("view360Panel");
-
-  const view360Container =
-    document.getElementById("view360Container");
-
-
-  /* ==========================================================
-     STAN
-  ========================================================== */
+  const page = document.getElementById("page");
 
   let car = null;
+  let photos = [];
+  let photoIndex = 0;
 
-  let images = [];
+  let zoom = 1;
+  let panX = 0;
+  let panY = 0;
+  let dragging = false;
+  let dragStartX = 0;
+  let dragStartY = 0;
+  let startPanX = 0;
+  let startPanY = 0;
 
-  let videos = [];
-
-  let view360 = [];
-
-  let currentIndex = 0;
-
-
-  /* ==========================================================
-     HELPERY
-  ========================================================== */
-
-  function escapeHtml(value) {
-
-    if (
-      value === null ||
-      value === undefined
-    ) {
-      return "";
-    }
-
-    return String(value)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
+  function esc(v) {
+    if (v === null || v === undefined) return "";
+    return String(v)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
   }
 
+  function isEmpty(v) {
+    return v === null || v === undefined || String(v).trim() === "" ||
+      String(v).trim() === "—" || String(v).trim().toLowerCase() === "null";
+  }
 
-  function firstValue(...values) {
+  function first(...values) {
+    for (const v of values) {
+      if (!isEmpty(v)) return v;
+    }
+    return null;
+  }
 
-    for (const value of values) {
+  function bool(v) {
+    if (v === true || v === 1) return true;
+    if (typeof v === "string") return ["true","yes","1","present","available","actual"].includes(v.toLowerCase());
+    return false;
+  }
 
-      if (
-        value !== undefined &&
-        value !== null &&
-        value !== ""
-      ) {
-        return value;
+  function money(v) {
+    if (isEmpty(v)) return "—";
+    if (typeof v === "string" && /[$€£]/.test(v)) return esc(v);
+    const n = Number(v);
+    if (!Number.isNaN(n)) return "$" + n.toLocaleString("en-US");
+    return esc(v);
+  }
+
+  function nice(v) {
+    if (isEmpty(v)) return "—";
+    return esc(v);
+  }
+
+  function titleCase(v) {
+    if (isEmpty(v)) return "";
+    return String(v)
+      .toLowerCase()
+      .replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  function unwrapResult(json) {
+    if (!json) return null;
+
+    let data = json.data ?? json.result ?? json.vehicle ?? json.car ?? json;
+
+    if (data && data.data && !Array.isArray(data.data)) data = data.data;
+    if (Array.isArray(data)) {
+      if (VIN) {
+        const exact = data.find(x => String(x?.vin || "").toUpperCase() === VIN.toUpperCase());
+        if (exact) return exact;
+      }
+      if (LOT) {
+        const exact = data.find(x => String(x?.lot_number || x?.lot || "").toUpperCase() === LOT.toUpperCase());
+        if (exact) return exact;
+      }
+      return data[0] || null;
+    }
+
+    return data;
+  }
+
+  async function fetchVehicle() {
+    const attempts = [];
+
+    if (VIN) {
+      attempts.push(`${API_BASE}/cars?vin=${encodeURIComponent(VIN)}`);
+      attempts.push(`${API_BASE}/cars?s=${encodeURIComponent(VIN)}&per_page=20`);
+      attempts.push(`${API_BASE}/car?vin=${encodeURIComponent(VIN)}`);
+    }
+
+    if (LOT) {
+      attempts.push(`${API_BASE}/cars?lot=${encodeURIComponent(LOT)}`);
+      attempts.push(`${API_BASE}/cars?s=${encodeURIComponent(LOT)}&per_page=20`);
+      attempts.push(`${API_BASE}/car?lot=${encodeURIComponent(LOT)}`);
+    }
+
+    let lastError = null;
+
+    for (const url of attempts) {
+      try {
+        const response = await fetch(url, {
+          headers: { "Accept":"application/json" }
+        });
+
+        const text = await response.text();
+        let json = null;
+
+        try { json = JSON.parse(text); } catch (_) {}
+
+        if (!response.ok) {
+          lastError = new Error(json?.error || `HTTP ${response.status}`);
+          continue;
+        }
+
+        const result = unwrapResult(json);
+        if (result) return result;
+
+        lastError = new Error("API nie zwróciło samochodu.");
+      } catch (e) {
+        lastError = e;
+      }
+    }
+
+    throw lastError || new Error("Nie udało się pobrać samochodu.");
+  }
+
+  function collectObjects(root, out = []) {
+    if (!root || typeof root !== "object") return out;
+    if (out.includes(root)) return out;
+    out.push(root);
+
+    if (Array.isArray(root)) {
+      root.forEach(x => collectObjects(x, out));
+    } else {
+      Object.values(root).forEach(x => {
+        if (x && typeof x === "object") collectObjects(x, out);
+      });
+    }
+    return out;
+  }
+
+  function findAllByKeys(root, keys) {
+    const wanted = new Set(keys.map(k => k.toLowerCase()));
+    const result = [];
+    for (const obj of collectObjects(root)) {
+      for (const [k,v] of Object.entries(obj)) {
+        if (wanted.has(k.toLowerCase()) && v !== null && v !== undefined) {
+          result.push(v);
+        }
+      }
+    }
+    return result;
+  }
+
+  function normalizeMedia(root) {
+    const found = [];
+    const objects = collectObjects(root);
+
+    function addImage(item) {
+      if (!item) return;
+
+      if (typeof item === "string") {
+        if (/^https?:\/\//i.test(item)) found.push({ type:"image", thumb:item, large:item });
+        return;
       }
 
+      const large = first(item.large, item.hd, item.big, item.original, item.url, item.src);
+      const thumb = first(item.thumb, item.thumbnail, item.small, item.normal, large);
+
+      if (large || thumb) {
+        found.push({ type:"image", thumb:thumb || large, large:large || thumb });
+      }
+    }
+
+    for (const obj of objects) {
+      for (const key of ["items","images","photos","media"]) {
+        const val = obj[key];
+        if (!val) continue;
+
+        if (Array.isArray(val)) {
+          val.forEach(x => {
+            if (x && typeof x === "object" && String(x.type || "").toLowerCase() !== "video" && String(x.type || "").toLowerCase() !== "vr360") {
+              addImage(x);
+            } else if (typeof x === "string") {
+              addImage(x);
+            }
+          });
+        } else if (typeof val === "object") {
+          if (Array.isArray(val.thumbs)) val.thumbs.forEach((x,i) => addImage({ thumb:x, large:val.large?.[i] || val.big?.[i] || x }));
+          if (Array.isArray(val.normal)) val.normal.forEach((x,i) => addImage({ thumb:x, large:val.big?.[i] || x }));
+          if (Array.isArray(val.big)) val.big.forEach(x => addImage({ thumb:x, large:x }));
+          if (Array.isArray(val.images)) val.images.forEach(x => addImage(x));
+          if (Array.isArray(val.items)) val.items.forEach(x => addImage(x));
+        }
+      }
+    }
+
+    const seen = new Set();
+    const unique = [];
+
+    for (const p of found) {
+      const raw = p.large || p.thumb;
+      if (!raw) continue;
+
+      // IAAI imageKeys są prawdziwą tożsamością zdjęcia.
+      // Usuwamy duplikaty thumb/large oraz powtarzające się rekordy.
+      const keyMatch = raw.match(/imageKeys=([^&]+)/i);
+      const key = keyMatch ? keyMatch[1] : raw.replace(/[?&](width|height)=[^&]+/g,"");
+
+      if (seen.has(key)) continue;
+      seen.add(key);
+      unique.push(p);
+    }
+
+    return unique;
+  }
+
+  function findMediaUrl(type) {
+    const objects = collectObjects(car);
+
+    for (const obj of objects) {
+      for (const [key,value] of Object.entries(obj)) {
+        const k = key.toLowerCase();
+
+        if (
+          type === "video" &&
+          ["video","videourl","enginesoundlink","enginesound","enginevideo"].includes(k)
+        ) {
+          if (typeof value === "string" && /^https?:\/\//i.test(value)) return value;
+
+          if (value && typeof value === "object") {
+            const u = first(value.url,value.src,value.large);
+            if (u) return u;
+          }
+        }
+
+        if (
+          type === "vr360" &&
+          ["vr360","link360","360url","panorama","panoramaurl","external_panorama_url"].includes(k)
+        ) {
+          if (typeof value === "string" && /^https?:\/\//i.test(value)) return value;
+
+          if (value && typeof value === "object") {
+            const u = first(value.url,value.src,value.href);
+            if (u) return u;
+          }
+        }
+      }
     }
 
     return null;
   }
 
-
-  function text(value) {
-
-    if (
-      value === null ||
-      value === undefined ||
-      value === ""
-    ) {
-      return "—";
-    }
-
-    if (
-      typeof value === "object"
-    ) {
-
-      return firstValue(
-        value.display,
-        value.name,
-        value.label,
-        value.value,
-        value.text,
-        value.city,
-        value.location
-      ) || "—";
-
-    }
-
-    return String(value);
+  function valueFrom(keys) {
+    const vals = findAllByKeys(car, keys);
+    return first(...vals);
   }
 
-
-  function formatMoney(value) {
-
-    if (
-      value === null ||
-      value === undefined ||
-      value === ""
-    ) {
-      return "—";
-    }
-
-    if (
-      typeof value === "object"
-    ) {
-
-      value =
-        firstValue(
-          value.amount,
-          value.value,
-          value.usd,
-          value.current_bid_usd
-        );
-
-    }
-
-    const number =
-      Number(value);
-
-    if (
-      Number.isNaN(number)
-    ) {
-      return text(value);
-    }
-
-    return "$" +
-      number.toLocaleString("en-US");
-  }
-
-
-  function formatNumber(value) {
-
-    if (
-      value === null ||
-      value === undefined ||
-      value === ""
-    ) {
-      return "—";
-    }
-
-    const number =
-      Number(
-        String(value).replaceAll(",", "")
-      );
-
-    if (
-      Number.isNaN(number)
-    ) {
-      return text(value);
-    }
-
-    return number.toLocaleString("en-US");
-  }
-
-
-  function getVIN(data) {
-
-    return firstValue(
-      data.vin,
-      data.VIN,
-      data.slug_vin,
-      data.vehicle?.vin
+  function sellerName() {
+    return first(
+      valueFrom(["seller","Seller","sellerName","SellerName"]),
+      car.sale_information?.Seller,
+      car.seller?.name,
+      car.seller?.seller_name
     );
   }
 
-
-  function getLot(data) {
-
-    return firstValue(
-      data.lot_number,
-      data.lot,
-      data.stock_number,
-      data.stockNumber,
-      data.stock,
-      data.vehicle?.lot
-    );
-  }
-
-
-  function getTitle(data) {
-
-    const year =
-      firstValue(
-        data.year,
-        data.vehicle?.year
-      );
-
-    const make =
-      firstValue(
-        data.make,
-        data.vehicle?.make
-      );
-
-    const model =
-      firstValue(
-        data.model,
-        data.vehicle?.model
-      );
-
-    const series =
-      firstValue(
-        data.series,
-        data.trim,
-        data.vehicle?.series
-      );
-
-    return [
-      year,
-      make,
-      model,
-      series
-    ]
-      .filter(Boolean)
-      .join(" ")
-      .trim() || "Samochód";
-  }
-
-
-  function getPlatform(data) {
-
+  function platformName() {
     return String(
-      firstValue(
-        data.platform,
-        data.auction_platform,
-        data.source,
-        data.auction?.platform
+      first(
+        car.platform,
+        car.source,
+        valueFrom(["platform","source","Tenant"])
       ) || "—"
     ).toUpperCase();
   }
 
-
-  function getPrice(data) {
-
-    return firstValue(
-      data.pricing?.current_bid_usd,
-      data.pricing?.current_bid,
-      data.current_bid_usd,
-      data.currentBid,
-      data.current_bid,
-      data.price,
-      data.auction?.current_bid,
-      data.auction?.biddingInformation?.currentBid
+  function getVin() {
+    return first(
+      car.vin,
+      valueFrom(["VIN","vin","VINStatus"]),
+      car.slug_vin
     );
   }
 
-
-  function getYear(data) {
-
-    return firstValue(
-      data.year,
-      data.vehicle?.year
+  function getLot() {
+    return first(
+      car.lot_number,
+      car.lot,
+      car.stock_number,
+      valueFrom(["StockNumber","stockNumber","lotNumber"])
     );
   }
 
+  function getTitle() {
+    return first(
+      car.title,
+      valueFrom(["YearMakeModelSeries"]),
+      `${first(car.year,valueFrom(["Year"])) || ""} ${first(car.make,valueFrom(["Make"])) || ""} ${first(car.model,valueFrom(["Model"])) || ""} ${first(valueFrom(["Series"])) || ""}`
+    );
+  }
 
-  function getMileage(data) {
+  function getYear() {
+    return first(car.year,valueFrom(["Year"]));
+  }
 
-    if (
-      data.odometer &&
-      typeof data.odometer === "object"
-    ) {
+  function getMake() {
+    return first(car.make,valueFrom(["Make"]));
+  }
 
-      const mi =
-        firstValue(
-          data.odometer.mi,
-          data.odometer.miles,
-          data.odometer.value
-        );
+  function getModel() {
+    return first(car.model,valueFrom(["Model"]));
+  }
 
-      if (mi !== null) {
-        return formatNumber(mi) + " mi";
-      }
+  function getSeries() {
+    return first(valueFrom(["Series"]));
+  }
 
-    }
+  function getDescription(keyList) {
+    return first(
+      ...keyList.flatMap(k => [
+        car.vehicle_description?.[k],
+        car.vehicle_description?.[k.charAt(0).toUpperCase()+k.slice(1)],
+        car.details?.vehicle_description?.[k],
+        valueFrom([k])
+      ])
+    );
+  }
 
-    const mileage =
-      firstValue(
-        data.mileage,
-        data.miles,
-        data.odometer
+  function getInfo(keyList) {
+    return first(
+      ...keyList.flatMap(k => [
+        car.vehicle_information?.[k],
+        car.vehicle_information?.[k.charAt(0).toUpperCase()+k.slice(1)],
+        valueFrom([k])
+      ])
+    );
+  }
+
+  function getSale(keyList) {
+    return first(
+      ...keyList.flatMap(k => [
+        car.sale_information?.[k],
+        car.sale_information?.[k.charAt(0).toUpperCase()+k.slice(1)],
+        valueFrom([k])
+      ])
+    );
+  }
+
+  function getAuctionBid() {
+    return first(
+      car.pricing?.current_bid_usd,
+      car.current_bid,
+      car.price,
+      car.auction?.current_bid,
+      valueFrom(["currentBid","CurrentBid","bid","Bid","MinimumBidAmount"])
+    );
+  }
+
+  function getBuyNow() {
+    return first(
+      car.pricing?.buy_now_usd,
+      car.buy_now,
+      car.auction?.buy_now,
+      valueFrom(["buyNow","BuyNow","buyNowAmount","buyNowPrice"])
+    );
+  }
+
+  function getAuctionStatus() {
+    return first(
+      car.auction?.state,
+      car.status,
+      valueFrom(["auctionStatus","AuctionStatus","InventoryStatus"])
+    );
+  }
+
+  function formatDate(v) {
+    if (isEmpty(v)) return "—";
+
+    const d = new Date(v);
+
+    if (Number.isNaN(d.getTime())) return esc(v);
+
+    return d.toLocaleString("pl-PL", {
+      year:"numeric",
+      month:"2-digit",
+      day:"2-digit",
+      hour:"2-digit",
+      minute:"2-digit"
+    });
+  }
+
+  function getLocation() {
+    const loc = car.location;
+
+    if (loc && typeof loc === "object") {
+      return first(
+        loc.display,
+        loc.name,
+        loc.city && loc.state ? `${loc.city} (${loc.state})` : null,
+        loc.raw
       );
-
-    if (
-      mileage !== null
-    ) {
-
-      return (
-        formatNumber(mileage) +
-        (
-          data.odometerUnit === "km"
-            ? " km"
-            : " mi"
-        )
-      );
-
     }
 
-    return "—";
-  }
-
-
-  function getDamage(data) {
-
-    return firstValue(
-      data.condition?.primary_damage,
-      data.condition?.primaryDamage,
-      data.primaryDamage,
-      data.damage,
-      data.damage?.primary,
-      data.primary_damage
+    return first(
+      loc,
+      getSale(["SellingBranch"]),
+      valueFrom(["BranchName","Name","branchLink"])
     );
   }
 
-
-  function getSecondaryDamage(data) {
-
-    return firstValue(
-      data.condition?.secondary_damage,
-      data.condition?.secondaryDamage,
-      data.secondaryDamage,
-      data.secondary_damage,
-      data.damage?.secondary
-    );
-  }
-
-
-  function getLocation(data) {
-
-    if (
-      data.location &&
-      typeof data.location === "object"
-    ) {
-
-      return firstValue(
-        data.location.display,
-        data.location.name,
-        data.location.city,
-        data.location.location,
-        [
-          data.location.city,
-          data.location.state
-        ]
-          .filter(Boolean)
-          .join(", ")
-      );
-
-    }
-
-    return firstValue(
-      data.location,
-      data.locationName,
-      data.branch,
-      data.sellingBranch,
-      data.auction?.location
-    );
-  }
-
-
-  function getStatus(data) {
-
-    return firstValue(
-      data.auction?.state,
-      data.auction?.status,
-      data.auctionStatus,
-      data.status,
-      data.inventoryStatus
-    );
-  }
-
-
-  function getSellerName(data) {
-
-    return firstValue(
-      data.sellerName,
-      data.seller,
-      data.seller_name,
-      data.provider?.name,
-      data.providerName
-    );
-  }
-
-
-  function getSellerType(data) {
-
-    return firstValue(
-      data.sellerType,
-      data.seller_type,
-      data.providerType,
-      data.provider_type,
-      data.seller?.type,
-      data.provider?.type
-    );
-  }
-
-
-  function sellerTypeLabel(value) {
-
-    if (!value) {
-      return "—";
-    }
-
-    const code =
-      String(value)
-        .trim()
-        .toUpperCase();
-
-    const labels = {
-
-      INS:
-        "Firma ubezpieczeniowa",
-
-      RCC:
-        "Remarketing",
-
-      DLR:
-        "Dealer",
-
-      COR:
-        "Korporacyjny",
-
-      SDS:
-        "Specjalistyczny",
-
-      SAL:
-        "Salvage",
-
-      ADJ:
-        "Rzeczoznawca / Adjuster",
-
-      GOV:
-        "Administracja / Government",
-
-      FIN:
-        "Firma finansowa",
-
-      INSURANCE:
-        "Firma ubezpieczeniowa",
-
-      DEALER:
-        "Dealer",
-
-      FINANCE:
-        "Firma finansowa",
-
-      NON_INSURANCE:
-        "Nieubezpieczeniowy"
-
-    };
-
-    return labels[code] || text(value);
-  }
-
-
-  /* ==========================================================
-     MEDIA — NORMALIZACJA
-  ========================================================== */
-
-  function addUnique(list, url, extra = {}) {
-
-    if (
-      !url ||
-      typeof url !== "string"
-    ) {
-      return;
-    }
-
-    url = url.trim();
-
-    if (!url) {
-      return;
-    }
-
-    const exists =
-      list.some(
-        item =>
-          item.url === url
-      );
-
-    if (!exists) {
-
-      list.push({
-        url,
-        ...extra
-      });
-
-    }
-  }
-
-
-  function extractUrl(value) {
-
-    if (!value) {
-      return null;
-    }
-
-    if (
-      typeof value === "string"
-    ) {
-      return value;
-    }
-
-    if (
-      typeof value !== "object"
-    ) {
-      return null;
-    }
-
-    return firstValue(
-      value.url,
-      value.src,
-      value.href,
-      value.large,
-      value.hdUrl,
-      value.hd_url,
-      value.imageUrl,
-      value.image_url,
-      value.original,
-      value.full,
-      value.fullUrl,
-      value.medium
-    );
-  }
-
-
-  function processMediaItem(item) {
-
-    if (!item) {
-      return;
-    }
-
-    if (
-      typeof item === "string"
-    ) {
-
-      const lower =
-        item.toLowerCase();
-
-      if (
-        lower.includes(".mp4") ||
-        lower.includes(".webm") ||
-        lower.includes(".mov") ||
-        lower.includes("video")
-      ) {
-
-        addUnique(
-          videos,
-          item
-        );
-
-      } else {
-
-        addUnique(
-          images,
-          item
-        );
-
-      }
-
-      return;
-    }
-
-
-    if (
-      typeof item !== "object"
-    ) {
-      return;
-    }
-
-
-    const type =
-      String(
-        firstValue(
-          item.type,
-          item.mediaType,
-          item.kind,
-          item.category
-        ) || ""
-      ).toLowerCase();
-
-
-    const url =
-      extractUrl(item);
-
-
-    if (
-      type.includes("video") ||
-      type === "movie"
-    ) {
-
-      if (url) {
-        addUnique(videos, url);
-      }
-
-      return;
-    }
-
-
-    if (
-      type.includes("360") ||
-      type.includes("vr")
-    ) {
-
-      if (url) {
-        addUnique(view360, url);
-      }
-
-      return;
-    }
-
-
-    if (url) {
-      addUnique(images, url);
-    }
-  }
-
-
-  function collectMedia(data) {
-
-    images = [];
-    videos = [];
-    view360 = [];
-
-
-    /*
-      GŁÓWNE POLE IMAGE
-    */
-
-    [
-      data.image,
-      data.imageUrl,
-      data.image_url,
-      data.primaryImageUrl,
-      data.primary_image_url,
-      data.mainImage,
-      data.main_image
-    ]
-      .forEach(
-        url => {
-
-          if (url) {
-            addUnique(
-              images,
-              extractUrl(url)
-            );
-          }
-
-        }
-      );
-
-
-    /*
-      TABLICE ZDJĘĆ
-    */
-
-    const imageArrays = [
-
-      data.images,
-
-      data.imageUrls,
-
-      data.image_urls,
-
-      data.photos,
-
-      data.photoUrls,
-
-      data.photo_urls,
-
-      data.gallery,
-
-      data.media?.images,
-
-      data.media?.photos,
-
-      data.media?.thumbs,
-
-      data.media?.items,
-
-      data.media
-
-    ];
-
-
-    imageArrays.forEach(
-      array => {
-
-        if (
-          Array.isArray(array)
-        ) {
-
-          array.forEach(
-            item => {
-
-              processMediaItem(item);
-
-            }
-          );
-
-        }
-
-      }
-    );
-
-
-    /*
-      WIDEO
-    */
-
-    const videoArrays = [
-
-      data.video,
-
-      data.videos,
-
-      data.videoUrl,
-
-      data.video_url,
-
-      data.videoUrls,
-
-      data.video_urls,
-
-      data.media?.video,
-
-      data.media?.videos,
-
-      data.media?.videoUrl,
-
-      data.media?.video_url
-
-    ];
-
-
-    videoArrays.forEach(
-      item => {
-
-        if (
-          Array.isArray(item)
-        ) {
-
-          item.forEach(
-            value => {
-
-              const url =
-                extractUrl(value);
-
-              if (url) {
-                addUnique(
-                  videos,
-                  url
-                );
-              }
-
-            }
-          );
-
-        } else {
-
-          const url =
-            extractUrl(item);
-
-          if (url) {
-            addUnique(
-              videos,
-              url
-            );
-          }
-
-        }
-
-      }
-    );
-
-
-    /*
-      360
-    */
-
-    const view360Values = [
-
-      data.image360Url,
-
-      data.image360URL,
-
-      data.image_360_url,
-
-      data.view360,
-
-      data.view360Url,
-
-      data.view_360,
-
-      data.vr360,
-
-      data.vr360Url,
-
-      data.vr360_url,
-
-      data.threeSixty,
-
-      data.threeSixtyUrl,
-
-      data.three_sixty_url,
-
-      data.media?.image360Url,
-
-      data.media?.image360,
-
-      data.media?.view360,
-
-      data.media?.view360Url,
-
-      data.media?.vr360,
-
-      data.media?.threeSixty
-
-    ];
-
-
-    view360Values.forEach(
-      value => {
-
-        if (
-          Array.isArray(value)
-        ) {
-
-          value.forEach(
-            item => {
-
-              const url =
-                extractUrl(item);
-
-              if (url) {
-                addUnique(
-                  view360,
-                  url
-                );
-              }
-
-            }
-          );
-
-        } else {
-
-          const url =
-            extractUrl(value);
-
-          if (url) {
-            addUnique(
-              view360,
-              url
-            );
-          }
-
-        }
-
-      }
-    );
-
-
-    /*
-      MEDIA ITEMS — DODATKOWA ANALIZA
-    */
-
-    const mediaItems = [
-
-      data.media,
-
-      data.media?.items,
-
-      data.media?.assets,
-
-      data.assets,
-
-      data.mediaItems
-
-    ];
-
-
-    mediaItems.forEach(
-      value => {
-
-        if (
-          Array.isArray(value)
-        ) {
-
-          value.forEach(
-            item => {
-
-              const type =
-                String(
-                  firstValue(
-                    item?.type,
-                    item?.mediaType,
-                    item?.kind
-                  ) || ""
-                ).toLowerCase();
-
-
-              const url =
-                extractUrl(item);
-
-
-              if (
-                type.includes("video")
-              ) {
-
-                if (url) {
-                  addUnique(
-                    videos,
-                    url
-                  );
-                }
-
-              } else if (
-                type.includes("360") ||
-                type.includes("vr")
-              ) {
-
-                if (url) {
-                  addUnique(
-                    view360,
-                    url
-                  );
-                }
-
-              } else if (url) {
-
-                addUnique(
-                  images,
-                  url
-                );
-
-              }
-
-            }
-          );
-
-        }
-
-      }
-    );
-
-
-    /*
-      USUWANIE EWENTUALNYCH DUPLIKATÓW
-      PO NORMALIZACJI URL
-    */
-
-    function normalizeUrl(url) {
-
-      try {
-
-        const parsed =
-          new URL(url);
-
-        parsed.hash = "";
-
-        return parsed.toString();
-
-      } catch {
-
-        return url
-          .split("#")[0];
-
-      }
-
-    }
-
-
-    const uniqueImages =
-      new Map();
-
-
-    images.forEach(
-      item => {
-
-        const key =
-          normalizeUrl(item.url);
-
-        if (
-          !uniqueImages.has(key)
-        ) {
-          uniqueImages.set(
-            key,
-            item
-          );
-        }
-
-      }
-    );
-
-
-    images =
-      Array.from(
-        uniqueImages.values()
-      );
-
-
-    const uniqueVideos =
-      new Map();
-
-
-    videos.forEach(
-      item => {
-
-        const key =
-          normalizeUrl(item.url);
-
-        if (
-          !uniqueVideos.has(key)
-        ) {
-          uniqueVideos.set(
-            key,
-            item
-          );
-        }
-
-      }
-    );
-
-
-    videos =
-      Array.from(
-        uniqueVideos.values()
-      );
-
-
-    const unique360 =
-      new Map();
-
-
-    view360.forEach(
-      item => {
-
-        const key =
-          normalizeUrl(item.url);
-
-        if (
-          !unique360.has(key)
-        ) {
-          unique360.set(
-            key,
-            item
-          );
-        }
-
-      }
-    );
-
-
-    view360 =
-      Array.from(
-        unique360.values()
-      );
-
-
-    /*
-      JEŻELI NIE MA ZDJĘĆ, ALE JEST imageUrl
-      — JESZCZE RAZ
-    */
-
-    if (
-      images.length === 0
-    ) {
-
-      const fallback =
-        firstValue(
-          data.imageUrl,
-          data.primaryImageUrl,
-          data.image
-        );
-
-      if (fallback) {
-        addUnique(
-          images,
-          extractUrl(fallback)
-        );
-      }
-
-    }
-
-  }
-
-
-  /* ==========================================================
-     RENDER GALERII
-  ========================================================== */
-
-  function renderMainImage() {
-
-    if (
-      images.length === 0
-    ) {
-
-      mainImg.style.display =
-        "none";
-
-      galleryCounter.textContent =
-        "Brak zdjęć";
-
-      return;
-    }
-
-
-    const item =
-      images[currentIndex];
-
-
-    mainImg.style.display =
-      "block";
-
-    mainImg.src =
-      item.url;
-
-    mainImg.alt =
-      getTitle(car);
-
-
-    galleryCounter.textContent =
-      `${currentIndex + 1} / ${images.length}`;
-
-
-    document
-      .querySelectorAll(".thumb")
-      .forEach(
-        (button, index) => {
-
-          button.classList.toggle(
-            "active",
-            index === currentIndex
-          );
-
-        }
-      );
-
-
-    mainImg.onerror =
-      function() {
-
-        this.style.display =
-          "none";
-
-      };
-
-  }
-
-
-  function renderThumbs() {
-
-    thumbs.innerHTML = "";
-
-
-    images.forEach(
-      (item, index) => {
-
-        const button =
-          document.createElement("button");
-
-        button.type =
-          "button";
-
-        button.className =
-          "thumb";
-
-
-        const img =
-          document.createElement("img");
-
-        img.src =
-          item.url;
-
-        img.alt =
-          `Zdjęcie ${index + 1}`;
-
-        img.loading =
-          "lazy";
-
-
-        button.appendChild(img);
-
-
-        button.addEventListener(
-          "click",
-          () => {
-
-            currentIndex =
-              index;
-
-            renderMainImage();
-
-          }
-        );
-
-
-        thumbs.appendChild(
-          button
-        );
-
-      }
-    );
-
-
-    renderMainImage();
-
-  }
-
-
-  function nextImage() {
-
-    if (
-      images.length === 0
-    ) {
-      return;
-    }
-
-    currentIndex =
-      (
-        currentIndex + 1
-      ) % images.length;
-
-    renderMainImage();
-
-  }
-
-
-  function previousImage() {
-
-    if (
-      images.length === 0
-    ) {
-      return;
-    }
-
-    currentIndex =
-      (
-        currentIndex - 1 + images.length
-      ) % images.length;
-
-    renderMainImage();
-
-  }
-
-
-  document
-    .getElementById("nextButton")
-    .addEventListener(
-      "click",
-      nextImage
-    );
-
-
-  document
-    .getElementById("prevButton")
-    .addEventListener(
-      "click",
-      previousImage
-    );
-
-
-  document.addEventListener(
-    "keydown",
-    event => {
-
-      if (
-        event.key === "ArrowRight"
-      ) {
-        nextImage();
-      }
-
-      if (
-        event.key === "ArrowLeft"
-      ) {
-        previousImage();
-      }
-
-    }
-  );
-
-
-  /* ==========================================================
-     MEDIA BUTTONS
-  ========================================================== */
-
-  function renderMediaButtons() {
-
-    mediaButtons.innerHTML = "";
-
-
-    if (
-      videos.length
-    ) {
-
-      const button =
-        document.createElement("button");
-
-      button.type =
-        "button";
-
-      button.className =
-        "media-btn";
-
-      button.textContent =
-        `▶ Wideo (${videos.length})`;
-
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          videoPanel.classList.add(
-            "visible"
-          );
-
-          videoPanel.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-          });
-
-        }
-      );
-
-
-      mediaButtons.appendChild(
-        button
-      );
-
-    }
-
-
-    if (
-      view360.length
-    ) {
-
-      const button =
-        document.createElement("button");
-
-      button.type =
-        "button";
-
-      button.className =
-        "media-btn accent";
-
-      button.textContent =
-        `↻ Widok 360°`;
-
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          show360();
-
-          view360Panel.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-          });
-
-        }
-      );
-
-
-      mediaButtons.appendChild(
-        button
-      );
-
-    }
-
-
-    if (
-      videos.length === 0 &&
-      view360.length === 0
-    ) {
-
-      /*
-        Nie pokazujemy fałszywych przycisków.
-        Zostawiamy informację tylko w panelu materiałów.
-      */
-
-    }
-
-  }
-
-
-  /* ==========================================================
-     VIDEO
-  ========================================================== */
-
-  function renderVideo() {
-
-    videoContainer.innerHTML = "";
-
-
-    if (
-      videos.length === 0
-    ) {
-
-      videoContainer.innerHTML = `
-        <div class="media-empty">
-          <strong>Brak wideo</strong>
-          Dla tej oferty API nie zwróciło materiału wideo.
-        </div>
-      `;
-
-      return;
-    }
-
-
-    const video =
-      document.createElement("video");
-
-    video.controls =
-      true;
-
-    video.playsInline =
-      true;
-
-    video.preload =
-      "metadata";
-
-
-    const source =
-      document.createElement("source");
-
-    source.src =
-      videos[0].url;
-
-
-    video.appendChild(
-      source
-    );
-
-
-    videoContainer.appendChild(
-      video
-    );
-
-
-    if (
-      videos.length > 1
-    ) {
-
-      const info =
-        document.createElement("div");
-
-      info.style.padding =
-        "10px";
-
-      info.style.color =
-        "var(--muted)";
-
-      info.style.fontSize =
-        "12px";
-
-      info.textContent =
-        `Dostępnych materiałów wideo: ${videos.length}`;
-
-
-      videoContainer.appendChild(
-        info
-      );
-
-    }
-
-  }
-
-
-  /* ==========================================================
-     360
-  ========================================================== */
-
-  function show360() {
-
-    view360Panel.classList.add(
-      "visible"
-    );
-
-
-    view360Container.innerHTML = "";
-
-
-    if (
-      view360.length === 0
-    ) {
-
-      view360Container.innerHTML = `
-        <div class="media-empty">
-          <strong>Brak widoku 360°</strong>
-          Dla tej oferty API nie zwróciło adresu widoku 360°.
-        </div>
-      `;
-
-      return;
-    }
-
-
-    const url =
-      view360[0].url;
-
-
-    /*
-      IAA zwykle zwraca gotowy adres
-      ThreeSixtyView, który można otworzyć
-      w iframe.
-    */
-
-    const iframe =
-      document.createElement("iframe");
-
-    iframe.src =
-      url;
-
-    iframe.loading =
-      "lazy";
-
-    iframe.allow =
-      "fullscreen";
-
-    iframe.setAttribute(
-      "allowfullscreen",
-      ""
-    );
-
-
-    view360Container.appendChild(
-      iframe
-    );
-
-  }
-
-
-  /* ==========================================================
-     SPEC
-  ========================================================== */
-
-  function spec(
-    label,
-    value
-  ) {
+  function field(label, value) {
+    if (isEmpty(value)) return "";
 
     return `
       <div class="spec">
-
-        <span class="spec-label">
-          ${escapeHtml(label)}
-        </span>
-
-        <div class="spec-value">
-          ${escapeHtml(text(value))}
-        </div>
-
+        <small>${esc(label)}</small>
+        <strong>${nice(value)}</strong>
       </div>
     `;
-
   }
 
-
-  function sideRow(
-    label,
-    value
-  ) {
+  function kv(label, value) {
+    if (isEmpty(value)) return "";
 
     return `
-      <div class="side-row">
+      <div class="kv">
+        <span>${esc(label)}</span>
+        <strong>${nice(value)}</strong>
+      </div>
+    `;
+  }
 
-        <span>
-          ${escapeHtml(label)}
-        </span>
+  function sellerProfile(name) {
+    const s = String(name || "").toLowerCase();
 
-        <strong>
-          ${escapeHtml(text(value))}
-        </strong>
+    const type = String(
+      first(
+        valueFrom(["seller_type","sellerType","SellerType","ProviderType"]),
+        valueFrom(["Origin"])
+      ) || ""
+    ).toLowerCase();
 
+    if (!name && !type) {
+      return {
+        label:"Brak danych o sprzedawcy",
+        cls:"",
+        note:"Aukcja nie przekazała wystarczających danych, aby sklasyfikować sprzedawcę."
+      };
+    }
+
+    if (
+      /insurance|ubezpiec|ins\b|rcc/.test(type) ||
+      /insurance|progressive|state farm|geico|allstate/.test(s)
+    ) {
+      return {
+        label:"Ubezpieczyciel / salvage",
+        cls:"red",
+        note:"Profil wynika z danych aukcyjnych. To nie jest ocena reputacji konkretnej firmy."
+      };
+    }
+
+    if (
+      /fleet|lease|rental|remarketing|enterprise|hertz|avis|alamo/.test(
+        s + " " + type
+      )
+    ) {
+      return {
+        label:"Flota / leasing / remarketing",
+        cls:"blue",
+        note:"Sprzedawca wygląda na podmiot flotowy lub remarketingowy. To zwykle inny profil niż prywatny handlarz."
+      };
+    }
+
+    if (/dealer|dealership|dealer/.test(s + " " + type)) {
+      return {
+        label:"Dealer / handlarz",
+        cls:"orange",
+        note:"Źródło aukcyjne klasyfikuje sprzedawcę jako dealer/handel. Nie oznacza to samo w sobie nieuczciwości."
+      };
+    }
+
+    if (/private|individual|prywat/.test(s + " " + type)) {
+      return {
+        label:"Sprzedawca prywatny",
+        cls:"green",
+        note:"Profil wygląda na prywatny na podstawie dostępnych danych aukcyjnych."
+      };
+    }
+
+    return {
+      label:"Sprzedawca zewnętrzny",
+      cls:"",
+      note:"Brak wystarczających danych, aby rzetelnie określić reputację sprzedawcy."
+    };
+  }
+
+  function titleRegistration(titleText, brand, state, notes, titleCode) {
+    const t =
+      `${titleText || ""} ${brand || ""} ${state || ""} ${notes || ""} ${titleCode || ""}`
+        .toLowerCase();
+
+    if (
+      /parts only|parts-only|parts only title|scrap|junk|non repairable|non-repairable|certificate of destruction|destruction/.test(t)
+    ) {
+      return {
+        cls:"bad",
+        label:"🔴 Duże ryzyko rejestracji",
+        text:"Dokument wygląda na taki, który może uniemożliwiać legalne zarejestrowanie pojazdu w Polsce."
+      };
+    }
+
+    if (
+      /bill of sale|billofsale|rebuildable|salvage|rebuilt|rebuilt title|flood|certificate of salvage/.test(t)
+    ) {
+      return {
+        cls:"warn",
+        label:"🟡 Wymaga dokładnej weryfikacji",
+        text:"Typ dokumentu lub marka title może wymagać dodatkowych dokumentów i indywidualnej weryfikacji przed zakupem. Rex.Bid nie daje gwarancji rejestracji."
+      };
+    }
+
+    if (/clean|clear|clean title|clear title/.test(t)) {
+      return {
+        cls:"good",
+        label:"🟢 Dokument wygląda korzystnie",
+        text:"Dane aukcji wskazują na CLEAR/CLEAN, ale ostateczna możliwość rejestracji zależy od dokumentu, stanu, kraju/województwa oraz polskiej procedury rejestracyjnej."
+      };
+    }
+
+    return {
+      cls:"unknown",
+      label:"⚪ Nie można ocenić",
+      text:"Brakuje wystarczających informacji o title. Przed zakupem trzeba zweryfikować oryginalny dokument."
+    };
+  }
+
+  function buildPage() {
+    const vin = getVin();
+    const lot = getLot();
+    const title = getTitle();
+    const seller = sellerName();
+    const sellerInfo = sellerProfile(seller);
+
+    const year = getYear();
+    const make = getMake();
+    const model = getModel();
+    const series = getSeries();
+
+    const primaryDamage = first(
+      car.condition?.primary_damage,
+      car.damage?.main,
+      getInfo(["PrimaryDamage"]),
+      valueFrom(["PrimaryDamageDesc"])
+    );
+
+    const secondaryDamage = first(
+      car.condition?.secondary_damage,
+      car.damage?.second,
+      getInfo(["SecondaryDamage"]),
+      valueFrom(["SecondaryDamageDesc"])
+    );
+
+    const titleDoc = first(
+      getInfo(["TitleSaleDoc"]),
+      getSale(["TitleSaleDoc"]),
+      valueFrom(["Title"])
+    );
+
+    const titleBrand = first(
+      getInfo(["TitleSaleDocBrand"]),
+      getSale(["Brand"]),
+      valueFrom(["TitleBrand"])
+    );
+
+    const titleNotes = first(
+      getInfo(["TitleSaleDocNotes"]),
+      getSale(["Notes"]),
+      valueFrom(["TitleNotes"])
+    );
+
+    const titleState = first(
+      valueFrom(["TitleStateName","TitleState","CertState"])
+    );
+
+    const titleCode = first(
+      valueFrom(["TitleCode"])
+    );
+
+    const verdict = titleRegistration(
+      titleDoc,
+      titleBrand,
+      titleState,
+      titleNotes,
+      titleCode
+    );
+
+    const image360 = findMediaUrl("vr360");
+    const video = findMediaUrl("video");
+
+    const date = first(
+      car.auction?.full_date,
+      car.auction?.auction_at,
+      getSale(["AuctionDateTime"]),
+      valueFrom(["AuctionDateTime"])
+    );
+
+    const location = getLocation();
+
+    const odometer = first(
+      car.odometer?.display,
+      car.odometer?.mi !== undefined
+        ? `${Number(car.odometer.mi).toLocaleString("en-US")} mi`
+        : null,
+      getInfo(["Odometer"]),
+      valueFrom(["ODOValue"])
+        ? `${valueFrom(["ODOValue"])} ${valueFrom(["ODOUoM"]) || "mi"} (${valueFrom(["ODOBrand"]) || ""})`
+        : null
+    );
+
+    const runDrive = first(
+      car.condition?.run_and_drive,
+      getInfo(["StartCode"]),
+      valueFrom(["RunAndDrive","StartsDesc","StartsCode"])
+    );
+
+    const keys = first(
+      getInfo(["KeySlashFob"]),
+      valueFrom(["Keys","KeyFOB"])
+    );
+
+    const airbags = first(
+      getInfo(["Airbags"]),
+      valueFrom(["AirbagState","DriverPassengerAirbag"])
+    );
+
+    const mediaCount = photos.length;
+
+    page.innerHTML = `
+      <div class="top-grid">
+        <section class="panel gallery">
+          <div class="main-photo" id="mainPhoto">
+            <div class="media-label">${esc(platformName())}</div>
+
+            <button
+              class="gallery-arrow prev"
+              id="prevPhoto"
+              aria-label="Poprzednie zdjęcie"
+            >‹</button>
+
+            <button
+              class="gallery-arrow next"
+              id="nextPhoto"
+              aria-label="Następne zdjęcie"
+            >›</button>
+
+            <img
+              id="mainImage"
+              alt="${esc(title)}"
+            />
+
+            <div
+              class="photo-count"
+              id="photoCount"
+            ></div>
+          </div>
+
+          <div class="thumb-wrap">
+            <div
+              class="thumbs"
+              id="thumbs"
+            ></div>
+          </div>
+
+          <div class="media-toolbar">
+            <button
+              class="media-btn accent"
+              id="openHd"
+            >
+              HD / Powiększ
+            </button>
+
+            ${
+              video
+                ? `
+                  <button
+                    class="media-btn"
+                    id="openVideo"
+                  >
+                    ▶ Wideo
+                  </button>
+                `
+                : ""
+            }
+
+            ${
+              image360
+                ? `
+                  <button
+                    class="media-btn"
+                    id="open360"
+                  >
+                    ↻ Widok 360°
+                  </button>
+                `
+                : ""
+            }
+          </div>
+        </section>
+
+        <aside class="panel summary">
+
+          <div class="source-badge">
+            ${esc(platformName())}
+          </div>
+
+          <h1>
+            ${esc(title || `${year || ""} ${make || ""} ${model || ""}`)}
+
+            ${
+              String(getAuctionStatus() || "").toLowerCase() === "open"
+                ? `
+                  <span class="live">
+                    <span class="live-dot"></span>
+                    LIVE
+                  </span>
+                `
+                : ""
+            }
+          </h1>
+
+          <div class="vin-row">
+            <div>
+              <small>VIN</small>
+              <strong>${esc(vin || "—")}</strong>
+            </div>
+
+            <button
+              class="copy-btn"
+              id="copyVin"
+            >
+              Kopiuj
+            </button>
+          </div>
+
+          <div class="auction-box">
+            ${kv("Aukcja", formatDate(date))}
+            ${kv("LOT", lot)}
+            ${kv("Status", getAuctionStatus())}
+            ${kv("Lokalizacja", location)}
+
+            ${
+              getSale(["Lane"])
+                ? kv("Lane", getSale(["Lane"]))
+                : ""
+            }
+
+            ${
+              getSale(["Aisle"])
+                ? kv("Aisle", getSale(["Aisle"]))
+                : ""
+            }
+          </div>
+
+          ${
+            car.auction?.countdown
+              ? `
+                <div class="auction-box">
+                  <div class="auction-row">
+                    <div>
+                      <small>Do rozpoczęcia / końca</small>
+                    </div>
+
+                    <strong
+                      class="countdown"
+                      id="countdown"
+                    >
+                      —
+                    </strong>
+                  </div>
+                </div>
+              `
+              : ""
+          }
+
+          <div class="price-box">
+            <small>Aktualna oferta</small>
+
+            <div class="price">
+              ${money(getAuctionBid())}
+            </div>
+
+            <div class="price-sub">
+              ${
+                getBuyNow()
+                  ? `Buy Now: ${money(getBuyNow())}`
+                  : "Cena z aukcji, jeśli została przekazana"
+              }
+            </div>
+          </div>
+
+          <div class="action-row">
+            <button
+              class="action"
+              id="copyLink"
+            >
+              Kopiuj link
+            </button>
+
+            <button
+              class="action primary"
+              id="scrollInfo"
+            >
+              Szczegóły auta
+            </button>
+          </div>
+        </aside>
+      </div>
+
+      <div class="content-grid">
+        <div>
+
+          <section
+            class="panel section"
+            id="details"
+          >
+            <div class="section-title">
+              <h2>Dane samochodu</h2>
+
+              <span>
+                ${mediaCount} unikalnych zdjęć
+              </span>
+            </div>
+
+            <div class="spec-grid">
+              ${field("Rok",year)}
+              ${field("Marka",make)}
+              ${field("Model",model)}
+              ${field("Wersja / seria",series)}
+              ${field("VIN",vin)}
+
+              ${field(
+                "Nadwozie",
+                getDescription(["BodyStyle","BodyStyleName"])
+              )}
+
+              ${field(
+                "Typ pojazdu",
+                getDescription([
+                  "Vehicle",
+                  "VehicleClass",
+                  "InventoryType"
+                ])
+              )}
+
+              ${field(
+                "Silnik",
+                getDescription([
+                  "Engine",
+                  "EngineSize",
+                  "EngineInformation"
+                ])
+              )}
+
+              ${field(
+                "Skrzynia",
+                getDescription([
+                  "Transmission",
+                  "TransmissionDesc"
+                ])
+              )}
+
+              ${field(
+                "Napęd",
+                getDescription([
+                  "DriveLineType",
+                  "DriveLineTypeDesc"
+                ])
+              )}
+
+              ${field(
+                "Paliwo",
+                getDescription([
+                  "FuelType",
+                  "FuelTypeDesc"
+                ])
+              )}
+
+              ${field(
+                "Cylindry",
+                getDescription([
+                  "Cylinders",
+                  "CylindersDesc"
+                ])
+              )}
+
+              ${field("Przebieg",odometer)}
+
+              ${field(
+                "Status przebiegu",
+                valueFrom(["ODOBrand"])
+              )}
+
+              ${field(
+                "Kolor zewnętrzny",
+                valueFrom(["ExteriorColor"])
+              )}
+
+              ${field(
+                "Kolor wnętrza",
+                valueFrom(["InteriorColor"])
+              )}
+
+              ${field(
+                "Kolor",
+                getDescription(["ExteriorInterior"])
+              )}
+
+              ${field("Kluczyki",keys)}
+              ${field("Run & Drive",runDrive)}
+              ${field("Airbagi",airbags)}
+
+              ${field(
+                "Restraint / poduszki",
+                getDescription([
+                  "RestraintSystem",
+                  "RestraintType"
+                ])
+              )}
+
+              ${field(
+                "Kraj produkcji",
+                getDescription([
+                  "ManufacturedIn",
+                  "CountryOfOrigin"
+                ])
+              )}
+
+              ${field(
+                "Klasa pojazdu",
+                getDescription([
+                  "VehicleClass",
+                  "Segment",
+                  "SegmentDesc"
+                ])
+              )}
+
+              ${field(
+                "Opcje",
+                getDescription(["Options"])
+              )}
+
+              ${field(
+                "Typ straty",
+                getInfo(["Loss"])
+              )}
+
+              ${field(
+                "ACV",
+                getSale(["ActualCashValue"])
+              )}
+
+              ${field(
+                "Szac. naprawa",
+                getSale(["EstimatedRepairCost"])
+              )}
+
+              ${field(
+                "Minimalna oferta",
+                valueFrom(["MinimumBidAmount"])
+              )}
+
+              ${field(
+                "Bid increment",
+                valueFrom([
+                  "bid_increment",
+                  "bidIncrement"
+                ])
+              )}
+
+              ${field(
+                "Kto może kupić",
+                valueFrom(["WhoCanBuy"])
+              )}
+            </div>
+          </section>
+
+          <section class="panel section">
+            <div class="section-title">
+              <h2>Uszkodzenia</h2>
+
+              <span>
+                Dane ze źródła aukcyjnego
+              </span>
+            </div>
+
+            <div class="damage-grid">
+              ${
+                !isEmpty(primaryDamage)
+                  ? `
+                    <div class="damage main">
+                      <small>
+                        Główne uszkodzenie
+                      </small>
+
+                      <strong>
+                        ${nice(primaryDamage)}
+                      </strong>
+                    </div>
+                  `
+                  : ""
+              }
+
+              ${
+                !isEmpty(secondaryDamage)
+                  ? `
+                    <div class="damage">
+                      <small>
+                        Drugorzędne uszkodzenie
+                      </small>
+
+                      <strong>
+                        ${nice(secondaryDamage)}
+                      </strong>
+                    </div>
+                  `
+                  : ""
+              }
+
+              ${field(
+                "Rodzaj straty",
+                getInfo(["Loss"])
+              )}
+            </div>
+          </section>
+
+          <section class="panel section">
+            <div class="section-title">
+              <h2>Dokumenty / TITLE</h2>
+
+              <span>
+                Analiza Rex.Bid
+              </span>
+            </div>
+
+            <div class="title-verdict ${verdict.cls}">
+              <div class="verdict-label">
+                ${verdict.label}
+              </div>
+
+              <div class="verdict-text">
+                ${verdict.text}
+              </div>
+            </div>
+
+            <div class="spec-grid">
+              ${field("Dokument",titleDoc)}
+              ${field("Title brand",titleBrand)}
+              ${field("Stan / kod title",titleCode)}
+              ${field("Stan title",titleState)}
+              ${field("Uwagi do title",titleNotes)}
+            </div>
+          </section>
+
+          <section class="panel section">
+            <div class="section-title">
+              <h2>Sprzedawca</h2>
+
+              <span>
+                Profil na podstawie danych aukcyjnych
+              </span>
+            </div>
+
+            <div class="seller-box">
+
+              <div class="seller-rating">
+                <span class="risk-dot ${sellerInfo.cls}"></span>
+
+                ${esc(sellerInfo.label)}
+              </div>
+
+              ${
+                seller
+                  ? `
+                    <div class="kv">
+                      <span>Sprzedawca</span>
+                      <strong>
+                        ${esc(seller)}
+                      </strong>
+                    </div>
+                  `
+                  : ""
+              }
+
+              ${kv(
+                "Typ sprzedawcy",
+                valueFrom([
+                  "seller_type",
+                  "sellerType",
+                  "SellerType",
+                  "ProviderType"
+                ])
+              )}
+
+              ${kv(
+                "Pochodzenie",
+                valueFrom(["Origin"])
+              )}
+
+              <div class="seller-note">
+                ${esc(sellerInfo.note)}
+              </div>
+            </div>
+          </section>
+
+          ${
+            video || image360
+              ? `
+                <section
+                  class="panel section media-panel"
+                  id="media"
+                >
+                  <div
+                    class="section-title"
+                    style="padding:14px 14px 0"
+                  >
+                    <h2>Materiały</h2>
+
+                    <span>
+                      ${video ? "Wideo" : ""}
+                      ${video && image360 ? " + " : ""}
+                      ${image360 ? "360°" : ""}
+                    </span>
+                  </div>
+
+                  <div
+                    class="media-view"
+                    id="mediaView"
+                  >
+                    <div class="empty">
+                      Wybierz Wideo albo Widok 360° powyżej.
+                    </div>
+                  </div>
+                </section>
+              `
+              : ""
+          }
+
+        </div>
+
+        <aside>
+
+          <section class="panel side-section">
+            <h3>Informacje o aukcji</h3>
+
+            ${kv("Platforma",platformName())}
+            ${kv("Numer LOT",lot)}
+            ${kv("Status",getAuctionStatus())}
+            ${kv("Data aukcji",formatDate(date))}
+            ${kv("Sprzedawca",seller)}
+
+            ${kv(
+              "Typ sprzedawcy",
+              valueFrom([
+                "seller_type",
+                "sellerType",
+                "SellerType",
+                "ProviderType"
+              ])
+            )}
+
+            ${kv(
+              "Lane",
+              getSale(["Lane"])
+            )}
+
+            ${kv(
+              "Aisle",
+              getSale(["Aisle"])
+            )}
+
+            ${kv(
+              "Bid increment",
+              valueFrom([
+                "bid_increment",
+                "bidIncrement"
+              ])
+            )}
+          </section>
+
+          <section class="panel side-section">
+            <h3>Lokalizacja</h3>
+
+            ${kv(
+              "Oddział",
+              getSale(["SellingBranch"])
+            )}
+
+            ${kv(
+              "Miejsce",
+              location
+            )}
+
+            ${kv(
+              "Adres",
+              valueFrom(["Address"])
+            )}
+
+            ${kv(
+              "Miasto",
+              valueFrom(["City"])
+            )}
+
+            ${kv(
+              "Stan",
+              valueFrom(["State","BranchState"])
+            )}
+
+            ${kv(
+              "ZIP",
+              valueFrom(["Zip"])
+            )}
+
+            ${kv(
+              "Telefon",
+              valueFrom(["Phone"])
+            )}
+
+            ${kv(
+              "Pozycja",
+              valueFrom(["VehiclesVehicleLocation"])
+            )}
+          </section>
+
+          <section class="panel side-section">
+            <h3>Materiały</h3>
+
+            <div class="materials">
+
+              <div class="material">
+                <strong>${mediaCount}</strong>
+                <span>unikalnych zdjęć</span>
+              </div>
+
+              <div class="material">
+                <strong>
+                  ${video ? "✓" : "—"}
+                </strong>
+                <span>wideo</span>
+              </div>
+
+              <div class="material">
+                <strong>
+                  ${image360 ? "✓" : "—"}
+                </strong>
+                <span>widok 360°</span>
+              </div>
+
+            </div>
+          </section>
+
+          <section class="panel side-section">
+            <h3>Dokument / tytuł</h3>
+
+            ${kv("Title",titleDoc)}
+            ${kv("Brand",titleBrand)}
+            ${kv("State",titleState)}
+            ${kv("Code",titleCode)}
+            ${kv("VIN",vin)}
+          </section>
+
+        </aside>
       </div>
     `;
 
+    bindPageEvents(video,image360);
+    renderPhotos();
+    startCountdown();
   }
 
+  function renderPhotos() {
+    const main = document.getElementById("mainImage");
+    const thumbs = document.getElementById("thumbs");
+    const count = document.getElementById("photoCount");
 
-  /* ==========================================================
-     RENDER DANYCH
-  ========================================================== */
+    if (!photos.length) {
+      main.style.display = "none";
 
-  function renderVehicleData() {
+      count.textContent = "Brak zdjęć";
 
-    const year =
-      getYear(car);
+      thumbs.innerHTML = `
+        <div
+          class="empty"
+          style="grid-column:1/-1;padding:20px"
+        >
+          Brak zdjęć w danych aukcji.
+        </div>
+      `;
 
-    const make =
-      firstValue(
-        car.make,
-        car.vehicle?.make
-      );
-
-    const model =
-      firstValue(
-        car.model,
-        car.vehicle?.model
-      );
-
-    const series =
-      firstValue(
-        car.series,
-        car.trim,
-        car.vehicle?.series
-      );
-
-
-    const mileage =
-      getMileage(car);
-
-
-    const location =
-      getLocation(car);
-
-
-    const platformName =
-      getPlatform(car);
-
-
-    const lot =
-      getLot(car);
-
-
-    const sellerName =
-      getSellerName(car);
-
-
-    const sellerType =
-      getSellerType(car);
-
-
-    /*
-      TYTUŁ
-    */
-
-    document.getElementById(
-      "title"
-    ).textContent =
-      getTitle(car);
-
-
-    /*
-      VIN
-    */
-
-    document.getElementById(
-      "vin"
-    ).textContent =
-      getVIN(car) || "—";
-
-
-    /*
-      PLATFORM
-    */
-
-    galleryPlatform.textContent =
-      platformName;
-
-    document.getElementById(
-      "summaryPlatform"
-    ).textContent =
-      platformName;
-
-
-    /*
-      STATUS
-    */
-
-    const status =
-      getStatus(car);
-
-
-    if (
-      status
-    ) {
-
-      const statusEl =
-        document.getElementById(
-          "summaryStatus"
-        );
-
-      statusEl.style.display =
-        "block";
-
-      statusEl.textContent =
-        String(status)
-          .toUpperCase();
-
+      return;
     }
 
-
-    /*
-      CENA
-    */
-
-    document.getElementById(
-      "price"
-    ).textContent =
-      formatMoney(
-        getPrice(car)
-      );
-
-
-    /*
-      AUKCJA
-    */
-
-    const auctionDate =
-      firstValue(
-        car.auction?.date,
-        car.auction?.auction_date,
-        car.auction?.auctionDate,
-        car.auctionDate,
-        car.auction_date,
-        car.liveDate,
-        car.live_date,
-        car.saleDate,
-        car.sale_date
-      );
-
-
-    document.getElementById(
-      "auctionDate"
-    ).textContent =
-      text(auctionDate);
-
-
-    document.getElementById(
-      "lot"
-    ).textContent =
-      text(lot);
-
-
-    document.getElementById(
-      "sellerSummary"
-    ).textContent =
-      text(
-        sellerName ||
-        sellerType
-      );
-
-
-    /*
-      DANE SAMOCHODU
-    */
-
-    document.getElementById(
-      "vehicleSpecs"
-    ).innerHTML = [
-
-      spec(
-        "Rok",
-        year
-      ),
-
-      spec(
-        "Marka",
-        make
-      ),
-
-      spec(
-        "Model",
-        model
-      ),
-
-      spec(
-        "Nadwozie",
-        firstValue(
-          car.bodyStyle,
-          car.body_style,
-          car.vehicleClass
-        )
-      ),
-
-      spec(
-        "Przebieg",
-        mileage
-      ),
-
-      spec(
-        "Silnik",
-        firstValue(
-          car.engine,
-          car.vehicle?.engine
-        )
-      ),
-
-      spec(
-        "Skrzynia",
-        firstValue(
-          car.transmission,
-          car.vehicle?.transmission
-        )
-      ),
-
-      spec(
-        "Napęd",
-        firstValue(
-          car.drivetrain,
-          car.driveLineType,
-          car.drive_type
-        )
-      ),
-
-      spec(
-        "Paliwo",
-        firstValue(
-          car.fuelType,
-          car.fuel_type
-        )
-      ),
-
-      spec(
-        "Kolor",
-        firstValue(
-          car.exteriorColor,
-          car.exterior_color,
-          car.color
-        )
-      ),
-
-      spec(
-        "Kolor wnętrza",
-        firstValue(
-          car.interiorColor,
-          car.interior_color
-        )
-      ),
-
-      spec(
-        "Platforma",
-        platformName
-      ),
-
-      spec(
-        "Lot",
-        lot
-      ),
-
-      spec(
-        "Klasa pojazdu",
-        firstValue(
-          car.vehicleClass,
-          car.vehicle_class
-        )
-      ),
-
-      spec(
-        "Typ pojazdu",
-        firstValue(
-          car.vehicleType,
-          car.vehicle_type
-        )
-      ),
-
-      spec(
-        "Cylindry",
-        car.cylinders
-      ),
-
-      spec(
-        "Kluczyki",
-        car.hasKeys === true
-          ? "Tak"
-          : car.hasKeys === false
-            ? "Nie"
-            : firstValue(
-                car.keys,
-                car.key
-              )
-      ),
-
-      spec(
-        "Run & Drive",
-        car.runAndDrive === true
-          ? "Tak"
-          : car.runAndDrive === false
-            ? "Nie"
-            : firstValue(
-                car.run_and_drive,
-                car.startsDesc
-              )
-      )
-
-    ].join("");
-
-
-    /*
-      USZKODZENIA
-    */
-
-    document.getElementById(
-      "primaryDamage"
-    ).textContent =
-      getDamage(car) || "—";
-
-
-    document.getElementById(
-      "secondaryDamage"
-    ).textContent =
-      getSecondaryDamage(car) || "—";
-
-
-    /*
-      SPRZEDAWCA
-    */
-
-    document.getElementById(
-      "sellerSpecs"
-    ).innerHTML = [
-
-      spec(
-        "Typ sprzedawcy",
-        sellerTypeLabel(
-          sellerType
-        )
-      ),
-
-      spec(
-        "Sprzedawca",
-        sellerName
-      ),
-
-      spec(
-        "Pochodzenie",
-        firstValue(
-          car.origin,
-          car.vehicleOrigin
-        )
-      ),
-
-      spec(
-        "Kto może kupić",
-        firstValue(
-          car.whoCanBuy,
-          car.who_can_buy
-        )
-      ),
-
-      spec(
-        "Kraj pochodzenia",
-        firstValue(
-          car.countryOfOrigin,
-          car.country_of_origin
-        )
-      ),
-
-      spec(
-        "Typ straty",
-        firstValue(
-          car.lossType,
-          car.loss_type
-        )
-      )
-
-    ].join("");
-
-
-    /*
-      INFORMACJE O AUKCJI
-    */
-
-    document.getElementById(
-      "auctionSpecs"
-    ).innerHTML = [
-
-      sideRow(
-        "Platforma",
-        platformName
-      ),
-
-      sideRow(
-        "Numer LOT",
-        lot
-      ),
-
-      sideRow(
-        "Status",
-        status
-      ),
-
-      sideRow(
-        "Data aukcji",
-        auctionDate
-      ),
-
-      sideRow(
-        "Sprzedawca",
-        sellerName
-      ),
-
-      sideRow(
-        "Typ sprzedawcy",
-        sellerTypeLabel(
-          sellerType
-        )
-      )
-
-    ].join("");
-
-
-    /*
-      LOKALIZACJA
-    */
-
-    document.getElementById(
-      "location"
-    ).textContent =
-      location || "—";
-
-
-    /*
-      TITLE
-    */
-
-    document.getElementById(
-      "titleSpecs"
-    ).innerHTML = [
-
-      sideRow(
-        "Tytuł",
-        firstValue(
-          car.titleType,
-          car.title_type,
-          car.title?.type,
-          car.title
-        )
-      ),
-
-      sideRow(
-        "VIN",
-        getVIN(car)
-      ),
-
-      sideRow(
-        "Title brand",
-        firstValue(
-          car.titleBrand,
-          car.title_brand
-        )
-      ),
-
-      sideRow(
-        "Stan title",
-        firstValue(
-          car.titleState,
-          car.title_state
-        )
-      ),
-
-      sideRow(
-        "Title code",
-        firstValue(
-          car.titleCode,
-          car.title_code
-        )
-      )
-
-    ].join("");
-
-
-    /*
-      MEDIA INFO
-    */
-
-    document.getElementById(
-      "mediaSpecs"
-    ).innerHTML = [
-
-      sideRow(
-        "Zdjęcia",
-        images.length
-      ),
-
-      sideRow(
-        "Wideo",
-        videos.length
-          ? `${videos.length} dostępne`
-          : "Brak"
-      ),
-
-      sideRow(
-        "Widok 360°",
-        view360.length
-          ? "Dostępny"
-          : "Brak"
-      )
-
-    ].join("");
-
+    main.style.display = "block";
+
+    const p = photos[photoIndex];
+
+    main.src = p.large || p.thumb;
+
+    main.alt =
+      `${getTitle() || "Samochód"} — zdjęcie ${photoIndex + 1}`;
+
+    count.textContent =
+      `${photoIndex + 1} / ${photos.length} • HD`;
+
+    thumbs.innerHTML =
+      photos.map((photo,i) => `
+        <button
+          class="thumb ${i === photoIndex ? "active" : ""} hd"
+          data-i="${i}"
+          title="Zdjęcie ${i+1} HD"
+        >
+          <img
+            src="${esc(photo.thumb || photo.large)}"
+            loading="lazy"
+            alt="Miniatura ${i+1}"
+          />
+        </button>
+      `).join("");
+
+    thumbs
+      .querySelectorAll(".thumb")
+      .forEach(btn => {
+        btn.addEventListener("click",() => {
+          photoIndex = Number(btn.dataset.i);
+          renderPhotos();
+        });
+      });
   }
 
+  function bindPageEvents(video,image360) {
 
-  /* ==========================================================
-     ZEWNĘTRZNA AUKCJA
-  ========================================================== */
+    document
+      .getElementById("prevPhoto")
+      ?.addEventListener("click",() => {
+        if (!photos.length) return;
 
-  function setupExternalAuction() {
+        photoIndex =
+          (photoIndex - 1 + photos.length) %
+          photos.length;
 
-    const url =
-      firstValue(
-        car.listingUrl,
-        car.listing_url,
-        car.auctionUrl,
-        car.auction_url,
-        car.url,
-        car.externalUrl,
-        car.external_url
+        renderPhotos();
+      });
+
+    document
+      .getElementById("nextPhoto")
+      ?.addEventListener("click",() => {
+        if (!photos.length) return;
+
+        photoIndex =
+          (photoIndex + 1) %
+          photos.length;
+
+        renderPhotos();
+      });
+
+    document
+      .getElementById("mainImage")
+      ?.addEventListener("click",openLightbox);
+
+    document
+      .getElementById("openHd")
+      ?.addEventListener("click",openLightbox);
+
+    document
+      .getElementById("openVideo")
+      ?.addEventListener(
+        "click",
+        () => openViewer(video,"video")
       );
 
-
-    const button =
-      document.getElementById(
-        "externalAuction"
+    document
+      .getElementById("open360")
+      ?.addEventListener(
+        "click",
+        () => openViewer(image360,"360")
       );
 
+    document
+      .getElementById("copyVin")
+      ?.addEventListener(
+        "click",
+        async() => {
 
-    if (
-      url
-    ) {
-
-      button.style.display =
-        "block";
-
-      button.onclick =
-        () => {
-
-          window.open(
-            url,
-            "_blank",
-            "noopener,noreferrer"
+          await navigator.clipboard?.writeText(
+            getVin() || ""
           );
 
-        };
+          const b =
+            document.getElementById("copyVin");
 
-    }
+          if (b) {
+            b.textContent = "Skopiowano";
 
-  }
-
-
-  /* ==========================================================
-     COPY
-  ========================================================== */
-
-  document
-    .getElementById("copyVin")
-    .addEventListener(
-      "click",
-      async () => {
-
-        const vin =
-          getVIN(car);
-
-        if (!vin) {
-          return;
-        }
-
-        try {
-
-          await navigator.clipboard.writeText(
-            vin
-          );
-
-          document.getElementById(
-            "copyVin"
-          ).textContent =
-            "Skopiowano";
-
-          setTimeout(
-            () => {
-
-              document.getElementById(
-                "copyVin"
-              ).textContent =
-                "Kopiuj";
-
-            },
-            1500
-          );
-
-        } catch {
-
-          alert(vin);
-
-        }
-
-      }
-    );
-
-
-  document
-    .getElementById("copyLink")
-    .addEventListener(
-      "click",
-      async () => {
-
-        try {
-
-          await navigator.clipboard.writeText(
-            window.location.href
-          );
-
-          document.getElementById(
-            "copyLink"
-          ).textContent =
-            "Skopiowano";
-
-          setTimeout(
-            () => {
-
-              document.getElementById(
-                "copyLink"
-              ).textContent =
-                "Kopiuj link";
-
-            },
-            1500
-          );
-
-        } catch {
-
-          alert(
-            window.location.href
-          );
-
-        }
-
-      }
-    );
-
-
-  /* ==========================================================
-     POBIERANIE AUTA
-  ========================================================== */
-
-  async function fetchCar() {
-
-    const params =
-      new URLSearchParams(
-        window.location.search
-      );
-
-
-    const vin =
-      params.get("vin");
-
-
-    if (!vin) {
-
-      throw new Error(
-        "Brak VIN w adresie strony."
-      );
-
-    }
-
-
-    const apiUrl =
-      `${API_BASE}/cars?vin=${encodeURIComponent(vin)}&per_page=1`;
-
-
-    const response =
-      await fetch(
-        apiUrl,
-        {
-          method: "GET",
-          headers: {
-            "Accept":
-              "application/json"
+            setTimeout(
+              () => b.textContent = "Kopiuj",
+              1200
+            );
           }
         }
       );
 
+    document
+      .getElementById("copyLink")
+      ?.addEventListener(
+        "click",
+        async() => {
 
-    let result;
+          await navigator.clipboard?.writeText(
+            location.href
+          );
 
+          const b =
+            document.getElementById("copyLink");
 
-    try {
+          if (b) {
+            b.textContent = "Skopiowano";
 
-      result =
-        await response.json();
-
-    } catch {
-
-      throw new Error(
-        `API zwróciło nieprawidłową odpowiedź HTTP ${response.status}.`
+            setTimeout(
+              () => b.textContent = "Kopiuj link",
+              1200
+            );
+          }
+        }
       );
 
-    }
-
-
-    if (
-      !response.ok
-    ) {
-
-      throw new Error(
-        result?.error ||
-        `HTTP ${response.status}`
+    document
+      .getElementById("scrollInfo")
+      ?.addEventListener(
+        "click",
+        () => {
+          document
+            .getElementById("details")
+            ?.scrollIntoView({
+              behavior:"smooth",
+              block:"start"
+            });
+        }
       );
-
-    }
-
-
-    if (
-      result &&
-      result.ok === false
-    ) {
-
-      throw new Error(
-        result.error ||
-        "API zwróciło błąd."
-      );
-
-    }
-
-
-    /*
-      RÓŻNE FORMATY ODPOWIEDZI
-    */
-
-    let list =
-      firstValue(
-        result?.data,
-        result?.cars,
-        result?.results,
-        result?.vehicles
-      );
-
-
-    /*
-      JEŻELI data jest obiektem
-      zamiast tablicy
-    */
-
-    if (
-      list &&
-      !Array.isArray(list) &&
-      typeof list === "object"
-    ) {
-
-      if (
-        Array.isArray(list.data)
-      ) {
-
-        list =
-          list.data;
-
-      } else if (
-        Array.isArray(list.results)
-      ) {
-
-        list =
-          list.results;
-
-      } else {
-
-        list =
-          [list];
-
-      }
-
-    }
-
-
-    if (
-      !Array.isArray(list)
-    ) {
-
-      list = [];
-
-    }
-
-
-    /*
-      SZUKAMY KONKRETNEGO VIN-U
-    */
-
-    const normalizedVin =
-      vin
-        .trim()
-        .toUpperCase();
-
-
-    const found =
-      list.find(
-        item =>
-          String(
-            getVIN(item) || ""
-          )
-            .trim()
-            .toUpperCase() ===
-          normalizedVin
-      );
-
-
-    /*
-      JEŻELI API ZWRÓCIŁO TYLKO JEDEN
-      REKORD, UŻYWAMY GO
-    */
-
-    car =
-      found ||
-      list[0];
-
-
-    if (!car) {
-
-      throw new Error(
-        `Nie znaleziono samochodu dla VIN ${vin}.`
-      );
-
-    }
-
-
-    return car;
-
   }
 
+  function openLightbox() {
+    if (!photos.length) return;
 
-  /* ==========================================================
-     START
-  ========================================================== */
+    photoIndex =
+      Math.max(
+        0,
+        Math.min(
+          photoIndex,
+          photos.length - 1
+        )
+      );
+
+    zoom = 1;
+    panX = 0;
+    panY = 0;
+
+    const lb =
+      document.getElementById("lightbox");
+
+    lb.classList.add("open");
+    lb.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+    document.body.classList.add("modal-open");
+
+    updateLightbox();
+  }
+
+  function closeLightbox() {
+    const lb =
+      document.getElementById("lightbox");
+
+    lb.classList.remove("open");
+
+    lb.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+    document.body.classList.remove("modal-open");
+  }
+
+  function updateLightbox() {
+    if (!photos.length) return;
+
+    const p = photos[photoIndex];
+
+    const img =
+      document.getElementById("lbImage");
+
+    img.src =
+      p.large || p.thumb;
+
+    img.alt =
+      `${getTitle() || "Samochód"} — HD ${photoIndex+1}`;
+
+    document.getElementById("lbInfo").textContent =
+      `HD • ${photoIndex+1} / ${photos.length}`;
+
+    img.style.transform =
+      `translate(${panX}px,${panY}px) scale(${zoom})`;
+  }
+
+  function setZoom(next) {
+    zoom =
+      Math.max(
+        .5,
+        Math.min(5,next)
+      );
+
+    if (zoom <= 1) {
+      panX = 0;
+      panY = 0;
+    }
+
+    updateLightbox();
+  }
+
+  function openViewer(url,type) {
+    if (!url) return;
+
+    const modal =
+      document.getElementById("viewerModal");
+
+    const content =
+      document.getElementById("viewerContent");
+
+    if (type === "360") {
+
+      content.innerHTML = `
+        <iframe
+          src="${esc(url)}"
+          allow="fullscreen; autoplay; xr-spatial-tracking"
+          allowfullscreen
+          title="Widok 360°"
+        ></iframe>
+      `;
+
+    } else {
+
+      content.innerHTML = `
+        <video
+          controls
+          autoplay
+          playsinline
+        >
+          <source src="${esc(url)}" />
+
+          Twoja przeglądarka nie może
+          odtworzyć tego materiału.
+
+          <a
+            href="${esc(url)}"
+            target="_blank"
+            rel="noopener"
+          >
+            Otwórz materiał
+          </a>
+        </video>
+      `;
+    }
+
+    modal.classList.add("open");
+
+    modal.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+    document.body.classList.add("modal-open");
+  }
+
+  function closeViewer() {
+    const modal =
+      document.getElementById("viewerModal");
+
+    modal.classList.remove("open");
+
+    modal.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+    document.getElementById(
+      "viewerContent"
+    ).innerHTML = "";
+
+    document.body.classList.remove("modal-open");
+  }
+
+  document
+    .getElementById("lbClose")
+    .addEventListener(
+      "click",
+      closeLightbox
+    );
+
+  document
+    .getElementById("lbMinus")
+    .addEventListener(
+      "click",
+      () => setZoom(zoom-.25)
+    );
+
+  document
+    .getElementById("lbPlus")
+    .addEventListener(
+      "click",
+      () => setZoom(zoom+.25)
+    );
+
+  document
+    .getElementById("lbReset")
+    .addEventListener(
+      "click",
+      () => setZoom(1)
+    );
+
+  document
+    .getElementById("lbPrev")
+    .addEventListener(
+      "click",
+      () => {
+
+        if (!photos.length) return;
+
+        photoIndex =
+          (photoIndex - 1 + photos.length) %
+          photos.length;
+
+        zoom = 1;
+        panX = 0;
+        panY = 0;
+
+        updateLightbox();
+        renderPhotos();
+      }
+    );
+
+  document
+    .getElementById("lbNext")
+    .addEventListener(
+      "click",
+      () => {
+
+        if (!photos.length) return;
+
+        photoIndex =
+          (photoIndex + 1) %
+          photos.length;
+
+        zoom = 1;
+        panX = 0;
+        panY = 0;
+
+        updateLightbox();
+        renderPhotos();
+      }
+    );
+
+  document
+    .getElementById("viewerClose")
+    .addEventListener(
+      "click",
+      closeViewer
+    );
+
+  document
+    .getElementById("lightbox")
+    .addEventListener(
+      "click",
+      e => {
+        if (e.target.id === "lightbox") {
+          closeLightbox();
+        }
+      }
+    );
+
+  document
+    .getElementById("viewerModal")
+    .addEventListener(
+      "click",
+      e => {
+        if (e.target.id === "viewerModal") {
+          closeViewer();
+        }
+      }
+    );
+
+  document.addEventListener(
+    "keydown",
+    e => {
+
+      const lb =
+        document.getElementById("lightbox");
+
+      if (lb.classList.contains("open")) {
+
+        if (e.key === "Escape") {
+          closeLightbox();
+        }
+
+        if (e.key === "ArrowLeft") {
+          document
+            .getElementById("lbPrev")
+            .click();
+        }
+
+        if (e.key === "ArrowRight") {
+          document
+            .getElementById("lbNext")
+            .click();
+        }
+
+        if (e.key === "+") {
+          setZoom(zoom+.25);
+        }
+
+        if (e.key === "-") {
+          setZoom(zoom-.25);
+        }
+      }
+
+      if (
+        document
+          .getElementById("viewerModal")
+          .classList
+          .contains("open") &&
+        e.key === "Escape"
+      ) {
+        closeViewer();
+      }
+    }
+  );
+
+  const lbStage =
+    document.getElementById("lbStage");
+
+  const lbImage =
+    document.getElementById("lbImage");
+
+  lbStage.addEventListener(
+    "wheel",
+    e => {
+
+      if (
+        !document
+          .getElementById("lightbox")
+          .classList
+          .contains("open")
+      ) {
+        return;
+      }
+
+      e.preventDefault();
+
+      setZoom(
+        zoom +
+        (e.deltaY < 0 ? .15 : -.15)
+      );
+    },
+    {passive:false}
+  );
+
+  lbImage.addEventListener(
+    "pointerdown",
+    e => {
+
+      if (zoom <= 1) return;
+
+      dragging = true;
+
+      lbImage.classList.add("dragging");
+
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+
+      startPanX = panX;
+      startPanY = panY;
+
+      lbImage.setPointerCapture(
+        e.pointerId
+      );
+    }
+  );
+
+  lbImage.addEventListener(
+    "pointermove",
+    e => {
+
+      if (!dragging) return;
+
+      panX =
+        startPanX +
+        (e.clientX - dragStartX);
+
+      panY =
+        startPanY +
+        (e.clientY - dragStartY);
+
+      updateLightbox();
+    }
+  );
+
+  lbImage.addEventListener(
+    "pointerup",
+    e => {
+
+      dragging = false;
+
+      lbImage.classList.remove(
+        "dragging"
+      );
+
+      try {
+        lbImage.releasePointerCapture(
+          e.pointerId
+        );
+      } catch (_) {}
+    }
+  );
+
+  function startCountdown() {
+    const node =
+      document.getElementById("countdown");
+
+    const end = first(
+      car.auction?.auction_at,
+      car.auction?.full_date,
+      getSale(["AuctionDateTime"])
+    );
+
+    if (!node || !end) return;
+
+    const target =
+      new Date(end).getTime();
+
+    if (Number.isNaN(target)) return;
+
+    function tick() {
+
+      const diff =
+        target - Date.now();
+
+      if (diff <= 0) {
+        node.textContent =
+          "teraz / zakończona";
+
+        return;
+      }
+
+      const total =
+        Math.floor(diff/1000);
+
+      const days =
+        Math.floor(total/86400);
+
+      const hours =
+        Math.floor(
+          (total%86400)/3600
+        );
+
+      const mins =
+        Math.floor(
+          (total%3600)/60
+        );
+
+      const secs =
+        total%60;
+
+      node.textContent =
+        `${days ? days+"d " : ""}${String(hours).padStart(2,"0")}:${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+    }
+
+    tick();
+
+    setInterval(
+      tick,
+      1000
+    );
+  }
 
   async function init() {
 
+    if (!VIN && !LOT) {
+
+      page.innerHTML = `
+        <div class="error">
+          Brak parametru VIN lub LOT w adresie strony.
+        </div>
+      `;
+
+      return;
+    }
+
+    page.innerHTML = `
+      <div class="panel empty">
+        <div
+          style="font-size:30px;margin-bottom:10px"
+        >
+          ⏳
+        </div>
+
+        Pobieranie danych samochodu...
+      </div>
+    `;
+
     try {
 
-      car =
-        await fetchCar();
+      car = await fetchVehicle();
 
-
-      /*
-        MEDIA MUSI BYĆ ZROBIONE
-        PRZED RENDEREM
-      */
-
-      collectMedia(car);
-
-
-      renderVehicleData();
-
-      renderThumbs();
-
-      renderMediaButtons();
-
-      renderVideo();
-
-      setupExternalAuction();
-
-
-      /*
-        360 pokazujemy tylko,
-        jeśli faktycznie istnieje.
-      */
-
-      if (
-        view360.length
-      ) {
-
-        /*
-          Panel jest dostępny,
-          ale nie przewijamy do niego automatycznie.
-        */
-
-        view360Panel.classList.remove(
-          "visible"
+      if (!car) {
+        throw new Error(
+          "Nie znaleziono samochodu."
         );
-
       }
 
+      photos =
+        normalizeMedia(car);
 
-      loading.style.display =
-        "none";
-
-      page.style.display =
-        "block";
-
+      buildPage();
 
     } catch (error) {
 
@@ -3802,70 +2759,31 @@
         error
       );
 
-
-      loading.style.display =
-        "none";
-
-
-      errorBox.style.display =
-        "block";
-
-
-      errorBox.innerHTML = `
-
+      page.innerHTML = `
         <div class="error">
 
-          <h2>
-            Nie udało się pobrać samochodu
-          </h2>
-
-          <p>
-            ${escapeHtml(
-              error.message ||
-              "Nieznany błąd"
-            )}
-          </p>
-
-          <p style="
-            color:#9aa3ad;
-            font-size:13px;
-            margin-top:20px;
-          ">
-            VIN:
-            ${escapeHtml(
-              new URLSearchParams(
-                window.location.search
-              ).get("vin") || "—"
-            )}
-          </p>
-
-          <a
-            href="/"
+          <strong
             style="
-              display:inline-block;
-              margin-top:15px;
-              padding:11px 16px;
-              border-radius:8px;
-              background:#ffb000;
-              color:#111;
-              font-weight:800;
+              display:block;
+              color:#ff6d6d;
+              font-size:18px;
+              margin-bottom:8px
             "
           >
-            ← Wróć do samochodów
-          </a>
+            Nie udało się pobrać samochodu
+          </strong>
+
+          ${esc(
+            error?.message ||
+            "Nieznany błąd"
+          )}
 
         </div>
-
       `;
-
     }
-
   }
 
-
   init();
-
 </script>
-
 </body>
 </html>
