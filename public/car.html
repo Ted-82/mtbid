@@ -2024,17 +2024,6 @@
             <div class="calc-note">Domyślne stawki: cło 10% i VAT 23%. Akcyza jest dobierana orientacyjnie na podstawie danych silnika/napędu i może być ręcznie zmieniona. Podstawa podatków może obejmować koszty transportu i inne elementy, dlatego wynik należy traktować jako prognozę.</div>
           </section>
 
-          ${(video || image360) ? `
-            <section class="panel section media-panel" id="media">
-              <div class="section-title" style="padding:14px 14px 0">
-                <h2>Materiały</h2>
-                <span>${video ? "Wideo" : ""}${video && image360 ? " + " : ""}${image360 ? "360°" : ""}</span>
-              </div>
-              <div class="media-view" id="mediaView">
-                <div class="empty">Wybierz Wideo albo Widok 360° powyżej.</div>
-              </div>
-            </section>
-          ` : ""}
         </div>
 
         <aside>
