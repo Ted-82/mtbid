@@ -972,12 +972,17 @@
     return false;
   }
 
-  function money(v) {
+  function money(v, currency = "USD") {
     if (isEmpty(v)) return "—";
-    if (typeof v === "string" && /[$€£]/.test(v)) return esc(v);
+    if (typeof v === "string" && /[$€£]|\bzł\b|\bPLN\b/i.test(v)) return esc(v);
     const n = Number(v);
-    if (!Number.isNaN(n)) return "$" + n.toLocaleString("en-US");
-    return esc(v);
+    if (Number.isNaN(n)) return esc(v);
+
+    if (String(currency).toUpperCase() === "PLN") {
+      return n.toLocaleString("pl-PL", { maximumFractionDigits: 0 }) + " zł";
+    }
+
+    return "$" + n.toLocaleString("en-US", { maximumFractionDigits: 0 });
   }
 
   function nice(v) {
@@ -1377,19 +1382,36 @@
     return null;
   }
 
+  function auctionLotId(lot) {
+    const raw = String(lot || "").trim();
+    if (!raw || raw === "—") return "";
+    // IAA często pokazuje LOT w formacie 0-45244113.
+    // Do adresu VehicleDetail potrzebny jest właściwy numer pojazdu.
+    const match = raw.match(/(\d+)\s*$/);
+    return match ? match[1] : raw.replace(/[^0-9]/g, "");
+  }
+
   function isConcreteAuctionUrl(url, platform, lot) {
     if (!isHttpUrl(url)) return false;
     try {
       const u = new URL(url);
       const host = u.hostname.toLowerCase();
       const path = u.pathname.toLowerCase();
-      const lotText = String(lot || "").trim().toLowerCase();
+      const lotRaw = String(lot || "").trim().toLowerCase();
+      const lotId = auctionLotId(lot).toLowerCase();
+      const haystack = (u.href || "").toLowerCase();
+
       if (platform.includes("copart")) {
-        return host.includes("copart.com") && /\/lot\//.test(path) && (!lotText || url.toLowerCase().includes(lotText));
+        return host.includes("copart.com") && /\/lot\//.test(path) &&
+          (!lotId || haystack.includes(lotId) || haystack.includes(lotRaw));
       }
+
       if (platform.includes("iaai") || platform === "iaa") {
-        return host.includes("iaai.com") && /vehicledetail|vehicle-detail|lot/.test(path) && (!lotText || url.toLowerCase().includes(lotText));
+        return host.includes("iaai.com") &&
+          /vehicledetail|vehicle-detail|\/vehicle\//.test(path) &&
+          (!lotId || haystack.includes(lotId) || haystack.includes(lotRaw));
       }
+
       return true;
     } catch (_) {
       return false;
@@ -1399,8 +1421,9 @@
   function originalAuctionUrl() {
     const platform = platformName().toLowerCase();
     const lot = getLot();
+    const lotId = auctionLotId(lot);
 
-    // Najpierw używamy konkretnego linku przekazanego przez API.
+    // Najpierw prawdziwy, konkretny URL przekazany przez API.
     const directValues = findAllByKeys(car, [
       "auctionUrl","auctionURL","auction_url",
       "originalUrl","originalURL","original_url",
@@ -1417,17 +1440,19 @@
       if (url && isConcreteAuctionUrl(url, platform, lot)) return url;
     }
 
-    // Jeśli API podało tylko stronę główną IAA/Copart, budujemy link do konkretnego LOT-u.
-    if (platform.includes("copart") && lot && lot !== "—") {
-      return `https://www.copart.com/lot/${encodeURIComponent(lot)}`;
+    // Jeżeli API podało tylko domenę główną, nie pokazujemy jej użytkownikowi.
+    // Budujemy bezpośredni adres konkretnego pojazdu z numeru LOT.
+    if (platform.includes("copart") && lotId) {
+      return `https://www.copart.com/lot/${encodeURIComponent(lotId)}`;
     }
 
-    if ((platform.includes("iaai") || platform === "iaa") && lot && lot !== "—") {
-      return `https://www.iaai.com/VehicleDetail/${encodeURIComponent(lot)}~US`;
+    if ((platform.includes("iaai") || platform === "iaa") && lotId) {
+      return `https://www.iaai.com/VehicleDetail/${encodeURIComponent(lotId)}~US`;
     }
 
     return null;
   }
+
   function valueFrom(keys) {
     const vals = findAllByKeys(car, keys);
     return first(...vals);
@@ -1673,6 +1698,59 @@
     };
   }
 
+  function getAuctionStart() {
+    return first(
+      car.auction?.start_time, car.auction?.startTime,
+      car.auction?.start_date_time, car.auction?.startDateTime,
+      car.auction?.auction_start, car.auction?.auctionStart,
+      car.auction?.auction_start_time, car.auction?.auctionStartTime,
+      car.auction?.live_start, car.auction?.liveStart,
+      getSale(["AuctionStartDateTime","AuctionStartTime","StartDateTime","StartTime","SaleDateTime"]),
+      valueFrom(["AuctionStartDateTime","AuctionStartTime","StartDateTime","StartTime","SaleDateTime"]),
+      car.auction?.auction_at, car.auction?.full_date,
+      getSale(["AuctionDateTime"]),
+      valueFrom(["AuctionDateTime"])
+    );
+  }
+
+  function getAuctionEnd() {
+    return first(
+      car.auction?.end_time, car.auction?.endTime,
+      car.auction?.end_date_time, car.auction?.endDateTime,
+      car.auction?.auction_end, car.auction?.auctionEnd,
+      car.auction?.auction_end_time, car.auction?.auctionEndTime,
+      car.auction?.close_time, car.auction?.closeTime,
+      car.auction?.close_date_time, car.auction?.closeDateTime,
+      getSale(["AuctionEndDateTime","AuctionEndTime","EndDateTime","EndTime","CloseDateTime"]),
+      valueFrom(["AuctionEndDateTime","AuctionEndTime","EndDateTime","EndTime","CloseDateTime"])
+    );
+  }
+
+  function auctionPhase() {
+    const state = String(getAuctionStatus() || "").toLowerCase();
+    if (/sold|closed|ended|complete|completed|cancel|cancelled|canceled|no sale|notsold/.test(state)) return "ended";
+
+    const startRaw = getAuctionStart();
+    const endRaw = getAuctionEnd();
+    const start = startRaw ? new Date(startRaw).getTime() : NaN;
+    const end = endRaw ? new Date(endRaw).getTime() : NaN;
+    const now = Date.now();
+
+    if (Number.isFinite(end) && now >= end) return "ended";
+    if (Number.isFinite(start) && now < start) return "prebid";
+    if (/live|open|active|running|in progress|current/.test(state)) return "live";
+    if (Number.isFinite(start) && now >= start) return "live";
+    return "scheduled";
+  }
+
+  function auctionStatusLabel() {
+    const phase = auctionPhase();
+    if (phase === "prebid") return "PRZED LICYTACJĄ — ZBIERANIE OFERT";
+    if (phase === "live") return "LIVE — LICYTACJA TRWA";
+    if (phase === "ended") return "ZAKOŃCZONA";
+    return displayValue(getAuctionStatus()) || "—";
+  }
+
   function buildPage() {
     const vin = getVin();
     const lot = getLot();
@@ -1724,12 +1802,7 @@
     const image360 = findMediaUrl("vr360");
     const video = findMediaUrl("video");
 
-    const date = first(
-      car.auction?.full_date,
-      car.auction?.auction_at,
-      getSale(["AuctionDateTime"]),
-      valueFrom(["AuctionDateTime"])
-    );
+    const date = getAuctionStart();
 
     const location = getLocation();
 
@@ -1799,24 +1872,22 @@
           <div class="auction-box">
             ${kv("Aukcja", formatDate(date))}
             ${kv("LOT", lot)}
-            ${kv("Status", getAuctionStatus())}
+            <div class="auction-row"><div><small>Status</small></div><strong id="auctionStatusText">${esc(auctionStatusLabel())}</strong></div>
             ${kv("Lokalizacja", location)}
             ${getSale(["Lane"]) ? kv("Lane", getSale(["Lane"])) : ""}
             ${getSale(["Aisle"]) ? kv("Aisle", getSale(["Aisle"])) : ""}
           </div>
 
-          ${car.auction?.countdown ? `
-            <div class="auction-box">
-              <div class="auction-row">
-                <div><small>Do rozpoczęcia / końca</small></div>
-                <strong class="countdown" id="countdown">—</strong>
-              </div>
+          <div class="auction-box" id="auctionTimerBox">
+            <div class="auction-row">
+              <div><small id="countdownLabel">Do rozpoczęcia</small></div>
+              <strong class="countdown" id="countdown">—</strong>
             </div>
-          ` : ""}
+          </div>
 
           <div class="price-box">
-            <small>Aktualna oferta</small>
-            <div class="price">${money(getAuctionBid())}</div>
+            <small id="bidLabel">${auctionPhase() === "prebid" ? "Najwyższa oferta przed licytacją" : "Aktualna oferta"}</small>
+            <div class="price" id="currentBidPrice">${money(getAuctionBid())}</div>
             <div class="price-sub">
               ${getBuyNow() ? `Buy Now: ${money(getBuyNow())}` : "Cena z aukcji, jeśli została przekazana"}
             </div>
@@ -1971,7 +2042,7 @@
             <h3>Informacje o aukcji</h3>
             ${kv("Platforma",platformName())}
             ${kv("Numer LOT",lot)}
-            ${kv("Status",getAuctionStatus())}
+            ${kv("Status",auctionStatusLabel())}
             ${kv("Data aukcji",formatDate(date))}
             ${kv("Sprzedawca",seller)}
             ${kv("Typ sprzedawcy",valueFrom(["seller_type","sellerType","SellerType","ProviderType"]))}
@@ -2017,6 +2088,7 @@
     renderPhotos();
     startCountdown();
     initImportCalculator();
+    startAuctionRefresh();
   }
 
   function renderPhotos() {
@@ -2408,37 +2480,111 @@
   }
 
 
+  let auctionRefreshTimer = null;
+  let auctionCountdownTimer = null;
+
   function startCountdown() {
     const node = document.getElementById("countdown");
-    const end = first(
-      car.auction?.auction_at,
-      car.auction?.full_date,
-      getSale(["AuctionDateTime"])
-    );
-    if (!node || !end) return;
+    const label = document.getElementById("countdownLabel");
+    const box = document.getElementById("auctionTimerBox");
+    if (!node) return;
 
-    const target = new Date(end).getTime();
-    if (Number.isNaN(target)) return;
+    if (auctionCountdownTimer) clearInterval(auctionCountdownTimer);
 
     function tick() {
-      const diff = target - Date.now();
-      if (diff <= 0) {
-        node.textContent = "teraz / zakończona";
+      const phase = auctionPhase();
+      const startRaw = getAuctionStart();
+      const endRaw = getAuctionEnd();
+      const start = startRaw ? new Date(startRaw).getTime() : NaN;
+      const end = endRaw ? new Date(endRaw).getTime() : NaN;
+      const now = Date.now();
+
+      let target = NaN;
+      if (phase === "prebid" && Number.isFinite(start)) {
+        target = start;
+        if (label) label.textContent = "Do rozpoczęcia licytacji";
+      } else if (phase === "live" && Number.isFinite(end)) {
+        target = end;
+        if (label) label.textContent = "Do przewidywanego końca";
+      } else if (phase === "ended") {
+        if (label) label.textContent = "Status aukcji";
+        node.textContent = "Zakończona";
+        return;
+      } else {
+        if (label) label.textContent = "Termin licytacji";
+        node.textContent = Number.isFinite(start) ? formatDate(startRaw) : "—";
         return;
       }
 
-      const total = Math.floor(diff/1000);
-      const days = Math.floor(total/86400);
-      const hours = Math.floor((total%86400)/3600);
-      const mins = Math.floor((total%3600)/60);
-      const secs = total%60;
+      const diff = target - now;
+      if (diff <= 0) {
+        // Po przejściu z pre-bid do live nie pokazujemy „zakończona”.
+        // Aukcja może trwać jeszcze wiele minut/godzin.
+        if (phase === "prebid") {
+          node.textContent = "startuje teraz";
+        } else if (Number.isFinite(end)) {
+          node.textContent = "w toku";
+        }
+        return;
+      }
 
-      node.textContent =
-        `${days ? days+"d " : ""}${String(hours).padStart(2,"0")}:${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+      const total = Math.floor(diff / 1000);
+      const days = Math.floor(total / 86400);
+      const hours = Math.floor((total % 86400) / 3600);
+      const mins = Math.floor((total % 3600) / 60);
+      const secs = total % 60;
+      node.textContent = `${days ? days + "d " : ""}${String(hours).padStart(2,"0")}:${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+      if (box) box.style.display = "";
     }
 
     tick();
-    setInterval(tick,1000);
+    auctionCountdownTimer = setInterval(tick, 1000);
+  }
+
+  function updateAuctionUi() {
+    const phase = auctionPhase();
+    const statusNode = document.getElementById("auctionStatusText");
+    const bidNode = document.getElementById("currentBidPrice");
+    const bidLabel = document.getElementById("bidLabel");
+
+    if (statusNode) statusNode.textContent = auctionStatusLabel();
+    if (bidNode) bidNode.textContent = money(getAuctionBid());
+    if (bidLabel) bidLabel.textContent = phase === "prebid"
+      ? "Najwyższa oferta przed licytacją"
+      : phase === "live"
+        ? "Aktualna oferta — LIVE"
+        : "Aktualna oferta";
+
+    startCountdown();
+  }
+
+  async function refreshAuctionData() {
+    try {
+      const fresh = await fetchVehicle();
+      if (!fresh) return;
+      const oldBid = getAuctionBid();
+      car = fresh;
+      const newBid = getAuctionBid();
+      updateAuctionUi();
+      if (String(oldBid ?? "") !== String(newBid ?? "")) {
+        const bidNode = document.getElementById("currentBidPrice");
+        if (bidNode) {
+          bidNode.animate([{transform:"scale(1)"},{transform:"scale(1.04)"},{transform:"scale(1)"}], {duration:350});
+        }
+      }
+    } catch (e) {
+      // Odświeżanie aukcji nie może zepsuć działającej strony.
+      console.warn("Rex.Bid auction refresh:", e);
+    }
+  }
+
+  function startAuctionRefresh() {
+    if (auctionRefreshTimer) clearInterval(auctionRefreshTimer);
+    // Podczas oczekiwania i LIVE odświeżamy ofertę co 10 sekund,
+    // dzięki czemu cena/status mogą zmieniać się bez przeładowania strony.
+    auctionRefreshTimer = setInterval(() => {
+      if (auctionPhase() !== "ended") refreshAuctionData();
+    }, 10000);
   }
 
   async function init() {
