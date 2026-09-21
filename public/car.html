@@ -7,6 +7,7 @@
 <title>Rex.Bid — Samochód</title>
 
 <style>
+
 * {
     box-sizing: border-box;
 }
@@ -21,6 +22,11 @@ body {
 a {
     color: inherit;
     text-decoration: none;
+}
+
+button,
+a {
+    -webkit-tap-highlight-color: transparent;
 }
 
 .topbar {
@@ -100,6 +106,10 @@ a {
     color: #666;
 }
 
+/* =========================
+   HEADER
+========================= */
+
 .car-header {
     background: white;
     border: 1px solid #e0e3e6;
@@ -167,11 +177,68 @@ a {
     padding: 11px 16px;
     cursor: pointer;
     font-weight: 800;
+    white-space: nowrap;
+}
+
+.favorite:hover {
+    background: #f7f7f7;
 }
 
 .favorite.active {
     color: #e4002b;
 }
+
+/* =========================
+   COUNTDOWN
+========================= */
+
+.countdown-box {
+    margin-top: 18px;
+    padding: 16px 18px;
+    border-radius: 10px;
+    background: #111315;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.countdown-info {
+    min-width: 0;
+}
+
+.countdown-label {
+    color: #aeb4ba;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.countdown-date {
+    font-size: 13px;
+    color: #d8dce0;
+}
+
+.countdown {
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: .5px;
+    white-space: nowrap;
+}
+
+.countdown.active {
+    color: #ffb400;
+}
+
+.countdown.finished {
+    color: #bfc3c7;
+}
+
+/* =========================
+   MAIN
+========================= */
 
 .main-grid {
     display: grid;
@@ -215,19 +282,40 @@ a {
     border-color: #ffb400;
 }
 
-.video-box {
-    margin: 0 12px 12px;
-    background: #111315;
-    border-radius: 8px;
-    overflow: hidden;
+/* =========================
+   VIDEO
+========================= */
+
+.video-card {
+    background: white;
+    border: 1px solid #e0e3e6;
+    border-radius: 12px;
+    margin-top: 20px;
+    padding: 22px;
 }
 
-.video-box video {
-    display: block;
-    width: 100%;
-    max-height: 500px;
-    background: #000;
+.video-card h2 {
+    margin: 0 0 15px;
+    font-size: 22px;
 }
+
+.video-frame {
+    width: 100%;
+    min-height: 420px;
+    border-radius: 8px;
+    background: #111315;
+    border: 0;
+}
+
+.video-note {
+    color: #777d83;
+    font-size: 12px;
+    margin-top: 10px;
+}
+
+/* =========================
+   INFO
+========================= */
 
 .info-card {
     background: white;
@@ -295,6 +383,26 @@ a {
     text-align: right;
 }
 
+.auction-button {
+    display: block;
+    width: 100%;
+    margin-top: 18px;
+    background: #ffb400;
+    color: #111315;
+    text-align: center;
+    padding: 13px;
+    border-radius: 8px;
+    font-weight: 900;
+}
+
+.auction-button:hover {
+    background: #ffc431;
+}
+
+/* =========================
+   DETAILS
+========================= */
+
 .details {
     background: white;
     border: 1px solid #e0e3e6;
@@ -333,21 +441,9 @@ a {
     word-break: break-word;
 }
 
-.auction-button {
-    display: block;
-    width: 100%;
-    margin-top: 18px;
-    background: #ffb400;
-    color: #111315;
-    text-align: center;
-    padding: 13px;
-    border-radius: 8px;
-    font-weight: 900;
-}
-
-.auction-button:hover {
-    background: #ffc431;
-}
+/* =========================
+   HISTORY
+========================= */
 
 .history {
     margin-top: 20px;
@@ -377,6 +473,10 @@ a {
     text-transform: uppercase;
 }
 
+/* =========================
+   FOOTER
+========================= */
+
 footer {
     background: #111315;
     color: #bfc3c7;
@@ -404,6 +504,10 @@ footer {
     color: #858b91;
 }
 
+/* =========================
+   RESPONSIVE
+========================= */
+
 @media (max-width: 900px) {
 
     .main-grid {
@@ -417,6 +521,12 @@ footer {
     .details-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+
+    .countdown-box {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
 }
 
 @media (max-width: 600px) {
@@ -452,7 +562,17 @@ footer {
     .price {
         font-size: 28px;
     }
+
+    .countdown {
+        font-size: 23px;
+    }
+
+    .video-frame {
+        min-height: 240px;
+    }
+
 }
+
 </style>
 </head>
 
@@ -482,6 +602,7 @@ footer {
 
 </header>
 
+
 <main class="container" id="app">
 
     <div class="loading">
@@ -490,6 +611,7 @@ footer {
     </div>
 
 </main>
+
 
 <footer>
 
@@ -507,7 +629,12 @@ footer {
 
 </footer>
 
+
 <script>
+
+/* =========================================================
+   PODSTAWOWE FUNKCJE
+========================================================= */
 
 function safe(value, fallback = "—") {
 
@@ -569,6 +696,7 @@ function displayValue(value, fallback = "—") {
                 value[key] !== null &&
                 value[key] !== ""
             ) {
+
                 return displayValue(
                     value[key],
                     fallback
@@ -593,6 +721,10 @@ function displayValue(value, fallback = "—") {
     return fallback;
 }
 
+
+/* =========================================================
+   CENA
+========================================================= */
 
 function money(value) {
 
@@ -630,7 +762,7 @@ function getPrice(car) {
     const candidates = [
 
         car.pricing?.current_bid_usd,
-        car.pricing?.current_bid,
+        car.pricing?.current_bid2_usd,
         car.current_bid_usd,
         car.current_bid,
         car.price,
@@ -646,6 +778,7 @@ function getPrice(car) {
             value !== null &&
             value !== ""
         ) {
+
             return value;
         }
     }
@@ -653,6 +786,10 @@ function getPrice(car) {
     return null;
 }
 
+
+/* =========================================================
+   PRZEBIEG
+========================================================= */
 
 function getMileage(car) {
 
@@ -704,12 +841,17 @@ function getMileage(car) {
 }
 
 
+/* =========================================================
+   DANE SAMOCHODU
+========================================================= */
+
 function getDamage(car) {
 
     return displayValue(
         car.condition?.primary_damage ??
-        car.damage ??
+        car.details?.vehicle_information?.PrimaryDamage ??
         car.primary_damage ??
+        car.damage ??
         car.damage_type
     );
 }
@@ -719,6 +861,8 @@ function getLocation(car) {
 
     return displayValue(
         car.location?.display ??
+        car.details?.sale_information?.SellingBranch ??
+        car.details?.attributes?.BranchName ??
         car.location?.name ??
         car.location ??
         car.city
@@ -729,8 +873,9 @@ function getLocation(car) {
 function getFuel(car) {
 
     return displayValue(
-        car.fuel_type ??
         car.vehicle_specs?.fuel_type ??
+        car.details?.vehicle_description?.FuelType ??
+        car.fuel_type ??
         car.engine?.fuel_type ??
         car.fuel
     );
@@ -740,8 +885,9 @@ function getFuel(car) {
 function getTransmission(car) {
 
     return displayValue(
-        car.transmission ??
         car.vehicle_specs?.transmission ??
+        car.details?.vehicle_description?.Transmission ??
+        car.transmission ??
         car.specs?.transmission ??
         car.transmission_type
     );
@@ -751,8 +897,9 @@ function getTransmission(car) {
 function getDrive(car) {
 
     return displayValue(
-        car.drive_type ??
         car.vehicle_specs?.drive_type ??
+        car.details?.vehicle_description?.DriveLineType ??
+        car.drive_type ??
         car.specs?.drive_type ??
         car.drive
     );
@@ -762,11 +909,12 @@ function getDrive(car) {
 function getEngine(car) {
 
     return displayValue(
+        car.vehicle_specs?.engine?.raw ??
+        car.vehicle_specs?.engine?.description ??
+        car.details?.vehicle_description?.Engine ??
         car.engine?.description ??
         car.engine?.name ??
         car.engine?.type ??
-        car.vehicle_specs?.engine?.raw ??
-        car.vehicle_specs?.engine ??
         car.engine
     );
 }
@@ -775,8 +923,9 @@ function getEngine(car) {
 function getBodyType(car) {
 
     return displayValue(
-        car.body_type ??
         car.vehicle_specs?.body_style ??
+        car.details?.vehicle_description?.BodyStyle ??
+        car.body_type ??
         car.body?.type ??
         car.body_style
     );
@@ -786,9 +935,10 @@ function getBodyType(car) {
 function getColor(car) {
 
     return displayValue(
+        car.vehicle_specs?.exterior_color ??
+        car.details?.attributes?.ExteriorColor ??
         car.color ??
         car.exterior_color ??
-        car.vehicle_specs?.exterior_color ??
         car.colors?.exterior
     );
 }
@@ -797,27 +947,83 @@ function getColor(car) {
 function getLot(car) {
 
     return displayValue(
+        car.lot_number ??
         car.lot ??
         car.lot_number ??
         car.lot_id ??
-        car.lotNumber
+        car.lotNumber ??
+        car.details?.attributes?.StockNumber
     );
 }
 
 
+function getKeys(car) {
+
+    const value =
+        car.condition?.has_key ??
+        car.details?.vehicle_information?.KeySlashFob ??
+        car.details?.attributes?.Keys ??
+        car.keys ??
+        car.key ??
+        car.has_keys;
+
+    if (value === true || value === "True") {
+        return "Obecny";
+    }
+
+    if (value === false || value === "False") {
+        return "Brak";
+    }
+
+    return displayValue(value);
+}
+
+
+function getRunCondition(car) {
+
+    return displayValue(
+        car.condition?.run_condition?.label ??
+        car.condition?.run_condition?.value ??
+        car.details?.vehicle_information?.StartCode ??
+        car.details?.attributes?.StartsDesc ??
+        car.run_cond
+    );
+}
+
+
+/* =========================================================
+   DATA AUKCJI
+========================================================= */
+
 function getAuctionDate(car) {
 
     return (
-        car.auction_date ??
         car.auction?.full_date ??
         car.auction?.auction_at ??
-        car.auction?.date ??
-        car.auction?.start_time ??
-        car.auction?.scheduled_at ??
+        car.auction_date ??
+        car.details?.sale_information?.AuctionDateTime ??
+        car.details?.attributes?.AuctionDateTime ??
         car.sale_date ??
-        car.sale?.date ??
         null
     );
+}
+
+
+function getAuctionDateObject(car) {
+
+    const value = getAuctionDate(car);
+
+    if (!value) {
+        return null;
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return null;
+    }
+
+    return date;
 }
 
 
@@ -846,16 +1052,15 @@ function formatDate(value) {
 }
 
 
-function getStatus(car) {
+/* =========================================================
+   STATUS AUKCJI
+========================================================= */
 
-    const auctionState =
-        String(
-            car.auction?.state ??
-            ""
-        ).toLowerCase();
+function getStatus(car) {
 
     const raw =
         String(
+            car.auction?.state ??
             car.lot_status ??
             car.status ??
             car.auction_status ??
@@ -876,19 +1081,27 @@ function getStatus(car) {
         };
     }
 
-    if (
-        raw.includes("upcoming") ||
-        raw.includes("future") ||
-        raw.includes("scheduled")
-    ) {
+    const auctionDate =
+        getAuctionDateObject(car);
 
-        return {
-            key: "upcoming",
-            label: "NADCHODZĄCA AUKCJA"
-        };
+    if (auctionDate) {
+
+        const now = Date.now();
+
+        if (auctionDate.getTime() > now) {
+
+            return {
+                key: "upcoming",
+                label: "NADCHODZĄCA AUKCJA"
+            };
+        }
     }
 
-    if (auctionState === "open") {
+    if (
+        raw === "open" ||
+        raw.includes("active") ||
+        raw.includes("live")
+    ) {
 
         return {
             key: "active",
@@ -896,27 +1109,12 @@ function getStatus(car) {
         };
     }
 
-    const dateValue =
-        getAuctionDate(car);
+    if (auctionDate) {
 
-    if (dateValue) {
-
-        const date =
-            new Date(dateValue);
-
-        if (!Number.isNaN(date.getTime())) {
-
-            if (
-                date.getTime() >
-                Date.now()
-            ) {
-
-                return {
-                    key: "upcoming",
-                    label: "NADCHODZĄCA AUKCJA"
-                };
-            }
-        }
+        return {
+            key: "active",
+            label: "AKTYWNA AUKCJA"
+        };
     }
 
     return {
@@ -925,6 +1123,10 @@ function getStatus(car) {
     };
 }
 
+
+/* =========================================================
+   TYTUŁ
+========================================================= */
 
 function carTitle(car) {
 
@@ -942,84 +1144,199 @@ function carTitle(car) {
 }
 
 
-/*
- * Pobieramy zdjęcia WYŁĄCZNIE z media.items,
- * ponieważ API zwraca tam właściwe elementy galerii.
- *
- * Dodatkowo usuwamy duplikaty po adresie URL.
- */
-function getMedia(car) {
+/* =========================================================
+   ZDJĘCIA
+========================================================= */
 
-    const items =
-        Array.isArray(car.media?.items)
-            ? car.media.items
-            : [];
+function cleanMediaUrl(value) {
 
-    const images = [];
-    const videos = [];
+    if (!value) {
+        return null;
+    }
 
-    items.forEach(item => {
+    let url = String(value).trim();
 
-        if (!item || typeof item !== "object") {
-            return;
-        }
+    /*
+     * API czasami zwraca URL jako markdown:
+     *
+     * [https://...](https://...)
+     *
+     * Wyciągamy wtedy właściwy adres.
+     */
 
-        if (item.type === "image") {
+    const markdownMatch =
+        url.match(
+            /^\[.*?\]\((.*?)\)$/
+        );
 
-            const thumb =
-                item.thumb ??
-                item.url ??
-                item.src ??
-                "";
+    if (markdownMatch) {
+        url = markdownMatch[1];
+    }
 
-            const large =
-                item.large ??
-                item.url ??
-                item.src ??
-                thumb;
+    /*
+     * Usuwamy ewentualne backslashe
+     * dodane podczas serializacji.
+     */
 
-            if (large) {
+    url = url
+        .replace(/\\~/g, "~")
+        .replace(/\\&/g, "&")
+        .replace(/\\=/g, "=")
+        .replace(/\\\?/g, "?")
+        .replace(/\\\//g, "/");
 
-                images.push({
-                    thumb: thumb || large,
-                    large: large
-                });
-            }
-        }
-
-        if (item.type === "video" && item.url) {
-
-            videos.push(item.url);
-        }
-    });
-
-    const uniqueImages = [];
-    const seen = new Set();
-
-    images.forEach(image => {
-
-        const key =
-            image.large ||
-            image.thumb;
-
-        if (!key || seen.has(key)) {
-            return;
-        }
-
-        seen.add(key);
-        uniqueImages.push(image);
-    });
-
-    const uniqueVideos = [
-        ...new Set(videos)
-    ];
-
-    return {
-        images: uniqueImages,
-        videos: uniqueVideos
-    };
+    return url;
 }
 
+
+function getImages(car) {
+
+    let images = [];
+
+    /*
+     * Główne pole images
+     */
+
+    if (Array.isArray(car.images)) {
+
+        images = [
+            ...images,
+            ...car.images
+        ];
+    }
+
+    /*
+     * media.thumbs
+     */
+
+    if (
+        car.media &&
+        Array.isArray(car.media.thumbs)
+    ) {
+
+        images = [
+            ...images,
+            ...car.media.thumbs
+        ];
+    }
+
+    /*
+     * media.items
+     */
+
+    if (
+        car.media &&
+        Array.isArray(car.media.items)
+    ) {
+
+        images = [
+            ...images,
+            ...car.media.items
+        ];
+    }
+
+    /*
+     * photos
+     */
+
+    if (
+        car.photos &&
+        Array.isArray(car.photos)
+    ) {
+
+        images = [
+            ...images,
+            ...car.photos
+        ];
+    }
+
+    images =
+        images
+            .map(image => {
+
+                if (
+                    typeof image === "string"
+                ) {
+
+                    return cleanMediaUrl(image);
+                }
+
+                if (
+                    typeof image === "object"
+                ) {
+
+                    return cleanMediaUrl(
+                        image.large ??
+                        image.url ??
+                        image.src ??
+                        image.image_url ??
+                        image.medium ??
+                        image.thumb ??
+                        image.thumbnail
+                    );
+                }
+
+                return null;
+            })
+            .filter(Boolean);
+
+    /*
+     * Bardzo ważne:
+     * usuwamy duplikaty.
+     *
+     * Dzięki temu jeśli API zwróci
+     * 11 zdjęć w thumbs + te same 11
+     * w items, strona pokaże tylko 11.
+     */
+
+    return [
+        ...new Set(images)
+    ];
+}
+
+
+/* =========================================================
+   VIDEO
+========================================================= */
+
+function getVideoUrl(car) {
+
+    if (
+        car.media &&
+        Array.isArray(car.media.items)
+    ) {
+
+        const video =
+            car.media.items.find(
+                item =>
+                    item &&
+                    item.type === "video" &&
+                    item.url
+            );
+
+        if (video) {
+            return cleanMediaUrl(video.url);
+        }
+    }
+
+    if (
+        car.media &&
+        car.media.video
+    ) {
+
+        return cleanMediaUrl(
+            car.media.video.url ??
+            car.media.video
+        );
+    }
+
+    return null;
+}
+
+
+/* =========================================================
+   ULUBIONE
+========================================================= */
 
 function getFavorites() {
 
@@ -1099,6 +1416,10 @@ function renderFavoriteButton(vin) {
 }
 
 
+/* =========================================================
+   LINK DO AUKCJI
+========================================================= */
+
 function getAuctionUrl(car) {
 
     return (
@@ -1135,6 +1456,10 @@ function setupAuctionLink(car) {
     button.href = url;
 }
 
+
+/* =========================================================
+   HISTORIA
+========================================================= */
 
 function renderHistory(car) {
 
@@ -1222,24 +1547,238 @@ function renderHistory(car) {
 }
 
 
+/* =========================================================
+   COUNTDOWN
+========================================================= */
+
+let countdownTimer = null;
+
+
+function formatCountdown(milliseconds) {
+
+    if (milliseconds <= 0) {
+        return "00:00:00";
+    }
+
+    const totalSeconds =
+        Math.floor(
+            milliseconds / 1000
+        );
+
+    const days =
+        Math.floor(
+            totalSeconds / 86400
+        );
+
+    const hours =
+        Math.floor(
+            (totalSeconds % 86400) / 3600
+        );
+
+    const minutes =
+        Math.floor(
+            (totalSeconds % 3600) / 60
+        );
+
+    const seconds =
+        totalSeconds % 60;
+
+    const h =
+        String(hours)
+            .padStart(2, "0");
+
+    const m =
+        String(minutes)
+            .padStart(2, "0");
+
+    const s =
+        String(seconds)
+            .padStart(2, "0");
+
+    if (days > 0) {
+
+        return (
+            days +
+            " dni " +
+            h +
+            ":" +
+            m +
+            ":" +
+            s
+        );
+    }
+
+    return (
+        h +
+        ":" +
+        m +
+        ":" +
+        s
+    );
+}
+
+
+function updateCountdown(auctionDate) {
+
+    const countdown =
+        document.getElementById(
+            "countdown"
+        );
+
+    const countdownLabel =
+        document.getElementById(
+            "countdownLabel"
+        );
+
+    const countdownDate =
+        document.getElementById(
+            "countdownDate"
+        );
+
+    if (
+        !countdown ||
+        !auctionDate
+    ) {
+        return;
+    }
+
+    const target =
+        new Date(auctionDate);
+
+    if (
+        Number.isNaN(
+            target.getTime()
+        )
+    ) {
+
+        countdown.textContent =
+            "Brak danych";
+
+        return;
+    }
+
+    function tick() {
+
+        const now =
+            Date.now();
+
+        const difference =
+            target.getTime() - now;
+
+        if (difference > 0) {
+
+            countdown.classList.add(
+                "active"
+            );
+
+            countdown.classList.remove(
+                "finished"
+            );
+
+            countdown.textContent =
+                formatCountdown(
+                    difference
+                );
+
+            if (countdownLabel) {
+
+                countdownLabel.textContent =
+                    "AUKCJA ROZPOCZNIE SIĘ ZA";
+            }
+
+            return;
+        }
+
+        countdown.classList.remove(
+            "active"
+        );
+
+        countdown.classList.add(
+            "finished"
+        );
+
+        countdown.textContent =
+            "00:00:00";
+
+        if (countdownLabel) {
+
+            countdownLabel.textContent =
+                "AUKCJA POWINNA JUŻ TRWAĆ";
+        }
+    }
+
+    tick();
+
+    if (countdownTimer) {
+
+        clearInterval(
+            countdownTimer
+        );
+    }
+
+    countdownTimer =
+        setInterval(
+            tick,
+            1000
+        );
+}
+
+
+/* =========================================================
+   ZMIANA ZDJĘCIA
+========================================================= */
+
+function changeImage(image, element) {
+
+    const main =
+        document.getElementById(
+            "mainImage"
+        );
+
+    if (main) {
+
+        main.src = image;
+    }
+
+    document
+        .querySelectorAll(".thumb")
+        .forEach(
+            thumb =>
+                thumb.classList.remove(
+                    "active"
+                )
+        );
+
+    if (element) {
+
+        element.classList.add(
+            "active"
+        );
+    }
+}
+
+
+/* =========================================================
+   RENDER
+========================================================= */
+
 function renderCar(car) {
 
     const app =
-        document.getElementById("app");
+        document.getElementById(
+            "app"
+        );
 
     const vin =
         car.vin ??
         car.VIN ??
         "";
 
-    const media =
-        getMedia(car);
-
     const images =
-        media.images;
+        getImages(car);
 
-    const videos =
-        media.videos;
+    const videoUrl =
+        getVideoUrl(car);
 
     const price =
         getPrice(car);
@@ -1264,23 +1803,17 @@ function renderCar(car) {
         ).toUpperCase();
 
     const firstImage =
-        images[0]?.large ??
-        images[0]?.thumb ??
-        "";
+        images[0] || "";
 
-    const hasKey =
-        car.condition?.has_key ??
-        car.details?.attributes?.Keys ??
-        car.keys ??
-        car.key ??
-        car.has_keys;
+    const auctionDateText =
+        auctionDate
+            ? formatDate(auctionDate)
+            : "Termin aukcji niedostępny";
 
-    const runCondition =
-        car.condition?.run_condition?.label ??
-        car.details?.vehicle_information?.StartCode ??
-        car.run_cond;
 
     app.innerHTML = `
+
+        <!-- ================= HEADER ================= -->
 
         <section class="car-header">
 
@@ -1298,7 +1831,10 @@ function renderCar(car) {
                         : ""
                     }
 
-                    <span class="status ${status.key}">
+                    <span
+                        class="status ${status.key}"
+                        id="headerStatus"
+                    >
                         ${status.label}
                     </span>
 
@@ -1323,17 +1859,58 @@ function renderCar(car) {
                 <button
                     class="favorite"
                     id="favoriteButton"
-                    onclick="toggleFavorite('${vin}')"
+                    type="button"
                 >
                     ♡ Dodaj do ulubionych
                 </button>
 
             </div>
 
+
+            ${
+                auctionDate
+                ? `
+                    <div class="countdown-box">
+
+                        <div class="countdown-info">
+
+                            <div
+                                class="countdown-label"
+                                id="countdownLabel"
+                            >
+                                AUKCJA ROZPOCZNIE SIĘ ZA
+                            </div>
+
+                            <div
+                                class="countdown-date"
+                                id="countdownDate"
+                            >
+                                ${auctionDateText}
+                            </div>
+
+                        </div>
+
+                        <div
+                            class="countdown"
+                            id="countdown"
+                        >
+                            Ładowanie...
+                        </div>
+
+                    </div>
+                `
+                : ""
+            }
+
         </section>
 
 
+        <!-- ================= MAIN ================= -->
+
         <div class="main-grid">
+
+
+            <!-- GALERIA -->
 
             <section class="gallery">
 
@@ -1362,6 +1939,7 @@ function renderCar(car) {
                     `
                 }
 
+
                 <div class="thumbs">
 
                     ${images.map(
@@ -1373,10 +1951,24 @@ function renderCar(car) {
                                         ? "active"
                                         : ""
                                 }"
-                                src="${image.thumb || image.large}"
-                                data-large="${image.large || image.thumb}"
-                                onclick="changeImage(this)"
+                                src="${image}"
+                                onclick="
+                                    changeImage(
+                                        '${image
+                                            .replace(
+                                                /\\/g,
+                                                "\\\\"
+                                            )
+                                            .replace(
+                                                /'/g,
+                                                "\\'"
+                                            )
+                                        }',
+                                        this
+                                    )
+                                "
                                 alt="${title}"
+                                loading="lazy"
                             >
 
                         `
@@ -1384,31 +1976,10 @@ function renderCar(car) {
 
                 </div>
 
-
-                ${
-                    videos.length
-                    ? `
-                        <div class="video-box">
-
-                            <video
-                                controls
-                                preload="metadata"
-                            >
-                                <source
-                                    src="${videos[0]}"
-                                    type="video/mp4"
-                                >
-                                Twoja przeglądarka
-                                nie obsługuje odtwarzania video.
-                            </video>
-
-                        </div>
-                    `
-                    : ""
-                }
-
             </section>
 
+
+            <!-- INFORMACJE -->
 
             <aside class="info-card">
 
@@ -1420,12 +1991,16 @@ function renderCar(car) {
                     ${money(price)}
                 </div>
 
-                <div class="auction-status ${status.key}">
+                <div
+                    class="auction-status ${status.key}"
+                    id="auctionStatus"
+                >
                     ${status.label}
                 </div>
 
 
                 <div class="info-row">
+
                     <span class="info-label">
                         Rok
                     </span>
@@ -1433,10 +2008,12 @@ function renderCar(car) {
                     <span class="info-value">
                         ${displayValue(car.year)}
                     </span>
+
                 </div>
 
 
                 <div class="info-row">
+
                     <span class="info-label">
                         Przebieg
                     </span>
@@ -1444,10 +2021,12 @@ function renderCar(car) {
                     <span class="info-value">
                         ${getMileage(car)}
                     </span>
+
                 </div>
 
 
                 <div class="info-row">
+
                     <span class="info-label">
                         Uszkodzenie
                     </span>
@@ -1455,21 +2034,25 @@ function renderCar(car) {
                     <span class="info-value">
                         ${getDamage(car)}
                     </span>
+
                 </div>
 
 
                 <div class="info-row">
+
                     <span class="info-label">
                         Stan
                     </span>
 
                     <span class="info-value">
-                        ${displayValue(runCondition)}
+                        ${getRunCondition(car)}
                     </span>
+
                 </div>
 
 
                 <div class="info-row">
+
                     <span class="info-label">
                         Lokalizacja
                     </span>
@@ -1477,10 +2060,12 @@ function renderCar(car) {
                     <span class="info-value">
                         ${getLocation(car)}
                     </span>
+
                 </div>
 
 
                 <div class="info-row">
+
                     <span class="info-label">
                         Lot
                     </span>
@@ -1488,6 +2073,7 @@ function renderCar(car) {
                     <span class="info-value">
                         ${lot}
                     </span>
+
                 </div>
 
 
@@ -1527,6 +2113,48 @@ function renderCar(car) {
         </div>
 
 
+        <!-- ================= VIDEO ================= -->
+
+        ${
+            videoUrl
+            ? `
+
+                <section class="video-card">
+
+                    <h2>
+                        Video pojazdu
+                    </h2>
+
+                    <video
+                        class="video-frame"
+                        controls
+                        preload="metadata"
+                    >
+
+                        <source
+                            src="${videoUrl}"
+                            type="video/mp4"
+                        >
+
+                        Twoja przeglądarka
+                        nie obsługuje odtwarzania video.
+
+                    </video>
+
+                    <div class="video-note">
+                        Materiał video pochodzi
+                        z platformy aukcyjnej.
+                    </div>
+
+                </section>
+
+            `
+            : ""
+        }
+
+
+        <!-- ================= SZCZEGÓŁY ================= -->
+
         <section class="details">
 
             <h2>
@@ -1535,140 +2163,269 @@ function renderCar(car) {
 
             <div class="details-grid">
 
+
                 <div class="detail">
+
                     <div class="detail-label">
                         Marka
                     </div>
+
                     <div class="detail-value">
                         ${displayValue(car.make)}
                     </div>
+
                 </div>
 
 
                 <div class="detail">
+
                     <div class="detail-label">
                         Model
                     </div>
+
                     <div class="detail-value">
                         ${displayValue(car.model)}
                     </div>
+
                 </div>
 
 
                 <div class="detail">
+
                     <div class="detail-label">
                         VIN
                     </div>
+
                     <div class="detail-value">
                         ${safe(vin)}
                     </div>
+
                 </div>
 
 
                 <div class="detail">
+
                     <div class="detail-label">
                         Skrzynia
                     </div>
+
                     <div class="detail-value">
                         ${getTransmission(car)}
                     </div>
+
                 </div>
 
 
                 <div class="detail">
+
                     <div class="detail-label">
                         Paliwo
                     </div>
+
                     <div class="detail-value">
                         ${getFuel(car)}
                     </div>
+
                 </div>
 
 
                 <div class="detail">
+
                     <div class="detail-label">
                         Napęd
                     </div>
+
                     <div class="detail-value">
                         ${getDrive(car)}
                     </div>
+
                 </div>
 
 
                 <div class="detail">
+
                     <div class="detail-label">
                         Silnik
                     </div>
+
                     <div class="detail-value">
                         ${getEngine(car)}
                     </div>
+
                 </div>
 
 
                 <div class="detail">
+
                     <div class="detail-label">
                         Typ nadwozia
                     </div>
+
                     <div class="detail-value">
                         ${getBodyType(car)}
                     </div>
+
                 </div>
 
 
                 <div class="detail">
+
                     <div class="detail-label">
                         Kolor
                     </div>
+
                     <div class="detail-value">
                         ${getColor(car)}
                     </div>
+
                 </div>
 
 
                 <div class="detail">
+
                     <div class="detail-label">
                         Kluczyk
                     </div>
+
                     <div class="detail-value">
-                        ${
-                            hasKey === true ||
-                            String(hasKey).toLowerCase() === "true"
-                                ? "Obecny"
-                                : displayValue(hasKey)
-                        }
+                        ${getKeys(car)}
                     </div>
+
                 </div>
 
 
                 <div class="detail">
+
                     <div class="detail-label">
                         Typ pojazdu
                     </div>
+
                     <div class="detail-value">
                         ${displayValue(
+                            car.type ??
                             car.vehicle_type ??
-                            car.type
+                            car.details?.vehicle_description?.Vehicle
                         )}
                     </div>
+
                 </div>
 
 
                 <div class="detail">
+
                     <div class="detail-label">
                         Platforma
                     </div>
+
                     <div class="detail-value">
                         ${displayValue(
                             car.platform ??
                             car.auction?.platform
                         )}
                     </div>
+
                 </div>
+
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        Dokument sprzedaży
+                    </div>
+
+                    <div class="detail-value">
+                        ${displayValue(
+                            car.sale_document?.name ??
+                            car.details?.vehicle_information?.TitleSaleDoc
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        Stan licznika
+                    </div>
+
+                    <div class="detail-value">
+                        ${displayValue(
+                            car.details?.vehicle_information?.Odometer
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        Poduszki powietrzne
+                    </div>
+
+                    <div class="detail-value">
+                        ${displayValue(
+                            car.details?.vehicle_information?.Airbags ??
+                            car.vehicle_specs?.airbags
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        Numer oddziału
+                    </div>
+
+                    <div class="detail-value">
+                        ${displayValue(
+                            car.details?.attributes?.BranchNumber ??
+                            car.details?.auction_information?.saleInformation?.branchCode
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        Pas aukcyjny
+                    </div>
+
+                    <div class="detail-value">
+                        ${displayValue(
+                            car.details?.sale_information?.Lane
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        ACV
+                    </div>
+
+                    <div class="detail-value">
+                        ${displayValue(
+                            car.details?.sale_information?.ActualCashValue
+                        )}
+                    </div>
+
+                </div>
+
 
             </div>
 
         </section>
 
+
+        <!-- ================= HISTORIA ================= -->
 
         <section class="details history">
 
@@ -1682,46 +2439,58 @@ function renderCar(car) {
 
     `;
 
-    renderFavoriteButton(vin);
 
-    setupAuctionLink(car);
-}
+    /* =====================================================
+       ULUBIONE
+    ===================================================== */
 
-
-function changeImage(element) {
-
-    const main =
+    const favoriteButton =
         document.getElementById(
-            "mainImage"
+            "favoriteButton"
         );
 
-    if (!main || !element) {
-        return;
+    if (favoriteButton) {
+
+        favoriteButton.addEventListener(
+            "click",
+            () => toggleFavorite(vin)
+        );
     }
 
-    const image =
-        element.dataset.large ||
-        element.src;
+    renderFavoriteButton(vin);
 
-    main.src = image;
 
-    document
-        .querySelectorAll(".thumb")
-        .forEach(
-            thumb =>
-                thumb.classList.remove(
-                    "active"
-                )
+    /* =====================================================
+       LINK AUKCJI
+    ===================================================== */
+
+    setupAuctionLink(car);
+
+
+    /* =====================================================
+       COUNTDOWN
+    ===================================================== */
+
+    if (auctionDate) {
+
+        updateCountdown(
+            auctionDate
         );
+    }
 
-    element.classList.add("active");
 }
 
+
+/* =========================================================
+   POBIERANIE SAMOCHODU
+========================================================= */
 
 async function loadCar() {
 
     const app =
-        document.getElementById("app");
+        document.getElementById(
+            "app"
+        );
 
     const params =
         new URLSearchParams(
@@ -1730,6 +2499,7 @@ async function loadCar() {
 
     const vin =
         params.get("vin");
+
 
     if (!vin) {
 
@@ -1752,6 +2522,15 @@ async function loadCar() {
 
 
     try {
+
+        /*
+         * TEN ENDPOINT ZOSTAWIAMY.
+         *
+         * To jest endpoint, który już
+         * wcześniej działał:
+         *
+         * /api/cars?s=VIN
+         */
 
         const response =
             await fetch(
@@ -1791,6 +2570,12 @@ async function loadCar() {
                 : [];
 
 
+        const wantedVin =
+            String(vin)
+                .trim()
+                .toUpperCase();
+
+
         const car =
             cars.find(
                 item =>
@@ -1798,9 +2583,10 @@ async function loadCar() {
                         item.vin ??
                         item.VIN ??
                         ""
-                    ).toUpperCase() ===
-                    String(vin)
-                        .toUpperCase()
+                    )
+                    .trim()
+                    .toUpperCase() ===
+                    wantedVin
             ) ||
             cars[0];
 
@@ -1830,7 +2616,10 @@ async function loadCar() {
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Rex.Bid car.html:",
+            error
+        );
 
         app.innerHTML = `
 
@@ -1840,7 +2629,17 @@ async function loadCar() {
                     Nie udało się pobrać samochodu
                 </strong>
 
-                Wystąpił problem z połączeniem z API.
+                Wystąpił problem
+                z połączeniem z API.
+
+                <br><br>
+
+                <small>
+                    ${displayValue(
+                        error?.message,
+                        "Nieznany błąd"
+                    )}
+                </small>
 
             </div>
 
@@ -1848,6 +2647,10 @@ async function loadCar() {
     }
 }
 
+
+/* =========================================================
+   START
+========================================================= */
 
 loadCar();
 
