@@ -391,6 +391,7 @@ footer {
 }
 
 @media (max-width: 900px) {
+
     .main-grid {
         grid-template-columns: 1fr;
     }
@@ -405,6 +406,7 @@ footer {
 }
 
 @media (max-width: 600px) {
+
     .nav {
         padding: 15px;
     }
@@ -443,6 +445,7 @@ footer {
 <body>
 
 <header class="topbar">
+
     <div class="nav">
 
         <a href="index.html" class="logo">
@@ -462,6 +465,7 @@ footer {
         </a>
 
     </div>
+
 </header>
 
 <main class="container" id="app">
@@ -474,7 +478,9 @@ footer {
 </main>
 
 <footer>
+
     <div class="footer-inner">
+
         <div class="footer-logo">
             Rex<span>.Bid</span>
         </div>
@@ -482,12 +488,15 @@ footer {
         <div class="copyright">
             © 2026 Rex.Bid. Wszystkie prawa zastrzeżone.
         </div>
+
     </div>
+
 </footer>
 
 <script>
 
 function safe(value, fallback = "—") {
+
     if (
         value === null ||
         value === undefined ||
@@ -500,10 +509,6 @@ function safe(value, fallback = "—") {
 }
 
 
-/*
- * APIbara czasami zwraca obiekt zamiast zwykłego tekstu.
- * Dzięki temu nie zobaczymy już "[object Object]".
- */
 function displayValue(value, fallback = "—") {
 
     if (
@@ -514,13 +519,16 @@ function displayValue(value, fallback = "—") {
         return fallback;
     }
 
-    if (typeof value === "string" ||
+    if (
+        typeof value === "string" ||
         typeof value === "number" ||
-        typeof value === "boolean") {
+        typeof value === "boolean"
+    ) {
         return String(value);
     }
 
     if (Array.isArray(value)) {
+
         return value
             .map(item => displayValue(item, ""))
             .filter(Boolean)
@@ -541,18 +549,25 @@ function displayValue(value, fallback = "—") {
         ];
 
         for (const key of preferred) {
+
             if (
                 value[key] !== undefined &&
                 value[key] !== null &&
                 value[key] !== ""
             ) {
-                return displayValue(value[key], fallback);
+                return displayValue(
+                    value[key],
+                    fallback
+                );
             }
         }
 
-        const values = Object.values(value)
-            .map(item => displayValue(item, ""))
-            .filter(Boolean);
+        const values =
+            Object.values(value)
+                .map(item =>
+                    displayValue(item, "")
+                )
+                .filter(Boolean);
 
         if (values.length) {
             return values.join(", ");
@@ -591,7 +606,8 @@ function money(value) {
         return displayValue(value);
     }
 
-    return "$" + number.toLocaleString("en-US");
+    return "$" +
+        number.toLocaleString("en-US");
 }
 
 
@@ -600,18 +616,13 @@ function getPrice(car) {
     const candidates = [
 
         car.pricing?.current_bid_usd,
-
         car.pricing?.current_bid,
-
         car.current_bid_usd,
-
         car.current_bid,
-
         car.price,
-
         car.sale_price,
-
         car.bid
+
     ];
 
     for (const value of candidates) {
@@ -634,14 +645,11 @@ function getMileage(car) {
     const candidates = [
 
         car.odometer?.mi,
-
         car.odometer?.miles,
-
         car.odometer,
-
         car.mileage,
-
         car.miles
+
     ];
 
     for (const value of candidates) {
@@ -660,12 +668,18 @@ function getMileage(car) {
                     value.value;
 
                 if (number !== undefined) {
-                    return Number(number).toLocaleString("en-US") + " mi";
+
+                    return Number(number)
+                        .toLocaleString("en-US") +
+                        " mi";
                 }
             }
 
             if (!isNaN(Number(value))) {
-                return Number(value).toLocaleString("en-US") + " mi";
+
+                return Number(value)
+                    .toLocaleString("en-US") +
+                    " mi";
             }
 
             return displayValue(value);
@@ -822,11 +836,11 @@ function getStatus(car) {
 
     if (
         raw.includes("sold") ||
-        raw.includes("sold") ||
         raw.includes("ended") ||
         raw.includes("closed") ||
         raw.includes("completed")
     ) {
+
         return {
             key: "ended",
             label: "AUKCJA ZAKOŃCZONA"
@@ -838,32 +852,33 @@ function getStatus(car) {
         raw.includes("future") ||
         raw.includes("scheduled")
     ) {
+
         return {
             key: "upcoming",
             label: "NADCHODZĄCA AUKCJA"
         };
     }
 
-    const dateValue = getAuctionDate(car);
+    const dateValue =
+        getAuctionDate(car);
 
     if (dateValue) {
 
-        const date = new Date(dateValue);
+        const date =
+            new Date(dateValue);
 
         if (!Number.isNaN(date.getTime())) {
 
-            if (date.getTime() > Date.now()) {
+            if (
+                date.getTime() >
+                Date.now()
+            ) {
 
                 return {
                     key: "upcoming",
                     label: "NADCHODZĄCA AUKCJA"
                 };
             }
-
-            return {
-                key: "active",
-                label: "AKTYWNA AUKCJA"
-            };
         }
     }
 
@@ -902,13 +917,18 @@ function getImages(car) {
         car.media &&
         Array.isArray(car.media.images)
     ) {
-        images = car.media.images;
+
+        images = [
+            ...images,
+            ...car.media.images
+        ];
     }
 
     if (
         car.media &&
         Array.isArray(car.media.thumbs)
     ) {
+
         images = [
             ...images,
             ...car.media.thumbs
@@ -919,41 +939,45 @@ function getImages(car) {
         car.photos &&
         Array.isArray(car.photos)
     ) {
+
         images = [
             ...images,
             ...car.photos
         ];
     }
 
-    images = images
-        .map(image => {
+    images =
+        images
+            .map(image => {
 
-            if (typeof image === "string") {
-                return image;
-            }
+                if (
+                    typeof image === "string"
+                ) {
+                    return image;
+                }
 
-            if (typeof image === "object") {
+                if (
+                    typeof image === "object"
+                ) {
 
-                return (
-                    image.url ??
-                    image.src ??
-                    image.image_url ??
-                    image.large ??
-                    image.medium ??
-                    image.thumbnail ??
-                    null
-                );
-            }
+                    return (
+                        image.url ??
+                        image.src ??
+                        image.image_url ??
+                        image.large ??
+                        image.medium ??
+                        image.thumbnail ??
+                        null
+                    );
+                }
 
-            return null;
-        })
-        .filter(Boolean);
+                return null;
+            })
+            .filter(Boolean);
 
-    images = [
+    return [
         ...new Set(images)
     ];
-
-    return images;
 }
 
 
@@ -990,7 +1014,9 @@ function toggleFavorite(vin) {
     let favorites =
         getFavorites();
 
-    if (favorites.includes(vin)) {
+    if (
+        favorites.includes(vin)
+    ) {
 
         favorites =
             favorites.filter(
@@ -1018,7 +1044,8 @@ function renderFavoriteButton(vin) {
     if (!button) return;
 
     const active =
-        getFavorites().includes(vin);
+        getFavorites()
+            .includes(vin);
 
     button.classList.toggle(
         "active",
@@ -1059,7 +1086,8 @@ function setupAuctionLink(car) {
 
     if (!url) {
 
-        button.style.display = "none";
+        button.style.display =
+            "none";
 
         return;
     }
@@ -1077,24 +1105,32 @@ function renderHistory(car) {
         car.sales_history ??
         [];
 
-    if (!Array.isArray(history) || !history.length) {
+    if (
+        !Array.isArray(history) ||
+        !history.length
+    ) {
 
         return `
             <div class="history-empty">
-                Brak dostępnej historii aukcji dla tego pojazdu.
+                Brak dostępnej historii aukcji
+                dla tego pojazdu.
             </div>
         `;
     }
 
     return `
+
         <table class="history-table">
+
             <thead>
+
                 <tr>
                     <th>Data</th>
                     <th>Status</th>
                     <th>Cena</th>
                     <th>Platforma</th>
                 </tr>
+
             </thead>
 
             <tbody>
@@ -1139,7 +1175,9 @@ function renderHistory(car) {
                 `).join("")}
 
             </tbody>
+
         </table>
+
     `;
 }
 
@@ -1180,8 +1218,7 @@ function renderCar(car) {
         ).toUpperCase();
 
     const firstImage =
-        images[0] ||
-        "";
+        images[0] || "";
 
     app.innerHTML = `
 
@@ -1210,12 +1247,15 @@ function renderCar(car) {
                     </h1>
 
                     <div class="subtitle">
+
                         VIN: ${safe(vin)}
+
                         ${
                             lot !== "—"
                             ? " · Lot: " + lot
                             : ""
                         }
+
                     </div>
 
                 </div>
@@ -1268,9 +1308,21 @@ function renderCar(car) {
                         (image, index) => `
 
                             <img
-                                class="thumb ${index === 0 ? "active" : ""}"
+                                class="thumb ${
+                                    index === 0
+                                        ? "active"
+                                        : ""
+                                }"
                                 src="${image}"
-                                onclick="changeImage('${image.replace(/'/g, "\\'")}', this)"
+                                onclick="
+                                    changeImage(
+                                        '${image.replace(
+                                            /'/g,
+                                            "\\'"
+                                        )}',
+                                        this
+                                    )
+                                "
                                 alt="${title}"
                             >
 
@@ -1371,13 +1423,17 @@ function renderCar(car) {
                     auctionDate
                     ? `
                         <div class="info-row">
+
                             <span class="info-label">
                                 Aukcja
                             </span>
 
                             <span class="info-value">
-                                ${formatDate(auctionDate)}
+                                ${formatDate(
+                                    auctionDate
+                                )}
                             </span>
+
                         </div>
                     `
                     : ""
@@ -1574,7 +1630,9 @@ function changeImage(image, element) {
         .querySelectorAll(".thumb")
         .forEach(
             thumb =>
-                thumb.classList.remove("active")
+                thumb.classList.remove(
+                    "active"
+                )
         );
 
     element.classList.add("active");
@@ -1616,14 +1674,22 @@ async function loadCar() {
 
     try {
 
+        /*
+         * WAŻNE:
+         * Wracamy do endpointu, który już działał:
+         *
+         * /api/cars?s=VIN
+         */
+
         const response =
             await fetch(
-                "/api/car/" +
+                "/api/cars?s=" +
                 encodeURIComponent(vin),
                 {
                     cache: "no-store"
                 }
             );
+
 
         if (!response.ok) {
 
@@ -1661,8 +1727,10 @@ async function loadCar() {
                         item.VIN ??
                         ""
                     ).toUpperCase() ===
-                    String(vin).toUpperCase()
-            ) || cars[0];
+                    String(vin)
+                        .toUpperCase()
+            ) ||
+            cars[0];
 
 
         if (!car) {
