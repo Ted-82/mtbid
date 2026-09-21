@@ -550,6 +550,32 @@
     .title-verdict.salvage { border-color:#276f4b; }
     .title-verdict.salvage .verdict-label { color:var(--green); }
 
+    .auction-history {
+      border:1px solid var(--border);
+      border-radius:9px;
+      overflow:hidden;
+      background:#11151a;
+      max-height:320px;
+      overflow-y:auto;
+    }
+
+    .history-row {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:9px 10px;
+      border-bottom:1px solid var(--border);
+      font-size:10px;
+    }
+    .history-row:last-child { border-bottom:0; }
+    .history-row small {
+      display:block;
+      margin-top:3px;
+      color:var(--muted);
+      font-size:9px;
+    }
+
     .media-panel {
       padding:0;
     }
@@ -1548,9 +1574,30 @@
     );
   }
 
+  function getFinalBid() {
+    return first(
+      car.pricing?.last_sold_price_usd,
+      car.pricing?.final_bid_usd,
+      car.auction?.last_sold_price_usd,
+      car.auction?.final_bid_usd,
+      car.final_bid,
+      car.final_price,
+      valueFrom(["FinalBid","FinalBidAmount","lastSoldPriceUsd","LastSoldPriceUSD","SalePrice"])
+    );
+  }
+
   function getAuctionBid() {
+    // W trakcie oczekiwania/LIVE pokazujemy bieżącą ofertę.
+    // Po faktycznym zakończeniu aukcji pokazujemy finalną ofertę,
+    // jeżeli źródło ją przekazało. Nie mieszamy obu wartości.
+    if (auctionPhase() === "ended") {
+      const finalBid = getFinalBid();
+      if (!isEmpty(finalBid)) return finalBid;
+    }
+
     return first(
       car.pricing?.current_bid_usd,
+      car.pricing?.current_bid2_usd,
       car.current_bid,
       car.price,
       car.auction?.current_bid,
@@ -1799,8 +1846,7 @@
   }
 
   function auctionPhase() {
-    const state = String(getAuctionStatus() || "").toLowerCase();
-    if (/sold|closed|ended|complete|completed|cancel|cancelled|canceled|no sale|notsold/.test(state)) return "ended";
+    const state = String(getAuctionStatus() || "").toLowerCase().trim();
 
     const startRaw = getAuctionStart();
     const endRaw = getAuctionEnd();
@@ -1808,10 +1854,41 @@
     const end = endRaw ? new Date(endRaw).getTime() : NaN;
     const now = Date.now();
 
+    const explicitlyCancelled =
+      /cancel|cancelled|canceled|withdrawn/.test(state);
+
+    // Najważniejsze: jeżeli aukcja ma przyszły czas rozpoczęcia,
+    // nie wolno uznać jej za zakończoną tylko dlatego, że API
+    // przekazało stary/statusowy "sold/closed".
+    if (Number.isFinite(start) && now < start) {
+      return explicitlyCancelled ? "ended" : "prebid";
+    }
+
+    // Jeżeli źródło podało rzeczywisty czas końca i już minął,
+    // dopiero wtedy uznajemy aukcję za zakończoną.
     if (Number.isFinite(end) && now >= end) return "ended";
-    if (Number.isFinite(start) && now < start) return "prebid";
-    if (/live|open|active|running|in progress|current/.test(state)) return "live";
-    if (Number.isFinite(start) && now >= start) return "live";
+
+    // Po rozpoczęciu aukcji status LIVE/OPEN/ACTIVE ma pierwszeństwo.
+    if (/live|open|active|running|in progress|current|started/.test(state)) {
+      return "live";
+    }
+
+    // Jeżeli aukcja rozpoczęła się, ale API nie podało końca,
+    // nie pokazujemy fałszywego "Zakończona" tylko dlatego,
+    // że pole statusu jest nieaktualne. Potrzebujemy finalnej ceny
+    // lub rzeczywistego czasu końca, żeby zamrozić aukcję.
+    if (Number.isFinite(start) && now >= start) {
+      const finalBid = getFinalBid();
+      if (!isEmpty(finalBid) && /sold|closed|ended|complete|completed|no sale|notsold/.test(state)) {
+        return "ended";
+      }
+      return "live";
+    }
+
+    if (/sold|closed|ended|complete|completed|no sale|notsold/.test(state)) {
+      return "ended";
+    }
+
     return "scheduled";
   }
 
@@ -1932,7 +2009,7 @@
 
           <h1>
             ${esc(title || `${year || ""} ${make || ""} ${model || ""}`)}
-            ${String(getAuctionStatus() || "").toLowerCase() === "open" ? `<span class="live"><span class="live-dot"></span> LIVE</span>` : ""}
+            ${auctionPhase() === "live" ? `<span class="live"><span class="live-dot"></span> LIVE</span>` : ""}
           </h1>
 
           <div class="vin-row">
@@ -1963,7 +2040,9 @@
             <small id="bidLabel">${auctionPhase() === "prebid" ? "Najwyższa oferta przed licytacją" : "Aktualna oferta"}</small>
             <div class="price" id="currentBidPrice">${money(getAuctionBid())}</div>
             <div class="price-sub">
-              ${getBuyNow() ? `Buy Now: ${money(getBuyNow())}` : "Cena z aukcji, jeśli została przekazana"}
+              ${auctionPhase() === "ended" && !isEmpty(getFinalBid())
+                ? "Oferta końcowa aukcji"
+                : getBuyNow() ? `Buy Now: ${money(getBuyNow())}` : "Cena z aukcji, jeśli została przekazana"}
             </div>
           </div>
 
@@ -2125,6 +2204,14 @@
           </section>
 
           <section class="panel side-section">
+            <h3>Historia aukcji tego VIN</h3>
+            <div id="auctionHistory" class="auction-history"></div>
+            <div class="seller-note" style="margin-top:8px">
+              Rex.Bid zapisuje kolejne odczyty ceny i statusu dla tego VIN-u, aby można było zobaczyć, jak aukcja się zmieniała. Historia jest obecnie przechowywana lokalnie w przeglądarce.
+            </div>
+          </section>
+
+          <section class="panel side-section">
             <h3>Lokalizacja</h3>
             ${kv("Oddział",getSale(["SellingBranch"]))}
             ${kv("Miejsce",location)}
@@ -2152,6 +2239,8 @@
     renderPhotos();
     startCountdown();
     initImportCalculator();
+    saveAuctionSnapshot();
+    renderAuctionHistory();
     startAuctionRefresh();
   }
 
@@ -2630,6 +2719,7 @@
       car = fresh;
       const newBid = getAuctionBid();
       updateAuctionUi();
+      saveAuctionSnapshot();
       if (String(oldBid ?? "") !== String(newBid ?? "")) {
         const bidNode = document.getElementById("currentBidPrice");
         if (bidNode) {
@@ -2642,12 +2732,124 @@
     }
   }
 
+  /* AUCTION HISTORY — historia zmian ceny/statusu dla każdego VIN-u */
+  const HISTORY_KEY = "rex_bid_auction_history_v1";
+  const HISTORY_MAX_PER_VIN = 500;
+
+  function historyKey() {
+    const vin = String(getVin() || "").trim().toUpperCase();
+    const platform = String(platformName() || "").trim().toUpperCase();
+    const lot = String(getLot() || "").trim();
+    return `${platform}|${lot}|${vin}`;
+  }
+
+  function readAuctionHistory() {
+    try {
+      const raw = localStorage.getItem(HISTORY_KEY);
+      const data = raw ? JSON.parse(raw) : {};
+      return data && typeof data === "object" ? data : {};
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function writeAuctionHistory(data) {
+    try {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(data));
+    } catch (_) {
+      // Brak miejsca / tryb prywatny — historia bieżącej strony nadal działa.
+    }
+  }
+
+  function saveAuctionSnapshot() {
+    const key = historyKey();
+    if (!key || key.endsWith("|")) return;
+
+    const phase = auctionPhase();
+    const bid = getAuctionBid();
+    const snapshot = {
+      at: new Date().toISOString(),
+      phase,
+      status: String(getAuctionStatus() || ""),
+      bid: isEmpty(bid) ? null : Number(bid),
+      auctionStart: getAuctionStart() || null,
+      auctionEnd: getAuctionEnd() || null
+    };
+
+    const data = readAuctionHistory();
+    const list = Array.isArray(data[key]) ? data[key] : [];
+    const previous = list[list.length - 1];
+
+    // Nie zapisujemy identycznych odczytów co 10 sekund.
+    if (
+      previous &&
+      previous.phase === snapshot.phase &&
+      String(previous.status) === String(snapshot.status) &&
+      String(previous.bid) === String(snapshot.bid)
+    ) {
+      return;
+    }
+
+    list.push(snapshot);
+    data[key] = list.slice(-HISTORY_MAX_PER_VIN);
+    writeAuctionHistory(data);
+    renderAuctionHistory();
+  }
+
+  function renderAuctionHistory() {
+    const box = document.getElementById("auctionHistory");
+    if (!box) return;
+
+    const key = historyKey();
+    const data = readAuctionHistory();
+    const list = Array.isArray(data[key]) ? data[key] : [];
+
+    if (!list.length) {
+      box.innerHTML = '<div class="empty" style="padding:20px">Historia zacznie się zapisywać przy kolejnych odczytach aukcji.</div>';
+      return;
+    }
+
+    const rows = list.slice().reverse().slice(0,30).map(item => {
+      const phaseLabel =
+        item.phase === "prebid" ? "Przed licytacją" :
+        item.phase === "live" ? "LIVE" :
+        item.phase === "ended" ? "Zakończona" : "Zaplanowana";
+
+      const bid = item.bid === null || Number.isNaN(Number(item.bid))
+        ? "—"
+        : money(item.bid);
+
+      return `
+        <div class="history-row">
+          <div>
+            <strong>${esc(formatDate(item.at))}</strong>
+            <small>${esc(phaseLabel)}${item.status ? " • " + esc(item.status) : ""}</small>
+          </div>
+          <strong>${esc(bid)}</strong>
+        </div>
+      `;
+    }).join("");
+
+    box.innerHTML = rows;
+  }
+
   function startAuctionRefresh() {
     if (auctionRefreshTimer) clearInterval(auctionRefreshTimer);
     // Podczas oczekiwania i LIVE odświeżamy ofertę co 10 sekund,
     // dzięki czemu cena/status mogą zmieniać się bez przeładowania strony.
     auctionRefreshTimer = setInterval(() => {
-      if (auctionPhase() !== "ended") refreshAuctionData();
+      // Nie zatrzymujemy odświeżania tylko dlatego, że poprzedni snapshot
+      // miał status "sold/closed". Jeśli aukcja ma przyszły start albo
+      // właśnie trwa, nowe dane mogą zmienić cenę i status.
+      const startRaw = getAuctionStart();
+      const start = startRaw ? new Date(startRaw).getTime() : NaN;
+      const now = Date.now();
+      const shouldWatch =
+        (Number.isFinite(start) && now <= start + 12 * 60 * 60 * 1000) ||
+        auctionPhase() === "prebid" ||
+        auctionPhase() === "live";
+
+      if (shouldWatch) refreshAuctionData();
     }, 10000);
   }
 
