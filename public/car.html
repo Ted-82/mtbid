@@ -3,72 +3,1855 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Rex.Bid — Samochód</title>
+
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f5f6f8;color:#15171a}
-a{color:inherit;text-decoration:none}.topbar{background:#111315;color:#fff;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.15)}
-.nav{max-width:1400px;min-height:72px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:30px}.logo{font-size:28px;font-weight:900;letter-spacing:-1px}.logo span,.footer-logo span{color:#ffb400}
-.menu{display:flex;gap:22px;flex:1}.menu a{color:#d9dcdf;font-size:14px;font-weight:700}.menu a:hover{color:#fff}.back{color:#d9dcdf;font-size:13px;font-weight:700}
-.container{max-width:1300px;margin:0 auto;padding:35px 24px 70px}.loading,.error,.car-header,.gallery,.info-card,.details{background:#fff;border:1px solid #e0e3e6;border-radius:12px}
-.loading,.error{padding:50px 25px;text-align:center}.error strong,.loading strong{display:block;font-size:20px;margin-bottom:10px}.error{color:#666}
-.car-header{padding:22px;margin-bottom:20px}.header-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
-.platform{display:inline-block;background:#111315;color:#fff;padding:6px 9px;border-radius:5px;font-size:11px;font-weight:900;margin-bottom:10px}
-.status{display:inline-block;margin-left:8px;padding:6px 9px;border-radius:5px;font-size:11px;font-weight:900}.status.active,.auction-status.active{background:#e8f7ed;color:#17823b}.status.upcoming,.auction-status.upcoming{background:#fff4d8;color:#9a6800}.status.ended,.auction-status.ended{background:#eceef0;color:#666}
-.car-header h1{margin:0 0 8px;font-size:32px}.subtitle{color:#70757b;font-size:14px}.favorite{border:1px solid #d8dce0;background:#fff;border-radius:8px;padding:11px 16px;cursor:pointer;font-weight:800}.favorite.active{color:#e4002b}
-.main-grid{display:grid;grid-template-columns:1.4fr .8fr;gap:20px}.gallery{overflow:hidden}.main-image-wrap{position:relative;background:#e9ebed}.main-image{width:100%;height:520px;object-fit:contain;display:block;background:#e9ebed}
-.gallery-control{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;border-radius:50%;background:rgba(17,19,21,.75);color:#fff;font-size:25px;font-weight:700;cursor:pointer;z-index:2}.gallery-control:hover{background:rgba(17,19,21,.92)}.gallery-control.prev{left:14px}.gallery-control.next{right:14px}
-.image-counter{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:rgba(17,19,21,.78);color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:800}
-.thumbs{display:flex;gap:8px;padding:12px;overflow-x:auto}.thumb{width:90px;height:65px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid transparent;flex-shrink:0}.thumb.active{border-color:#ffb400}
-.info-card{padding:22px}.price-label{color:#777d83;font-size:11px;font-weight:800;margin-bottom:5px}.price{font-size:34px;font-weight:900;margin-bottom:12px}.auction-status{display:inline-block;margin-bottom:14px;padding:7px 10px;border-radius:6px;font-size:11px;font-weight:900}
-.info-row{display:flex;justify-content:space-between;gap:15px;padding:12px 0;border-bottom:1px solid #eceef0;font-size:14px}.info-row:last-child{border-bottom:0}.info-label{color:#777d83}.info-value{font-weight:800;text-align:right}
-.details{margin-top:20px;padding:25px}.details h2{margin:0 0 20px;font-size:22px}.details-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#e4e6e8;border:1px solid #e4e6e8}.detail{background:#fff;padding:15px}.detail-label{color:#777d83;font-size:11px;margin-bottom:5px}.detail-value{font-size:14px;font-weight:800;word-break:break-word}
-.auction-button{display:block;width:100%;margin-top:18px;background:#ffb400;color:#111315;text-align:center;padding:13px;border-radius:8px;font-weight:900}.auction-button:hover{background:#ffc431}
-.video-wrap{margin-top:20px}.video-button{display:inline-block;background:#111315;color:#fff;padding:12px 16px;border-radius:8px;font-weight:900}.video-button:hover{background:#2b2e31}
-.history{margin-top:20px}.history-empty{color:#777;padding:15px 0}.history-table{width:100%;border-collapse:collapse;font-size:14px}.history-table th,.history-table td{padding:13px;border-bottom:1px solid #eceef0;text-align:left}.history-table th{color:#777d83;font-size:11px;text-transform:uppercase}
-footer{background:#111315;color:#bfc3c7;padding:35px 24px}.footer-inner{max-width:1300px;margin:0 auto}.footer-logo{color:#fff;font-size:24px;font-weight:900}.copyright{margin-top:15px;font-size:12px;color:#858b91}
-@media(max-width:900px){.main-grid{grid-template-columns:1fr}.main-image{height:420px}.details-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.nav{padding:15px}.menu{display:none}.container{padding:20px 14px 50px}.header-top{flex-direction:column}.car-header h1{font-size:25px}.main-image{height:280px}.details-grid{grid-template-columns:1fr}.price{font-size:28px}}
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f5f6f8;
+    color: #15171a;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.topbar {
+    background: #111315;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,.15);
+}
+
+.nav {
+    max-width: 1400px;
+    min-height: 72px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -1px;
+}
+
+.logo span {
+    color: #ffb400;
+}
+
+.menu {
+    display: flex;
+    gap: 22px;
+    flex: 1;
+}
+
+.menu a {
+    color: #d9dcdf;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.menu a:hover {
+    color: white;
+}
+
+.back {
+    color: #d9dcdf;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 35px 24px 70px;
+}
+
+.loading,
+.error {
+    background: white;
+    border: 1px solid #e0e3e6;
+    border-radius: 12px;
+    padding: 50px 25px;
+    text-align: center;
+}
+
+.error strong,
+.loading strong {
+    display: block;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.error {
+    color: #666;
+}
+
+.car-header {
+    background: white;
+    border: 1px solid #e0e3e6;
+    border-radius: 12px;
+    padding: 22px;
+    margin-bottom: 20px;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.platform {
+    display: inline-block;
+    background: #111315;
+    color: white;
+    padding: 6px 9px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 900;
+    margin-bottom: 10px;
+}
+
+.status {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 6px 9px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.status.active {
+    background: #e8f7ed;
+    color: #17823b;
+}
+
+.status.upcoming {
+    background: #fff4d8;
+    color: #9a6800;
+}
+
+.status.ended {
+    background: #eceef0;
+    color: #666;
+}
+
+.car-header h1 {
+    margin: 0 0 8px;
+    font-size: 32px;
+}
+
+.subtitle {
+    color: #70757b;
+    font-size: 14px;
+}
+
+.favorite {
+    border: 1px solid #d8dce0;
+    background: white;
+    border-radius: 8px;
+    padding: 11px 16px;
+    cursor: pointer;
+    font-weight: 800;
+}
+
+.favorite.active {
+    color: #e4002b;
+}
+
+.main-grid {
+    display: grid;
+    grid-template-columns: 1.4fr .8fr;
+    gap: 20px;
+}
+
+.gallery {
+    background: white;
+    border: 1px solid #e0e3e6;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.main-image {
+    width: 100%;
+    height: 520px;
+    object-fit: contain;
+    display: block;
+    background: #e9ebed;
+}
+
+.thumbs {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    overflow-x: auto;
+}
+
+.thumb {
+    width: 90px;
+    height: 65px;
+    object-fit: cover;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    flex-shrink: 0;
+}
+
+.thumb.active {
+    border-color: #ffb400;
+}
+
+.video-box {
+    margin: 0 12px 12px;
+    background: #111315;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.video-box video {
+    display: block;
+    width: 100%;
+    max-height: 500px;
+    background: #000;
+}
+
+.info-card {
+    background: white;
+    border: 1px solid #e0e3e6;
+    border-radius: 12px;
+    padding: 22px;
+}
+
+.price-label {
+    color: #777d83;
+    font-size: 11px;
+    font-weight: 800;
+    margin-bottom: 5px;
+}
+
+.price {
+    font-size: 34px;
+    font-weight: 900;
+    margin-bottom: 12px;
+}
+
+.auction-status {
+    display: inline-block;
+    margin-bottom: 14px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.auction-status.active {
+    background: #e8f7ed;
+    color: #17823b;
+}
+
+.auction-status.upcoming {
+    background: #fff4d8;
+    color: #9a6800;
+}
+
+.auction-status.ended {
+    background: #eceef0;
+    color: #666;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 12px 0;
+    border-bottom: 1px solid #eceef0;
+    font-size: 14px;
+}
+
+.info-row:last-child {
+    border-bottom: 0;
+}
+
+.info-label {
+    color: #777d83;
+}
+
+.info-value {
+    font-weight: 800;
+    text-align: right;
+}
+
+.details {
+    background: white;
+    border: 1px solid #e0e3e6;
+    border-radius: 12px;
+    margin-top: 20px;
+    padding: 25px;
+}
+
+.details h2 {
+    margin: 0 0 20px;
+    font-size: 22px;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: #e4e6e8;
+    border: 1px solid #e4e6e8;
+}
+
+.detail {
+    background: white;
+    padding: 15px;
+}
+
+.detail-label {
+    color: #777d83;
+    font-size: 11px;
+    margin-bottom: 5px;
+}
+
+.detail-value {
+    font-size: 14px;
+    font-weight: 800;
+    word-break: break-word;
+}
+
+.auction-button {
+    display: block;
+    width: 100%;
+    margin-top: 18px;
+    background: #ffb400;
+    color: #111315;
+    text-align: center;
+    padding: 13px;
+    border-radius: 8px;
+    font-weight: 900;
+}
+
+.auction-button:hover {
+    background: #ffc431;
+}
+
+.history {
+    margin-top: 20px;
+}
+
+.history-empty {
+    color: #777;
+    padding: 15px 0;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.history-table th,
+.history-table td {
+    padding: 13px;
+    border-bottom: 1px solid #eceef0;
+    text-align: left;
+}
+
+.history-table th {
+    color: #777d83;
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+footer {
+    background: #111315;
+    color: #bfc3c7;
+    padding: 35px 24px;
+}
+
+.footer-inner {
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+.footer-logo {
+    color: white;
+    font-size: 24px;
+    font-weight: 900;
+}
+
+.footer-logo span {
+    color: #ffb400;
+}
+
+.copyright {
+    margin-top: 15px;
+    font-size: 12px;
+    color: #858b91;
+}
+
+@media (max-width: 900px) {
+
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .main-image {
+        height: 420px;
+    }
+
+    .details-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+
+    .nav {
+        padding: 15px;
+    }
+
+    .menu {
+        display: none;
+    }
+
+    .container {
+        padding: 20px 14px 50px;
+    }
+
+    .header-top {
+        flex-direction: column;
+    }
+
+    .car-header h1 {
+        font-size: 25px;
+    }
+
+    .main-image {
+        height: 280px;
+    }
+
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .price {
+        font-size: 28px;
+    }
+}
 </style>
 </head>
+
 <body>
-<header class="topbar"><div class="nav"><a href="index.html" class="logo">Rex<span>.Bid</span></a><nav class="menu"><a href="index.html">Aukcje</a><a href="jak-to-dziala.html">Jak to działa</a><a href="o-nas.html">O nas</a><a href="kontakt.html">Kontakt</a><a href="ulubione.html">♡ Ulubione</a></nav><a href="index.html" class="back">← Wróć do aukcji</a></div></header>
-<main class="container" id="app"><div class="loading"><strong>Ładowanie samochodu...</strong>Pobieranie danych aukcji.</div></main>
-<footer><div class="footer-inner"><div class="footer-logo">Rex<span>.Bid</span></div><div class="copyright">© 2026 Rex.Bid. Wszystkie prawa zastrzeżone.</div></div></footer>
+
+<header class="topbar">
+
+    <div class="nav">
+
+        <a href="index.html" class="logo">
+            Rex<span>.Bid</span>
+        </a>
+
+        <nav class="menu">
+            <a href="index.html">Aukcje</a>
+            <a href="jak-to-dziala.html">Jak to działa</a>
+            <a href="o-nas.html">O nas</a>
+            <a href="kontakt.html">Kontakt</a>
+            <a href="ulubione.html">♡ Ulubione</a>
+        </nav>
+
+        <a href="index.html" class="back">
+            ← Wróć do aukcji
+        </a>
+
+    </div>
+
+</header>
+
+<main class="container" id="app">
+
+    <div class="loading">
+        <strong>Ładowanie samochodu...</strong>
+        Pobieranie danych aukcji.
+    </div>
+
+</main>
+
+<footer>
+
+    <div class="footer-inner">
+
+        <div class="footer-logo">
+            Rex<span>.Bid</span>
+        </div>
+
+        <div class="copyright">
+            © 2026 Rex.Bid. Wszystkie prawa zastrzeżone.
+        </div>
+
+    </div>
+
+</footer>
+
 <script>
-function safe(value,fallback="—"){return value===null||value===undefined||value===""?fallback:value}
-function displayValue(value,fallback="—"){if(value===null||value===undefined||value==="")return fallback;if(typeof value==="string"||typeof value==="number"||typeof value==="boolean")return String(value);if(Array.isArray(value))return value.map(item=>displayValue(item,"")).filter(Boolean).join(", ")||fallback;if(typeof value==="object"){for(const key of["name","value","display","label","description","text","type","title"])if(value[key]!==undefined&&value[key]!==null&&value[key]!=="")return displayValue(value[key],fallback);const values=Object.values(value).map(item=>displayValue(item,"")).filter(Boolean);return values.length?values.join(", "):fallback}return fallback}
-function money(value){if(value===null||value===undefined||value==="")return"—";if(typeof value==="object")value=value.amount??value.value??value.usd??value.price??null;const number=Number(value);return Number.isFinite(number)?"$"+number.toLocaleString("en-US"):displayValue(value)}
-function getPrice(car){for(const value of[car.pricing?.current_bid_usd,car.pricing?.current_bid,car.current_bid_usd,car.current_bid,car.price,car.sale_price,car.bid])if(value!==undefined&&value!==null&&value!=="")return value;return null}
-function getMileage(car){for(const value of[car.odometer?.mi,car.odometer?.miles,car.odometer,car.mileage,car.miles])if(value!==undefined&&value!==null&&value!==""){if(typeof value==="object"){const n=value.mi??value.miles??value.value;if(n!==undefined)return Number(n).toLocaleString("en-US")+" mi"}if(!isNaN(Number(value)))return Number(value).toLocaleString("en-US")+" mi";return displayValue(value)}return"—"}
-function getDamage(car){return displayValue(car.condition?.primary_damage??car.damage??car.primary_damage??car.damage_type)}
-function getLocation(car){return displayValue(car.location?.display??car.location?.name??car.location??car.city)}
-function getFuel(car){return displayValue(car.fuel_type??car.vehicle_specs?.fuel_type??car.engine?.fuel_type??car.fuel)}
-function getTransmission(car){return displayValue(car.transmission??car.vehicle_specs?.transmission??car.specs?.transmission??car.transmission_type)}
-function getDrive(car){return displayValue(car.drive_type??car.vehicle_specs?.drive_type??car.specs?.drive_type??car.drive)}
-function getEngine(car){return displayValue(car.engine?.description??car.engine?.name??car.engine?.type??car.vehicle_specs?.engine?.raw??car.engine)}
-function getBodyType(car){return displayValue(car.body_type??car.vehicle_specs?.body_style??car.body?.type??car.body_style)}
-function getColor(car){return displayValue(car.color??car.exterior_color??car.vehicle_specs?.exterior_color??car.colors?.exterior)}
-function getLot(car){return displayValue(car.lot??car.lot_number??car.lot_id??car.lotNumber)}
-function getAuctionDate(car){return car.auction_date??car.auction?.date??car.auction?.start_time??car.auction?.scheduled_at??car.auction?.full_date??car.auction?.auction_at??car.sale_date??car.sale?.date??null}
-function formatDate(value){if(!value)return"—";const date=new Date(value);return Number.isNaN(date.getTime())?displayValue(value):date.toLocaleString("pl-PL",{year:"numeric",month:"short",day:"2-digit",hour:"2-digit",minute:"2-digit"})}
-function getStatus(car){const raw=String(car.lot_status??car.status??car.auction_status??car.sale_status??car.auction?.state??"").toLowerCase();if(raw.includes("sold")||raw.includes("ended")||raw.includes("closed")||raw.includes("completed"))return{key:"ended",label:"AUKCJA ZAKOŃCZONA"};if(raw.includes("upcoming")||raw.includes("future")||raw.includes("scheduled"))return{key:"upcoming",label:"NADCHODZĄCA AUKCJA"};const d=getAuctionDate(car);if(d){const date=new Date(d);if(!Number.isNaN(date.getTime())&&date.getTime()>Date.now())return{key:"upcoming",label:"NADCHODZĄCA AUKCJA"}}return{key:"active",label:"AKTYWNA AUKCJA"}}
-function carTitle(car){return car.title||(safe(car.year,"")+" "+safe(car.make,"")+" "+safe(car.model,"")).trim()}
-function getImages(car){let images=[];if(Array.isArray(car.images))images=car.images;if(Array.isArray(car.media?.images))images=[...images,...car.media.images];if(Array.isArray(car.media?.items))images=[...images,...car.media.items.filter(x=>x?.type==="image")];if(Array.isArray(car.media?.thumbs))images=[...images,...car.media.thumbs];if(Array.isArray(car.photos))images=[...images,...car.photos];images=images.map(image=>{if(typeof image==="string"){let s=image;if(s.startsWith("[")&&s.includes("]("))s=s.match(/\((https?:\/\/[^)]+)\)/)?.[1]??s;return s}if(typeof image==="object")return image.large??image.url??image.src??image.image_url??image.medium??image.thumbnail??image.thumb??null;return null}).filter(Boolean).map(s=>s.replace(/\([?&])/g,"$1"));return[...new Set(images)]}
-function getVideo(car){const items=Array.isArray(car.media?.items)?car.media.items:[];return items.find(x=>x?.type==="video")?.url??car.media?.video??car.video_url??car.video??null}
-function getFavorites(){try{return JSON.parse(localStorage.getItem("rex_bid_favorites")||"[]")}catch{return[]}}
-function saveFavorites(items){localStorage.setItem("rex_bid_favorites",JSON.stringify(items))}
-function toggleFavorite(vin){if(!vin)return;let favorites=getFavorites();favorites.includes(vin)?favorites=favorites.filter(x=>x!==vin):favorites.push(vin);saveFavorites(favorites);renderFavoriteButton(vin)}
-function renderFavoriteButton(vin){const b=document.getElementById("favoriteButton");if(!b)return;const active=getFavorites().includes(vin);b.classList.toggle("active",active);b.textContent=active?"♥ Usuń z ulubionych":"♡ Dodaj do ulubionych"}
-function getAuctionUrl(car){return car.auction_url??car.auction?.url??car.url??car.source_url??car.source?.url??""}
-function setupAuctionLink(car){const b=document.getElementById("auctionButton");if(!b)return;const url=getAuctionUrl(car);if(!url){b.style.display="none";return}b.href=url}
-function renderHistory(car){const history=car.auction_history??car.auctionHistory??car.history??car.sales_history??[];if(!Array.isArray(history)||!history.length)return'<div class="history-empty">Brak dostępnej historii aukcji dla tego pojazdu.</div>';return`<table class="history-table"><thead><tr><th>Data</th><th>Status</th><th>Cena</th><th>Platforma</th></tr></thead><tbody>${history.map(item=>`<tr><td>${formatDate(item.date??item.auction_date??item.sale_date)}</td><td>${displayValue(item.status??item.result??item.sale_status)}</td><td>${money(item.price??item.final_bid??item.sale_price)}</td><td>${displayValue(item.platform??item.auction)}</td></tr>`).join("")}</tbody></table>`}
-let galleryImages=[],galleryIndex=0;
-function renderGallery(images,title){galleryImages=images;galleryIndex=0;if(!images.length)return'<div class="main-image-wrap"><div class="main-image" style="display:flex;align-items:center;justify-content:center;color:#777">Brak zdjęcia</div></div>';return`<div class="main-image-wrap"><img id="mainImage" class="main-image" src="${images[0]}" alt="${title}"><button class="gallery-control prev" onclick="galleryMove(-1)" aria-label="Poprzednie zdjęcie">‹</button><button class="gallery-control next" onclick="galleryMove(1)" aria-label="Następne zdjęcie">›</button><div class="image-counter" id="imageCounter">1 / ${images.length}</div></div><div class="thumbs">${images.map((image,i)=>`<img class="thumb ${i===0?"active":""}" src="${image}" onclick="changeImage(${i})" alt="${title} — zdjęcie ${i+1}" loading="${i>3?"lazy":"eager"}">`).join("")}</div>`}
-function changeImage(index){if(!galleryImages.length)return;galleryIndex=(index+galleryImages.length)%galleryImages.length;const main=document.getElementById("mainImage");if(main)main.src=galleryImages[galleryIndex];document.querySelectorAll(".thumb").forEach((x,i)=>x.classList.toggle("active",i===galleryIndex));const counter=document.getElementById("imageCounter");if(counter)counter.textContent=(galleryIndex+1)+" / "+galleryImages.length}
-function galleryMove(direction){changeImage(galleryIndex+direction)}
-function setupGalleryKeyboard(){document.addEventListener("keydown",e=>{if(e.key==="ArrowLeft")galleryMove(-1);if(e.key==="ArrowRight")galleryMove(1)})}
-function renderCar(car){const app=document.getElementById("app"),vin=car.vin??car.VIN??"",images=getImages(car),price=getPrice(car),title=carTitle(car),status=getStatus(car),auctionDate=getAuctionDate(car),lot=getLot(car),platform=displayValue(car.platform??car.auction?.platform??car.source).toUpperCase(),video=getVideo(car);app.innerHTML=`<section class="car-header"><div class="header-top"><div>${platform!=="—"?`<div class="platform">${platform}</div>`:""}<span class="status ${status.key}">${status.label}</span><h1>${title}</h1><div class="subtitle">VIN: ${safe(vin)}${lot!=="—"?" · Lot: "+lot:""}</div></div><button class="favorite" id="favoriteButton" onclick="toggleFavorite('${vin}')">♡ Dodaj do ulubionych</button></div></section><div class="main-grid"><section class="gallery">${renderGallery(images,title)}</section><aside class="info-card"><div class="price-label">AKTUALNA OFERTA</div><div class="price">${money(price)}</div><div class="auction-status ${status.key}">${status.label}</div><div class="info-row"><span class="info-label">Rok</span><span class="info-value">${displayValue(car.year)}</span></div><div class="info-row"><span class="info-label">Przebieg</span><span class="info-value">${getMileage(car)}</span></div><div class="info-row"><span class="info-label">Uszkodzenie</span><span class="info-value">${getDamage(car)}</span></div><div class="info-row"><span class="info-label">Stan</span><span class="info-value">${displayValue(car.condition?.run_condition?.value??car.condition?.secondary_damage??car.condition?.status??car.run_cond)}</span></div><div class="info-row"><span class="info-label">Lokalizacja</span><span class="info-value">${getLocation(car)}</span></div><div class="info-row"><span class="info-label">Lot</span><span class="info-value">${lot}</span></div>${auctionDate?`<div class="info-row"><span class="info-label">Aukcja</span><span class="info-value">${formatDate(auctionDate)}</span></div>`:""}<a href="#" class="auction-button" id="auctionButton" target="_blank" rel="noopener noreferrer">PRZEJDŹ DO AUKCJI</a>${video?`<div class="video-wrap"><a href="${video}" class="video-button" target="_blank" rel="noopener noreferrer">▶ OBEJRZYJ VIDEO</a></div>`:""}</aside></div><section class="details"><h2>Szczegóły samochodu</h2><div class="details-grid"><div class="detail"><div class="detail-label">Marka</div><div class="detail-value">${displayValue(car.make)}</div></div><div class="detail"><div class="detail-label">Model</div><div class="detail-value">${displayValue(car.model)}</div></div><div class="detail"><div class="detail-label">VIN</div><div class="detail-value">${safe(vin)}</div></div><div class="detail"><div class="detail-label">Skrzynia</div><div class="detail-value">${getTransmission(car)}</div></div><div class="detail"><div class="detail-label">Paliwo</div><div class="detail-value">${getFuel(car)}</div></div><div class="detail"><div class="detail-label">Napęd</div><div class="detail-value">${getDrive(car)}</div></div><div class="detail"><div class="detail-label">Silnik</div><div class="detail-value">${getEngine(car)}</div></div><div class="detail"><div class="detail-label">Typ nadwozia</div><div class="detail-value">${getBodyType(car)}</div></div><div class="detail"><div class="detail-label">Kolor</div><div class="detail-value">${getColor(car)}</div></div><div class="detail"><div class="detail-label">Kluczyk</div><div class="detail-value">${displayValue(car.condition?.has_key??car.keys??car.key??car.has_keys)}</div></div><div class="detail"><div class="detail-label">Typ pojazdu</div><div class="detail-value">${displayValue(car.vehicle_type??car.type)}</div></div><div class="detail"><div class="detail-label">Platforma</div><div class="detail-value">${displayValue(car.platform??car.auction?.platform)}</div></div></div></section><section class="details history"><h2>Historia aukcji</h2>${renderHistory(car)}</section>`;renderFavoriteButton(vin);setupAuctionLink(car)}
-async function loadCar(){const app=document.getElementById("app"),params=new URLSearchParams(window.location.search),vin=params.get("vin");if(!vin){app.innerHTML='<div class="error"><strong>Nie znaleziono samochodu</strong>Brak numeru VIN w adresie.</div>';return}try{const response=await fetch("/api/cars?s="+encodeURIComponent(vin),{cache:"no-store"});if(!response.ok)throw new Error("Błąd HTTP "+response.status);const result=await response.json();if(!result.ok)throw new Error(result.error||"Błąd API");const cars=Array.isArray(result.data)?result.data:[];const car=cars.find(item=>String(item.vin??item.VIN??"").toUpperCase()===String(vin).toUpperCase())||cars[0];if(!car){app.innerHTML='<div class="error"><strong>Nie znaleziono samochodu</strong>Oferta nie jest dostępna.</div>';return}renderCar(car)}catch(error){console.error(error);app.innerHTML='<div class="error"><strong>Nie udało się pobrać samochodu</strong>Wystąpił problem z połączeniem z API.</div>'}}
-setupGalleryKeyboard();loadCar();
+
+function safe(value, fallback = "—") {
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+        return fallback;
+    }
+
+    return value;
+}
+
+
+function displayValue(value, fallback = "—") {
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+        return fallback;
+    }
+
+    if (
+        typeof value === "string" ||
+        typeof value === "number" ||
+        typeof value === "boolean"
+    ) {
+        return String(value);
+    }
+
+    if (Array.isArray(value)) {
+
+        return value
+            .map(item => displayValue(item, ""))
+            .filter(Boolean)
+            .join(", ") || fallback;
+    }
+
+    if (typeof value === "object") {
+
+        const preferred = [
+            "name",
+            "value",
+            "display",
+            "label",
+            "description",
+            "text",
+            "type",
+            "title"
+        ];
+
+        for (const key of preferred) {
+
+            if (
+                value[key] !== undefined &&
+                value[key] !== null &&
+                value[key] !== ""
+            ) {
+                return displayValue(
+                    value[key],
+                    fallback
+                );
+            }
+        }
+
+        const values =
+            Object.values(value)
+                .map(item =>
+                    displayValue(item, "")
+                )
+                .filter(Boolean);
+
+        if (values.length) {
+            return values.join(", ");
+        }
+
+        return fallback;
+    }
+
+    return fallback;
+}
+
+
+function money(value) {
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+        return "—";
+    }
+
+    if (typeof value === "object") {
+
+        value =
+            value.amount ??
+            value.value ??
+            value.usd ??
+            value.price ??
+            null;
+    }
+
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+        return displayValue(value);
+    }
+
+    return "$" +
+        number.toLocaleString("en-US");
+}
+
+
+function getPrice(car) {
+
+    const candidates = [
+
+        car.pricing?.current_bid_usd,
+        car.pricing?.current_bid,
+        car.current_bid_usd,
+        car.current_bid,
+        car.price,
+        car.sale_price,
+        car.bid
+
+    ];
+
+    for (const value of candidates) {
+
+        if (
+            value !== undefined &&
+            value !== null &&
+            value !== ""
+        ) {
+            return value;
+        }
+    }
+
+    return null;
+}
+
+
+function getMileage(car) {
+
+    const candidates = [
+
+        car.odometer?.mi,
+        car.odometer?.miles,
+        car.odometer,
+        car.mileage,
+        car.miles
+
+    ];
+
+    for (const value of candidates) {
+
+        if (
+            value !== undefined &&
+            value !== null &&
+            value !== ""
+        ) {
+
+            if (typeof value === "object") {
+
+                const number =
+                    value.mi ??
+                    value.miles ??
+                    value.value;
+
+                if (number !== undefined) {
+
+                    return Number(number)
+                        .toLocaleString("en-US") +
+                        " mi";
+                }
+            }
+
+            if (!isNaN(Number(value))) {
+
+                return Number(value)
+                    .toLocaleString("en-US") +
+                    " mi";
+            }
+
+            return displayValue(value);
+        }
+    }
+
+    return "—";
+}
+
+
+function getDamage(car) {
+
+    return displayValue(
+        car.condition?.primary_damage ??
+        car.damage ??
+        car.primary_damage ??
+        car.damage_type
+    );
+}
+
+
+function getLocation(car) {
+
+    return displayValue(
+        car.location?.display ??
+        car.location?.name ??
+        car.location ??
+        car.city
+    );
+}
+
+
+function getFuel(car) {
+
+    return displayValue(
+        car.fuel_type ??
+        car.vehicle_specs?.fuel_type ??
+        car.engine?.fuel_type ??
+        car.fuel
+    );
+}
+
+
+function getTransmission(car) {
+
+    return displayValue(
+        car.transmission ??
+        car.vehicle_specs?.transmission ??
+        car.specs?.transmission ??
+        car.transmission_type
+    );
+}
+
+
+function getDrive(car) {
+
+    return displayValue(
+        car.drive_type ??
+        car.vehicle_specs?.drive_type ??
+        car.specs?.drive_type ??
+        car.drive
+    );
+}
+
+
+function getEngine(car) {
+
+    return displayValue(
+        car.engine?.description ??
+        car.engine?.name ??
+        car.engine?.type ??
+        car.vehicle_specs?.engine?.raw ??
+        car.vehicle_specs?.engine ??
+        car.engine
+    );
+}
+
+
+function getBodyType(car) {
+
+    return displayValue(
+        car.body_type ??
+        car.vehicle_specs?.body_style ??
+        car.body?.type ??
+        car.body_style
+    );
+}
+
+
+function getColor(car) {
+
+    return displayValue(
+        car.color ??
+        car.exterior_color ??
+        car.vehicle_specs?.exterior_color ??
+        car.colors?.exterior
+    );
+}
+
+
+function getLot(car) {
+
+    return displayValue(
+        car.lot ??
+        car.lot_number ??
+        car.lot_id ??
+        car.lotNumber
+    );
+}
+
+
+function getAuctionDate(car) {
+
+    return (
+        car.auction_date ??
+        car.auction?.full_date ??
+        car.auction?.auction_at ??
+        car.auction?.date ??
+        car.auction?.start_time ??
+        car.auction?.scheduled_at ??
+        car.sale_date ??
+        car.sale?.date ??
+        null
+    );
+}
+
+
+function formatDate(value) {
+
+    if (!value) {
+        return "—";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return displayValue(value);
+    }
+
+    return date.toLocaleString(
+        "pl-PL",
+        {
+            year: "numeric",
+            month: "short",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    );
+}
+
+
+function getStatus(car) {
+
+    const auctionState =
+        String(
+            car.auction?.state ??
+            ""
+        ).toLowerCase();
+
+    const raw =
+        String(
+            car.lot_status ??
+            car.status ??
+            car.auction_status ??
+            car.sale_status ??
+            ""
+        ).toLowerCase();
+
+    if (
+        raw.includes("sold") ||
+        raw.includes("ended") ||
+        raw.includes("closed") ||
+        raw.includes("completed")
+    ) {
+
+        return {
+            key: "ended",
+            label: "AUKCJA ZAKOŃCZONA"
+        };
+    }
+
+    if (
+        raw.includes("upcoming") ||
+        raw.includes("future") ||
+        raw.includes("scheduled")
+    ) {
+
+        return {
+            key: "upcoming",
+            label: "NADCHODZĄCA AUKCJA"
+        };
+    }
+
+    if (auctionState === "open") {
+
+        return {
+            key: "active",
+            label: "AKTYWNA AUKCJA"
+        };
+    }
+
+    const dateValue =
+        getAuctionDate(car);
+
+    if (dateValue) {
+
+        const date =
+            new Date(dateValue);
+
+        if (!Number.isNaN(date.getTime())) {
+
+            if (
+                date.getTime() >
+                Date.now()
+            ) {
+
+                return {
+                    key: "upcoming",
+                    label: "NADCHODZĄCA AUKCJA"
+                };
+            }
+        }
+    }
+
+    return {
+        key: "active",
+        label: "AKTYWNA AUKCJA"
+    };
+}
+
+
+function carTitle(car) {
+
+    if (car.title) {
+        return car.title;
+    }
+
+    return (
+        safe(car.year, "") +
+        " " +
+        safe(car.make, "") +
+        " " +
+        safe(car.model, "")
+    ).trim();
+}
+
+
+/*
+ * Pobieramy zdjęcia WYŁĄCZNIE z media.items,
+ * ponieważ API zwraca tam właściwe elementy galerii.
+ *
+ * Dodatkowo usuwamy duplikaty po adresie URL.
+ */
+function getMedia(car) {
+
+    const items =
+        Array.isArray(car.media?.items)
+            ? car.media.items
+            : [];
+
+    const images = [];
+    const videos = [];
+
+    items.forEach(item => {
+
+        if (!item || typeof item !== "object") {
+            return;
+        }
+
+        if (item.type === "image") {
+
+            const thumb =
+                item.thumb ??
+                item.url ??
+                item.src ??
+                "";
+
+            const large =
+                item.large ??
+                item.url ??
+                item.src ??
+                thumb;
+
+            if (large) {
+
+                images.push({
+                    thumb: thumb || large,
+                    large: large
+                });
+            }
+        }
+
+        if (item.type === "video" && item.url) {
+
+            videos.push(item.url);
+        }
+    });
+
+    const uniqueImages = [];
+    const seen = new Set();
+
+    images.forEach(image => {
+
+        const key =
+            image.large ||
+            image.thumb;
+
+        if (!key || seen.has(key)) {
+            return;
+        }
+
+        seen.add(key);
+        uniqueImages.push(image);
+    });
+
+    const uniqueVideos = [
+        ...new Set(videos)
+    ];
+
+    return {
+        images: uniqueImages,
+        videos: uniqueVideos
+    };
+}
+
+
+function getFavorites() {
+
+    try {
+
+        return JSON.parse(
+            localStorage.getItem(
+                "rex_bid_favorites"
+            ) || "[]"
+        );
+
+    } catch {
+
+        return [];
+    }
+}
+
+
+function saveFavorites(items) {
+
+    localStorage.setItem(
+        "rex_bid_favorites",
+        JSON.stringify(items)
+    );
+}
+
+
+function toggleFavorite(vin) {
+
+    if (!vin) return;
+
+    let favorites =
+        getFavorites();
+
+    if (
+        favorites.includes(vin)
+    ) {
+
+        favorites =
+            favorites.filter(
+                item => item !== vin
+            );
+
+    } else {
+
+        favorites.push(vin);
+    }
+
+    saveFavorites(favorites);
+
+    renderFavoriteButton(vin);
+}
+
+
+function renderFavoriteButton(vin) {
+
+    const button =
+        document.getElementById(
+            "favoriteButton"
+        );
+
+    if (!button) return;
+
+    const active =
+        getFavorites()
+            .includes(vin);
+
+    button.classList.toggle(
+        "active",
+        active
+    );
+
+    button.textContent =
+        active
+            ? "♥ Usuń z ulubionych"
+            : "♡ Dodaj do ulubionych";
+}
+
+
+function getAuctionUrl(car) {
+
+    return (
+        car.auction_url ??
+        car.auction?.url ??
+        car.url ??
+        car.source_url ??
+        car.source?.url ??
+        ""
+    );
+}
+
+
+function setupAuctionLink(car) {
+
+    const button =
+        document.getElementById(
+            "auctionButton"
+        );
+
+    if (!button) return;
+
+    const url =
+        getAuctionUrl(car);
+
+    if (!url) {
+
+        button.style.display =
+            "none";
+
+        return;
+    }
+
+    button.href = url;
+}
+
+
+function renderHistory(car) {
+
+    const history =
+        car.auction_history ??
+        car.auctionHistory ??
+        car.history ??
+        car.sales_history ??
+        [];
+
+    if (
+        !Array.isArray(history) ||
+        !history.length
+    ) {
+
+        return `
+            <div class="history-empty">
+                Brak dostępnej historii aukcji
+                dla tego pojazdu.
+            </div>
+        `;
+    }
+
+    return `
+
+        <table class="history-table">
+
+            <thead>
+
+                <tr>
+                    <th>Data</th>
+                    <th>Status</th>
+                    <th>Cena</th>
+                    <th>Platforma</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                ${history.map(item => `
+
+                    <tr>
+
+                        <td>
+                            ${formatDate(
+                                item.date ??
+                                item.auction_date ??
+                                item.sale_date
+                            )}
+                        </td>
+
+                        <td>
+                            ${displayValue(
+                                item.status ??
+                                item.result ??
+                                item.sale_status
+                            )}
+                        </td>
+
+                        <td>
+                            ${money(
+                                item.price ??
+                                item.final_bid ??
+                                item.sale_price
+                            )}
+                        </td>
+
+                        <td>
+                            ${displayValue(
+                                item.platform ??
+                                item.auction
+                            )}
+                        </td>
+
+                    </tr>
+
+                `).join("")}
+
+            </tbody>
+
+        </table>
+
+    `;
+}
+
+
+function renderCar(car) {
+
+    const app =
+        document.getElementById("app");
+
+    const vin =
+        car.vin ??
+        car.VIN ??
+        "";
+
+    const media =
+        getMedia(car);
+
+    const images =
+        media.images;
+
+    const videos =
+        media.videos;
+
+    const price =
+        getPrice(car);
+
+    const title =
+        carTitle(car);
+
+    const status =
+        getStatus(car);
+
+    const auctionDate =
+        getAuctionDate(car);
+
+    const lot =
+        getLot(car);
+
+    const platform =
+        displayValue(
+            car.platform ??
+            car.auction?.platform ??
+            car.source
+        ).toUpperCase();
+
+    const firstImage =
+        images[0]?.large ??
+        images[0]?.thumb ??
+        "";
+
+    const hasKey =
+        car.condition?.has_key ??
+        car.details?.attributes?.Keys ??
+        car.keys ??
+        car.key ??
+        car.has_keys;
+
+    const runCondition =
+        car.condition?.run_condition?.label ??
+        car.details?.vehicle_information?.StartCode ??
+        car.run_cond;
+
+    app.innerHTML = `
+
+        <section class="car-header">
+
+            <div class="header-top">
+
+                <div>
+
+                    ${
+                        platform !== "—"
+                        ? `
+                            <div class="platform">
+                                ${platform}
+                            </div>
+                        `
+                        : ""
+                    }
+
+                    <span class="status ${status.key}">
+                        ${status.label}
+                    </span>
+
+                    <h1>
+                        ${title}
+                    </h1>
+
+                    <div class="subtitle">
+
+                        VIN: ${safe(vin)}
+
+                        ${
+                            lot !== "—"
+                            ? " · Lot: " + lot
+                            : ""
+                        }
+
+                    </div>
+
+                </div>
+
+                <button
+                    class="favorite"
+                    id="favoriteButton"
+                    onclick="toggleFavorite('${vin}')"
+                >
+                    ♡ Dodaj do ulubionych
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <div class="main-grid">
+
+            <section class="gallery">
+
+                ${
+                    firstImage
+                    ? `
+                        <img
+                            id="mainImage"
+                            class="main-image"
+                            src="${firstImage}"
+                            alt="${title}"
+                        >
+                    `
+                    : `
+                        <div
+                            class="main-image"
+                            style="
+                                display:flex;
+                                align-items:center;
+                                justify-content:center;
+                                color:#777;
+                            "
+                        >
+                            Brak zdjęcia
+                        </div>
+                    `
+                }
+
+                <div class="thumbs">
+
+                    ${images.map(
+                        (image, index) => `
+
+                            <img
+                                class="thumb ${
+                                    index === 0
+                                        ? "active"
+                                        : ""
+                                }"
+                                src="${image.thumb || image.large}"
+                                data-large="${image.large || image.thumb}"
+                                onclick="changeImage(this)"
+                                alt="${title}"
+                            >
+
+                        `
+                    ).join("")}
+
+                </div>
+
+
+                ${
+                    videos.length
+                    ? `
+                        <div class="video-box">
+
+                            <video
+                                controls
+                                preload="metadata"
+                            >
+                                <source
+                                    src="${videos[0]}"
+                                    type="video/mp4"
+                                >
+                                Twoja przeglądarka
+                                nie obsługuje odtwarzania video.
+                            </video>
+
+                        </div>
+                    `
+                    : ""
+                }
+
+            </section>
+
+
+            <aside class="info-card">
+
+                <div class="price-label">
+                    AKTUALNA OFERTA
+                </div>
+
+                <div class="price">
+                    ${money(price)}
+                </div>
+
+                <div class="auction-status ${status.key}">
+                    ${status.label}
+                </div>
+
+
+                <div class="info-row">
+                    <span class="info-label">
+                        Rok
+                    </span>
+
+                    <span class="info-value">
+                        ${displayValue(car.year)}
+                    </span>
+                </div>
+
+
+                <div class="info-row">
+                    <span class="info-label">
+                        Przebieg
+                    </span>
+
+                    <span class="info-value">
+                        ${getMileage(car)}
+                    </span>
+                </div>
+
+
+                <div class="info-row">
+                    <span class="info-label">
+                        Uszkodzenie
+                    </span>
+
+                    <span class="info-value">
+                        ${getDamage(car)}
+                    </span>
+                </div>
+
+
+                <div class="info-row">
+                    <span class="info-label">
+                        Stan
+                    </span>
+
+                    <span class="info-value">
+                        ${displayValue(runCondition)}
+                    </span>
+                </div>
+
+
+                <div class="info-row">
+                    <span class="info-label">
+                        Lokalizacja
+                    </span>
+
+                    <span class="info-value">
+                        ${getLocation(car)}
+                    </span>
+                </div>
+
+
+                <div class="info-row">
+                    <span class="info-label">
+                        Lot
+                    </span>
+
+                    <span class="info-value">
+                        ${lot}
+                    </span>
+                </div>
+
+
+                ${
+                    auctionDate
+                    ? `
+                        <div class="info-row">
+
+                            <span class="info-label">
+                                Aukcja
+                            </span>
+
+                            <span class="info-value">
+                                ${formatDate(
+                                    auctionDate
+                                )}
+                            </span>
+
+                        </div>
+                    `
+                    : ""
+                }
+
+
+                <a
+                    href="#"
+                    class="auction-button"
+                    id="auctionButton"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    PRZEJDŹ DO AUKCJI
+                </a>
+
+            </aside>
+
+        </div>
+
+
+        <section class="details">
+
+            <h2>
+                Szczegóły samochodu
+            </h2>
+
+            <div class="details-grid">
+
+                <div class="detail">
+                    <div class="detail-label">
+                        Marka
+                    </div>
+                    <div class="detail-value">
+                        ${displayValue(car.make)}
+                    </div>
+                </div>
+
+
+                <div class="detail">
+                    <div class="detail-label">
+                        Model
+                    </div>
+                    <div class="detail-value">
+                        ${displayValue(car.model)}
+                    </div>
+                </div>
+
+
+                <div class="detail">
+                    <div class="detail-label">
+                        VIN
+                    </div>
+                    <div class="detail-value">
+                        ${safe(vin)}
+                    </div>
+                </div>
+
+
+                <div class="detail">
+                    <div class="detail-label">
+                        Skrzynia
+                    </div>
+                    <div class="detail-value">
+                        ${getTransmission(car)}
+                    </div>
+                </div>
+
+
+                <div class="detail">
+                    <div class="detail-label">
+                        Paliwo
+                    </div>
+                    <div class="detail-value">
+                        ${getFuel(car)}
+                    </div>
+                </div>
+
+
+                <div class="detail">
+                    <div class="detail-label">
+                        Napęd
+                    </div>
+                    <div class="detail-value">
+                        ${getDrive(car)}
+                    </div>
+                </div>
+
+
+                <div class="detail">
+                    <div class="detail-label">
+                        Silnik
+                    </div>
+                    <div class="detail-value">
+                        ${getEngine(car)}
+                    </div>
+                </div>
+
+
+                <div class="detail">
+                    <div class="detail-label">
+                        Typ nadwozia
+                    </div>
+                    <div class="detail-value">
+                        ${getBodyType(car)}
+                    </div>
+                </div>
+
+
+                <div class="detail">
+                    <div class="detail-label">
+                        Kolor
+                    </div>
+                    <div class="detail-value">
+                        ${getColor(car)}
+                    </div>
+                </div>
+
+
+                <div class="detail">
+                    <div class="detail-label">
+                        Kluczyk
+                    </div>
+                    <div class="detail-value">
+                        ${
+                            hasKey === true ||
+                            String(hasKey).toLowerCase() === "true"
+                                ? "Obecny"
+                                : displayValue(hasKey)
+                        }
+                    </div>
+                </div>
+
+
+                <div class="detail">
+                    <div class="detail-label">
+                        Typ pojazdu
+                    </div>
+                    <div class="detail-value">
+                        ${displayValue(
+                            car.vehicle_type ??
+                            car.type
+                        )}
+                    </div>
+                </div>
+
+
+                <div class="detail">
+                    <div class="detail-label">
+                        Platforma
+                    </div>
+                    <div class="detail-value">
+                        ${displayValue(
+                            car.platform ??
+                            car.auction?.platform
+                        )}
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="details history">
+
+            <h2>
+                Historia aukcji
+            </h2>
+
+            ${renderHistory(car)}
+
+        </section>
+
+    `;
+
+    renderFavoriteButton(vin);
+
+    setupAuctionLink(car);
+}
+
+
+function changeImage(element) {
+
+    const main =
+        document.getElementById(
+            "mainImage"
+        );
+
+    if (!main || !element) {
+        return;
+    }
+
+    const image =
+        element.dataset.large ||
+        element.src;
+
+    main.src = image;
+
+    document
+        .querySelectorAll(".thumb")
+        .forEach(
+            thumb =>
+                thumb.classList.remove(
+                    "active"
+                )
+        );
+
+    element.classList.add("active");
+}
+
+
+async function loadCar() {
+
+    const app =
+        document.getElementById("app");
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    const vin =
+        params.get("vin");
+
+    if (!vin) {
+
+        app.innerHTML = `
+
+            <div class="error">
+
+                <strong>
+                    Nie znaleziono samochodu
+                </strong>
+
+                Brak numeru VIN w adresie.
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/cars?s=" +
+                encodeURIComponent(vin),
+                {
+                    cache: "no-store"
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Błąd HTTP " +
+                response.status
+            );
+        }
+
+
+        const result =
+            await response.json();
+
+
+        if (!result.ok) {
+
+            throw new Error(
+                result.error ||
+                "Błąd API"
+            );
+        }
+
+
+        const cars =
+            Array.isArray(result.data)
+                ? result.data
+                : [];
+
+
+        const car =
+            cars.find(
+                item =>
+                    String(
+                        item.vin ??
+                        item.VIN ??
+                        ""
+                    ).toUpperCase() ===
+                    String(vin)
+                        .toUpperCase()
+            ) ||
+            cars[0];
+
+
+        if (!car) {
+
+            app.innerHTML = `
+
+                <div class="error">
+
+                    <strong>
+                        Nie znaleziono samochodu
+                    </strong>
+
+                    Oferta nie jest dostępna.
+
+                </div>
+
+            `;
+
+            return;
+        }
+
+
+        renderCar(car);
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        app.innerHTML = `
+
+            <div class="error">
+
+                <strong>
+                    Nie udało się pobrać samochodu
+                </strong>
+
+                Wystąpił problem z połączeniem z API.
+
+            </div>
+
+        `;
+    }
+}
+
+
+loadCar();
+
 </script>
+
 </body>
 </html>
