@@ -1,1504 +1,1231 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>MTBID — Aukcje samochodów z USA</title>
+  <title>Rex.Bid — Aukcje samochodowe</title>
 
-<style>
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    background: #f5f6f8;
-    color: #15171a;
-}
-
-a {
-    color: inherit;
-    text-decoration: none;
-}
-
-button,
-input,
-select {
-    font: inherit;
-}
-
-/* HEADER */
-
-.topbar {
-    background: #111315;
-    color: white;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    box-shadow: 0 2px 12px rgba(0,0,0,.15);
-}
-
-.nav {
-    max-width: 1400px;
-    margin: 0 auto;
-    min-height: 72px;
-    padding: 0 24px;
-    display: flex;
-    align-items: center;
-    gap: 30px;
-}
-
-.logo {
-    font-size: 28px;
-    font-weight: 900;
-    letter-spacing: -1px;
-    white-space: nowrap;
-}
-
-.logo span {
-    color: #ffb400;
-}
-
-.menu {
-    display: flex;
-    align-items: center;
-    gap: 22px;
-    flex: 1;
-}
-
-.menu a {
-    color: #d9dcdf;
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.menu a:hover {
-    color: white;
-}
-
-.nav-right {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.nav-button {
-    padding: 10px 15px;
-    border: 1px solid #34383d;
-    border-radius: 8px;
-    color: white;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.nav-button:hover {
-    background: #24282c;
-}
-
-.register-button {
-    background: #ffb400;
-    color: #111315;
-    border-color: #ffb400;
-}
-
-/* HERO */
-
-.hero {
-    background:
-        linear-gradient(rgba(10,12,14,.82), rgba(10,12,14,.88)),
-        url("https://images.unsplash.com/photo-1504215680853-026ed2a45def?auto=format&fit=crop&w=1800&q=85")
-        center/cover;
-
-    color: white;
-    padding: 70px 20px 75px;
-}
-
-.hero-inner {
-    max-width: 1100px;
-    margin: 0 auto;
-    text-align: center;
-}
-
-.hero-badge {
-    display: inline-block;
-    padding: 7px 12px;
-    border-radius: 30px;
-    background: rgba(255,180,0,.15);
-    border: 1px solid rgba(255,180,0,.45);
-    color: #ffca3a;
-    font-size: 12px;
-    font-weight: 800;
-    margin-bottom: 18px;
-}
-
-.hero h1 {
-    font-size: 48px;
-    line-height: 1.05;
-    margin: 0 0 18px;
-    letter-spacing: -1.5px;
-}
-
-.hero p {
-    margin: 0 auto 30px;
-    max-width: 720px;
-    color: #c9cdd1;
-    font-size: 17px;
-    line-height: 1.6;
-}
-
-.search-box {
-    max-width: 850px;
-    margin: 0 auto;
-    display: flex;
-    gap: 10px;
-}
-
-.search-box input {
-    flex: 1;
-    min-height: 54px;
-    padding: 0 18px;
-    border: 0;
-    border-radius: 9px;
-    outline: none;
-    font-size: 15px;
-}
-
-.search-box button {
-    min-height: 54px;
-    padding: 0 28px;
-    border: 0;
-    border-radius: 9px;
-    background: #ffb400;
-    color: #111315;
-    font-weight: 900;
-    cursor: pointer;
-}
-
-/* MAIN */
-
-.container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 35px 24px 70px;
-}
-
-.demo-banner {
-    display: none;
-    margin-bottom: 25px;
-    padding: 15px 18px;
-    border-radius: 10px;
-    background: #fff3cd;
-    border: 1px solid #ffe08a;
-    color: #765b00;
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-.section-title {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-.section-title h2 {
-    margin: 0;
-    font-size: 27px;
-}
-
-.results-count {
-    color: #6b7076;
-    font-size: 14px;
-}
-
-/* FILTERS */
-
-.filters {
-    background: white;
-    border: 1px solid #e2e5e8;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 28px;
-    box-shadow: 0 2px 10px rgba(0,0,0,.03);
-}
-
-.platforms {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-bottom: 18px;
-}
-
-.platform-btn {
-    border: 1px solid #d8dce0;
-    background: white;
-    color: #383c40;
-    padding: 9px 15px;
-    border-radius: 7px;
-    cursor: pointer;
-    font-weight: 800;
-    font-size: 13px;
-}
-
-.platform-btn.active {
-    background: #111315;
-    color: white;
-    border-color: #111315;
-}
-
-.filter-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 12px;
-}
-
-.filter-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.filter-field label {
-    font-size: 11px;
-    font-weight: 800;
-    color: #70757b;
-    text-transform: uppercase;
-}
-
-.filter-field input,
-.filter-field select {
-    height: 42px;
-    padding: 0 11px;
-    border: 1px solid #d8dce0;
-    border-radius: 7px;
-    background: white;
-    outline: none;
-    color: #202328;
-}
-
-.filter-actions {
-    margin-top: 15px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-}
-
-.filter-actions button {
-    border: 0;
-    border-radius: 7px;
-    padding: 10px 17px;
-    cursor: pointer;
-    font-weight: 800;
-}
-
-.clear-btn {
-    background: #eef0f2;
-    color: #34383d;
-}
-
-.apply-btn {
-    background: #111315;
-    color: white;
-}
-
-/* SORT */
-
-.sort-row {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 18px;
-}
-
-.sort-row select {
-    height: 40px;
-    border: 1px solid #d8dce0;
-    border-radius: 7px;
-    background: white;
-    padding: 0 12px;
-}
-
-/* CARS */
-
-.car-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 18px;
-}
-
-.car-card {
-    background: white;
-    border: 1px solid #e0e3e6;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: .2s;
-    position: relative;
-}
-
-.car-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 9px 25px rgba(0,0,0,.08);
-}
-
-.car-image-wrap {
-    height: 205px;
-    background: #e9ebed;
-    position: relative;
-    overflow: hidden;
-}
-
-.car-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.platform-badge {
-    position: absolute;
-    left: 10px;
-    top: 10px;
-    padding: 6px 8px;
-    border-radius: 5px;
-    background: rgba(17,19,21,.88);
-    color: white;
-    font-size: 10px;
-    font-weight: 900;
-}
-
-.favorite-btn {
-    position: absolute;
-    right: 10px;
-    bottom: 10px;
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    border: 0;
-    background: rgba(255,255,255,.94);
-    cursor: pointer;
-    font-size: 20px;
-}
-
-.favorite-btn.active {
-    color: #e4002b;
-}
-
-.car-content {
-    padding: 16px;
-}
-
-.car-title {
-    margin: 0 0 8px;
-    font-size: 17px;
-    line-height: 1.25;
-}
-
-.car-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 7px;
-    color: #73787e;
-    font-size: 12px;
-    margin-bottom: 13px;
-}
-
-.car-meta span {
-    background: #f1f2f4;
-    padding: 5px 7px;
-    border-radius: 4px;
-}
-
-.car-price-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: end;
-    gap: 10px;
-    padding-top: 12px;
-    border-top: 1px solid #eceef0;
-}
-
-.price-label {
-    display: block;
-    color: #777d83;
-    font-size: 10px;
-    margin-bottom: 3px;
-}
-
-.price {
-    font-size: 20px;
-    font-weight: 900;
-}
-
-.location {
-    text-align: right;
-    color: #666b71;
-    font-size: 11px;
-}
-
-.open-card {
-    display: block;
-    margin-top: 13px;
-    text-align: center;
-    padding: 10px;
-    border-radius: 7px;
-    background: #111315;
-    color: white;
-    font-size: 13px;
-    font-weight: 800;
-}
-
-.loading,
-.empty {
-    grid-column: 1 / -1;
-    background: white;
-    border: 1px solid #e1e4e7;
-    border-radius: 12px;
-    padding: 45px 20px;
-    text-align: center;
-    color: #6d7379;
-}
-
-.loading strong,
-.empty strong {
-    display: block;
-    color: #222529;
-    margin-bottom: 8px;
-    font-size: 18px;
-}
-
-/* FOOTER */
-
-footer {
-    background: #111315;
-    color: #bfc3c7;
-    padding: 40px 24px;
-}
-
-.footer-inner {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: 35px;
-}
-
-.footer-logo {
-    color: white;
-    font-size: 24px;
-    font-weight: 900;
-    margin-bottom: 12px;
-}
-
-.footer-logo span {
-    color: #ffb400;
-}
-
-.footer-text {
-    max-width: 430px;
-    line-height: 1.6;
-    font-size: 13px;
-}
-
-footer h3 {
-    margin: 0 0 13px;
-    color: white;
-    font-size: 14px;
-}
-
-footer a {
-    display: block;
-    margin-bottom: 9px;
-    font-size: 13px;
-    color: #bfc3c7;
-}
-
-.copyright {
-    max-width: 1400px;
-    margin: 30px auto 0;
-    padding-top: 20px;
-    border-top: 1px solid #2b2f33;
-    font-size: 12px;
-    color: #858b91;
-}
-
-/* RESPONSIVE */
-
-@media (max-width: 1100px) {
-    .car-grid {
-        grid-template-columns: repeat(3, 1fr);
+  <style>
+    * {
+      box-sizing: border-box;
     }
 
-    .filter-grid {
-        grid-template-columns: repeat(3, 1fr);
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f5f7;
+      color: #17191c;
     }
-}
 
-@media (max-width: 800px) {
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .topbar {
+      background: #111315;
+      color: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,.15);
+    }
+
     .nav {
-        min-height: auto;
-        padding-top: 15px;
-        padding-bottom: 15px;
-        flex-wrap: wrap;
+      max-width: 1400px;
+      min-height: 72px;
+      margin: auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 35px;
+    }
+
+    .logo {
+      font-size: 29px;
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      white-space: nowrap;
+    }
+
+    .logo span {
+      color: #ffb400;
     }
 
     .menu {
-        order: 3;
-        flex-basis: 100%;
-        justify-content: center;
-        flex-wrap: wrap;
+      display: flex;
+      gap: 24px;
+      flex: 1;
     }
 
-    .nav-right {
-        margin-left: auto;
+    .menu a {
+      color: #d5d8db;
+      font-size: 14px;
+      font-weight: 700;
     }
 
-    .hero h1 {
-        font-size: 36px;
+    .menu a:hover {
+      color: #fff;
     }
 
-    .search-box {
-        flex-direction: column;
+    .hero {
+      background: #111315;
+      color: white;
+      padding: 55px 24px 65px;
     }
 
-    .filter-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .car-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .footer-inner {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-@media (max-width: 520px) {
-    .logo {
-        font-size: 24px;
+    .hero-inner {
+      max-width: 1200px;
+      margin: auto;
+      text-align: center;
     }
 
     .hero h1 {
-        font-size: 31px;
+      margin: 0 0 12px;
+      font-size: 42px;
+      letter-spacing: -1px;
+    }
+
+    .hero p {
+      margin: 0 0 28px;
+      color: #bfc3c7;
+      font-size: 16px;
+    }
+
+    .search {
+      max-width: 850px;
+      margin: auto;
+      display: flex;
+      background: white;
+      border-radius: 9px;
+      padding: 5px;
+    }
+
+    .search input {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      padding: 15px;
+      font-size: 15px;
+    }
+
+    .search button {
+      border: 0;
+      background: #ffb400;
+      color: #111315;
+      border-radius: 7px;
+      padding: 0 25px;
+      font-weight: 900;
+      cursor: pointer;
     }
 
     .container {
-        padding-left: 14px;
-        padding-right: 14px;
+      max-width: 1400px;
+      margin: auto;
+      padding: 30px 24px 70px;
     }
 
-    .filter-grid {
-        grid-template-columns: 1fr;
+    .toolbar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 25px;
     }
 
-    .car-grid {
-        grid-template-columns: 1fr;
+    .filter {
+      background: white;
+      border: 1px solid #dfe2e5;
+      border-radius: 8px;
+      padding: 12px;
+      outline: 0;
+    }
+
+    .results-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .results-title {
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .results-count {
+      color: #70757b;
+      font-size: 13px;
+    }
+
+    .status {
+      background: white;
+      border: 1px solid #e0e3e6;
+      border-radius: 10px;
+      padding: 35px;
+      text-align: center;
+      color: #666;
+    }
+
+    .status strong {
+      display: block;
+      color: #17191c;
+      font-size: 19px;
+      margin-bottom: 8px;
+    }
+
+    .cars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #e0e3e6;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: .15s;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 22px rgba(0,0,0,.08);
+    }
+
+    .image-wrap {
+      height: 230px;
+      background: #e8eaec;
+      position: relative;
+    }
+
+    .car-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .platform {
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      background: #111315;
+      color: white;
+      border-radius: 5px;
+      padding: 6px 8px;
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .card-body {
+      padding: 17px;
+    }
+
+    .card-title {
+      font-size: 19px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .vin {
+      color: #777d83;
+      font-size: 11px;
+      margin-bottom: 15px;
+      word-break: break-all;
+    }
+
+    .price {
+      font-size: 25px;
+      font-weight: 900;
+      margin-bottom: 14px;
+    }
+
+    .specs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-top: 1px solid #eceef0;
+      border-bottom: 1px solid #eceef0;
+    }
+
+    .spec {
+      padding: 10px 5px;
+    }
+
+    .spec:nth-child(odd) {
+      border-right: 1px solid #eceef0;
+    }
+
+    .spec-label {
+      color: #858a90;
+      font-size: 10px;
+      margin-bottom: 4px;
+    }
+
+    .spec-value {
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .card-button {
+      display: block;
+      background: #ffb400;
+      color: #111315;
+      text-align: center;
+      padding: 12px;
+      border-radius: 7px;
+      margin-top: 15px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 30px;
+    }
+
+    .pagination button {
+      border: 1px solid #d8dce0;
+      background: white;
+      padding: 11px 18px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .pagination button:hover {
+      background: #f0f1f2;
+    }
+
+    footer {
+      background: #111315;
+      color: #aeb3b8;
+      padding: 35px 24px;
     }
 
     .footer-inner {
-        grid-template-columns: 1fr;
+      max-width: 1400px;
+      margin: auto;
     }
 
-    .section-title {
-        align-items: flex-start;
-        flex-direction: column;
+    .footer-logo {
+      color: white;
+      font-size: 25px;
+      font-weight: 900;
     }
-}
-</style>
+
+    .footer-logo span {
+      color: #ffb400;
+    }
+
+    .copyright {
+      margin-top: 12px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 1000px) {
+      .cars {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .toolbar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 650px) {
+      .nav {
+        padding: 14px;
+      }
+
+      .menu {
+        display: none;
+      }
+
+      .hero {
+        padding: 40px 15px;
+      }
+
+      .hero h1 {
+        font-size: 31px;
+      }
+
+      .search {
+        display: block;
+        padding: 5px;
+      }
+
+      .search input {
+        width: 100%;
+      }
+
+      .search button {
+        width: 100%;
+        height: 45px;
+      }
+
+      .container {
+        padding: 22px 14px 50px;
+      }
+
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .cars {
+        grid-template-columns: 1fr;
+      }
+
+      .results-top {
+        display: block;
+      }
+
+      .results-count {
+        margin-top: 5px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
 <header class="topbar">
-    <div class="nav">
+  <div class="nav">
 
-        <a href="index.html" class="logo">
-            MT<span>BID</span>
-        </a>
+    <a href="index.html" class="logo">
+      Rex<span>.Bid</span>
+    </a>
 
-        <nav class="menu">
-            <a href="index.html">Aukcje</a>
-            <a href="jak-to-dziala.html">Jak to działa</a>
-            <a href="o-nas.html">O nas</a>
-            <a href="kontakt.html">Kontakt</a>
-            <a href="ulubione.html">♡ Ulubione</a>
-        </nav>
+    <nav class="menu">
+      <a href="index.html">Aukcje</a>
+      <a href="jak-to-dziala.html">Jak to działa</a>
+      <a href="o-nas.html">O nas</a>
+      <a href="kontakt.html">Kontakt</a>
+      <a href="ulubione.html">♡ Ulubione</a>
+    </nav>
 
-        <div class="nav-right">
-            <a href="logowanie.html" class="nav-button">Zaloguj</a>
-            <a href="rejestracja.html" class="nav-button register-button">Rejestracja</a>
-        </div>
-
-    </div>
+  </div>
 </header>
 
+
 <section class="hero">
-    <div class="hero-inner">
 
-        <div class="hero-badge">
-            COPART + IAAI
-        </div>
+  <div class="hero-inner">
 
-        <h1>
-            Znajdź samochód<br>
-            z aukcji w USA
-        </h1>
+    <h1>Aukcje samochodów z USA</h1>
 
-        <p>
-            Przeglądaj samochody z amerykańskich aukcji,
-            porównuj ceny, sprawdzaj VIN i wybieraj auta,
-            które Cię interesują.
-        </p>
+    <p>
+      Wyszukuj samochody z Copart i IAAI
+      w jednym miejscu.
+    </p>
 
-        <form class="search-box" id="searchForm">
-            <input
-                type="text"
-                id="searchInput"
-                placeholder="Marka, model, VIN lub numer lot..."
-            >
-            <button type="submit">SZUKAJ</button>
-        </form>
+    <form class="search" id="searchForm">
 
-    </div>
+      <input
+        id="searchInput"
+        type="text"
+        placeholder="VIN, marka, model lub numer lot..."
+      >
+
+      <button type="submit">
+        SZUKAJ
+      </button>
+
+    </form>
+
+  </div>
+
 </section>
+
 
 <main class="container">
 
-    <div class="demo-banner" id="demoBanner">
-        <strong>TRYB DEMO</strong><br>
-        Aktualnie pokazujemy przykładowe samochody.
+  <div class="toolbar">
+
+    <select id="platformFilter" class="filter">
+      <option value="">Wszystkie platformy</option>
+      <option value="COPART">Copart</option>
+      <option value="IAAI">IAAI</option>
+    </select>
+
+    <input
+      id="makeFilter"
+      class="filter"
+      placeholder="Marka"
+    >
+
+    <input
+      id="yearFrom"
+      class="filter"
+      type="number"
+      placeholder="Rok od"
+    >
+
+    <select id="statusFilter" class="filter">
+      <option value="">Wszystkie aukcje</option>
+      <option value="live">Aktywne</option>
+      <option value="ended">Zakończone</option>
+    </select>
+
+  </div>
+
+
+  <div class="results-top">
+
+    <div class="results-title">
+      Najnowsze aukcje
     </div>
 
-    <div class="section-title">
-        <div>
-            <h2>Aukcje samochodów</h2>
-        </div>
-
-        <div class="results-count" id="resultsCount">
-            Ładowanie...
-        </div>
+    <div
+      class="results-count"
+      id="resultsCount"
+    >
+      Ładowanie...
     </div>
 
-    <section class="filters">
+  </div>
 
-        <div class="platforms">
 
-            <button class="platform-btn active" data-platform="all">
-                Wszystkie
-            </button>
+  <div id="status" class="status">
+    <strong>Ładowanie aukcji...</strong>
+    Pobieranie danych z API.
+  </div>
 
-            <button class="platform-btn" data-platform="copart">
-                Copart
-            </button>
 
-            <button class="platform-btn" data-platform="iaai">
-                IAAI
-            </button>
+  <div
+    id="cars"
+    class="cars"
+    style="display:none"
+  ></div>
 
-        </div>
 
-        <div class="filter-grid">
+  <div
+    id="pagination"
+    class="pagination"
+    style="display:none"
+  >
 
-            <div class="filter-field">
-                <label>Marka</label>
-                <input id="makeInput" placeholder="np. BMW">
-            </div>
+    <button id="nextButton">
+      Następne aukcje →
+    </button>
 
-            <div class="filter-field">
-                <label>Model</label>
-                <input id="modelInput" placeholder="np. 530i">
-            </div>
-
-            <div class="filter-field">
-                <label>Rok od</label>
-                <input id="yearFrom" type="number" placeholder="2018">
-            </div>
-
-            <div class="filter-field">
-                <label>Rok do</label>
-                <input id="yearTo" type="number" placeholder="2026">
-            </div>
-
-            <div class="filter-field">
-                <label>Cena od USD</label>
-                <input id="priceMin" type="number" placeholder="1000">
-            </div>
-
-            <div class="filter-field">
-                <label>Cena do USD</label>
-                <input id="priceMax" type="number" placeholder="20000">
-            </div>
-
-            <div class="filter-field">
-                <label>Przebieg od</label>
-                <input id="odometerFrom" type="number" placeholder="0">
-            </div>
-
-            <div class="filter-field">
-                <label>Przebieg do</label>
-                <input id="odometerTo" type="number" placeholder="150000">
-            </div>
-
-            <div class="filter-field">
-                <label>Paliwo</label>
-                <select id="fuelInput">
-                    <option value="">Wszystkie</option>
-                    <option value="GASOLINE">Benzyna</option>
-                    <option value="DIESEL">Diesel</option>
-                    <option value="HYBRID">Hybryda</option>
-                    <option value="ELECTRIC">Elektryczny</option>
-                </select>
-            </div>
-
-            <div class="filter-field">
-                <label>Skrzynia</label>
-                <select id="transmissionInput">
-                    <option value="">Wszystkie</option>
-                    <option value="AUTOMATIC">Automat</option>
-                    <option value="CVT">CVT</option>
-                    <option value="MANUAL">Manual</option>
-                </select>
-            </div>
-
-            <div class="filter-field">
-                <label>Napęd</label>
-                <select id="driveInput">
-                    <option value="">Wszystkie</option>
-                    <option value="FWD">FWD</option>
-                    <option value="RWD">RWD</option>
-                    <option value="AWD">AWD</option>
-                    <option value="4WD">4WD</option>
-                </select>
-            </div>
-
-        </div>
-
-        <div class="filter-actions">
-            <button type="button" class="clear-btn" id="clearFilters">
-                Wyczyść
-            </button>
-
-            <button type="button" class="apply-btn" id="applyFilters">
-                Zastosuj filtry
-            </button>
-        </div>
-
-    </section>
-
-    <div class="sort-row">
-        <select id="sortSelect">
-            <option value="newest">Sortuj: najnowsze</option>
-            <option value="price_low">Cena: od najniższej</option>
-            <option value="price_high">Cena: od najwyższej</option>
-            <option value="year_high">Rok: od najnowszego</option>
-            <option value="mileage_low">Przebieg: od najniższego</option>
-        </select>
-    </div>
-
-    <section class="car-grid" id="carGrid">
-        <div class="loading">
-            <strong>Ładowanie samochodów...</strong>
-            Proszę chwilę poczekać.
-        </div>
-    </section>
+  </div>
 
 </main>
 
+
 <footer>
 
-    <div class="footer-inner">
+  <div class="footer-inner">
 
-        <div>
-            <div class="footer-logo">
-                MT<span>BID</span>
-            </div>
-
-            <div class="footer-text">
-                Platforma do wyszukiwania i przeglądania
-                samochodów z aukcji w USA.
-                Copart i IAAI w jednym miejscu.
-            </div>
-        </div>
-
-        <div>
-            <h3>MTBID</h3>
-            <a href="jak-to-dziala.html">Jak to działa</a>
-            <a href="o-nas.html">O nas</a>
-            <a href="kontakt.html">Kontakt</a>
-        </div>
-
-        <div>
-            <h3>Konto</h3>
-            <a href="logowanie.html">Logowanie</a>
-            <a href="rejestracja.html">Rejestracja</a>
-            <a href="ulubione.html">Ulubione</a>
-        </div>
-
-        <div>
-            <h3>Informacje</h3>
-            <a href="kontakt.html">Pomoc</a>
-            <a href="o-nas.html">O platformie</a>
-        </div>
-
+    <div class="footer-logo">
+      Rex<span>.Bid</span>
     </div>
 
     <div class="copyright">
-        © 2026 MTBID. Wszystkie prawa zastrzeżone.
+      © 2026 Rex.Bid. Wszystkie prawa zastrzeżone.
     </div>
+
+  </div>
 
 </footer>
 
+
 <script>
 
-let currentPlatform = "all";
-let currentCars = [];
+const FALLBACK_IMAGE =
+  "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80";
 
-/* ULUBIONE */
 
-function getFavorites() {
-    try {
-        return JSON.parse(
-            localStorage.getItem("mtbid_favorites") || "[]"
-        );
-    } catch {
-        return [];
-    }
-}
+let currentCursor = null;
 
-function saveFavorites(favorites) {
-    localStorage.setItem(
-        "mtbid_favorites",
-        JSON.stringify(favorites)
-    );
-}
-
-function isFavorite(vin) {
-    return getFavorites().includes(vin);
-}
-
-function toggleFavorite(vin, button) {
-
-    let favorites = getFavorites();
-
-    if (favorites.includes(vin)) {
-
-        favorites = favorites.filter(
-            item => item !== vin
-        );
-
-        button.classList.remove("active");
-        button.textContent = "♡";
-
-    } else {
-
-        favorites.push(vin);
-
-        button.classList.add("active");
-        button.textContent = "♥";
-    }
-
-    saveFavorites(favorites);
-}
-
-/* POMOCNICZE */
-
-function money(value) {
-
-    if (
-        value === null ||
-        value === undefined ||
-        value === ""
-    ) {
-        return "—";
-    }
-
-    return "$" + Number(value).toLocaleString("en-US");
-}
 
 function safe(value, fallback = "—") {
 
-    return (
-        value !== null &&
-        value !== undefined &&
-        value !== ""
-    )
-        ? value
-        : fallback;
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return fallback;
+  }
+
+  return value;
 }
 
-function getImage(car) {
+
+function money(value) {
+
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return "—";
+  }
+
+  const number = Number(value);
+
+  if (Number.isNaN(number)) {
+    return value;
+  }
+
+  return "$" +
+    number.toLocaleString("en-US");
+}
+
+
+function getMileage(car) {
+
+  if (
+    car.odometer &&
+    typeof car.odometer === "object"
+  ) {
 
     if (
-        car.media &&
-        Array.isArray(car.media.thumbs) &&
-        car.media.thumbs.length
+      car.odometer.mi !== undefined
     ) {
-        return car.media.thumbs[0];
+      return Number(
+        car.odometer.mi
+      ).toLocaleString("en-US") + " mi";
     }
 
-    return "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80";
+    if (
+      car.odometer.km !== undefined
+    ) {
+      return Number(
+        car.odometer.km
+      ).toLocaleString("en-US") + " km";
+    }
+
+  }
+
+  return safe(
+    car.mileage
+  );
 }
 
-function carTitle(car) {
 
-    if (car.title) {
-        return car.title;
+function getPrice(car) {
+
+  if (
+    car.pricing &&
+    typeof car.pricing === "object"
+  ) {
+
+    if (
+      car.pricing.current_bid_usd !==
+      undefined
+    ) {
+      return car.pricing.current_bid_usd;
     }
 
-    return [
-        car.year,
-        car.make,
-        car.model
-    ].filter(Boolean).join(" ");
+    if (
+      car.pricing.buy_now_usd !==
+      undefined
+    ) {
+      return car.pricing.buy_now_usd;
+    }
+
+  }
+
+  return car.price;
 }
 
-function carUrl(car) {
 
-    return (
-        "car.html?vin=" +
-        encodeURIComponent(
-            car.vin ||
-            car.lot ||
-            ""
-        )
-    );
+function getDamage(car) {
+
+  if (
+    car.condition &&
+    car.condition.primary_damage
+  ) {
+    return car.condition.primary_damage;
+  }
+
+  return safe(car.damage);
 }
 
-/* QUERY */
 
-function buildQuery() {
+function getLocation(car) {
 
-    const params = new URLSearchParams();
+  if (
+    car.location &&
+    typeof car.location === "object"
+  ) {
 
-    if (currentPlatform !== "all") {
-        params.set(
-            "platform",
-            currentPlatform
-        );
+    if (car.location.display) {
+      return car.location.display;
     }
 
-    const search =
-        document
-            .getElementById("searchInput")
-            .value
-            .trim();
-
-    if (search) {
-        params.set("s", search);
+    if (car.location.city) {
+      return car.location.city;
     }
 
-    const fields = {
-        make: "makeInput",
-        model: "modelInput",
-        year_from: "yearFrom",
-        year_to: "yearTo",
-        price_min: "priceMin",
-        price_max: "priceMax",
-        odometer_from: "odometerFrom",
-        odometer_to: "odometerTo",
-        fuel_type: "fuelInput",
-        transmission: "transmissionInput",
-        drive_type: "driveInput"
-    };
+  }
 
-    Object.entries(fields).forEach(
-        ([parameter, id]) => {
+  return safe(
+    car.location,
+    "USA"
+  );
+}
 
-            const element =
-                document.getElementById(id);
 
-            if (!element) {
-                return;
-            }
+function getImages(car) {
 
-            const value =
-                element.value.trim();
+  let images = [];
 
-            if (value) {
-                params.set(
-                    parameter,
-                    value
-                );
-            }
+  if (
+    car.media &&
+    Array.isArray(car.media.images)
+  ) {
+    images = car.media.images;
+  }
+
+  if (
+    car.media &&
+    Array.isArray(car.media.thumbs)
+  ) {
+    images = images.length
+      ? images
+      : car.media.thumbs;
+  }
+
+  if (
+    Array.isArray(car.images)
+  ) {
+    images = car.images;
+  }
+
+  images = images.filter(
+    item => typeof item === "string" && item
+  );
+
+  return images.length
+    ? images
+    : [FALLBACK_IMAGE];
+}
+
+
+function getTitle(car) {
+
+  if (car.title) {
+    return car.title;
+  }
+
+  return (
+    safe(car.year, "") +
+    " " +
+    safe(car.make, "") +
+    " " +
+    safe(car.model, "")
+  ).trim();
+}
+
+
+function getVin(car) {
+
+  return (
+    car.vin ||
+    car.vehicle_vin ||
+    car.lot_number ||
+    car.lot ||
+    ""
+  );
+}
+
+
+function getPlatform(car) {
+
+  return String(
+    car.platform ||
+    car.source ||
+    ""
+  ).toUpperCase();
+}
+
+
+function buildCard(car) {
+
+  const vin = getVin(car);
+
+  const title = getTitle(car);
+
+  const images = getImages(car);
+
+  const image = images[0];
+
+  const price = getPrice(car);
+
+  const platform =
+    getPlatform(car);
+
+  const mileage =
+    getMileage(car);
+
+  const damage =
+    getDamage(car);
+
+  const location =
+    getLocation(car);
+
+  const lot =
+    car.lot ||
+    car.lot_number ||
+    "—";
+
+  return `
+
+    <article class="card">
+
+      <div class="image-wrap">
+
+        <img
+          class="car-image"
+          src="${escapeHtml(image)}"
+          alt="${escapeHtml(title)}"
+          loading="lazy"
+          onerror="this.src='${FALLBACK_IMAGE}'"
+        >
+
+        ${
+          platform
+            ? `<div class="platform">${escapeHtml(platform)}</div>`
+            : ""
         }
-    );
 
-    return params;
-}
+      </div>
 
-/* POBIERANIE AUT */
 
-async function loadCars() {
+      <div class="card-body">
 
-    const grid =
-        document.getElementById("carGrid");
-
-    const resultsCount =
-        document.getElementById("resultsCount");
-
-    grid.innerHTML = `
-        <div class="loading">
-            <strong>Ładowanie samochodów...</strong>
-            Pobieranie ofert.
+        <div class="card-title">
+          ${escapeHtml(title)}
         </div>
-    `;
 
-    try {
+        <div class="vin">
+          VIN: ${escapeHtml(vin || "—")}
+        </div>
 
-        const params = buildQuery();
+        <div class="price">
+          ${money(price)}
+        </div>
 
-        const response =
-            await fetch(
-                "/api/cars?" +
-                params.toString(),
-                {
-                    headers: {
-                        "Accept": "application/json"
-                    }
-                }
-            );
 
-        if (!response.ok) {
-            throw new Error(
-                "HTTP " + response.status
-            );
-        }
+        <div class="specs">
 
-        const raw =
-            await response.json();
+          <div class="spec">
 
-        console.log("MTBID API:", raw);
-
-        /*
-         * API może zwrócić:
-         *
-         * 1. bezpośrednio:
-         *    [ {...}, {...} ]
-         *
-         * 2. albo:
-         *    { ok:true, data:[...] }
-         */
-
-        if (Array.isArray(raw)) {
-
-            currentCars = raw;
-
-        } else if (
-            raw &&
-            Array.isArray(raw.data)
-        ) {
-
-            currentCars = raw.data;
-
-        } else {
-
-            throw new Error(
-                "Nieprawidłowy format danych API"
-            );
-        }
-
-        sortCars();
-        renderCars();
-
-    } catch (error) {
-
-        console.error(
-            "MTBID API ERROR:",
-            error
-        );
-
-        currentCars = [];
-
-        grid.innerHTML = `
-            <div class="empty">
-                <strong>Nie udało się pobrać ofert</strong>
-                API zwróciło błąd:
-                ${safe(error.message)}
+            <div class="spec-label">
+              PRZEBIEG
             </div>
-        `;
 
-        resultsCount.textContent =
-            "Błąd połączenia";
-    }
-}
-
-/* SORTOWANIE */
-
-function sortCars() {
-
-    const sort =
-        document.getElementById(
-            "sortSelect"
-        ).value;
-
-    currentCars.sort(
-        (a, b) => {
-
-            const priceA =
-                Number(a.price || 0);
-
-            const priceB =
-                Number(b.price || 0);
-
-            const yearA =
-                Number(a.year || 0);
-
-            const yearB =
-                Number(b.year || 0);
-
-            const mileageA =
-                Number(
-                    String(
-                        a.mileage || "0"
-                    ).replace(
-                        /[^0-9]/g,
-                        ""
-                    )
-                );
-
-            const mileageB =
-                Number(
-                    String(
-                        b.mileage || "0"
-                    ).replace(
-                        /[^0-9]/g,
-                        ""
-                    )
-                );
-
-            if (sort === "price_low") {
-                return priceA - priceB;
-            }
-
-            if (sort === "price_high") {
-                return priceB - priceA;
-            }
-
-            if (sort === "year_high") {
-                return yearB - yearA;
-            }
-
-            if (sort === "mileage_low") {
-                return mileageA - mileageB;
-            }
-
-            return yearB - yearA;
-        }
-    );
-}
-
-/* RENDEROWANIE AUT */
-
-function renderCars() {
-
-    const grid =
-        document.getElementById("carGrid");
-
-    const resultsCount =
-        document.getElementById(
-            "resultsCount"
-        );
-
-    resultsCount.textContent =
-        `${currentCars.length} ofert`;
-
-    if (!currentCars.length) {
-
-        grid.innerHTML = `
-            <div class="empty">
-                <strong>Brak samochodów</strong>
-                Zmień filtry lub wyszukiwane hasło.
+            <div class="spec-value">
+              ${escapeHtml(mileage)}
             </div>
-        `;
 
-        return;
-    }
+          </div>
 
-    grid.innerHTML =
-        currentCars.map(
-            car => {
 
-                const vin =
-                    car.vin ||
-                    car.lot ||
-                    "";
+          <div class="spec">
 
-                const favorite =
-                    isFavorite(vin);
+            <div class="spec-label">
+              USZKODZENIE
+            </div>
 
-                const image =
-                    getImage(car);
+            <div class="spec-value">
+              ${escapeHtml(damage)}
+            </div>
 
-                const platform =
-                    safe(
-                        car.platform,
-                        ""
-                    ).toUpperCase();
+          </div>
 
-                const price =
-                    car.price;
 
-                const mileage =
-                    car.mileage;
+          <div class="spec">
 
-                const damage =
-                    car.damage;
+            <div class="spec-label">
+              LOKALIZACJA
+            </div>
 
-                const location =
-                    car.location;
+            <div class="spec-value">
+              ${escapeHtml(location)}
+            </div>
 
-                const transmission =
-                    car.transmission;
+          </div>
 
-                const fuel =
-                    car.fuel_type;
 
-                const drive =
-                    car.drive_type;
+          <div class="spec">
 
-                return `
-                    <article class="car-card">
+            <div class="spec-label">
+              LOT
+            </div>
 
-                        <div class="car-image-wrap">
+            <div class="spec-value">
+              ${escapeHtml(lot)}
+            </div>
 
-                            <img
-                                class="car-image"
-                                src="${image}"
-                                alt="${carTitle(car)}"
-                                loading="lazy"
-                            >
+          </div>
 
-                            <div class="platform-badge">
-                                ${platform}
-                            </div>
+        </div>
 
-                            <button
-                                class="favorite-btn ${favorite ? "active" : ""}"
-                                data-vin="${vin}"
-                                title="Dodaj do ulubionych"
-                            >
-                                ${favorite ? "♥" : "♡"}
-                            </button>
 
-                        </div>
+        <a
+          class="card-button"
+          href="car.html?vin=${encodeURIComponent(vin)}"
+        >
+          ZOBACZ SAMOCHÓD →
+        </a>
 
-                        <div class="car-content">
+      </div>
 
-                            <h3 class="car-title">
-                                ${carTitle(car)}
-                            </h3>
+    </article>
 
-                            <div class="car-meta">
-
-                                <span>
-                                    ${safe(car.year)}
-                                </span>
-
-                                <span>
-                                    ${safe(mileage)}
-                                </span>
-
-                                <span>
-                                    ${safe(damage)}
-                                </span>
-
-                                <span>
-                                    ${safe(transmission)}
-                                </span>
-
-                                <span>
-                                    ${safe(fuel)}
-                                </span>
-
-                                <span>
-                                    ${safe(drive)}
-                                </span>
-
-                            </div>
-
-                            <div class="car-price-row">
-
-                                <div>
-
-                                    <span class="price-label">
-                                        AKTUALNA OFERTA
-                                    </span>
-
-                                    <div class="price">
-                                        ${money(price)}
-                                    </div>
-
-                                </div>
-
-                                <div class="location">
-                                    ${safe(location)}
-                                </div>
-
-                            </div>
-
-                            <a
-                                class="open-card"
-                                href="${carUrl(car)}"
-                            >
-                                ZOBACZ SAMOCHÓD
-                            </a>
-
-                        </div>
-
-                    </article>
-                `;
-            }
-        ).join("");
-
-    document
-        .querySelectorAll(".favorite-btn")
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    toggleFavorite(
-                        button.dataset.vin,
-                        button
-                    );
-
-                }
-            );
-
-        });
+  `;
 }
 
-/* PLATFORMY */
 
-document
-    .querySelectorAll(".platform-btn")
-    .forEach(button => {
+function escapeHtml(value) {
 
-        button.addEventListener(
-            "click",
-            () => {
+  return String(
+    value ?? ""
+  )
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
 
-                document
-                    .querySelectorAll(
-                        ".platform-btn"
-                    )
-                    .forEach(item =>
-                        item.classList.remove(
-                            "active"
-                        )
-                    );
 
-                button.classList.add("active");
+function showStatus(title, message) {
 
-                currentPlatform =
-                    button.dataset.platform;
+  const status =
+    document.getElementById("status");
 
-                loadCars();
-            }
+  status.style.display = "block";
+
+  status.innerHTML = `
+    <strong>${escapeHtml(title)}</strong>
+    ${escapeHtml(message)}
+  `;
+
+}
+
+
+function hideStatus() {
+
+  document.getElementById(
+    "status"
+  ).style.display = "none";
+
+}
+
+
+async function loadCars(
+  append = false
+) {
+
+  const carsElement =
+    document.getElementById("cars");
+
+  const search =
+    document.getElementById(
+      "searchInput"
+    ).value.trim();
+
+  const platform =
+    document.getElementById(
+      "platformFilter"
+    ).value;
+
+  const make =
+    document.getElementById(
+      "makeFilter"
+    ).value.trim();
+
+  const yearFrom =
+    document.getElementById(
+      "yearFrom"
+    ).value;
+
+
+  const params =
+    new URLSearchParams();
+
+  params.set(
+    "per_page",
+    "20"
+  );
+
+
+  if (search) {
+    params.set(
+      "s",
+      search
+    );
+  }
+
+
+  if (platform) {
+    params.set(
+      "platform",
+      platform
+    );
+  }
+
+
+  if (make) {
+    params.set(
+      "make",
+      make
+    );
+  }
+
+
+  if (yearFrom) {
+    params.set(
+      "year_from",
+      yearFrom
+    );
+  }
+
+
+  if (
+    append &&
+    currentCursor
+  ) {
+    params.set(
+      "cursor",
+      currentCursor
+    );
+  }
+
+
+  showStatus(
+    "Ładowanie aukcji...",
+    "Pobieranie danych."
+  );
+
+
+  try {
+
+    const response =
+      await fetch(
+        "/api/cars?" +
+        params.toString()
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        "HTTP " +
+        response.status
+      );
+
+    }
+
+
+    const result =
+      await response.json();
+
+
+    if (!result.ok) {
+
+      throw new Error(
+        result.error ||
+        "Błąd API"
+      );
+
+    }
+
+
+    const cars =
+      Array.isArray(
+        result.data
+      )
+        ? result.data
+        : [];
+
+
+    if (!append) {
+
+      carsElement.innerHTML = "";
+
+    }
+
+
+    if (!cars.length) {
+
+      if (!append) {
+
+        showStatus(
+          "Brak ofert",
+          "Nie znaleziono samochodów dla wybranych kryteriów."
         );
 
-    });
+      }
 
-/* SZUKANIE */
+      document.getElementById(
+        "pagination"
+      ).style.display = "none";
 
-document
-    .getElementById("searchForm")
-    .addEventListener(
-        "submit",
-        event => {
+      return;
 
-            event.preventDefault();
+    }
 
-            loadCars();
-        }
+
+    carsElement.insertAdjacentHTML(
+      "beforeend",
+      cars.map(
+        buildCard
+      ).join("")
     );
 
-/* FILTRY */
 
-document
-    .getElementById("applyFilters")
-    .addEventListener(
-        "click",
-        loadCars
+    hideStatus();
+
+    carsElement.style.display =
+      "grid";
+
+
+    document.getElementById(
+      "resultsCount"
+    ).textContent =
+      cars.length +
+      (
+        cars.length === 1
+          ? " oferta"
+          : " ofert"
+      );
+
+
+    currentCursor =
+      result.meta?.next_cursor ||
+      result.next_cursor ||
+      null;
+
+
+    document.getElementById(
+      "pagination"
+    ).style.display =
+      currentCursor
+        ? "flex"
+        : "none";
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    showStatus(
+      "Nie udało się pobrać ofert",
+      "API zwróciło błąd: " +
+      error.message
     );
 
-/* WYCZYŚĆ */
+    carsElement.style.display =
+      "none";
+
+  }
+
+}
+
 
 document
-    .getElementById("clearFilters")
-    .addEventListener(
-        "click",
-        () => {
+  .getElementById("searchForm")
+  .addEventListener(
+    "submit",
+    function(event) {
 
-            [
-                "searchInput",
-                "makeInput",
-                "modelInput",
-                "yearFrom",
-                "yearTo",
-                "priceMin",
-                "priceMax",
-                "odometerFrom",
-                "odometerTo"
-            ].forEach(id => {
+      event.preventDefault();
 
-                document
-                    .getElementById(id)
-                    .value = "";
+      currentCursor = null;
 
-            });
+      loadCars(false);
 
-            [
-                "fuelInput",
-                "transmissionInput",
-                "driveInput"
-            ].forEach(id => {
+    }
+  );
 
-                document
-                    .getElementById(id)
-                    .value = "";
-
-            });
-
-            currentPlatform = "all";
-
-            document
-                .querySelectorAll(
-                    ".platform-btn"
-                )
-                .forEach(button => {
-
-                    button.classList.toggle(
-                        "active",
-                        button.dataset.platform === "all"
-                    );
-
-                });
-
-            loadCars();
-        }
-    );
-
-/* SORTOWANIE */
 
 document
-    .getElementById("sortSelect")
-    .addEventListener(
-        "change",
-        () => {
+  .getElementById("platformFilter")
+  .addEventListener(
+    "change",
+    function() {
 
-            sortCars();
-            renderCars();
+      currentCursor = null;
 
-        }
-    );
+      loadCars(false);
 
-/* START */
+    }
+  );
 
-loadCars();
+
+document
+  .getElementById("makeFilter")
+  .addEventListener(
+    "change",
+    function() {
+
+      currentCursor = null;
+
+      loadCars(false);
+
+    }
+  );
+
+
+document
+  .getElementById("yearFrom")
+  .addEventListener(
+    "change",
+    function() {
+
+      currentCursor = null;
+
+      loadCars(false);
+
+    }
+  );
+
+
+document
+  .getElementById("statusFilter")
+  .addEventListener(
+    "change",
+    function() {
+
+      currentCursor = null;
+
+      loadCars(false);
+
+    }
+  );
+
+
+document
+  .getElementById("nextButton")
+  .addEventListener(
+    "click",
+    function() {
+
+      if (currentCursor) {
+        loadCars(true);
+      }
+
+    }
+  );
+
+
+loadCars(false);
 
 </script>
 
