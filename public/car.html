@@ -547,8 +547,8 @@
     .legend-dot.orange { background:var(--orange); }
     .legend-dot.red { background:var(--red); }
     .legend-dot.unknown { background:#7b858f; }
-    .title-verdict.salvage { border-color:#7c5b24; }
-    .title-verdict.salvage .verdict-label { color:#ffbf45; }
+    .title-verdict.salvage { border-color:#276f4b; }
+    .title-verdict.salvage .verdict-label { color:var(--green); }
 
     .media-panel {
       padding:0;
@@ -1714,7 +1714,7 @@
 
   function titleVerdictLabel(kind) {
     if (kind === "good") return "🟢 Dokument zaakceptowany / korzystny";
-    if (kind === "salvage") return "🟡 Salvage — wymaga weryfikacji";
+    if (kind === "salvage") return "🟢 Salvage — możliwa rejestracja w Polsce po spełnieniu warunków";
     if (kind === "warn") return "🟡 Dokument z ograniczeniem / ostrzeżeniem";
     if (kind === "bad") return "🔴 Duże ryzyko dokumentowe";
     return "⚪ Brak wystarczających danych";
@@ -1722,7 +1722,7 @@
 
   function titleVerdictNote(kind) {
     if (kind === "good") return "Źródło aukcyjne wskazuje korzystny lub zatwierdzony status dokumentu. To nie jest prawna gwarancja rejestracji w Polsce.";
-    if (kind === "salvage") return "Salvage jest normalnym dokumentem na aukcjach powypadkowych, ale jego dokładna marka i stan muszą zostać sprawdzone przed zakupem. Oznaczenie zielone/Approved z aukcji nie oznacza automatycznej rejestracji w Polsce.";
+    if (kind === "salvage") return "Salvage oznacza szkodę całkowitą w historii pojazdu, ale sam status Salvage nie wyklucza rejestracji w Polsce. Po naprawie pojazd może zostać zarejestrowany po spełnieniu wymaganych warunków i badań. Zawsze trzeba sprawdzić konkretny dokument oraz jego oznaczenia.";
     if (kind === "warn") return "Źródło aukcyjne sygnalizuje ograniczenie dokumentu, np. dealer only lub duplicate. Przed zakupem trzeba sprawdzić oryginalny title i możliwość rejestracji.";
     if (kind === "bad") return "Dokument może powodować poważne problemy z legalnym zarejestrowaniem pojazdu. Wymagana jest szczegółowa weryfikacja przed zakupem.";
     return "Brakuje wystarczających informacji o dokumencie, aby nadać mu wiarygodny kolor.";
@@ -1739,7 +1739,15 @@
       };
     }
 
-    if (/bill of sale|billofsale|rebuildable|salvage|rebuilt|rebuilt title|flood|certificate of salvage/.test(t)) {
+    if (/salvage|certificate of salvage/.test(t)) {
+      return {
+        cls:"good",
+        label:"🟢 Rejestracja w Polsce możliwa",
+        text:"Sam status Salvage nie wyklucza rejestracji w Polsce. Po naprawie pojazd może wymagać dodatkowego badania technicznego i spełnienia pozostałych wymagań rejestracyjnych. Rex.Bid nie daje gwarancji rejestracji konkretnego pojazdu."
+      };
+    }
+
+    if (/bill of sale|billofsale|rebuildable|rebuilt|rebuilt title|flood/.test(t)) {
       return {
         cls:"warn",
         label:"🟡 Wymaga dokładnej weryfikacji",
@@ -1964,15 +1972,6 @@
             <button class="action primary" id="scrollInfo">Szczegóły auta</button>
           </div>
 
-          ${originalAuctionUrl() ? `
-            <a
-              class="action primary"
-              style="display:flex;align-items:center;justify-content:center;margin-top:8px"
-              href="${esc(originalAuctionUrl())}"
-              target="_blank"
-              rel="noopener noreferrer"
-            >Otwórz oryginalną aukcję ${esc(platformName())} ↗</a>
-          ` : ""}
         </aside>
       </div>
 
