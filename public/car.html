@@ -6,57 +6,16 @@
 
 <title>Rex.Bid — Samochód</title>
 
-<meta
-    name="description"
-    content="Szczegóły samochodu z aukcji Copart i IAAI."
->
-
 <style>
-
 * {
     box-sizing: border-box;
 }
 
-:root {
-    --bg: #f4f5f7;
-    --white: #ffffff;
-    --black: #111315;
-    --text: #17191c;
-    --muted: #727981;
-    --border: #e0e3e7;
-    --border-dark: #cfd3d8;
-    --yellow: #ffb400;
-    --yellow-hover: #ffc531;
-    --green: #18833d;
-    --green-bg: #e8f7ed;
-    --orange: #9a6800;
-    --orange-bg: #fff4d8;
-    --red: #d93025;
-    --red-bg: #fdebea;
-}
-
-html {
-    scroll-behavior: smooth;
-}
-
 body {
     margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family:
-        Inter,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Roboto,
-        Arial,
-        sans-serif;
-}
-
-button,
-input,
-select {
-    font: inherit;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f5f6f8;
+    color: #15171a;
 }
 
 a {
@@ -64,55 +23,43 @@ a {
     text-decoration: none;
 }
 
-
-/* =========================================================
-   HEADER
-========================================================= */
+button,
+a {
+    -webkit-tap-highlight-color: transparent;
+}
 
 .topbar {
+    background: #111315;
+    color: white;
     position: sticky;
     top: 0;
-    z-index: 1000;
-
-    background: rgba(17, 19, 21, .96);
-    backdrop-filter: blur(14px);
-
-    color: white;
-
-    border-bottom: 1px solid rgba(255,255,255,.08);
-
-    box-shadow:
-        0 2px 15px rgba(0,0,0,.14);
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,.15);
 }
 
 .nav {
     max-width: 1400px;
     min-height: 72px;
-
     margin: 0 auto;
     padding: 0 24px;
-
     display: flex;
     align-items: center;
-
     gap: 30px;
 }
 
 .logo {
     font-size: 28px;
-    font-weight: 950;
-    letter-spacing: -1.5px;
-    white-space: nowrap;
+    font-weight: 900;
+    letter-spacing: -1px;
 }
 
 .logo span {
-    color: var(--yellow);
+    color: #ffb400;
 }
 
 .menu {
     display: flex;
-    align-items: center;
-    gap: 24px;
+    gap: 22px;
     flex: 1;
 }
 
@@ -120,7 +67,6 @@ a {
     color: #d9dcdf;
     font-size: 14px;
     font-weight: 700;
-    transition: .2s;
 }
 
 .menu a:hover {
@@ -131,166 +77,77 @@ a {
     color: #d9dcdf;
     font-size: 13px;
     font-weight: 700;
-    white-space: nowrap;
 }
-
-.back:hover {
-    color: white;
-}
-
-
-/* =========================================================
-   CONTAINER
-========================================================= */
 
 .container {
-    width: min(1300px, calc(100% - 32px));
-
+    max-width: 1300px;
     margin: 0 auto;
-
-    padding:
-        35px
-        0
-        80px;
+    padding: 35px 24px 70px;
 }
-
-
-/* =========================================================
-   LOADING / ERROR
-========================================================= */
 
 .loading,
 .error {
-    background: var(--white);
-
-    border: 1px solid var(--border);
-    border-radius: 14px;
-
-    padding: 60px 25px;
-
+    background: white;
+    border: 1px solid #e0e3e6;
+    border-radius: 12px;
+    padding: 50px 25px;
     text-align: center;
-
-    box-shadow:
-        0 2px 8px rgba(0,0,0,.03);
 }
 
-.loading strong,
-.error strong {
+.error strong,
+.loading strong {
     display: block;
-
-    font-size: 21px;
-
+    font-size: 20px;
     margin-bottom: 10px;
 }
 
 .error {
-    color: var(--muted);
+    color: #666;
 }
-
-.loading-spinner {
-    width: 38px;
-    height: 38px;
-
-    margin:
-        0 auto
-        18px;
-
-    border:
-        3px solid #e5e7e9;
-
-    border-top-color:
-        var(--yellow);
-
-    border-radius: 50%;
-
-    animation:
-        spin .8s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-
-/* =========================================================
-   CAR HEADER
-========================================================= */
 
 .car-header {
-    background: var(--white);
-
-    border:
-        1px solid var(--border);
-
-    border-radius: 14px;
-
-    padding: 24px;
-
+    background: white;
+    border: 1px solid #e0e3e6;
+    border-radius: 12px;
+    padding: 22px;
     margin-bottom: 20px;
-
-    box-shadow:
-        0 2px 8px rgba(0,0,0,.03);
 }
 
 .header-top {
     display: flex;
-
     justify-content: space-between;
     align-items: flex-start;
-
-    gap: 25px;
-}
-
-.header-left {
-    min-width: 0;
-}
-
-.badges {
-    display: flex;
-    flex-wrap: wrap;
-
-    gap: 7px;
-
-    margin-bottom: 12px;
+    gap: 20px;
 }
 
 .platform {
-    display: inline-flex;
-    align-items: center;
-
-    background: var(--black);
+    display: inline-block;
+    background: #111315;
     color: white;
-
-    padding: 6px 10px;
-
-    border-radius: 6px;
-
+    padding: 6px 9px;
+    border-radius: 5px;
     font-size: 11px;
     font-weight: 900;
+    margin-bottom: 10px;
 }
 
 .status {
-    display: inline-flex;
-    align-items: center;
-
-    padding: 6px 10px;
-
-    border-radius: 6px;
-
+    display: inline-block;
+    margin-left: 8px;
+    padding: 6px 9px;
+    border-radius: 5px;
     font-size: 11px;
     font-weight: 900;
 }
 
 .status.active {
-    background: var(--green-bg);
-    color: var(--green);
+    background: #e8f7ed;
+    color: #17823b;
 }
 
 .status.upcoming {
-    background: var(--orange-bg);
-    color: var(--orange);
+    background: #fff4d8;
+    color: #9a6800;
 }
 
 .status.ended {
@@ -298,259 +155,135 @@ a {
     color: #666;
 }
 
-.status.unknown {
-    background: #f0f1f3;
-    color: #666;
-}
-
 .car-header h1 {
-    margin: 0 0 9px;
-
+    margin: 0 0 8px;
     font-size: 32px;
-    line-height: 1.15;
-
-    letter-spacing: -.8px;
 }
 
 .subtitle {
-    color: var(--muted);
-
+    color: #70757b;
     font-size: 14px;
-
-    word-break: break-word;
 }
 
 .favorite {
-    flex-shrink: 0;
-
-    border:
-        1px solid var(--border-dark);
-
+    border: 1px solid #d8dce0;
     background: white;
-
     border-radius: 8px;
-
     padding: 11px 16px;
-
     cursor: pointer;
-
     font-weight: 800;
-
-    transition: .2s;
+    white-space: nowrap;
 }
 
 .favorite:hover {
-    border-color: #aaa;
+    background: #f7f7f7;
 }
 
 .favorite.active {
     color: #e4002b;
-
-    border-color:
-        #f1b4bd;
-
-    background:
-        #fff6f7;
 }
-
-
-/* =========================================================
-   MAIN GRID
-========================================================= */
 
 .main-grid {
     display: grid;
-
-    grid-template-columns:
-        minmax(0, 1.45fr)
-        minmax(320px, .75fr);
-
+    grid-template-columns: 1.4fr .8fr;
     gap: 20px;
-
-    align-items: start;
 }
-
-
-/* =========================================================
-   GALLERY
-========================================================= */
 
 .gallery {
-    background: var(--white);
-
-    border:
-        1px solid var(--border);
-
-    border-radius: 14px;
-
+    background: white;
+    border: 1px solid #e0e3e6;
+    border-radius: 12px;
     overflow: hidden;
-
-    box-shadow:
-        0 2px 8px rgba(0,0,0,.03);
 }
 
-.main-image-wrapper {
+.main-image-wrap {
     position: relative;
-
-    width: 100%;
-    height: 560px;
-
-    background:
-        #eceef0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: #e9ebed;
 }
 
 .main-image {
     width: 100%;
-    height: 100%;
-
+    height: 520px;
     object-fit: contain;
-
     display: block;
-
-    cursor: zoom-in;
+    background: #e9ebed;
 }
 
 .image-counter {
     position: absolute;
-
     right: 14px;
     bottom: 14px;
-
-    background:
-        rgba(0,0,0,.72);
-
+    background: rgba(17,19,21,.8);
     color: white;
-
     padding: 7px 10px;
-
     border-radius: 6px;
-
     font-size: 12px;
     font-weight: 800;
 }
 
-.no-image {
-    color: #7b8289;
-
-    font-size: 15px;
-    font-weight: 700;
-}
-
 .thumbs {
     display: flex;
-
     gap: 8px;
-
     padding: 12px;
-
     overflow-x: auto;
-
-    border-top:
-        1px solid var(--border);
-}
-
-.thumbs::-webkit-scrollbar {
-    height: 7px;
-}
-
-.thumbs::-webkit-scrollbar-thumb {
-    background: #cfd3d8;
-    border-radius: 10px;
 }
 
 .thumb {
-    width: 92px;
-    height: 68px;
-
+    width: 90px;
+    height: 65px;
     object-fit: cover;
-
-    cursor: pointer;
-
-    border:
-        2px solid transparent;
-
     border-radius: 6px;
-
+    cursor: pointer;
+    border: 2px solid transparent;
     flex-shrink: 0;
-
-    background: #eceef0;
-
-    transition: .15s;
+    background: #eee;
 }
 
 .thumb:hover {
-    border-color: #b9bec4;
+    border-color: #aaa;
 }
 
 .thumb.active {
-    border-color:
-        var(--yellow);
+    border-color: #ffb400;
 }
 
-
-/* =========================================================
-   INFO CARD
-========================================================= */
-
 .info-card {
-    background: var(--white);
-
-    border:
-        1px solid var(--border);
-
-    border-radius: 14px;
-
-    padding: 24px;
-
-    box-shadow:
-        0 2px 8px rgba(0,0,0,.03);
+    background: white;
+    border: 1px solid #e0e3e6;
+    border-radius: 12px;
+    padding: 22px;
 }
 
 .price-label {
     color: #777d83;
-
     font-size: 11px;
-    font-weight: 900;
-
+    font-weight: 800;
     margin-bottom: 5px;
 }
 
 .price {
-    font-size: 38px;
-    line-height: 1;
-
-    font-weight: 950;
-
-    letter-spacing: -1px;
-
-    margin-bottom: 14px;
+    font-size: 34px;
+    font-weight: 900;
+    margin-bottom: 12px;
 }
 
 .auction-status {
-    display: inline-flex;
-
-    margin-bottom: 16px;
-
+    display: inline-block;
+    margin-bottom: 14px;
     padding: 7px 10px;
-
     border-radius: 6px;
-
     font-size: 11px;
     font-weight: 900;
 }
 
 .auction-status.active {
-    background: var(--green-bg);
-    color: var(--green);
+    background: #e8f7ed;
+    color: #17823b;
 }
 
 .auction-status.upcoming {
-    background: var(--orange-bg);
-    color: var(--orange);
+    background: #fff4d8;
+    color: #9a6800;
 }
 
 .auction-status.ended {
@@ -558,28 +291,16 @@ a {
     color: #666;
 }
 
-.auction-status.unknown {
-    background: #f0f1f3;
-    color: #666;
-}
-
 .info-row {
     display: flex;
-
     justify-content: space-between;
-    align-items: flex-start;
-
-    gap: 18px;
-
+    gap: 15px;
     padding: 12px 0;
-
-    border-bottom:
-        1px solid #eceef0;
-
+    border-bottom: 1px solid #eceef0;
     font-size: 14px;
 }
 
-.info-row:last-of-type {
+.info-row:last-child {
     border-bottom: 0;
 }
 
@@ -588,135 +309,82 @@ a {
 }
 
 .info-value {
-    max-width: 62%;
-
     font-weight: 800;
-
     text-align: right;
-
-    word-break: break-word;
 }
 
+.auction-time {
+    margin: 14px 0 4px;
+    padding: 12px;
+    background: #f5f6f8;
+    border-radius: 8px;
+}
 
-/* =========================================================
-   AUCTION BUTTON
-========================================================= */
+.auction-time-label {
+    color: #777d83;
+    font-size: 10px;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.auction-time-value {
+    font-size: 14px;
+    font-weight: 900;
+}
 
 .auction-button {
     display: block;
-
     width: 100%;
-
-    margin-top: 20px;
-
-    background:
-        var(--yellow);
-
-    color:
-        #111315;
-
+    margin-top: 18px;
+    background: #ffb400;
+    color: #111315;
     text-align: center;
-
-    padding: 14px;
-
+    padding: 13px;
     border-radius: 8px;
-
-    font-size: 13px;
-
-    font-weight: 950;
-
-    transition: .2s;
+    font-weight: 900;
 }
 
 .auction-button:hover {
-    background:
-        var(--yellow-hover);
-
-    transform:
-        translateY(-1px);
+    background: #ffc431;
 }
-
-.auction-button.disabled {
-    background: #e8eaec;
-    color: #858a90;
-
-    cursor: default;
-}
-
-.auction-button.disabled:hover {
-    transform: none;
-}
-
-
-/* =========================================================
-   DETAILS
-========================================================= */
 
 .details {
-    background: var(--white);
-
-    border:
-        1px solid var(--border);
-
-    border-radius: 14px;
-
+    background: white;
+    border: 1px solid #e0e3e6;
+    border-radius: 12px;
     margin-top: 20px;
-
     padding: 25px;
-
-    box-shadow:
-        0 2px 8px rgba(0,0,0,.03);
 }
 
 .details h2 {
     margin: 0 0 20px;
-
     font-size: 22px;
-
-    letter-spacing: -.3px;
 }
 
 .details-grid {
     display: grid;
-
-    grid-template-columns:
-        repeat(3, minmax(0, 1fr));
-
+    grid-template-columns: repeat(3, 1fr);
     gap: 1px;
-
-    background:
-        #e4e6e8;
-
-    border:
-        1px solid #e4e6e8;
+    background: #e4e6e8;
+    border: 1px solid #e4e6e8;
 }
 
 .detail {
     background: white;
-
-    padding: 16px;
+    padding: 15px;
 }
 
 .detail-label {
     color: #777d83;
-
     font-size: 11px;
-
-    margin-bottom: 6px;
+    margin-bottom: 5px;
 }
 
 .detail-value {
     font-size: 14px;
-
     font-weight: 800;
-
     word-break: break-word;
 }
-
-
-/* =========================================================
-   HISTORY
-========================================================= */
 
 .history {
     margin-top: 20px;
@@ -724,267 +392,111 @@ a {
 
 .history-empty {
     color: #777;
-
-    padding:
-        5px 0
-        10px;
-}
-
-.history-table-wrapper {
-    width: 100%;
-
-    overflow-x: auto;
+    padding: 15px 0;
 }
 
 .history-table {
     width: 100%;
-
     border-collapse: collapse;
-
     font-size: 14px;
 }
 
 .history-table th,
 .history-table td {
     padding: 13px;
-
-    border-bottom:
-        1px solid #eceef0;
-
+    border-bottom: 1px solid #eceef0;
     text-align: left;
-
-    white-space: nowrap;
 }
 
 .history-table th {
     color: #777d83;
-
     font-size: 11px;
-
     text-transform: uppercase;
 }
 
-.history-table td {
-    font-weight: 600;
+.video-box {
+    margin-top: 20px;
 }
 
+.video-link {
+    display: inline-block;
+    background: #111315;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-weight: 800;
+}
 
-/* =========================================================
-   FOOTER
-========================================================= */
+.video-link:hover {
+    background: #272a2d;
+}
 
 footer {
-    background:
-        #111315;
-
-    color:
-        #bfc3c7;
-
-    padding:
-        35px 24px;
+    background: #111315;
+    color: #bfc3c7;
+    padding: 35px 24px;
 }
 
 .footer-inner {
     max-width: 1300px;
-
     margin: 0 auto;
 }
 
 .footer-logo {
     color: white;
-
     font-size: 24px;
-
     font-weight: 900;
 }
 
 .footer-logo span {
-    color: var(--yellow);
+    color: #ffb400;
 }
 
 .copyright {
     margin-top: 15px;
-
     font-size: 12px;
-
     color: #858b91;
 }
 
-
-/* =========================================================
-   LIGHTBOX
-========================================================= */
-
-.lightbox {
-    position: fixed;
-
-    inset: 0;
-
-    z-index: 5000;
-
-    background:
-        rgba(0,0,0,.94);
-
-    display: none;
-
-    align-items: center;
-    justify-content: center;
-
-    padding: 25px;
-}
-
-.lightbox.open {
-    display: flex;
-}
-
-.lightbox img {
-    max-width: 95vw;
-    max-height: 92vh;
-
-    object-fit: contain;
-}
-
-.lightbox-close {
-    position: absolute;
-
-    top: 18px;
-    right: 22px;
-
-    width: 44px;
-    height: 44px;
-
-    border: 0;
-
-    border-radius: 50%;
-
-    background:
-        rgba(255,255,255,.12);
-
-    color: white;
-
-    font-size: 25px;
-
-    cursor: pointer;
-}
-
-.lightbox-close:hover {
-    background:
-        rgba(255,255,255,.22);
-}
-
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
-@media (max-width: 1050px) {
+@media (max-width: 900px) {
 
     .main-grid {
         grid-template-columns: 1fr;
     }
 
-    .info-card {
-        display: grid;
-
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-
-        gap: 0 25px;
+    .main-image {
+        height: 420px;
     }
-
-    .info-card .price-label,
-    .info-card .price,
-    .info-card .auction-status,
-    .info-card .auction-button {
-        grid-column: 1 / -1;
-    }
-
-    .main-image-wrapper {
-        height: 500px;
-    }
-}
-
-
-@media (max-width: 850px) {
 
     .details-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-    }
-
-    .menu {
-        gap: 14px;
-    }
-
-    .menu a:nth-child(3),
-    .menu a:nth-child(4) {
-        display: none;
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
-
-@media (max-width: 650px) {
+@media (max-width: 600px) {
 
     .nav {
-        min-height: 62px;
-
-        padding:
-            0 15px;
-
-        gap: 15px;
-    }
-
-    .logo {
-        font-size: 24px;
+        padding: 15px;
     }
 
     .menu {
         display: none;
-    }
-
-    .back {
-        margin-left: auto;
     }
 
     .container {
-        width:
-            min(
-                100% - 20px,
-                1300px
-            );
-
-        padding:
-            20px
-            0
-            55px;
-    }
-
-    .car-header {
-        padding: 18px;
+        padding: 20px 14px 50px;
     }
 
     .header-top {
         flex-direction: column;
     }
 
-    .favorite {
-        width: 100%;
-    }
-
     .car-header h1 {
         font-size: 25px;
     }
 
-    .main-image-wrapper {
-        height: 300px;
-    }
-
-    .info-card {
-        display: block;
-    }
-
-    .details {
-        padding: 18px;
+    .main-image {
+        height: 280px;
     }
 
     .details-grid {
@@ -992,79 +504,35 @@ footer {
     }
 
     .price {
-        font-size: 31px;
+        font-size: 28px;
+    }
+
+    .favorite {
+        width: 100%;
     }
 }
-
-
-@media (max-width: 430px) {
-
-    .main-image-wrapper {
-        height: 250px;
-    }
-
-    .thumb {
-        width: 78px;
-        height: 58px;
-    }
-
-    .info-row {
-        font-size: 13px;
-    }
-
-    .info-value {
-        max-width: 58%;
-    }
-}
-
 </style>
 </head>
 
-
 <body>
-
 
 <header class="topbar">
 
     <div class="nav">
 
-        <a
-            href="index.html"
-            class="logo"
-        >
+        <a href="index.html" class="logo">
             Rex<span>.Bid</span>
         </a>
 
-
         <nav class="menu">
-
-            <a href="index.html">
-                Aukcje
-            </a>
-
-            <a href="jak-to-dziala.html">
-                Jak to działa
-            </a>
-
-            <a href="o-nas.html">
-                O nas
-            </a>
-
-            <a href="kontakt.html">
-                Kontakt
-            </a>
-
-            <a href="ulubione.html">
-                ♡ Ulubione
-            </a>
-
+            <a href="index.html">Aukcje</a>
+            <a href="jak-to-dziala.html">Jak to działa</a>
+            <a href="o-nas.html">O nas</a>
+            <a href="kontakt.html">Kontakt</a>
+            <a href="ulubione.html">♡ Ulubione</a>
         </nav>
 
-
-        <a
-            href="index.html"
-            class="back"
-        >
+        <a href="index.html" class="back">
             ← Wróć do aukcji
         </a>
 
@@ -1073,21 +541,11 @@ footer {
 </header>
 
 
-<main
-    class="container"
-    id="app"
->
+<main class="container" id="app">
 
     <div class="loading">
-
-        <div class="loading-spinner"></div>
-
-        <strong>
-            Ładowanie samochodu...
-        </strong>
-
+        <strong>Ładowanie samochodu...</strong>
         Pobieranie danych aukcji.
-
     </div>
 
 </main>
@@ -1102,8 +560,7 @@ footer {
         </div>
 
         <div class="copyright">
-            © 2026 Rex.Bid.
-            Wszystkie prawa zastrzeżone.
+            © 2026 Rex.Bid. Wszystkie prawa zastrzeżone.
         </div>
 
     </div>
@@ -1111,57 +568,9 @@ footer {
 </footer>
 
 
-<div
-    id="lightbox"
-    class="lightbox"
->
-
-    <button
-        class="lightbox-close"
-        onclick="closeLightbox()"
-        aria-label="Zamknij"
-    >
-        ×
-    </button>
-
-    <img
-        id="lightboxImage"
-        src=""
-        alt=""
-    >
-
-</div>
-
-
 <script>
 
-
-/* =========================================================
-   BASIC HELPERS
-========================================================= */
-
-function escapeHtml(value) {
-
-    if (
-        value === null ||
-        value === undefined
-    ) {
-        return "";
-    }
-
-    return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-}
-
-
-function safe(
-    value,
-    fallback = "—"
-) {
+function safe(value, fallback = "—") {
 
     if (
         value === null ||
@@ -1171,14 +580,11 @@ function safe(
         return fallback;
     }
 
-    return value;
+    return String(value);
 }
 
 
-function displayValue(
-    value,
-    fallback = "—"
-) {
+function displayValue(value, fallback = "—") {
 
     if (
         value === null ||
@@ -1187,41 +593,26 @@ function displayValue(
     ) {
         return fallback;
     }
-
 
     if (
         typeof value === "string" ||
         typeof value === "number" ||
         typeof value === "boolean"
     ) {
-
         return String(value);
     }
 
-
     if (Array.isArray(value)) {
 
-        const result =
-            value
-                .map(item =>
-                    displayValue(
-                        item,
-                        ""
-                    )
-                )
-                .filter(Boolean)
-                .join(", ");
-
-        return result || fallback;
+        return value
+            .map(item => displayValue(item, ""))
+            .filter(Boolean)
+            .join(", ") || fallback;
     }
 
-
-    if (
-        typeof value === "object"
-    ) {
+    if (typeof value === "object") {
 
         const preferred = [
-
             "name",
             "value",
             "display",
@@ -1230,13 +621,9 @@ function displayValue(
             "text",
             "type",
             "title"
-
         ];
 
-
-        for (
-            const key of preferred
-        ) {
+        for (const key of preferred) {
 
             if (
                 value[key] !== undefined &&
@@ -1251,32 +638,51 @@ function displayValue(
             }
         }
 
-
-        const values =
-            Object.values(value)
-                .map(item =>
-                    displayValue(
-                        item,
-                        ""
-                    )
-                )
-                .filter(Boolean);
-
-
-        if (values.length) {
-
-            return values.join(", ");
-        }
+        return fallback;
     }
-
 
     return fallback;
 }
 
 
-/* =========================================================
-   MONEY
-========================================================= */
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/*
+ * API zwraca czas w UTC.
+ */
+function formatDate(value) {
+
+    if (!value) {
+        return "—";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return displayValue(value);
+    }
+
+    return date.toLocaleString(
+        "pl-PL",
+        {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    );
+}
+
 
 function money(value) {
 
@@ -1288,10 +694,7 @@ function money(value) {
         return "—";
     }
 
-
-    if (
-        typeof value === "object"
-    ) {
+    if (typeof value === "object") {
 
         value =
             value.amount ??
@@ -1301,540 +704,397 @@ function money(value) {
             null;
     }
 
+    const number = Number(value);
 
-    const number =
-        Number(value);
-
-
-    if (
-        !Number.isFinite(number)
-    ) {
-
+    if (!Number.isFinite(number)) {
         return displayValue(value);
     }
 
-
     return "$" +
         number.toLocaleString(
-            "en-US"
+            "en-US",
+            {
+                maximumFractionDigits: 0
+            }
         );
 }
 
 
-/* =========================================================
-   PRICE
-========================================================= */
+/*
+ * ============================
+ * DANE POJAZDU
+ * ============================
+ */
 
-function getPrice(car) {
+function getVin(car) {
 
-    const candidates = [
-
-        car.pricing?.current_bid_usd,
-
-        car.pricing?.current_bid,
-
-        car.pricing?.currentBid,
-
-        car.current_bid_usd,
-
-        car.current_bid,
-
-        car.currentBid,
-
-        car.price,
-
-        car.sale_price,
-
-        car.sale?.price,
-
-        car.bid
-
-    ];
-
-
-    for (
-        const value of candidates
-    ) {
-
-        if (
-            value !== undefined &&
-            value !== null &&
-            value !== ""
-        ) {
-
-            return value;
-        }
-    }
-
-
-    return null;
+    return (
+        car.vin ??
+        car.VIN ??
+        ""
+    );
 }
 
 
-/* =========================================================
-   MILEAGE
-========================================================= */
+function getTitle(car) {
+
+    return (
+        car.title ??
+        car.details?.attributes?.YearMakeModelSeries ??
+        `${safe(car.year, "")} ${safe(car.make, "")} ${safe(car.model, "")}`
+    ).trim();
+}
+
+
+function getLot(car) {
+
+    return (
+        car.lot_number ??
+        car.lot ??
+        car.details?.attributes?.StockNumber ??
+        car.details?.auction_information?.stockNumber ??
+        "—"
+    );
+}
+
+
+function getPrice(car) {
+
+    return (
+        car.pricing?.current_bid_usd ??
+        car.pricing?.current_bid2_usd ??
+        car.current_bid_usd ??
+        car.current_bid ??
+        null
+    );
+}
+
 
 function getMileage(car) {
 
-    const candidates = [
+    const mileage =
+        car.odometer?.mi ??
+        car.details?.attributes?.ODOValue ??
+        null;
 
-        car.odometer?.mi,
-
-        car.odometer?.miles,
-
-        car.odometer?.value,
-
-        car.odometer,
-
-        car.mileage,
-
-        car.miles
-
-    ];
-
-
-    for (
-        const value of candidates
+    if (
+        mileage === null ||
+        mileage === undefined ||
+        mileage === ""
     ) {
-
-        if (
-            value === undefined ||
-            value === null ||
-            value === ""
-        ) {
-            continue;
-        }
-
-
-        if (
-            typeof value === "object"
-        ) {
-
-            const number =
-                value.mi ??
-                value.miles ??
-                value.value;
-
-
-            if (
-                number !== undefined
-            ) {
-
-                return Number(number)
-                    .toLocaleString(
-                        "en-US"
-                    ) +
-                    " mi";
-            }
-        }
-
-
-        if (
-            !Number.isNaN(
-                Number(value)
-            )
-        ) {
-
-            return Number(value)
-                .toLocaleString(
-                    "en-US"
-                ) +
-                " mi";
-        }
-
-
-        return displayValue(value);
+        return "—";
     }
 
+    const number = Number(
+        String(mileage).replace(/,/g, "")
+    );
+
+    if (!Number.isFinite(number)) {
+        return displayValue(mileage);
+    }
+
+    return number.toLocaleString("en-US") + " mi";
+}
+
+
+function getDamage(car) {
+
+    return (
+        car.condition?.primary_damage ??
+        car.details?.vehicle_information?.PrimaryDamage ??
+        car.details?.attributes?.PrimaryDamageDesc ??
+        "—"
+    );
+}
+
+
+function getSecondaryDamage(car) {
+
+    return (
+        car.condition?.secondary_damage ??
+        car.details?.attributes?.SecondaryDamageDesc ??
+        "—"
+    );
+}
+
+
+function getRunCondition(car) {
+
+    return (
+        car.condition?.run_condition?.value ??
+        car.details?.attributes?.StartsDesc ??
+        car.details?.vehicle_information?.StartCode ??
+        "—"
+    );
+}
+
+
+function getLocation(car) {
+
+    return (
+        car.location?.display ??
+        car.details?.sale_information?.SellingBranch ??
+        car.details?.attributes?.BranchName ??
+        "—"
+    );
+}
+
+
+function getAddress(car) {
+
+    const address =
+        car.details?.saleInformation?.address ??
+        car.details?.attributes?.Address;
+
+    const city =
+        car.details?.saleInformation?.city ??
+        car.details?.attributes?.City;
+
+    const state =
+        car.details?.saleInformation?.state ??
+        car.details?.attributes?.State;
+
+    const zip =
+        car.details?.saleInformation?.zip ??
+        car.details?.attributes?.Zip;
+
+    const parts = [
+        address,
+        city,
+        state,
+        zip
+    ].filter(Boolean);
+
+    return parts.length
+        ? parts.join(", ")
+        : "—";
+}
+
+
+function getTransmission(car) {
+
+    return (
+        car.vehicle_specs?.transmission ??
+        car.details?.vehicle_description?.Transmission ??
+        car.details?.attributes?.Transmission ??
+        "—"
+    );
+}
+
+
+function getFuel(car) {
+
+    return (
+        car.vehicle_specs?.fuel_type ??
+        car.details?.vehicle_description?.FuelType ??
+        car.details?.attributes?.FuelTypeDesc ??
+        "—"
+    );
+}
+
+
+function getDrive(car) {
+
+    return (
+        car.vehicle_specs?.drive_type ??
+        car.details?.vehicle_description?.DriveLineType ??
+        car.details?.attributes?.DriveLineTypeDesc ??
+        "—"
+    );
+}
+
+
+function getEngine(car) {
+
+    return (
+        car.vehicle_specs?.engine?.raw ??
+        car.details?.vehicle_description?.Engine ??
+        car.details?.attributes?.EngineSize ??
+        car.details?.attributes?.EngineInformation ??
+        "—"
+    );
+}
+
+
+function getBodyType(car) {
+
+    return (
+        car.vehicle_specs?.body_style ??
+        car.details?.vehicle_description?.BodyStyle ??
+        car.details?.attributes?.BodyStyleName ??
+        "—"
+    );
+}
+
+
+function getColor(car) {
+
+    return (
+        car.vehicle_specs?.exterior_color ??
+        car.details?.attributes?.ExteriorColor ??
+        "—"
+    );
+}
+
+
+function getKey(car) {
+
+    if (
+        car.condition?.has_key === true
+    ) {
+        return "Present";
+    }
+
+    if (
+        car.condition?.has_key === false
+    ) {
+        return "Brak";
+    }
+
+    const value =
+        car.details?.attributes?.Keys;
+
+    if (value === "True") {
+        return "Present";
+    }
+
+    if (value === "False") {
+        return "Brak";
+    }
 
     return "—";
 }
 
 
-/* =========================================================
-   DAMAGE
-========================================================= */
+function getVehicleType(car) {
 
-function getDamage(car) {
-
-    return displayValue(
-
-        car.condition?.primary_damage ??
-
-        car.condition?.primaryDamage ??
-
-        car.primary_damage ??
-
-        car.damage ??
-
-        car.damage_type ??
-
-        car.damageType
-
+    return (
+        car.type ??
+        car.details?.attributes?.InventoryType ??
+        car.details?.vehicle_description?.Vehicle ??
+        "—"
     );
 }
 
 
-/* =========================================================
-   SECONDARY DAMAGE / CONDITION
-========================================================= */
+function getTitleDocument(car) {
 
-function getSecondaryDamage(car) {
-
-    return displayValue(
-
-        car.condition?.secondary_damage ??
-
-        car.condition?.secondaryDamage ??
-
-        car.secondary_damage ??
-
-        car.secondaryDamage ??
-
-        car.run_cond
-
+    return (
+        car.sale_document?.name ??
+        car.details?.vehicle_information?.TitleSaleDoc ??
+        "—"
     );
 }
 
 
-/* =========================================================
-   LOCATION
-========================================================= */
+function getTitleBrand(car) {
 
-function getLocation(car) {
-
-    return displayValue(
-
-        car.location?.display ??
-
-        car.location?.name ??
-
-        car.location?.city ??
-
-        car.location ??
-
-        car.city
-
+    return (
+        car.sale_document?.sale_document_group ??
+        car.sale_document?.name ??
+        car.details?.vehicle_information?.TitleSaleDocBrand ??
+        car.details?.sale_information?.Brand ??
+        "—"
     );
 }
 
 
-/* =========================================================
-   FUEL
-========================================================= */
-
-function getFuel(car) {
-
-    return displayValue(
-
-        car.fuel_type ??
-
-        car.fuelType ??
-
-        car.engine?.fuel_type ??
-
-        car.engine?.fuel ??
-
-        car.fuel
-
-    );
-}
-
-
-/* =========================================================
-   TRANSMISSION
-========================================================= */
-
-function getTransmission(car) {
-
-    return displayValue(
-
-        car.transmission ??
-
-        car.transmission_type ??
-
-        car.transmissionType ??
-
-        car.specs?.transmission
-
-    );
-}
-
-
-/* =========================================================
-   DRIVE
-========================================================= */
-
-function getDrive(car) {
-
-    return displayValue(
-
-        car.drive_type ??
-
-        car.driveType ??
-
-        car.specs?.drive_type ??
-
-        car.drive
-
-    );
-}
-
-
-/* =========================================================
-   ENGINE
-========================================================= */
-
-function getEngine(car) {
-
-    return displayValue(
-
-        car.engine?.description ??
-
-        car.engine?.name ??
-
-        car.engine?.type ??
-
-        car.engine?.size ??
-
-        car.engine
-
-    );
-}
-
-
-/* =========================================================
-   BODY
-========================================================= */
-
-function getBodyType(car) {
-
-    return displayValue(
-
-        car.body_type ??
-
-        car.bodyType ??
-
-        car.body?.type ??
-
-        car.body?.style ??
-
-        car.body_style
-
-    );
-}
-
-
-/* =========================================================
-   COLOR
-========================================================= */
-
-function getColor(car) {
-
-    return displayValue(
-
-        car.color ??
-
-        car.exterior_color ??
-
-        car.exteriorColor ??
-
-        car.colors?.exterior ??
-
-        car.colors?.primary
-
-    );
-}
-
-
-/* =========================================================
-   LOT
-========================================================= */
-
-function getLot(car) {
-
-    return displayValue(
-
-        car.lot_number ??
-
-        car.lot ??
-
-        car.lot_id ??
-
-        car.lotNumber ??
-
-        car.stock_number ??
-
-        car.stockNumber
-
-    );
-}
-
-
-/* =========================================================
-   AUCTION DATE
-========================================================= */
+/*
+ * ============================
+ * AUKCJA
+ * ============================
+ */
 
 function getAuctionDate(car) {
 
     return (
-
-        car.auction_date ??
-
-        car.auction?.date ??
-
-        car.auction?.start_time ??
-
-        car.auction?.startTime ??
-
-        car.auction?.scheduled_at ??
-
-        car.auction?.scheduledAt ??
-
-        car.sale_date ??
-
-        car.sale?.date ??
-
+        car.auction?.full_date ??
+        car.auction?.auction_at ??
+        car.details?.auction_information?.prebidInformation?.liveDate ??
+        car.details?.attributes?.AuctionDateTime ??
+        car.ad ??
         null
-
     );
 }
 
 
-/* =========================================================
-   DATE
-========================================================= */
+function getAuctionState(car) {
 
-function formatDate(value) {
-
-    if (!value) {
-        return "—";
-    }
-
-
-    const date =
-        new Date(value);
-
-
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
-
-        return displayValue(value);
-    }
-
-
-    return date.toLocaleString(
-        "pl-PL",
-        {
-            year: "numeric",
-            month: "short",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit"
-        }
-    );
+    return String(
+        car.auction?.state ??
+        ""
+    ).toLowerCase();
 }
 
-
-/* =========================================================
-   STATUS
-========================================================= */
 
 function getStatus(car) {
 
-    const raw =
-        String(
-
-            car.lot_status ??
-
-            car.lotStatus ??
-
-            car.status ??
-
-            car.auction_status ??
-
-            car.auctionStatus ??
-
-            car.sale_status ??
-
-            car.saleStatus ??
-
-            car.auction?.state ??
-
-            ""
-
-        ).toLowerCase();
-
+    const state =
+        getAuctionState(car);
 
     if (
-        raw.includes("sold") ||
-        raw.includes("ended") ||
-        raw.includes("closed") ||
-        raw.includes("completed") ||
-        raw.includes("sold")
+        state === "closed" ||
+        state === "ended" ||
+        state === "sold"
     ) {
 
         return {
-
             key: "ended",
-
-            label:
-                "AUKCJA ZAKOŃCZONA"
-
+            label: "AUKCJA ZAKOŃCZONA"
         };
     }
 
 
     if (
-        raw.includes("upcoming") ||
-        raw.includes("future") ||
-        raw.includes("scheduled") ||
-        raw.includes("pending")
+        state === "open"
     ) {
 
-        return {
+        const auctionDate =
+            getAuctionDate(car);
 
-            key: "upcoming",
+        if (auctionDate) {
 
-            label:
-                "NADCHODZĄCA AUKCJA"
-
-        };
-    }
-
-
-    const dateValue =
-        getAuctionDate(car);
-
-
-    if (dateValue) {
-
-        const date =
-            new Date(dateValue);
-
-
-        if (
-            !Number.isNaN(
-                date.getTime()
-            )
-        ) {
+            const date =
+                new Date(auctionDate);
 
             if (
-                date.getTime() >
-                Date.now()
+                !Number.isNaN(date.getTime()) &&
+                date.getTime() > Date.now()
             ) {
 
                 return {
-
                     key: "upcoming",
+                    label: "NADCHODZĄCA AUKCJA"
+                };
+            }
+        }
 
-                    label:
-                        "NADCHODZĄCA AUKCJA"
+        return {
+            key: "active",
+            label: "AKTYWNA AUKCJA"
+        };
+    }
 
+
+    const auctionDate =
+        getAuctionDate(car);
+
+    if (auctionDate) {
+
+        const date =
+            new Date(auctionDate);
+
+        if (
+            !Number.isNaN(date.getTime())
+        ) {
+
+            if (
+                date.getTime() > Date.now()
+            ) {
+
+                return {
+                    key: "upcoming",
+                    label: "NADCHODZĄCA AUKCJA"
                 };
             }
         }
@@ -1842,194 +1102,200 @@ function getStatus(car) {
 
 
     return {
-
         key: "active",
-
-        label:
-            "AKTYWNA AUKCJA"
-
+        label: "AKTYWNA AUKCJA"
     };
 }
 
 
-/* =========================================================
-   TITLE
-========================================================= */
-
-function carTitle(car) {
-
-    if (car.title) {
-        return String(car.title);
-    }
-
-
-    return [
-
-        car.year,
-
-        car.make,
-
-        car.model
-
-    ]
-        .filter(
-            value =>
-                value !== null &&
-                value !== undefined &&
-                value !== ""
-        )
-        .join(" ");
-}
-
-
-/* =========================================================
-   VIN
-========================================================= */
-
-function getVin(car) {
+function getBidCount(car) {
 
     return (
-
-        car.vin ??
-
-        car.VIN ??
-
-        car.slug_vin ??
-
-        car.slugVin ??
-
-        ""
-
+        car.details
+            ?.auction_information
+            ?.prebidInformation
+            ?.bidCountText ??
+        null
     );
 }
 
 
-/* =========================================================
-   PLATFORM
-========================================================= */
+function getBidIncrement(car) {
 
-function getPlatform(car) {
+    const value =
+        car.details?.bid_increment ??
+        car.details
+            ?.auction_information
+            ?.biddingInformation
+            ?.bidIncrement ??
+        null;
 
-    return displayValue(
+    if (
+        value === null ||
+        value === undefined
+    ) {
+        return "—";
+    }
 
-        car.platform ??
-
-        car.auction?.platform ??
-
-        car.source
-
-    ).toUpperCase();
+    return "$" +
+        Number(value).toLocaleString("en-US");
 }
 
 
-/* =========================================================
-   IMAGES
-========================================================= */
+/*
+ * ============================
+ * ZDJĘCIA
+ * ============================
+ */
+
+function cleanImageUrl(value) {
+
+    if (!value) {
+        return null;
+    }
+
+    let url =
+        String(value).trim();
+
+    /*
+     * API w pokazanym JSON-ie
+     * zwraca czasami:
+     *
+     * [https://...](https://...)
+     *
+     * Wyciągamy z tego prawdziwy URL.
+     */
+
+    const markdownMatch =
+        url.match(
+            /^\[.*?\]\((https?:\/\/.*)\)$/
+        );
+
+    if (markdownMatch) {
+        url = markdownMatch[1];
+    }
+
+    /*
+     * Usuwamy ewentualne znaki escape
+     * pochodzące z JSON / markdown.
+     */
+
+    url =
+        url
+            .replace(/\\&/g, "&")
+            .replace(/\\~/g, "~")
+            .replace(/\\\?/g, "?")
+            .replace(/\\=/g, "=");
+
+    return url;
+}
+
 
 function getImages(car) {
 
-    let images = [];
+    const images = [];
 
+
+    /*
+     * Najlepsze źródło:
+     *
+     * media.items[].large
+     */
+
+    if (
+        Array.isArray(
+            car.media?.items
+        )
+    ) {
+
+        car.media.items.forEach(item => {
+
+            if (
+                item &&
+                item.type === "image"
+            ) {
+
+                const url =
+                    cleanImageUrl(
+                        item.large ??
+                        item.thumb ??
+                        item.url
+                    );
+
+                if (url) {
+                    images.push(url);
+                }
+            }
+
+        });
+    }
+
+
+    /*
+     * Fallback na media.thumbs
+     */
+
+    if (
+        !images.length &&
+        Array.isArray(
+            car.media?.thumbs
+        )
+    ) {
+
+        car.media.thumbs.forEach(item => {
+
+            const url =
+                cleanImageUrl(item);
+
+            if (url) {
+                images.push(url);
+            }
+
+        });
+    }
+
+
+    /*
+     * Fallback dla innych wersji API.
+     */
 
     if (
         Array.isArray(car.images)
     ) {
 
-        images.push(
-            ...car.images
-        );
+        car.images.forEach(item => {
+
+            let url = null;
+
+            if (
+                typeof item === "string"
+            ) {
+                url = item;
+            }
+
+            if (
+                item &&
+                typeof item === "object"
+            ) {
+
+                url =
+                    item.large ??
+                    item.url ??
+                    item.src ??
+                    item.image_url ??
+                    item.medium ??
+                    item.thumbnail;
+            }
+
+            url =
+                cleanImageUrl(url);
+
+            if (url) {
+                images.push(url);
+            }
+
+        });
     }
-
-
-    if (
-        car.media &&
-        Array.isArray(
-            car.media.images
-        )
-    ) {
-
-        images.push(
-            ...car.media.images
-        );
-    }
-
-
-    if (
-        car.media &&
-        Array.isArray(
-            car.media.thumbs
-        )
-    ) {
-
-        images.push(
-            ...car.media.thumbs
-        );
-    }
-
-
-    if (
-        Array.isArray(car.photos)
-    ) {
-
-        images.push(
-            ...car.photos
-        );
-    }
-
-
-    if (car.image) {
-
-        images.push(
-            car.image
-        );
-    }
-
-
-    images =
-        images
-            .map(image => {
-
-                if (
-                    typeof image === "string"
-                ) {
-
-                    return image;
-                }
-
-
-                if (
-                    typeof image === "object" &&
-                    image !== null
-                ) {
-
-                    return (
-
-                        image.url ??
-
-                        image.src ??
-
-                        image.image_url ??
-
-                        image.imageUrl ??
-
-                        image.large ??
-
-                        image.medium ??
-
-                        image.thumbnail ??
-
-                        image.thumb ??
-
-                        null
-
-                    );
-                }
-
-
-                return null;
-
-            })
-            .filter(Boolean);
 
 
     return [
@@ -2038,20 +1304,53 @@ function getImages(car) {
 }
 
 
-/* =========================================================
-   FAVORITES
-========================================================= */
+/*
+ * ============================
+ * VIDEO
+ * ============================
+ */
+
+function getVideoUrl(car) {
+
+    if (
+        Array.isArray(
+            car.media?.items
+        )
+    ) {
+
+        const video =
+            car.media.items.find(
+                item =>
+                    item &&
+                    item.type === "video"
+            );
+
+        if (video) {
+
+            return cleanImageUrl(
+                video.url
+            );
+        }
+    }
+
+    return null;
+}
+
+
+/*
+ * ============================
+ * ULUBIONE
+ * ============================
+ */
 
 function getFavorites() {
 
     try {
 
         return JSON.parse(
-
             localStorage.getItem(
                 "rex_bid_favorites"
             ) || "[]"
-
         );
 
     } catch {
@@ -2064,11 +1363,8 @@ function getFavorites() {
 function saveFavorites(items) {
 
     localStorage.setItem(
-
         "rex_bid_favorites",
-
         JSON.stringify(items)
-
     );
 }
 
@@ -2079,10 +1375,8 @@ function toggleFavorite(vin) {
         return;
     }
 
-
     let favorites =
         getFavorites();
-
 
     if (
         favorites.includes(vin)
@@ -2090,15 +1384,13 @@ function toggleFavorite(vin) {
 
         favorites =
             favorites.filter(
-                item =>
-                    item !== vin
+                item => item !== vin
             );
 
     } else {
 
         favorites.push(vin);
     }
-
 
     saveFavorites(favorites);
 
@@ -2113,22 +1405,18 @@ function renderFavoriteButton(vin) {
             "favoriteButton"
         );
 
-
     if (!button) {
         return;
     }
-
 
     const active =
         getFavorites()
             .includes(vin);
 
-
     button.classList.toggle(
         "active",
         active
     );
-
 
     button.textContent =
         active
@@ -2137,92 +1425,20 @@ function renderFavoriteButton(vin) {
 }
 
 
-/* =========================================================
-   AUCTION URL
-========================================================= */
-
-function getAuctionUrl(car) {
-
-    return (
-
-        car.auction_url ??
-
-        car.auctionUrl ??
-
-        car.auction?.url ??
-
-        car.url ??
-
-        car.source_url ??
-
-        car.sourceUrl ??
-
-        car.source?.url ??
-
-        ""
-
-    );
-}
-
-
-function setupAuctionLink(car) {
-
-    const button =
-        document.getElementById(
-            "auctionButton"
-        );
-
-
-    if (!button) {
-        return;
-    }
-
-
-    const url =
-        getAuctionUrl(car);
-
-
-    if (!url) {
-
-        button.classList.add(
-            "disabled"
-        );
-
-        button.removeAttribute(
-            "href"
-        );
-
-        button.textContent =
-            "LINK DO AUKCJI NIEDOSTĘPNY";
-
-        return;
-    }
-
-
-    button.href = url;
-}
-
-
-/* =========================================================
-   HISTORY
-========================================================= */
+/*
+ * ============================
+ * HISTORIA
+ * ============================
+ */
 
 function renderHistory(car) {
 
     const history =
-
         car.auction_history ??
-
         car.auctionHistory ??
-
         car.history ??
-
         car.sales_history ??
-
-        car.salesHistory ??
-
         [];
-
 
     if (
         !Array.isArray(history) ||
@@ -2230,121 +1446,83 @@ function renderHistory(car) {
     ) {
 
         return `
-
             <div class="history-empty">
-
                 Brak dostępnej historii aukcji
                 dla tego pojazdu.
-
             </div>
-
         `;
     }
 
 
     return `
 
-        <div class="history-table-wrapper">
+        <table class="history-table">
 
-            <table class="history-table">
+            <thead>
 
-                <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Status</th>
+                    <th>Cena</th>
+                    <th>Platforma</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                ${history.map(item => `
 
                     <tr>
 
-                        <th>
-                            Data
-                        </th>
+                        <td>
+                            ${formatDate(
+                                item.date ??
+                                item.auction_date ??
+                                item.sale_date
+                            )}
+                        </td>
 
-                        <th>
-                            Status
-                        </th>
+                        <td>
+                            ${displayValue(
+                                item.status ??
+                                item.result ??
+                                item.sale_status
+                            )}
+                        </td>
 
-                        <th>
-                            Cena
-                        </th>
+                        <td>
+                            ${money(
+                                item.price ??
+                                item.final_bid ??
+                                item.sale_price
+                            )}
+                        </td>
 
-                        <th>
-                            Platforma
-                        </th>
+                        <td>
+                            ${displayValue(
+                                item.platform ??
+                                item.auction
+                            )}
+                        </td>
 
                     </tr>
 
-                </thead>
+                `).join("")}
 
+            </tbody>
 
-                <tbody>
-
-                    ${history.map(
-                        item => `
-
-                            <tr>
-
-                                <td>
-                                    ${escapeHtml(
-                                        formatDate(
-                                            item.date ??
-                                            item.auction_date ??
-                                            item.auctionDate ??
-                                            item.sale_date ??
-                                            item.saleDate
-                                        )
-                                    )}
-                                </td>
-
-
-                                <td>
-                                    ${escapeHtml(
-                                        displayValue(
-                                            item.status ??
-                                            item.result ??
-                                            item.sale_status ??
-                                            item.saleStatus
-                                        )
-                                    )}
-                                </td>
-
-
-                                <td>
-                                    ${escapeHtml(
-                                        money(
-                                            item.price ??
-                                            item.final_bid ??
-                                            item.finalBid ??
-                                            item.sale_price ??
-                                            item.salePrice
-                                        )
-                                    )}
-                                </td>
-
-
-                                <td>
-                                    ${escapeHtml(
-                                        displayValue(
-                                            item.platform ??
-                                            item.auction
-                                        )
-                                    )}
-                                </td>
-
-                            </tr>
-
-                        `
-                    ).join("")}
-
-                </tbody>
-
-            </table>
-
-        </div>
+        </table>
 
     `;
 }
 
 
-/* =========================================================
-   CHANGE IMAGE
-========================================================= */
+/*
+ * ============================
+ * GALERIA
+ * ============================
+ */
 
 function changeImage(
     image,
@@ -2357,10 +1535,37 @@ function changeImage(
             "mainImage"
         );
 
-
     if (main) {
 
         main.src = image;
+
+        main.onerror = function() {
+
+            this.style.display = "none";
+
+            const fallback =
+                document.getElementById(
+                    "imageFallback"
+                );
+
+            if (fallback) {
+                fallback.style.display = "flex";
+            }
+        };
+
+        main.onload = function() {
+
+            this.style.display = "block";
+
+            const fallback =
+                document.getElementById(
+                    "imageFallback"
+                );
+
+            if (fallback) {
+                fallback.style.display = "none";
+            }
+        };
     }
 
 
@@ -2374,19 +1579,13 @@ function changeImage(
         );
 
 
-    if (element) {
-
-        element.classList.add(
-            "active"
-        );
-    }
+    element.classList.add("active");
 
 
     const counter =
         document.getElementById(
             "imageCounter"
         );
-
 
     if (counter) {
 
@@ -2395,104 +1594,61 @@ function changeImage(
                 ".thumb"
             ).length;
 
-
         counter.textContent =
             `${index + 1} / ${total}`;
     }
 }
 
 
-/* =========================================================
-   LIGHTBOX
-========================================================= */
+/*
+ * ============================
+ * LINK DO AUKCJI
+ * ============================
+ *
+ * W obecnym JSON-ie nie ma URL-a
+ * aukcji IAAI, dlatego przycisk
+ * pozostaje ukryty zamiast prowadzić
+ * do przypadkowego adresu.
+ */
 
-function openLightbox(image) {
+function setupAuctionLink(car) {
 
-    if (!image) {
+    const button =
+        document.getElementById(
+            "auctionButton"
+        );
+
+    if (!button) {
+        return;
+    }
+
+    const url =
+        car.auction_url ??
+        car.auction?.url ??
+        car.source_url ??
+        car.source?.url ??
+        null;
+
+
+    if (!url) {
+
+        button.style.display =
+            "none";
+
         return;
     }
 
 
-    const lightbox =
-        document.getElementById(
-            "lightbox"
-        );
-
-
-    const imageElement =
-        document.getElementById(
-            "lightboxImage"
-        );
-
-
-    imageElement.src =
-        image;
-
-
-    lightbox.classList.add(
-        "open"
-    );
-
-
-    document.body.style.overflow =
-        "hidden";
+    button.href = url;
+    button.style.display = "block";
 }
 
 
-function closeLightbox() {
-
-    const lightbox =
-        document.getElementById(
-            "lightbox"
-        );
-
-
-    lightbox.classList.remove(
-        "open"
-    );
-
-
-    document.body.style.overflow =
-        "";
-}
-
-
-document
-    .getElementById("lightbox")
-    .addEventListener(
-        "click",
-        event => {
-
-            if (
-                event.target.id ===
-                "lightbox"
-            ) {
-
-                closeLightbox();
-            }
-
-        }
-    );
-
-
-document.addEventListener(
-    "keydown",
-    event => {
-
-        if (
-            event.key === "Escape"
-        ) {
-
-            closeLightbox();
-        }
-
-    }
-);
-
-
-/* =========================================================
-   RENDER CAR
-========================================================= */
+/*
+ * ============================
+ * RENDER
+ * ============================
+ */
 
 function renderCar(car) {
 
@@ -2505,117 +1661,76 @@ function renderCar(car) {
     const vin =
         getVin(car);
 
+    const title =
+        getTitle(car);
 
     const images =
         getImages(car);
 
-
     const price =
         getPrice(car);
-
-
-    const title =
-        carTitle(car);
-
 
     const status =
         getStatus(car);
 
+    const lot =
+        getLot(car);
 
     const auctionDate =
         getAuctionDate(car);
 
-
-    const lot =
-        getLot(car);
-
-
     const platform =
-        getPlatform(car);
-
+        displayValue(
+            car.platform
+        ).toUpperCase();
 
     const firstImage =
         images[0] || "";
 
+    const videoUrl =
+        getVideoUrl(car);
 
-    const auctionUrl =
-        getAuctionUrl(car);
+    const bidCount =
+        getBidCount(car);
 
-
-    const make =
-        displayValue(
-            car.make
-        );
-
-
-    const model =
-        displayValue(
-            car.model
-        );
+    const bidIncrement =
+        getBidIncrement(car);
 
 
     app.innerHTML = `
-
-        <!-- =================================================
-             HEADER OF CAR
-        ================================================= -->
 
         <section class="car-header">
 
             <div class="header-top">
 
-                <div class="header-left">
+                <div>
 
-                    <div class="badges">
+                    ${
+                        platform !== "—"
+                        ? `
+                            <div class="platform">
+                                ${escapeHtml(platform)}
+                            </div>
+                        `
+                        : ""
+                    }
 
-                        ${
-                            platform !== "—"
-                            ? `
-                                <span class="platform">
-                                    ${escapeHtml(
-                                        platform
-                                    )}
-                                </span>
-                            `
-                            : ""
-                        }
-
-
-                        <span
-                            class="status ${status.key}"
-                        >
-                            ${escapeHtml(
-                                status.label
-                            )}
-                        </span>
-
-                    </div>
-
+                    <span class="status ${status.key}">
+                        ${escapeHtml(status.label)}
+                    </span>
 
                     <h1>
                         ${escapeHtml(title)}
                     </h1>
 
-
                     <div class="subtitle">
 
-                        VIN:
-                        <strong>
-                            ${escapeHtml(
-                                vin || "—"
-                            )}
-                        </strong>
+                        VIN: ${escapeHtml(vin)}
 
                         ${
                             lot !== "—"
-                            ? `
-                                · Lot:
-                                <strong>
-                                    ${escapeHtml(
-                                        lot
-                                    )}
-                                </strong>
-                            `
+                            ? " · Lot: " +
+                              escapeHtml(lot)
                             : ""
                         }
 
@@ -2627,8 +1742,7 @@ function renderCar(car) {
                 <button
                     class="favorite"
                     id="favoriteButton"
-                    type="button"
-                    onclick="toggleFavorite(${JSON.stringify(vin)})"
+                    onclick="toggleFavorite('${escapeHtml(vin)}')"
                 >
                     ♡ Dodaj do ulubionych
                 </button>
@@ -2638,132 +1752,112 @@ function renderCar(car) {
         </section>
 
 
-        <!-- =================================================
-             GALLERY + AUCTION INFO
-        ================================================= -->
-
         <div class="main-grid">
-
-
-            <!-- GALLERY -->
 
             <section class="gallery">
 
-                <div
-                    class="main-image-wrapper"
-                    id="mainImageWrapper"
-                >
+                <div class="main-image-wrap">
 
                     ${
                         firstImage
                         ? `
-
                             <img
                                 id="mainImage"
                                 class="main-image"
-                                src="${escapeHtml(
-                                    firstImage
-                                )}"
-                                alt="${escapeHtml(
-                                    title
-                                )}"
-                                onclick="openLightbox(this.src)"
+                                src="${escapeHtml(firstImage)}"
+                                alt="${escapeHtml(title)}"
+                                onerror="
+                                    this.style.display='none';
+                                    document.getElementById('imageFallback').style.display='flex';
+                                "
                             >
 
                             <div
-                                id="imageCounter"
+                                id="imageFallback"
+                                class="main-image"
+                                style="
+                                    display:none;
+                                    align-items:center;
+                                    justify-content:center;
+                                    color:#777;
+                                "
+                            >
+                                Nie udało się załadować zdjęcia
+                            </div>
+
+                            <div
                                 class="image-counter"
+                                id="imageCounter"
                             >
                                 1 / ${images.length}
                             </div>
-
                         `
                         : `
-
-                            <div class="no-image">
+                            <div
+                                class="main-image"
+                                style="
+                                    display:flex;
+                                    align-items:center;
+                                    justify-content:center;
+                                    color:#777;
+                                "
+                            >
                                 Brak zdjęcia
                             </div>
-
                         `
                     }
 
                 </div>
 
 
-                ${
-                    images.length
-                    ? `
+                <div class="thumbs">
 
-                        <div class="thumbs">
+                    ${images.map(
+                        (image, index) => `
 
-                            ${images.map(
-                                (
-                                    image,
-                                    index
-                                ) => `
+                            <img
+                                class="thumb ${
+                                    index === 0
+                                        ? "active"
+                                        : ""
+                                }"
+                                src="${escapeHtml(image)}"
+                                onclick="
+                                    changeImage(
+                                        '${escapeHtml(image)}',
+                                        this,
+                                        ${index}
+                                    )
+                                "
+                                alt="${escapeHtml(title)}"
+                                loading="${
+                                    index === 0
+                                        ? "eager"
+                                        : "lazy"
+                                }"
+                            >
 
-                                    <img
-                                        class="thumb ${
-                                            index === 0
-                                                ? "active"
-                                                : ""
-                                        }"
-                                        src="${escapeHtml(
-                                            image
-                                        )}"
-                                        alt="${escapeHtml(
-                                            title
-                                        )}"
-                                        loading="lazy"
-                                        onclick="
-                                            changeImage(
-                                                ${JSON.stringify(
-                                                    image
-                                                )},
-                                                this,
-                                                ${index}
-                                            )
-                                        "
-                                        onerror="
-                                            this.style.display='none'
-                                        "
-                                    >
+                        `
+                    ).join("")}
 
-                                `
-                            ).join("")}
-
-                        </div>
-
-                    `
-                    : ""
-                }
+                </div>
 
             </section>
 
 
-            <!-- AUCTION INFO -->
-
             <aside class="info-card">
-
 
                 <div class="price-label">
                     AKTUALNA OFERTA
                 </div>
 
-
                 <div class="price">
-                    ${escapeHtml(
-                        money(price)
-                    )}
+                    ${money(price)}
                 </div>
 
 
-                <div
-                    class="auction-status ${status.key}"
-                >
-                    ${escapeHtml(
-                        status.label
-                    )}
+                <div class="auction-status ${status.key}">
+                    ${escapeHtml(status.label)}
                 </div>
 
 
@@ -2775,9 +1869,7 @@ function renderCar(car) {
 
                     <span class="info-value">
                         ${escapeHtml(
-                            displayValue(
-                                car.year
-                            )
+                            displayValue(car.year)
                         )}
                     </span>
 
@@ -2822,7 +1914,7 @@ function renderCar(car) {
 
                     <span class="info-value">
                         ${escapeHtml(
-                            getSecondaryDamage(car)
+                            getRunCondition(car)
                         )}
                     </span>
 
@@ -2851,9 +1943,7 @@ function renderCar(car) {
                     </span>
 
                     <span class="info-value">
-                        ${escapeHtml(
-                            lot
-                        )}
+                        ${escapeHtml(lot)}
                     </span>
 
                 </div>
@@ -2862,67 +1952,76 @@ function renderCar(car) {
                 ${
                     auctionDate
                     ? `
+                        <div class="auction-time">
 
-                        <div class="info-row">
+                            <div class="auction-time-label">
+                                DATA AUKCJI
+                            </div>
 
-                            <span class="info-label">
-                                Aukcja
-                            </span>
-
-                            <span class="info-value">
+                            <div class="auction-time-value">
                                 ${escapeHtml(
                                     formatDate(
                                         auctionDate
                                     )
                                 )}
-                            </span>
+                            </div>
 
                         </div>
-
                     `
                     : ""
                 }
 
 
+                ${
+                    bidCount
+                    ? `
+                        <div class="info-row">
+
+                            <span class="info-label">
+                                Licytujący
+                            </span>
+
+                            <span class="info-value">
+                                ${escapeHtml(
+                                    bidCount
+                                )}
+                            </span>
+
+                        </div>
+                    `
+                    : ""
+                }
+
+
+                <div class="info-row">
+
+                    <span class="info-label">
+                        Minimalny krok
+                    </span>
+
+                    <span class="info-value">
+                        ${escapeHtml(
+                            bidIncrement
+                        )}
+                    </span>
+
+                </div>
+
+
                 <a
-                    ${
-                        auctionUrl
-                        ? `href="${escapeHtml(
-                            auctionUrl
-                        )}"`
-                        : ""
-                    }
-
-                    class="auction-button ${
-                        auctionUrl
-                            ? ""
-                            : "disabled"
-                    }"
-
-                    ${
-                        auctionUrl
-                        ? `
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        `
-                        : ""
-                    }
+                    href="#"
+                    class="auction-button"
+                    id="auctionButton"
+                    target="_blank"
+                    rel="noopener noreferrer"
                 >
-                    ${
-                        auctionUrl
-                        ? "PRZEJDŹ DO AUKCJI"
-                        : "LINK DO AUKCJI NIEDOSTĘPNY"
-                    }
+                    PRZEJDŹ DO AUKCJI
                 </a>
 
             </aside>
 
         </div>
 
-
-        <!-- =================================================
-             DETAILS
-        ================================================= -->
 
         <section class="details">
 
@@ -2933,7 +2032,6 @@ function renderCar(car) {
 
             <div class="details-grid">
 
-
                 <div class="detail">
 
                     <div class="detail-label">
@@ -2942,7 +2040,9 @@ function renderCar(car) {
 
                     <div class="detail-value">
                         ${escapeHtml(
-                            make
+                            displayValue(
+                                car.make
+                            )
                         )}
                     </div>
 
@@ -2957,7 +2057,9 @@ function renderCar(car) {
 
                     <div class="detail-value">
                         ${escapeHtml(
-                            model
+                            displayValue(
+                                car.model
+                            )
                         )}
                     </div>
 
@@ -2971,9 +2073,7 @@ function renderCar(car) {
                     </div>
 
                     <div class="detail-value">
-                        ${escapeHtml(
-                            vin
-                        )}
+                        ${escapeHtml(vin)}
                     </div>
 
                 </div>
@@ -3077,17 +2177,7 @@ function renderCar(car) {
 
                     <div class="detail-value">
                         ${escapeHtml(
-                            displayValue(
-
-                                car.keys ??
-
-                                car.key ??
-
-                                car.has_keys ??
-
-                                car.hasKeys
-
-                            )
+                            getKey(car)
                         )}
                     </div>
 
@@ -3102,15 +2192,7 @@ function renderCar(car) {
 
                     <div class="detail-value">
                         ${escapeHtml(
-                            displayValue(
-
-                                car.vehicle_type ??
-
-                                car.vehicleType ??
-
-                                car.type
-
-                            )
+                            getVehicleType(car)
                         )}
                     </div>
 
@@ -3125,7 +2207,9 @@ function renderCar(car) {
 
                     <div class="detail-value">
                         ${escapeHtml(
-                            platform
+                            displayValue(
+                                car.platform
+                            )
                         )}
                     </div>
 
@@ -3135,12 +2219,12 @@ function renderCar(car) {
                 <div class="detail">
 
                     <div class="detail-label">
-                        Lot
+                        Dokument
                     </div>
 
                     <div class="detail-value">
                         ${escapeHtml(
-                            lot
+                            getTitleDocument(car)
                         )}
                     </div>
 
@@ -3150,12 +2234,12 @@ function renderCar(car) {
                 <div class="detail">
 
                     <div class="detail-label">
-                        Status
+                        Marka dokumentu
                     </div>
 
                     <div class="detail-value">
                         ${escapeHtml(
-                            status.label
+                            getTitleBrand(car)
                         )}
                     </div>
 
@@ -3165,16 +2249,32 @@ function renderCar(car) {
                 <div class="detail">
 
                     <div class="detail-label">
-                        Data aukcji
+                        Airbagi
                     </div>
 
                     <div class="detail-value">
                         ${escapeHtml(
-                            auctionDate
-                                ? formatDate(
-                                    auctionDate
-                                )
-                                : "—"
+                            car.vehicle_specs?.airbags ??
+                            car.details?.vehicle_information?.Airbags ??
+                            car.details?.attributes?.AirbagState ??
+                            "—"
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        Cylindry
+                    </div>
+
+                    <div class="detail-value">
+                        ${escapeHtml(
+                            car.details?.vehicle_description?.Cylinders ??
+                            car.details?.attributes?.CylindersDesc ??
+                            "—"
                         )}
                     </div>
 
@@ -3185,9 +2285,139 @@ function renderCar(car) {
         </section>
 
 
-        <!-- =================================================
-             HISTORY
-        ================================================= -->
+        <section class="details">
+
+            <h2>
+                Lokalizacja pojazdu
+            </h2>
+
+
+            <div class="details-grid">
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        Plac
+                    </div>
+
+                    <div class="detail-value">
+                        ${escapeHtml(
+                            getLocation(car)
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        Adres
+                    </div>
+
+                    <div class="detail-value">
+                        ${escapeHtml(
+                            getAddress(car)
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        Stan
+                    </div>
+
+                    <div class="detail-value">
+                        ${escapeHtml(
+                            car.details?.saleInformation?.state ??
+                            car.details?.attributes?.State ??
+                            "—"
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        Telefon
+                    </div>
+
+                    <div class="detail-value">
+                        ${escapeHtml(
+                            car.details?.saleInformation?.phone ??
+                            car.details?.attributes?.Phone ??
+                            "—"
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        Lane
+                    </div>
+
+                    <div class="detail-value">
+                        ${escapeHtml(
+                            car.details?.attributes?.Lane ??
+                            car.details?.sale_information?.Lane ??
+                            "—"
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        Slot
+                    </div>
+
+                    <div class="detail-value">
+                        ${escapeHtml(
+                            car.details?.attributes?.Slot ??
+                            "—"
+                        )}
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        ${
+            videoUrl
+            ? `
+                <section class="details video-box">
+
+                    <h2>
+                        Materiał wideo
+                    </h2>
+
+                    <a
+                        href="${escapeHtml(videoUrl)}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="video-link"
+                    >
+                        ▶ Otwórz wideo pojazdu
+                    </a>
+
+                </section>
+            `
+            : ""
+        }
+
 
         <section class="details history">
 
@@ -3202,15 +2432,17 @@ function renderCar(car) {
     `;
 
 
-    renderFavoriteButton(
-        vin
-    );
+    renderFavoriteButton(vin);
+
+    setupAuctionLink(car);
 }
 
 
-/* =========================================================
-   LOAD CAR
-========================================================= */
+/*
+ * ============================
+ * POBIERANIE SAMOCHODU
+ * ============================
+ */
 
 async function loadCar() {
 
@@ -3253,34 +2485,22 @@ async function loadCar() {
     try {
 
         /*
-         * Korzystamy z działającego endpointu:
+         * TEN ENDPOINT JUŻ DZIAŁA:
          *
          * /api/cars?s=VIN
          */
 
         const response =
             await fetch(
-
                 "/api/cars?s=" +
                 encodeURIComponent(vin),
-
                 {
-                    method: "GET",
-
-                    cache: "no-store",
-
-                    headers: {
-                        "Accept":
-                            "application/json"
-                    }
+                    cache: "no-store"
                 }
-
             );
 
 
-        if (
-            !response.ok
-        ) {
+        if (!response.ok) {
 
             throw new Error(
                 "Błąd HTTP " +
@@ -3293,9 +2513,7 @@ async function loadCar() {
             await response.json();
 
 
-        if (
-            !result.ok
-        ) {
+        if (!result.ok) {
 
             throw new Error(
                 result.error ||
@@ -3308,17 +2526,9 @@ async function loadCar() {
             Array.isArray(
                 result.data
             )
-            ? result.data
-            : [];
+                ? result.data
+                : [];
 
-
-        /*
-         * Najpierw próbujemy znaleźć
-         * dokładnie ten VIN.
-         *
-         * Jeżeli API zwróci tylko
-         * jeden rekord, używamy go.
-         */
 
         const wantedVin =
             String(vin)
@@ -3328,24 +2538,15 @@ async function loadCar() {
 
         const car =
             cars.find(
-                item => {
-
-                    const itemVin =
-                        String(
-                            item.vin ??
-                            item.VIN ??
-                            item.slug_vin ??
-                            ""
-                        )
-                            .trim()
-                            .toUpperCase();
-
-
-                    return (
-                        itemVin ===
-                        wantedVin
-                    );
-                }
+                item =>
+                    String(
+                        item.vin ??
+                        item.VIN ??
+                        ""
+                    )
+                    .trim()
+                    .toUpperCase() ===
+                    wantedVin
             ) ||
             cars[0];
 
@@ -3360,8 +2561,9 @@ async function loadCar() {
                         Nie znaleziono samochodu
                     </strong>
 
-                    Oferta nie jest dostępna
-                    w bazie Rex.Bid.
+                    Oferta dla VIN
+                    ${escapeHtml(vin)}
+                    nie jest dostępna.
 
                 </div>
 
@@ -3390,10 +2592,16 @@ async function loadCar() {
                     Nie udało się pobrać samochodu
                 </strong>
 
-                ${escapeHtml(
-                    error.message ||
-                    "Wystąpił problem z połączeniem z API."
-                )}
+                Wystąpił problem z połączeniem
+                z API.
+
+                <br><br>
+
+                <small>
+                    ${escapeHtml(
+                        error.message
+                    )}
+                </small>
 
             </div>
 
@@ -3401,10 +2609,6 @@ async function loadCar() {
     }
 }
 
-
-/* =========================================================
-   START
-========================================================= */
 
 loadCar();
 
