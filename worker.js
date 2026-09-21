@@ -3,67 +3,122 @@ const APIBARA_BASE =
 
 const CACHE_TTL = 300; // 5 minut
 
-const SEARCH_PARAMS = [
-  "s",
-  "platform",
-  "auction_type",
-  "lot_status",
-  "lot_sub_status",
-  "upcoming",
-  "make",
-  "model",
-  "type",
-  "year_from",
-  "year_to",
-  "price_min",
-  "price_max",
-  "odometer_from",
-  "odometer_to",
-  "fuel_type",
-  "transmission",
-  "drive_type",
-  "run_cond",
-  "color",
-  "per_page",
-  "cursor",
-  "updated_within_minutes",
-  "today_only",
-  "sale_document_pending",
-  "has_shipping_price"
-];
 
-function json(data, status = 200, headers = {}) {
+function json(data, status = 200, cacheStatus = null) {
+  const headers = {
+    "Content-Type": "application/json; charset=UTF-8",
+    "Access-Control-Allow-Origin": "*",
+    "Cache-Control": "public, max-age=60"
+  };
+
+  if (cacheStatus) {
+    headers["X-RexBid-Cache"] = cacheStatus;
+  }
+
   return new Response(JSON.stringify(data), {
     status,
-    headers: {
-      "Content-Type": "application/json; charset=UTF-8",
-      "Access-Control-Allow-Origin": "*",
-      "Cache-Control": "no-store",
-      ...headers
-    }
+    headers
   });
 }
 
-function apiKey(env) {
-  return env.APIBARA_API_KEY || "";
-}
 
-function cacheKey(url) {
-  const normalized = new URL(url);
-
-  normalized.hostname = "rex-bid-cache.local";
-  normalized.pathname =
-    normalized.pathname || "/";
-
-  return new Request(
-    normalized.toString(),
+function errorResponse(message, status = 500) {
+  return json(
     {
-      method: "GET"
-    }
+      ok: false,
+      error: message
+    },
+    status
   );
 }
 
-function buildApiUrl(request) {
+
+async function cachedFetch(env, cacheKey, apiUrl) {
+  const cache = caches.default;
+
+  const cacheRequest = new Request(cacheKey, {
+    method: "GET"
+  });
+
+  const cached = await cache.match(cacheRequest);
+
+  if (cached) {
+    const data = await cached.json();
+
+    return json(data, 200, "HIT");
+  }
+
+  const response = await fetch(apiUrl, {
+    method: "GET",
+    headers: {
+      "Accept": "application/json",
+      "X-API-Key": env.APIBARA_API_KEY
+    }
+  });
+
+  const text = await response.text();
+
+  let result;
+
+  try {
+    result = JSON.parse(text);
+  } catch {
+    return errorResponse(
+      "APIbara zwróciło nieprawidłową odpowiedź.",
+      502
+    );
+  }
+
+  if (!response.ok) {
+    return json(
+      {
+        ok: false,
+        error:
+          result.message ||
+          "APIbara zwróciło błąd.",
+        status: response.status,
+        details: result.errors || null
+      },
+      response.status,
+      "MISS"
+    );
+  }
+
+  const cacheResponse = new Response(
+    JSON.stringify(result),
+    {
+      headers: {
+        "Content-Type":
+          "application/json; charset=UTF-8",
+        "Cache-Control":
+          `public, max-age=${CACHE_TTL}`
+      }
+    }
+  );
+
+  await cache.put(
+    cacheRequest,
+    cacheResponse
+  );
+
+  return json(result, 200, "MISS");
+}
+
+
+/*
+ * LISTA SAMOCHODÓW
+ *
+ * /api/cars
+ */
+
+async function getVehicles(request, env) {
+  if (!env.APIBARA_API_KEY) {
+    return errorResponse(
+      "Brak APIBARA_API_KEY w Cloudflare.",
+      500
+    );
+  }
+
   const incoming =
     new URL(request.url);
 
@@ -72,7 +127,36 @@ function buildApiUrl(request) {
       APIBARA_BASE + "/vehicles"
     );
 
-  for (const name of SEARCH_PARAMS) {
+  const allowedParams = [
+    "s",
+    "platform",
+    "auction_type",
+    "lot_status",
+    "lot_sub_status",
+    "upcoming",
+    "make",
+    "model",
+    "type",
+    "year_from",
+    "year_to",
+    "price_min",
+    "price_max",
+    "odometer_from",
+    "odometer_to",
+    "fuel_type",
+    "transmission",
+    "drive_type",
+    "run_cond",
+    "color",
+    "per_page",
+    "cursor",
+    "updated_within_minutes",
+    "today_only",
+    "sale_document_pending",
+    "has_shipping_price"
+  ];
+
+  for (const name of allowedParams) {
     const value =
       incoming.searchParams.get(name);
 
@@ -87,10 +171,6 @@ function buildApiUrl(request) {
     }
   }
 
-  /*
-   * APIbara Basic / Test / Power / Pro:
-   * maksymalnie 20 rekordów.
-   */
   if (
     !apiUrl.searchParams.has(
       "per_page"
@@ -102,344 +182,72 @@ function buildApiUrl(request) {
     );
   }
 
-  return apiUrl;
-}
-
-async function fetchApiBara(
-  apiUrl,
-  env
-) {
-  return fetch(
-    apiUrl.toString(),
-    {
-      method: "GET",
-      headers: {
-        "Accept":
-          "application/json",
-        "X-API-Key":
-          apiKey(env)
-      }
-    }
-  );
-}
-
-async function getCars(
-  request,
-  env,
-  ctx
-) {
-  if (!apiKey(env)) {
-    return json(
-      {
-        ok: false,
-        error:
-          "Brak konfiguracji APIBARA_API_KEY"
-      },
-      500
-    );
-  }
-
-  const cache =
-    caches.default;
-
-  const key =
-    cacheKey(request.url);
-
   /*
-   * CACHE HIT
+   * Cache zależny od parametrów
+   * wyszukiwania.
    */
-  const cached =
-    await cache.match(key);
 
-  if (cached) {
-    const response =
-      new Response(
-        cached.body,
-        cached
-      );
-
-    response.headers.set(
-      "X-RexBid-Cache",
-      "HIT"
-    );
-
-    return response;
-  }
-
-  /*
-   * CACHE MISS
-   *
-   * Dopiero tutaj pytamy APIbara.
-   */
-  const apiUrl =
-    buildApiUrl(request);
-
-  const upstream =
-    await fetchApiBara(
-      apiUrl,
-      env
-    );
-
-  const text =
-    await upstream.text();
-
-  let result;
-
-  try {
-    result =
-      JSON.parse(text);
-  } catch {
-    return json(
-      {
-        ok: false,
-        error:
-          "APIbara zwróciło nieprawidłową odpowiedź",
-        status:
-          upstream.status
-      },
-      502,
-      {
-        "X-RexBid-Cache":
-          "MISS"
-      }
-    );
-  }
-
-  /*
-   * Nie cache'ujemy błędów.
-   */
-  if (!upstream.ok) {
-    return json(
-      {
-        ok: false,
-        error:
-          result.message ||
-          "APIbara zwróciło błąd",
-        status:
-          upstream.status,
-        details:
-          result.errors || null
-      },
-      upstream.status,
-      {
-        "X-RexBid-Cache":
-          "MISS"
-      }
-    );
-  }
-
-  /*
-   * Zachowujemy pełną odpowiedź APIbara,
-   * włącznie z meta.next_cursor.
-   */
-  const output =
-    json(
-      {
-        ok: true,
-        data:
-          Array.isArray(
-            result.data
-          )
-            ? result.data
-            : [],
-        meta:
-          result.meta || null
-      },
-      200,
-      {
-        "X-RexBid-Cache":
-          "MISS",
-        "Cache-Control":
-          `public, s-maxage=${CACHE_TTL}`
-      }
-    );
-
-  /*
-   * Zapis do Cloudflare Cache.
-   */
-  ctx.waitUntil(
-    cache.put(
-      key,
-      output.clone()
-    )
-  );
-
-  return output;
-}
-
-async function getSingleVehicle(
-  request,
-  env,
-  ctx,
-  identifier
-) {
-  if (!apiKey(env)) {
-    return json(
-      {
-        ok: false,
-        error:
-          "Brak konfiguracji APIBARA_API_KEY"
-      },
-      500
-    );
-  }
-
-  const cache =
-    caches.default;
-
-  const cacheUrl =
+  const cacheKey =
     new URL(request.url);
 
-  cacheUrl.hostname =
-    "rex-bid-cache.local";
+  cacheKey.searchParams.sort();
 
-  const key =
-    new Request(
-      cacheUrl.toString(),
-      {
-        method: "GET"
-      }
+  return cachedFetch(
+    env,
+    cacheKey.toString(),
+    apiUrl.toString()
+  );
+}
+
+
+/*
+ * POJEDYNCZY SAMOCHÓD
+ *
+ * /api/car/VIN
+ */
+
+async function getVehicle(
+  request,
+  env,
+  identifier
+) {
+  if (!env.APIBARA_API_KEY) {
+    return errorResponse(
+      "Brak APIBARA_API_KEY w Cloudflare.",
+      500
     );
-
-  /*
-   * CACHE HIT
-   */
-  const cached =
-    await cache.match(key);
-
-  if (cached) {
-    const response =
-      new Response(
-        cached.body,
-        cached
-      );
-
-    response.headers.set(
-      "X-RexBid-Cache",
-      "HIT"
-    );
-
-    return response;
   }
 
   const apiUrl =
     APIBARA_BASE +
     "/vehicles/" +
-    encodeURIComponent(
-      identifier
-    );
+    encodeURIComponent(identifier);
 
-  const upstream =
-    await fetch(
-      apiUrl,
-      {
-        method: "GET",
-        headers: {
-          "Accept":
-            "application/json",
-          "X-API-Key":
-            apiKey(env)
-        }
-      }
-    );
+  const cacheKey =
+    new URL(request.url);
 
-  const text =
-    await upstream.text();
-
-  let result;
-
-  try {
-    result =
-      JSON.parse(text);
-  } catch {
-    return json(
-      {
-        ok: false,
-        error:
-          "APIbara zwróciło nieprawidłową odpowiedź",
-        status:
-          upstream.status
-      },
-      502,
-      {
-        "X-RexBid-Cache":
-          "MISS"
-      }
-    );
-  }
-
-  if (!upstream.ok) {
-    return json(
-      {
-        ok: false,
-        error:
-          result.message ||
-          "Nie udało się pobrać samochodu",
-        status:
-          upstream.status,
-        details:
-          result.errors || null
-      },
-      upstream.status,
-      {
-        "X-RexBid-Cache":
-          "MISS"
-      }
-    );
-  }
-
-  const car =
-    result.data &&
-    !Array.isArray(
-      result.data
-    )
-      ? result.data
-      : Array.isArray(
-          result.data
-        )
-        ? result.data[0]
-        : null;
-
-  const output =
-    json(
-      {
-        ok: true,
-        data: car
-          ? [car]
-          : []
-      },
-      200,
-      {
-        "X-RexBid-Cache":
-          "MISS",
-        "Cache-Control":
-          `public, s-maxage=${CACHE_TTL}`
-      }
-    );
-
-  ctx.waitUntil(
-    cache.put(
-      key,
-      output.clone()
-    )
+  return cachedFetch(
+    env,
+    cacheKey.toString(),
+    apiUrl
   );
-
-  return output;
 }
+
+
+/*
+ * HISTORIA AUKCJI
+ *
+ * /api/car/VIN/history
+ */
 
 async function getHistory(
   request,
   env,
-  ctx,
   identifier
 ) {
-  if (!apiKey(env)) {
-    return json(
-      {
-        ok: false,
-        error:
-          "Brak konfiguracji APIBARA_API_KEY"
-      },
+  if (!env.APIBARA_API_KEY) {
+    return errorResponse(
+      "Brak APIBARA_API_KEY w Cloudflare.",
       500
     );
   }
@@ -451,16 +259,10 @@ async function getHistory(
     new URL(
       APIBARA_BASE +
       "/vehicles/" +
-      encodeURIComponent(
-        identifier
-      ) +
+      encodeURIComponent(identifier) +
       "/history"
     );
 
-  /*
-   * Historia również korzysta
-   * z cursor pagination.
-   */
   const perPage =
     incoming.searchParams.get(
       "per_page"
@@ -483,380 +285,231 @@ async function getHistory(
     );
   }
 
-  const key =
-    cacheKey(
-      apiUrl.toString()
-    );
+  const cacheKey =
+    new URL(request.url);
 
-  const cache =
-    caches.default;
+  cacheKey.searchParams.sort();
 
-  const cached =
-    await cache.match(key);
-
-  if (cached) {
-    const response =
-      new Response(
-        cached.body,
-        cached
-      );
-
-    response.headers.set(
-      "X-RexBid-Cache",
-      "HIT"
-    );
-
-    return response;
-  }
-
-  const upstream =
-    await fetch(
-      apiUrl.toString(),
-      {
-        method: "GET",
-        headers: {
-          "Accept":
-            "application/json",
-          "X-API-Key":
-            apiKey(env)
-        }
-      }
-    );
-
-  const text =
-    await upstream.text();
-
-  let result;
-
-  try {
-    result =
-      JSON.parse(text);
-  } catch {
-    return json(
-      {
-        ok: false,
-        error:
-          "APIbara zwróciło nieprawidłową odpowiedź",
-        status:
-          upstream.status
-      },
-      502,
-      {
-        "X-RexBid-Cache":
-          "MISS"
-      }
-    );
-  }
-
-  if (!upstream.ok) {
-    return json(
-      {
-        ok: false,
-        error:
-          result.message ||
-          "Nie udało się pobrać historii",
-        status:
-          upstream.status,
-        details:
-          result.errors || null
-      },
-      upstream.status,
-      {
-        "X-RexBid-Cache":
-          "MISS"
-      }
-    );
-  }
-
-  const output =
-    json(
-      {
-        ok:
-          result.ok !== false,
-        data:
-          Array.isArray(
-            result.data
-          )
-            ? result.data
-            : result.data || [],
-        meta:
-          result.meta || null
-      },
-      200,
-      {
-        "X-RexBid-Cache":
-          "MISS",
-        "Cache-Control":
-          `public, s-maxage=${CACHE_TTL}`
-      }
-    );
-
-  ctx.waitUntil(
-    cache.put(
-      key,
-      output.clone()
-    )
+  return cachedFetch(
+    env,
+    cacheKey.toString(),
+    apiUrl.toString()
   );
-
-  return output;
 }
 
-async function getFilters(
+
+/*
+ * POWIĄZANE POJAZDY
+ *
+ * /api/car/VIN/related
+ */
+
+async function getRelated(
   request,
   env,
-  ctx
+  identifier
 ) {
-  if (!apiKey(env)) {
-    return json(
-      {
-        ok: false,
-        error:
-          "Brak konfiguracji APIBARA_API_KEY"
-      },
+  if (!env.APIBARA_API_KEY) {
+    return errorResponse(
+      "Brak APIBARA_API_KEY w Cloudflare.",
       500
     );
   }
 
   const apiUrl =
     APIBARA_BASE +
-    "/vehicles/filters";
+    "/vehicles/" +
+    encodeURIComponent(identifier) +
+    "/related";
 
-  const key =
-    cacheKey(apiUrl);
+  const cacheKey =
+    new URL(request.url);
 
-  const cache =
-    caches.default;
-
-  const cached =
-    await cache.match(key);
-
-  if (cached) {
-    const response =
-      new Response(
-        cached.body,
-        cached
-      );
-
-    response.headers.set(
-      "X-RexBid-Cache",
-      "HIT"
-    );
-
-    return response;
-  }
-
-  const upstream =
-    await fetch(
-      apiUrl,
-      {
-        method: "GET",
-        headers: {
-          "Accept":
-            "application/json",
-          "X-API-Key":
-            apiKey(env)
-        }
-      }
-    );
-
-  const text =
-    await upstream.text();
-
-  let result;
-
-  try {
-    result =
-      JSON.parse(text);
-  } catch {
-    return json(
-      {
-        ok: false,
-        error:
-          "APIbara zwróciło nieprawidłową odpowiedź",
-        status:
-          upstream.status
-      },
-      502,
-      {
-        "X-RexBid-Cache":
-          "MISS"
-      }
-    );
-  }
-
-  if (!upstream.ok) {
-    return json(
-      {
-        ok: false,
-        error:
-          result.message ||
-          "Nie udało się pobrać filtrów",
-        status:
-          upstream.status,
-        details:
-          result.errors || null
-      },
-      upstream.status,
-      {
-        "X-RexBid-Cache":
-          "MISS"
-      }
-    );
-  }
-
-  const output =
-    json(
-      {
-        ok:
-          result.ok !== false,
-        data:
-          result.data ||
-          result
-      },
-      200,
-      {
-        "X-RexBid-Cache":
-          "MISS",
-        "Cache-Control":
-          "public, s-maxage=3600"
-      }
-    );
-
-  ctx.waitUntil(
-    cache.put(
-      key,
-      output.clone()
-    )
-  );
-
-  return output;
-}
-
-async function getUsage(
-  env
-) {
-  if (!apiKey(env)) {
-    return json(
-      {
-        ok: false,
-        error:
-          "Brak konfiguracji APIBARA_API_KEY"
-      },
-      500
-    );
-  }
-
-  const response =
-    await fetch(
-      APIBARA_BASE +
-        "/usage",
-      {
-        method: "GET",
-        headers: {
-          "Accept":
-            "application/json",
-          "X-API-Key":
-            apiKey(env)
-        }
-      }
-    );
-
-  const text =
-    await response.text();
-
-  let result;
-
-  try {
-    result =
-      JSON.parse(text);
-  } catch {
-    return json(
-      {
-        ok: false,
-        error:
-          "Nieprawidłowa odpowiedź APIbara",
-        status:
-          response.status
-      },
-      502
-    );
-  }
-
-  return json(
-    result,
-    response.status
+  return cachedFetch(
+    env,
+    cacheKey.toString(),
+    apiUrl
   );
 }
+
+
+/*
+ * GŁÓWNY WORKER
+ */
 
 export default {
-  async fetch(
-    request,
-    env,
-    ctx
-  ) {
+  async fetch(request, env) {
     const url =
       new URL(request.url);
 
-    /*
-     * CORS — obsługa OPTIONS.
-     */
-    if (
-      request.method ===
-      "OPTIONS"
-    ) {
-      return new Response(
-        null,
-        {
-          status: 204,
-          headers: {
-            "Access-Control-Allow-Origin":
-              "*",
-            "Access-Control-Allow-Methods":
-              "GET, OPTIONS",
-            "Access-Control-Allow-Headers":
-              "Content-Type"
-          }
-        }
-      );
-    }
 
     /*
-     * LISTA / WYSZUKIWANIE
+     * CORS
+     */
+
+    if (
+      request.method === "OPTIONS"
+    ) {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          "Access-Control-Allow-Origin":
+            "*",
+          "Access-Control-Allow-Methods":
+            "GET, OPTIONS",
+          "Access-Control-Allow-Headers":
+            "Content-Type"
+        }
+      });
+    }
+
+
+    /*
+     * 1. LISTA
      *
      * /api/cars
      */
+
     if (
-      url.pathname ===
-      "/api/cars"
+      url.pathname === "/api/cars"
     ) {
       try {
-        return await getCars(
+        return await getVehicles(
           request,
-          env,
-          ctx
+          env
         );
       } catch (error) {
         console.error(
-          "Rex.Bid cars error:",
+          "Vehicles error:",
           error
         );
 
-        return json(
-          {
-            ok: false,
-            error:
-              "Nie udało się pobrać ofert"
-          },
+        return errorResponse(
+          "Nie udało się pobrać ofert z APIbara.",
           502
         );
       }
     }
 
+
     /*
-     * POJEDYNCZY SAMOCHÓD
+     * 2. HISTORIA
+     *
+     * Musi być PRZED /api/car/
+     */
+
+    if (
+      url.pathname.startsWith(
+        "/api/car/"
+      ) &&
+      url.pathname.endsWith(
+        "/history"
+      )
+    ) {
+      const prefix =
+        "/api/car/";
+
+      const suffix =
+        "/history";
+
+      const identifier =
+        decodeURIComponent(
+          url.pathname.substring(
+            prefix.length,
+            url.pathname.length -
+              suffix.length
+          )
+        );
+
+      if (!identifier) {
+        return errorResponse(
+          "Brak identyfikatora samochodu.",
+          400
+        );
+      }
+
+      try {
+        return await getHistory(
+          request,
+          env,
+          identifier
+        );
+      } catch (error) {
+        console.error(
+          "History error:",
+          error
+        );
+
+        return errorResponse(
+          "Nie udało się pobrać historii aukcji.",
+          502
+        );
+      }
+    }
+
+
+    /*
+     * 3. POWIĄZANE
+     *
+     * Musi być PRZED /api/car/
+     */
+
+    if (
+      url.pathname.startsWith(
+        "/api/car/"
+      ) &&
+      url.pathname.endsWith(
+        "/related"
+      )
+    ) {
+      const prefix =
+        "/api/car/";
+
+      const suffix =
+        "/related";
+
+      const identifier =
+        decodeURIComponent(
+          url.pathname.substring(
+            prefix.length,
+            url.pathname.length -
+              suffix.length
+          )
+        );
+
+      if (!identifier) {
+        return errorResponse(
+          "Brak identyfikatora samochodu.",
+          400
+        );
+      }
+
+      try {
+        return await getRelated(
+          request,
+          env,
+          identifier
+        );
+      } catch (error) {
+        console.error(
+          "Related error:",
+          error
+        );
+
+        return errorResponse(
+          "Nie udało się pobrać powiązanych samochodów.",
+          502
+        );
+      }
+    }
+
+
+    /*
+     * 4. POJEDYNCZY SAMOCHÓD
      *
      * /api/car/VIN
      */
+
     if (
       url.pathname.startsWith(
         "/api/car/"
@@ -869,149 +522,37 @@ export default {
           )
         );
 
+      if (!identifier) {
+        return errorResponse(
+          "Brak identyfikatora samochodu.",
+          400
+        );
+      }
+
       try {
-        return await getSingleVehicle(
+        return await getVehicle(
           request,
           env,
-          ctx,
           identifier
         );
       } catch (error) {
         console.error(
-          "Rex.Bid vehicle error:",
+          "Vehicle error:",
           error
         );
 
-        return json(
-          {
-            ok: false,
-            error:
-              "Nie udało się pobrać samochodu"
-          },
+        return errorResponse(
+          "Nie udało się pobrać samochodu z APIbara.",
           502
         );
       }
     }
 
-    /*
-     * HISTORIA AUKCJI
-     *
-     * /api/car/VIN/history
-     */
-    if (
-      url.pathname.startsWith(
-        "/api/car/"
-      ) &&
-      url.pathname.endsWith(
-        "/history"
-      )
-    ) {
-      const base =
-        url.pathname.substring(
-          "/api/car/".length,
-          url.pathname.length -
-            "/history".length
-        );
-
-      const identifier =
-        decodeURIComponent(
-          base
-        );
-
-      try {
-        return await getHistory(
-          request,
-          env,
-          ctx,
-          identifier
-        );
-      } catch (error) {
-        console.error(
-          "Rex.Bid history error:",
-          error
-        );
-
-        return json(
-          {
-            ok: false,
-            error:
-              "Nie udało się pobrać historii aukcji"
-          },
-          502
-        );
-      }
-    }
 
     /*
-     * FILTRY APIbara
-     *
-     * /api/filters
+     * 5. STRONA
      */
-    if (
-      url.pathname ===
-      "/api/filters"
-    ) {
-      try {
-        return await getFilters(
-          request,
-          env,
-          ctx
-        );
-      } catch (error) {
-        console.error(
-          "Rex.Bid filters error:",
-          error
-        );
 
-        return json(
-          {
-            ok: false,
-            error:
-              "Nie udało się pobrać filtrów"
-          },
-          502
-        );
-      }
-    }
-
-    /*
-     * UŻYCIE API
-     *
-     * /api/usage
-     *
-     * Na razie techniczny endpoint.
-     * Później możemy wykorzystać go
-     * w panelu administracyjnym.
-     */
-    if (
-      url.pathname ===
-      "/api/usage"
-    ) {
-      try {
-        return await getUsage(
-          env
-        );
-      } catch (error) {
-        console.error(
-          "Rex.Bid usage error:",
-          error
-        );
-
-        return json(
-          {
-            ok: false,
-            error:
-              "Nie udało się pobrać informacji o limicie API"
-          },
-          502
-        );
-      }
-    }
-
-    /*
-     * CAŁA RESZTA:
-     * strona z /public
-     */
     return env.ASSETS.fetch(
       request
     );
