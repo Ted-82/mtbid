@@ -524,28 +524,31 @@
       line-height:1.5;
     }
 
-    .materials {
+    .color-legend {
       display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:8px;
-    }
-
-    .material {
-      padding:11px;
+      gap:6px;
+      margin:0 0 10px;
+      padding:10px 12px;
       border:1px solid var(--border);
-      border-radius:8px;
-      background:var(--panel2);
-      text-align:center;
-    }
-    .material strong {
-      display:block;
-      font-size:18px;
-      margin-bottom:3px;
-    }
-    .material span {
+      border-radius:9px;
+      background:rgba(255,255,255,.02);
       color:var(--muted);
-      font-size:9px;
+      font-size:10px;
+      line-height:1.45;
     }
+    .color-legend.compact { margin-top:10px; margin-bottom:0; }
+    .color-legend span { display:block; }
+    .legend-dot {
+      display:inline-block;
+      width:8px; height:8px; border-radius:50%;
+      margin-right:6px; vertical-align:middle;
+    }
+    .legend-dot.green { background:var(--green); }
+    .legend-dot.orange { background:var(--orange); }
+    .legend-dot.red { background:var(--red); }
+    .legend-dot.unknown { background:#7b858f; }
+    .title-verdict.salvage { border-color:#7c5b24; }
+    .title-verdict.salvage .verdict-label { color:#ffbf45; }
 
     .media-panel {
       padding:0;
@@ -1407,9 +1410,10 @@
       }
 
       if (platform.includes("iaai") || platform === "iaa") {
+        // IAAI URL zawiera salvageId, który jest inny niż widoczny numer stock/LOT.
+        // Nie porównujemy więc URL z numerem LOT, bo odrzucałoby prawidłowe linki.
         return host.includes("iaai.com") &&
-          /vehicledetail|vehicle-detail|\/vehicle\//.test(path) &&
-          (!lotId || haystack.includes(lotId) || haystack.includes(lotRaw));
+          /vehicledetail|vehicle-detail|\/vehicle\//.test(path);
       }
 
       return true;
@@ -1421,7 +1425,6 @@
   function originalAuctionUrl() {
     const platform = platformName().toLowerCase();
     const lot = getLot();
-    const lotId = auctionLotId(lot);
 
     // Najpierw prawdziwy, konkretny URL przekazany przez API.
     const directValues = findAllByKeys(car, [
@@ -1432,7 +1435,7 @@
       "vehicleUrl","vehicleURL","vehicle_url",
       "detailUrl","detailURL","detail_url",
       "lotUrl","lotURL","lot_url",
-      "href","link"
+      "href","link","url"
     ]);
 
     for (const value of directValues) {
@@ -1440,14 +1443,21 @@
       if (url && isConcreteAuctionUrl(url, platform, lot)) return url;
     }
 
-    // Jeżeli API podało tylko domenę główną, nie pokazujemy jej użytkownikowi.
-    // Budujemy bezpośredni adres konkretnego pojazdu z numeru LOT.
-    if (platform.includes("copart") && lotId) {
-      return `https://www.copart.com/lot/${encodeURIComponent(lotId)}`;
+    if (platform.includes("copart") && auctionLotId(lot)) {
+      return `https://www.copart.com/lot/${encodeURIComponent(auctionLotId(lot))}`;
     }
 
-    if ((platform.includes("iaai") || platform === "iaa") && lotId) {
-      return `https://www.iaai.com/VehicleDetail/${encodeURIComponent(lotId)}~US`;
+    if (platform.includes("iaai") || platform === "iaa") {
+      // WAŻNE: IAAI używa w VehicleDetail identyfikatora salvageId/itemId,
+      // a nie numeru stock/LOT widocznego użytkownikowi.
+      const itemRaw = first(
+        valueFrom(["salvageId","SalvageId","salvage_id","itemId","ItemId","item_id","vehicleId","VehicleId","vehicle_id","sourceId","SourceId","source_id"])
+      );
+      let itemId = displayValue(itemRaw) || "";
+      itemId = String(itemId).trim();
+      if (itemId.includes("~")) itemId = itemId.split("~")[0];
+      itemId = itemId.replace(/[^0-9]/g, "");
+      if (itemId) return `https://www.iaai.com/VehicleDetail/${encodeURIComponent(itemId)}~US`;
     }
 
     return null;
@@ -1617,51 +1627,105 @@
     );
     const type = String(displayValue(rawType) || "").toLowerCase();
 
+    const approvalRaw = first(
+      valueFrom(["sellerApproval","seller_approval","SellerApproval","sellerStatus","SellerStatus","sellerBadge","seller_badge"]),
+      valueFrom(["Approved","approved","isApproved","sellerApproved"])
+    );
+    const approval = String(displayValue(approvalRaw) || "").toLowerCase();
+
     if (!name && !type) {
       return {
-        label:"Brak danych o sprzedawcy",
-        cls:"",
-        note:"Aukcja nie przekazała wystarczających danych, aby sklasyfikować sprzedawcę."
+        label:"⚪ Brak danych o sprzedawcy",
+        cls:"unknown",
+        note:"Aukcja nie przekazała wystarczających danych, aby ocenić profil sprzedawcy."
       };
     }
 
-    if (/insurance|ubezpiec|ins\b|rcc/.test(type) || /insurance|progressive|state farm|geico|allstate/.test(s)) {
+    // BidCars oznacza firmy ubezpieczeniowe jako Approved i opisuje je
+    // jako zaufanego sprzedawcę. U nas zielony kolor oznacza więc:
+    // znany typ sprzedawcy + profil ubezpieczyciela. Nie jest to gwarancja jakości auta.
+    if (/insurance|ubezpiec|ins\b|rcc/.test(type) || /insurance|progressive|state farm|geico|allstate|arbella/.test(s)) {
       return {
-        label:"Ubezpieczyciel / salvage",
-        cls:"red",
-        note:"Profil wynika z danych aukcyjnych. To nie jest ocena reputacji konkretnej firmy."
+        label:"🟢 Zaufany profil — ubezpieczyciel",
+        cls:"green",
+        note:"Sprzedawca jest rozpoznany jako firma ubezpieczeniowa. To zielony profil sprzedawcy, zgodny z klasyfikacją stosowaną przez BidCars. Nie oznacza gwarancji stanu pojazdu ani wyniku rejestracji w Polsce."
+      };
+    }
+
+    if (/approved|verified|trusted/.test(approval)) {
+      return {
+        label:"🟢 Zweryfikowany sprzedawca",
+        cls:"green",
+        note:"Źródło aukcyjne przekazuje pozytywny status sprzedawcy. To ocena profilu źródła, a nie gwarancja transakcji."
+      };
+    }
+
+    if (/dealer|dealership|dealer|retailer|merchant/.test(s + " " + type)) {
+      return {
+        label:"🟡 Dealer / handlarz",
+        cls:"orange",
+        note:"Sprzedawca ma profil handlowy. Nie oznacza to oszustwa, ale warto dokładnie sprawdzić dokumenty, historię i warunki sprzedaży."
       };
     }
 
     if (/fleet|lease|rental|remarketing|enterprise|hertz|avis|alamo/.test(s + " " + type)) {
       return {
-        label:"Flota / leasing / remarketing",
-        cls:"blue",
-        note:"Sprzedawca wygląda na podmiot flotowy lub remarketingowy. To zwykle inny profil niż prywatny handlarz."
-      };
-    }
-
-    if (/dealer|dealership|dealer/.test(s + " " + type)) {
-      return {
-        label:"Dealer / handlarz",
+        label:"🟡 Flota / leasing / remarketing",
         cls:"orange",
-        note:"Źródło aukcyjne klasyfikuje sprzedawcę jako dealer/handel. Nie oznacza to samo w sobie nieuczciwości."
+        note:"Sprzedawca wygląda na podmiot flotowy lub remarketingowy. To neutralny profil, wymagający sprawdzenia źródła pojazdu."
       };
     }
 
     if (/private|individual|prywat/.test(s + " " + type)) {
       return {
-        label:"Sprzedawca prywatny",
-        cls:"green",
-        note:"Profil wygląda na prywatny na podstawie dostępnych danych aukcyjnych."
+        label:"🟡 Sprzedawca prywatny",
+        cls:"orange",
+        note:"Profil wygląda na prywatny. Nie oznacza to automatycznie większego ani mniejszego ryzyka — ważne są dokumenty i historia auta."
       };
     }
 
     return {
-      label:"Sprzedawca zewnętrzny",
-      cls:"",
-      note:"Brak wystarczających danych, aby rzetelnie określić reputację sprzedawcy."
+      label:"⚪ Profil sprzedawcy nieokreślony",
+      cls:"unknown",
+      note:"Brak wystarczających danych, aby rzetelnie przypisać sprzedawcę do profilu zielonego lub ostrzegawczego."
     };
+  }
+
+  function titleSourceStatus(titleDoc, titleBrand, titleState, titleNotes, titleCode) {
+    const raw = findAllByKeys(car, [
+      "titleApproval","title_approval","TitleApproval",
+      "titleStatus","TitleStatus","titleBadge","title_badge",
+      "saleDocumentStatus","SaleDocumentStatus",
+      "saleDocumentApproval","SaleDocumentApproval",
+      "documentStatus","DocumentStatus",
+      "documentApproval","DocumentApproval"
+    ]);
+
+    const text = raw.map(v => String(displayValue(v) || "").toLowerCase()).join(" ");
+    const all = `${titleDoc || ""} ${titleBrand || ""} ${titleState || ""} ${titleNotes || ""} ${titleCode || ""}`.toLowerCase();
+
+    if (/warning|warn|dealer only|duplicate|lien|bonded|export only|non repairable|non-repairable|parts only|parts-only|scrap|junk|certificate of destruction|destruction/.test(text + " " + all)) return "warn";
+    if (/approved|verified|accepted/.test(text)) return "good";
+    if (/parts only|parts-only|scrap|junk|non repairable|non-repairable|certificate of destruction|destruction/.test(all)) return "bad";
+    if (/salvage|rebuilt|rebuildable|flood|certificate of salvage|bill of sale/.test(all)) return "salvage";
+    if (/clean|clear|clean title|clear title/.test(all)) return "good";
+    return "unknown";
+  }
+
+  function titleVerdictLabel(kind) {
+    if (kind === "good") return "🟢 Dokument zaakceptowany / korzystny";
+    if (kind === "salvage") return "🟡 Salvage — wymaga weryfikacji";
+    if (kind === "warn") return "🟡 Dokument z ograniczeniem / ostrzeżeniem";
+    if (kind === "bad") return "🔴 Duże ryzyko dokumentowe";
+    return "⚪ Brak wystarczających danych";
+  }
+
+  function titleVerdictNote(kind) {
+    if (kind === "good") return "Źródło aukcyjne wskazuje korzystny lub zatwierdzony status dokumentu. To nie jest prawna gwarancja rejestracji w Polsce.";
+    if (kind === "salvage") return "Salvage jest normalnym dokumentem na aukcjach powypadkowych, ale jego dokładna marka i stan muszą zostać sprawdzone przed zakupem. Oznaczenie zielone/Approved z aukcji nie oznacza automatycznej rejestracji w Polsce.";
+    if (kind === "warn") return "Źródło aukcyjne sygnalizuje ograniczenie dokumentu, np. dealer only lub duplicate. Przed zakupem trzeba sprawdzić oryginalny title i możliwość rejestracji.";
+    if (kind === "bad") return "Dokument może powodować poważne problemy z legalnym zarejestrowaniem pojazdu. Wymagana jest szczegółowa weryfikacja przed zakupem.";
+    return "Brakuje wystarczających informacji o dokumencie, aby nadać mu wiarygodny kolor.";
   }
 
   function titleRegistration(titleText, brand, state, notes, titleCode) {
@@ -1798,6 +1862,8 @@
     const titleCode = first(valueFrom(["TitleCode"]));
 
     const verdict = titleRegistration(titleDoc,titleBrand,titleState,titleNotes,titleCode);
+    const sourceTitleKind = titleSourceStatus(titleDoc,titleBrand,titleState,titleNotes,titleCode);
+    const displayTitleKind = sourceTitleKind === "unknown" ? (verdict.cls === "good" ? "good" : verdict.cls === "bad" ? "bad" : verdict.cls === "warn" ? "warn" : "unknown") : sourceTitleKind;
 
     const image360 = findMediaUrl("vr360");
     const video = findMediaUrl("video");
@@ -1970,9 +2036,14 @@
               <span>Analiza Rex.Bid</span>
             </div>
 
-            <div class="title-verdict ${verdict.cls}">
-              <div class="verdict-label">${verdict.label}</div>
-              <div class="verdict-text">${verdict.text}</div>
+            <div class="title-verdict ${displayTitleKind}">
+              <div class="verdict-label">${esc(titleVerdictLabel(displayTitleKind))}</div>
+              <div class="verdict-text">${esc(titleVerdictNote(displayTitleKind))}</div>
+            </div>
+            <div class="color-legend">
+              <span><i class="legend-dot green"></i><b>Zielony</b> — źródło aukcyjne oznacza sprzedawcę/dokument jako zatwierdzony lub korzystny.</span>
+              <span><i class="legend-dot orange"></i><b>Żółty</b> — wymaga dodatkowej weryfikacji.</span>
+              <span><i class="legend-dot red"></i><b>Czerwony</b> — podwyższone ryzyko dokumentowe.</span>
             </div>
 
             <div class="spec-grid">
@@ -1999,6 +2070,11 @@
               ${kv("Typ sprzedawcy",valueFrom(["seller_type","sellerType","SellerType","ProviderType"]))}
               ${kv("Pochodzenie",valueFrom(["Origin"]))}
               <div class="seller-note">${esc(sellerInfo.note)}</div>
+              <div class="color-legend compact">
+                <span><i class="legend-dot green"></i><b>Zielony</b> — profil zaufany/zaakceptowany przez źródło.</span>
+                <span><i class="legend-dot orange"></i><b>Żółty</b> — dealer, prywatny lub profil wymagający sprawdzenia.</span>
+                <span><i class="legend-dot unknown"></i><b>Szary</b> — brak danych do oceny.</span>
+              </div>
             </div>
           </section>
 
