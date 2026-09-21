@@ -100,6 +100,20 @@ a {
     color: #666;
 }
 
+.error-details {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f3f4f5;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-align: left;
+    white-space: pre-wrap;
+    overflow-x: auto;
+    font-family: monospace;
+    font-size: 12px;
+    color: #333;
+}
+
 .car-header {
     background: white;
     border: 1px solid #e0e3e6;
@@ -194,6 +208,14 @@ a {
     background: #e9ebed;
 }
 
+.main-image.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #777;
+    font-size: 15px;
+}
+
 .thumbs {
     display: flex;
     gap: 8px;
@@ -209,6 +231,7 @@ a {
     cursor: pointer;
     border: 2px solid transparent;
     flex-shrink: 0;
+    background: #e9ebed;
 }
 
 .thumb.active {
@@ -258,8 +281,6 @@ a {
     background: #eceef0;
     color: #666;
 }
-
-/* ODLICZANIE */
 
 .countdown-box {
     margin: 5px 0 18px;
@@ -572,6 +593,9 @@ footer {
 
 <script>
 
+"use strict";
+
+
 function safe(value, fallback = "—") {
 
     if (
@@ -661,9 +685,7 @@ function displayValue(value, fallback = "—") {
 
         const values =
             Object.values(value)
-                .map(item =>
-                    displayValue(item, "")
-                )
+                .map(item => displayValue(item, ""))
                 .filter(Boolean);
 
         if (values.length) {
@@ -744,6 +766,7 @@ function getMileage(car) {
 
         car.odometer?.mi,
         car.odometer?.miles,
+        car.odometer?.km,
         car.odometer,
         car.mileage,
         car.miles,
@@ -905,6 +928,7 @@ function getCylinders(car) {
 
     return displayValue(
         car.vehicle_specs?.engine?.cylinders ??
+        car.vehicle_specs?.cylinders ??
         car.cylinders ??
         car.details?.vehicle_description?.Cylinders
     );
@@ -920,11 +944,17 @@ function getKeys(car) {
         car.has_keys ??
         car.details?.vehicle_information?.KeySlashFob;
 
-    if (value === true || String(value).toLowerCase() === "true") {
+    if (
+        value === true ||
+        String(value).toLowerCase() === "true"
+    ) {
         return "Obecny";
     }
 
-    if (value === false || String(value).toLowerCase() === "false") {
+    if (
+        value === false ||
+        String(value).toLowerCase() === "false"
+    ) {
         return "Brak";
     }
 
@@ -1120,11 +1150,6 @@ function normalizeImageUrl(image) {
         return null;
     }
 
-    /*
-     * API może zwrócić URL opakowany w markdown:
-     * [https://...](https://...)
-     */
-
     const markdownMatch =
         url.match(
             /^\[.*?\]\((.*?)\)$/
@@ -1137,9 +1162,10 @@ function normalizeImageUrl(image) {
     url = url
         .replace(/\\&/g, "&")
         .replace(/\\~/g, "~")
-        .replace(/^<|>$/g, "");
+        .replace(/^<|>$/g, "")
+        .trim();
 
-    return url;
+    return url || null;
 }
 
 
@@ -1156,17 +1182,32 @@ function getImages(car) {
             url &&
             !images.includes(url)
         ) {
-
             images.push(url);
         }
     }
 
 
-    if (Array.isArray(car.images)) {
+    /*
+     * Standardowe images
+     */
 
+    if (Array.isArray(car.images)) {
         car.images.forEach(add);
     }
 
+
+    /*
+     * IAAI:
+     *
+     * media.items:
+     * [
+     *   {
+     *      type: "image",
+     *      thumb: "...",
+     *      large: "..."
+     *   }
+     * ]
+     */
 
     if (
         car.media &&
@@ -1177,18 +1218,25 @@ function getImages(car) {
             .filter(
                 item =>
                     item &&
-                    item.type === "image"
+                    String(item.type).toLowerCase() === "image"
             )
-            .forEach(
-                item =>
-                    add(
-                        item.large ??
-                        item.url ??
-                        item.thumb
-                    )
-            );
+            .forEach(item => {
+
+                add(
+                    item.large ??
+                    item.url ??
+                    item.thumb
+                );
+
+            });
     }
 
+
+    /*
+     * IAAI:
+     *
+     * media.thumbs
+     */
 
     if (
         car.media &&
@@ -1199,6 +1247,10 @@ function getImages(car) {
     }
 
 
+    /*
+     * Inne możliwe formaty API
+     */
+
     if (
         car.photos &&
         Array.isArray(car.photos)
@@ -1208,9 +1260,17 @@ function getImages(car) {
     }
 
 
+    if (
+        Array.isArray(car.media)
+    ) {
+
+        car.media.forEach(add);
+    }
+
+
     /*
-     * Nie dodajemy drugi raz tych samych zdjęć.
-     * Dla IAA preferujemy wersję large z media.items.
+     * Usuwamy duplikaty IAAI,
+     * ignorując tylko parametry rozmiaru.
      */
 
     const uniqueKeys = new Set();
@@ -1221,11 +1281,15 @@ function getImages(car) {
         const key =
             image
                 .replace(
-                    /[?&]width=\d+/g,
-                    ""
+                    /([?&])width=\d+/g,
+                    "$1"
                 )
                 .replace(
-                    /[?&]height=\d+/g,
+                    /([?&])height=\d+/g,
+                    "$1"
+                )
+                .replace(
+                    /[?&]+$/,
                     ""
                 );
 
@@ -1251,19 +1315,16 @@ function getVideoUrl(car) {
             car.media.items.find(
                 item =>
                     item &&
-                    item.type === "video" &&
+                    String(item.type).toLowerCase() === "video" &&
                     item.url
             );
 
         if (video) {
-
-            return normalizeImageUrl(
-                video.url
-            );
+            return normalizeImageUrl(video.url);
         }
     }
 
-    return (
+    return normalizeImageUrl(
         car.media?.video_url ??
         car.video_url ??
         car.video ??
@@ -1275,7 +1336,7 @@ function getVideoUrl(car) {
 
 function get360Url(car) {
 
-    return (
+    return normalizeImageUrl(
         car.media?.url_360 ??
         car.media?.view_360 ??
         car.url_360 ??
@@ -1302,11 +1363,16 @@ function getFavorites() {
 
     try {
 
-        return JSON.parse(
-            localStorage.getItem(
-                "rex_bid_favorites"
-            ) || "[]"
-        );
+        const parsed =
+            JSON.parse(
+                localStorage.getItem(
+                    "rex_bid_favorites"
+                ) || "[]"
+            );
+
+        return Array.isArray(parsed)
+            ? parsed
+            : [];
 
     } catch {
 
@@ -1326,7 +1392,9 @@ function saveFavorites(items) {
 
 function toggleFavorite(vin) {
 
-    if (!vin) return;
+    if (!vin) {
+        return;
+    }
 
     let favorites =
         getFavorites();
@@ -1358,11 +1426,12 @@ function renderFavoriteButton(vin) {
             "favoriteButton"
         );
 
-    if (!button) return;
+    if (!button) {
+        return;
+    }
 
     const active =
-        getFavorites()
-            .includes(vin);
+        getFavorites().includes(vin);
 
     button.classList.toggle(
         "active",
@@ -1383,7 +1452,9 @@ function setupAuctionLink(car) {
             "auctionButton"
         );
 
-    if (!button) return;
+    if (!button) {
+        return;
+    }
 
     const url =
         getAuctionUrl(car);
@@ -1504,15 +1575,12 @@ function renderCountdown(car) {
         return "";
     }
 
-    const timestamp =
-        date.getTime();
-
     return `
 
         <div
             class="countdown-box"
             id="countdownBox"
-            data-auction-time="${timestamp}"
+            data-auction-time="${date.getTime()}"
         >
 
             <div class="countdown-title">
@@ -1566,7 +1634,6 @@ function startCountdown() {
             target -
             Date.now();
 
-
         if (diff <= 0) {
 
             output.innerHTML =
@@ -1579,39 +1646,29 @@ function startCountdown() {
 
 
         const totalSeconds =
-            Math.floor(
-                diff / 1000
-            );
-
+            Math.floor(diff / 1000);
 
         const days =
             Math.floor(
-                totalSeconds /
-                86400
+                totalSeconds / 86400
             );
-
 
         const hours =
             Math.floor(
                 (
-                    totalSeconds %
-                    86400
+                    totalSeconds % 86400
                 ) / 3600
             );
-
 
         const minutes =
             Math.floor(
                 (
-                    totalSeconds %
-                    3600
+                    totalSeconds % 3600
                 ) / 60
             );
 
-
         const seconds =
-            totalSeconds %
-            60;
+            totalSeconds % 60;
 
 
         output.innerHTML = `
@@ -1724,8 +1781,10 @@ function renderMedia(car) {
                             <source
                                 src="${escapeHtml(videoUrl)}"
                             >
+
                             Twoja przeglądarka nie obsługuje
                             odtwarzania video.
+
                         </video>
 
                     </div>
@@ -1742,9 +1801,15 @@ function renderMedia(car) {
 function renderCar(car) {
 
     const app =
-        document.getElementById(
-            "app"
+        document.getElementById("app");
+
+
+    if (!car || typeof car !== "object") {
+
+        throw new Error(
+            "Nieprawidłowe dane samochodu."
         );
+    }
 
 
     const vin =
@@ -1789,10 +1854,6 @@ function renderCar(car) {
         images[0] || "";
 
 
-    const specs =
-        car.vehicle_specs || {};
-
-
     const seller =
         displayValue(
             car.seller?.name ??
@@ -1828,7 +1889,7 @@ function renderCar(car) {
                         platform !== "—"
                         ? `
                             <div class="platform">
-                                ${platform}
+                                ${escapeHtml(platform)}
                             </div>
                         `
                         : ""
@@ -1844,11 +1905,12 @@ function renderCar(car) {
 
                     <div class="subtitle">
 
-                        VIN: ${escapeHtml(vin) || "—"}
+                        VIN:
+                        ${escapeHtml(vin) || "—"}
 
                         ${
                             lot !== "—"
-                            ? " · Lot: " + lot
+                            ? " · Lot: " + escapeHtml(lot)
                             : ""
                         }
 
@@ -1860,7 +1922,7 @@ function renderCar(car) {
                 <button
                     class="favorite"
                     id="favoriteButton"
-                    onclick="toggleFavorite('${String(vin).replace(/'/g, "\\'")}')"
+                    type="button"
                 >
                     ♡ Dodaj do ulubionych
                 </button>
@@ -1882,17 +1944,20 @@ function renderCar(car) {
                             class="main-image"
                             src="${escapeHtml(firstImage)}"
                             alt="${title}"
+                            onerror="this.style.display='none'; document.getElementById('imageFallback').style.display='flex';"
                         >
+
+                        <div
+                            id="imageFallback"
+                            class="main-image placeholder"
+                            style="display:none;"
+                        >
+                            Nie udało się załadować zdjęcia.
+                        </div>
                     `
                     : `
                         <div
-                            class="main-image"
-                            style="
-                                display:flex;
-                                align-items:center;
-                                justify-content:center;
-                                color:#777;
-                            "
+                            class="main-image placeholder"
                         >
                             Brak zdjęcia
                         </div>
@@ -1900,7 +1965,7 @@ function renderCar(car) {
                 }
 
 
-                <div class="thumbs">
+                <div class="thumbs" id="thumbsContainer">
 
                     ${images.map(
                         (image, index) => `
@@ -1912,19 +1977,9 @@ function renderCar(car) {
                                         : ""
                                 }"
                                 src="${escapeHtml(image)}"
-                                onclick="
-                                    changeImage(
-                                        '${image.replace(
-                                            /\\/g,
-                                            "\\\\"
-                                        ).replace(
-                                            /'/g,
-                                            "\\'"
-                                        )}',
-                                        this
-                                    )
-                                "
+                                data-image="${escapeHtml(image)}"
                                 alt="${title}"
+                                loading="lazy"
                             >
 
                         `
@@ -2038,7 +2093,7 @@ function renderCar(car) {
                     </span>
 
                     <span class="info-value">
-                        ${lot}
+                        ${escapeHtml(lot)}
                     </span>
 
                 </div>
@@ -2054,9 +2109,7 @@ function renderCar(car) {
                             </span>
 
                             <span class="info-value">
-                                ${formatDate(
-                                    auctionDate
-                                )}
+                                ${formatDate(auctionDate)}
                             </span>
 
                         </div>
@@ -2336,6 +2389,51 @@ function renderCar(car) {
 
                 </div>
 
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        Stan aukcji
+                    </div>
+
+                    <div class="detail-value">
+                        ${displayValue(
+                            car.auction?.state
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        Kluczyk / FOB
+                    </div>
+
+                    <div class="detail-value">
+                        ${displayValue(
+                            car.details?.attributes?.KeyFOB
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div class="detail">
+
+                    <div class="detail-label">
+                        Odometr
+                    </div>
+
+                    <div class="detail-value">
+                        ${displayValue(
+                            car.details?.attributes?.ODOBrand
+                        )}
+                    </div>
+
+                </div>
+
             </div>
 
         </section>
@@ -2357,9 +2455,93 @@ function renderCar(car) {
     `;
 
 
+    /*
+     * Ulubione
+     */
+
+    const favoriteButton =
+        document.getElementById(
+            "favoriteButton"
+        );
+
+    if (favoriteButton) {
+
+        favoriteButton.addEventListener(
+            "click",
+            () => toggleFavorite(vin)
+        );
+    }
+
     renderFavoriteButton(vin);
 
+
+    /*
+     * Galeria
+     */
+
+    const mainImage =
+        document.getElementById(
+            "mainImage"
+        );
+
+    const thumbs =
+        document.querySelectorAll(
+            ".thumb"
+        );
+
+    thumbs.forEach(thumb => {
+
+        thumb.addEventListener(
+            "click",
+            () => {
+
+                const image =
+                    thumb.dataset.image;
+
+                if (mainImage && image) {
+
+                    mainImage.src =
+                        image;
+
+                    const fallback =
+                        document.getElementById(
+                            "imageFallback"
+                        );
+
+                    if (fallback) {
+                        fallback.style.display =
+                            "none";
+                    }
+
+                    mainImage.style.display =
+                        "block";
+                }
+
+                thumbs.forEach(item =>
+                    item.classList.remove(
+                        "active"
+                    )
+                );
+
+                thumb.classList.add(
+                    "active"
+                );
+            }
+        );
+
+    });
+
+
+    /*
+     * Link aukcji
+     */
+
     setupAuctionLink(car);
+
+
+    /*
+     * Countdown
+     */
 
     startCountdown();
 }
@@ -2374,21 +2556,27 @@ function changeImage(image, element) {
 
     if (main) {
         main.src = image;
+        main.style.display = "block";
+    }
+
+    const fallback =
+        document.getElementById(
+            "imageFallback"
+        );
+
+    if (fallback) {
+        fallback.style.display = "none";
     }
 
     document
         .querySelectorAll(".thumb")
         .forEach(
             thumb =>
-                thumb.classList.remove(
-                    "active"
-                )
+                thumb.classList.remove("active")
         );
 
     if (element) {
-        element.classList.add(
-            "active"
-        );
+        element.classList.add("active");
     }
 }
 
@@ -2396,9 +2584,7 @@ function changeImage(image, element) {
 async function loadCar() {
 
     const app =
-        document.getElementById(
-            "app"
-        );
+        document.getElementById("app");
 
 
     const params =
@@ -2433,18 +2619,15 @@ async function loadCar() {
 
     try {
 
-        /*
-         * Używamy działającego endpointu:
-         *
-         * /api/cars?s=VIN
-         */
-
         const response =
             await fetch(
                 "/api/cars?s=" +
                 encodeURIComponent(vin),
                 {
-                    cache: "no-store"
+                    cache: "no-store",
+                    headers: {
+                        "Accept": "application/json"
+                    }
                 }
             );
 
@@ -2462,11 +2645,11 @@ async function loadCar() {
             await response.json();
 
 
-        if (!result.ok) {
+        if (!result || !result.ok) {
 
             throw new Error(
-                result.error ||
-                "Błąd API"
+                result?.error ||
+                "API zwróciło nieprawidłową odpowiedź."
             );
         }
 
@@ -2477,16 +2660,23 @@ async function loadCar() {
                 : [];
 
 
+        const requestedVin =
+            String(vin)
+                .trim()
+                .toUpperCase();
+
+
         const car =
             cars.find(
                 item =>
                     String(
-                        item.vin ??
-                        item.VIN ??
+                        item?.vin ??
+                        item?.VIN ??
                         ""
-                    ).toUpperCase() ===
-                    String(vin)
-                        .toUpperCase()
+                    )
+                    .trim()
+                    .toUpperCase() ===
+                    requestedVin
             ) ||
             cars[0];
 
@@ -2501,7 +2691,14 @@ async function loadCar() {
                         Nie znaleziono samochodu
                     </strong>
 
-                    Oferta nie jest dostępna.
+                    Oferta nie jest dostępna
+                    dla VIN:
+
+                    <br><br>
+
+                    <b>
+                        ${escapeHtml(vin)}
+                    </b>
 
                 </div>
 
@@ -2511,12 +2708,61 @@ async function loadCar() {
         }
 
 
-        renderCar(car);
+        /*
+         * Najważniejszy punkt diagnostyczny.
+         * Jeżeli renderowanie się wywali,
+         * zobaczymy dokładny błąd.
+         */
+
+        try {
+
+            renderCar(car);
+
+        } catch (renderError) {
+
+            console.error(
+                "REX.BID RENDER ERROR:",
+                renderError
+            );
+
+            console.error(
+                "REX.BID CAR DATA:",
+                car
+            );
+
+            app.innerHTML = `
+
+                <div class="error">
+
+                    <strong>
+                        Błąd renderowania samochodu
+                    </strong>
+
+                    Dane zostały pobrane z API,
+                    ale wystąpił błąd podczas
+                    budowania strony.
+
+                    <div class="error-details">
+${escapeHtml(
+    renderError?.stack ||
+    renderError?.message ||
+    String(renderError)
+)}
+                    </div>
+
+                </div>
+
+            `;
+
+        }
 
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "REX.BID API ERROR:",
+            error
+        );
 
         app.innerHTML = `
 
@@ -2526,7 +2772,16 @@ async function loadCar() {
                     Nie udało się pobrać samochodu
                 </strong>
 
-                Wystąpił problem z połączeniem z API.
+                Wystąpił problem z połączeniem
+                z API.
+
+                <div class="error-details">
+${escapeHtml(
+    error?.stack ||
+    error?.message ||
+    String(error)
+)}
+                </div>
 
             </div>
 
