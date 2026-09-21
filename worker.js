@@ -3,7 +3,6 @@ const APIBARA_BASE =
 
 const CACHE_TTL_SECONDS = 60;
 
-
 /*
  * ============================================================
  * REX.BID WORKER
@@ -151,11 +150,9 @@ function getNested(
   paths
 ) {
   for (const path of paths) {
-
     let current = object;
 
     for (const part of path) {
-
       if (
         current === null ||
         current === undefined ||
@@ -220,6 +217,15 @@ async function fetchApibara(
     APIBARA_BASE +
     endpoint;
 
+  /*
+   * Ważne:
+   *
+   * Nie usuwamy X-API-Key.
+   * Apibara wymaga klucza API.
+   *
+   * Accept informuje API, że oczekujemy JSON.
+   */
+
   const response =
     await fetch(
       url,
@@ -252,8 +258,8 @@ async function fetchApibara(
 
   if (!response.ok) {
     throw new Error(
-      result.message ||
-      result.error ||
+      result?.message ||
+      result?.error ||
       `Apibara HTTP ${response.status}`
     );
   }
@@ -282,7 +288,6 @@ function normalizeVehicle(
     return null;
   }
 
-
   const vin =
     cleanString(
       firstValue(
@@ -293,7 +298,6 @@ function normalizeVehicle(
         ]
       )
     );
-
 
   const slugVin =
     cleanString(
@@ -306,7 +310,6 @@ function normalizeVehicle(
       )
     );
 
-
   const platform =
     cleanString(
       firstValue(
@@ -316,7 +319,6 @@ function normalizeVehicle(
         ]
       )
     ).toLowerCase();
-
 
   const lot =
     cleanString(
@@ -331,7 +333,6 @@ function normalizeVehicle(
       )
     );
 
-
   const title =
     cleanString(
       firstValue(
@@ -343,7 +344,6 @@ function normalizeVehicle(
       )
     );
 
-
   const year =
     numberOrNull(
       firstValue(
@@ -354,7 +354,6 @@ function normalizeVehicle(
       )
     );
 
-
   const make =
     cleanString(
       firstValue(
@@ -364,7 +363,6 @@ function normalizeVehicle(
         ]
       )
     );
-
 
   const model =
     cleanString(
@@ -378,7 +376,9 @@ function normalizeVehicle(
 
 
   /*
+   * ==========================================================
    * AUCTION
+   * ==========================================================
    */
 
   const auction =
@@ -386,7 +386,6 @@ function normalizeVehicle(
     typeof vehicle.auction === "object"
       ? vehicle.auction
       : {};
-
 
   const auctionState =
     cleanString(
@@ -398,7 +397,6 @@ function normalizeVehicle(
         ]
       )
     );
-
 
   const auctionAt =
     firstValue(
@@ -413,7 +411,6 @@ function normalizeVehicle(
       ]
     );
 
-
   const auctionEnd =
     firstValue(
       auction,
@@ -427,7 +424,9 @@ function normalizeVehicle(
 
 
   /*
+   * ==========================================================
    * PRICING
+   * ==========================================================
    */
 
   const pricing =
@@ -435,7 +434,6 @@ function normalizeVehicle(
     typeof vehicle.pricing === "object"
       ? vehicle.pricing
       : {};
-
 
   const currentBid =
     numberOrNull(
@@ -449,7 +447,6 @@ function normalizeVehicle(
       )
     );
 
-
   const buyNow =
     numberOrNull(
       firstValue(
@@ -460,7 +457,6 @@ function normalizeVehicle(
         ]
       )
     );
-
 
   const lastSoldPrice =
     numberOrNull(
@@ -477,7 +473,9 @@ function normalizeVehicle(
 
 
   /*
+   * ==========================================================
    * LOCATION
+   * ==========================================================
    */
 
   const location =
@@ -485,7 +483,6 @@ function normalizeVehicle(
     typeof vehicle.location === "object"
       ? vehicle.location
       : {};
-
 
   const locationDisplay =
     cleanString(
@@ -501,7 +498,9 @@ function normalizeVehicle(
 
 
   /*
+   * ==========================================================
    * CONDITION
+   * ==========================================================
    */
 
   const condition =
@@ -509,7 +508,6 @@ function normalizeVehicle(
     typeof vehicle.condition === "object"
       ? vehicle.condition
       : {};
-
 
   const damage =
     cleanString(
@@ -522,7 +520,6 @@ function normalizeVehicle(
       )
     );
 
-
   const lossType =
     cleanString(
       firstValue(
@@ -533,7 +530,6 @@ function normalizeVehicle(
         ]
       )
     );
-
 
   const runCondition =
     cleanString(
@@ -548,7 +544,9 @@ function normalizeVehicle(
 
 
   /*
+   * ==========================================================
    * ODOMETER
+   * ==========================================================
    */
 
   const odometer =
@@ -556,7 +554,6 @@ function normalizeVehicle(
     typeof vehicle.odometer === "object"
       ? vehicle.odometer
       : {};
-
 
   const mileage =
     numberOrNull(
@@ -571,7 +568,9 @@ function normalizeVehicle(
 
 
   /*
+   * ==========================================================
    * SELLER
+   * ==========================================================
    */
 
   const seller =
@@ -579,7 +578,6 @@ function normalizeVehicle(
     typeof vehicle.seller === "object"
       ? vehicle.seller
       : {};
-
 
   const sellerName =
     cleanString(
@@ -592,7 +590,6 @@ function normalizeVehicle(
         ]
       )
     );
-
 
   const sellerType =
     cleanString(
@@ -609,7 +606,9 @@ function normalizeVehicle(
 
 
   /*
+   * ==========================================================
    * SALE DOCUMENT
+   * ==========================================================
    */
 
   const saleDocument =
@@ -617,7 +616,6 @@ function normalizeVehicle(
     typeof vehicle.sale_document === "object"
       ? vehicle.sale_document
       : {};
-
 
   const documentName =
     cleanString(
@@ -630,7 +628,6 @@ function normalizeVehicle(
         ]
       )
     );
-
 
   const documentType =
     cleanString(
@@ -645,7 +642,6 @@ function normalizeVehicle(
       )
     );
 
-
   const exportAllowed =
     firstValue(
       saleDocument,
@@ -654,7 +650,6 @@ function normalizeVehicle(
         "exportAllowed"
       ]
     );
-
 
   const registrationAllowed =
     firstValue(
@@ -668,7 +663,9 @@ function normalizeVehicle(
 
 
   /*
+   * ==========================================================
    * MEDIA
+   * ==========================================================
    */
 
   const media =
@@ -676,7 +673,6 @@ function normalizeVehicle(
     typeof vehicle.media === "object"
       ? vehicle.media
       : {};
-
 
   const hasVideo =
     firstValue(
@@ -686,7 +682,6 @@ function normalizeVehicle(
         "hasVideo"
       ]
     );
-
 
   const has360 =
     firstValue(
@@ -701,7 +696,9 @@ function normalizeVehicle(
 
 
   /*
+   * ==========================================================
    * ORIGINAL AUCTION URL
+   * ==========================================================
    */
 
   const auctionUrl =
@@ -722,7 +719,9 @@ function normalizeVehicle(
 
 
   /*
+   * ==========================================================
    * VEHICLE KEY
+   * ==========================================================
    *
    * VIN jest najważniejszy.
    * Jeżeli VIN jest pusty, używamy lotu.
@@ -734,11 +733,9 @@ function normalizeVehicle(
     lot ||
     "";
 
-
   if (!identity) {
     return null;
   }
-
 
   const vehicleKey =
     (
@@ -750,7 +747,9 @@ function normalizeVehicle(
 
 
   /*
+   * ==========================================================
    * FINGERPRINT
+   * ==========================================================
    *
    * Służy do rozpoznawania zmian.
    */
@@ -772,14 +771,12 @@ function normalizeVehicle(
     sellerType
   };
 
-
   const fingerprint =
     simpleHash(
       JSON.stringify(
         fingerprintSource
       )
     );
-
 
   return {
     vehicleKey,
@@ -856,7 +853,7 @@ function simpleHash(
       (hash << 8) +
       (hash << 24);
 
-    hash >>>
+    hash >>>=
       0;
   }
 
@@ -880,7 +877,6 @@ async function ensureDatabase(
   if (!env.REXBID_DB) {
     return false;
   }
-
 
   await env.REXBID_DB.prepare(`
     CREATE TABLE IF NOT EXISTS vehicles (
@@ -934,7 +930,6 @@ async function ensureDatabase(
     )
   `).run();
 
-
   await env.REXBID_DB.prepare(`
     CREATE TABLE IF NOT EXISTS vehicle_snapshots (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -957,36 +952,30 @@ async function ensureDatabase(
     )
   `).run();
 
-
   await env.REXBID_DB.prepare(`
     CREATE INDEX IF NOT EXISTS idx_vehicles_vin
     ON vehicles(vin)
   `).run();
-
 
   await env.REXBID_DB.prepare(`
     CREATE INDEX IF NOT EXISTS idx_vehicles_lot
     ON vehicles(lot)
   `).run();
 
-
   await env.REXBID_DB.prepare(`
     CREATE INDEX IF NOT EXISTS idx_vehicles_platform
     ON vehicles(platform)
   `).run();
-
 
   await env.REXBID_DB.prepare(`
     CREATE INDEX IF NOT EXISTS idx_snapshots_vehicle
     ON vehicle_snapshots(vehicle_key)
   `).run();
 
-
   await env.REXBID_DB.prepare(`
     CREATE INDEX IF NOT EXISTS idx_snapshots_time
     ON vehicle_snapshots(captured_at)
   `).run();
-
 
   return true;
 }
@@ -1050,15 +1039,12 @@ async function saveVehicle(
     };
   }
 
-
   await ensureDatabase(
     env
   );
 
-
   const now =
     new Date().toISOString();
-
 
   const existing =
     await env.REXBID_DB
@@ -1076,13 +1062,11 @@ async function saveVehicle(
       )
       .first();
 
-
   const firstSeen =
     existing &&
     existing.first_seen_at
       ? existing.first_seen_at
       : now;
-
 
   const changed =
     !existing ||
@@ -1091,7 +1075,9 @@ async function saveVehicle(
 
 
   /*
+   * ==========================================================
    * UPDATE CURRENT VEHICLE
+   * ==========================================================
    */
 
   await env.REXBID_DB
@@ -1159,6 +1145,7 @@ async function saveVehicle(
         ?, ?,
         ?,
         ?, ?,
+        ?,
         ?,
         ?
       )
@@ -1326,13 +1313,14 @@ async function saveVehicle(
 
 
   /*
+   * ==========================================================
    * SNAPSHOT
+   * ==========================================================
    *
    * Tylko kiedy coś się zmieniło.
    */
 
   if (changed) {
-
     await env.REXBID_DB
       .prepare(`
         INSERT INTO vehicle_snapshots (
@@ -1382,7 +1370,6 @@ async function saveVehicle(
       .run();
   }
 
-
   return {
     saved: true,
     changed
@@ -1412,14 +1399,11 @@ async function saveApiVehicle(
     };
   }
 
-
   let count = 0;
-
 
   for (
     const vehicle of result.data
   ) {
-
     const normalized =
       normalizeVehicle(
         vehicle
@@ -1437,7 +1421,6 @@ async function saveApiVehicle(
 
     count++;
   }
-
 
   return {
     saved: true,
@@ -1457,7 +1440,6 @@ async function getCar(
   env,
   identifier
 ) {
-
   const encoded =
     encodeURIComponent(
       identifier
@@ -1471,7 +1453,6 @@ async function getCar(
    */
 
   try {
-
     const result =
       await fetchApibara(
         "/vehicles/" +
@@ -1479,20 +1460,16 @@ async function getCar(
         env
       );
 
-
     if (
       result &&
       result.data
     ) {
-
       const normalized =
         normalizeVehicle(
           result.data
         );
 
-
       if (normalized) {
-
         try {
           await saveVehicle(
             env,
@@ -1506,7 +1483,6 @@ async function getCar(
           );
         }
       }
-
 
       return json(
         {
@@ -1532,9 +1508,7 @@ async function getCar(
         0
       );
     }
-
   } catch (directError) {
-
     console.warn(
       "Rex.Bid direct vehicle lookup failed:",
       directError.message
@@ -1553,7 +1527,6 @@ async function getCar(
    */
 
   try {
-
     const searchResult =
       await fetchApibara(
         "/vehicles?" +
@@ -1563,7 +1536,6 @@ async function getCar(
         }).toString(),
         env
       );
-
 
     if (
       searchResult &&
@@ -1577,10 +1549,14 @@ async function getCar(
        * Najpierw próbujemy dokładny VIN/lot.
        */
 
+      const identifierLower =
+        cleanString(
+          identifier
+        ).toLowerCase();
+
       const exact =
         searchResult.data.find(
           item => {
-
             const vin =
               cleanString(
                 item.vin
@@ -1595,44 +1571,36 @@ async function getCar(
 
             return (
               vin.toLowerCase() ===
-                identifier.toLowerCase() ||
+                identifierLower ||
               lot.toLowerCase() ===
-                identifier.toLowerCase()
+                identifierLower
             );
           }
         );
 
-
       const vehicle =
         exact ||
         searchResult.data[0];
-
 
       const normalized =
         normalizeVehicle(
           vehicle
         );
 
-
       if (normalized) {
-
         try {
-
           await saveVehicle(
             env,
             normalized,
             vehicle
           );
-
         } catch (dbError) {
-
           console.error(
             "Rex.Bid D1 fallback save error:",
             dbError
           );
         }
       }
-
 
       return json(
         {
@@ -1657,9 +1625,7 @@ async function getCar(
         0
       );
     }
-
   } catch (searchError) {
-
     console.warn(
       "Rex.Bid VIN fallback failed:",
       searchError.message
@@ -1674,13 +1640,10 @@ async function getCar(
    */
 
   if (env.REXBID_DB) {
-
     try {
-
       await ensureDatabase(
         env
       );
-
 
       const local =
         await findLocalVehicle(
@@ -1688,19 +1651,28 @@ async function getCar(
           identifier
         );
 
-
       if (local) {
+        let parsedRaw =
+          null;
+
+        try {
+          parsedRaw =
+            local.raw_json
+              ? JSON.parse(
+                  local.raw_json
+                )
+              : null;
+        } catch {
+          parsedRaw = null;
+        }
 
         return json(
           {
             ok: true,
 
             data:
-              local.raw_json
-                ? JSON.parse(
-                    local.raw_json
-                  )
-                : local,
+              parsedRaw ||
+              local,
 
             source:
               "rexbid-database",
@@ -1719,9 +1691,7 @@ async function getCar(
           0
         );
       }
-
     } catch (dbError) {
-
       console.error(
         "Rex.Bid local vehicle lookup error:",
         dbError
@@ -1753,12 +1723,10 @@ async function findLocalVehicle(
   env,
   identifier
 ) {
-
   const value =
     cleanString(
       identifier
     );
-
 
   const result =
     await env.REXBID_DB
@@ -1780,7 +1748,6 @@ async function findLocalVehicle(
       )
       .first();
 
-
   return result ||
     null;
 }
@@ -1796,7 +1763,6 @@ async function getLocalHistorySummary(
   env,
   vehicleKey
 ) {
-
   if (
     !env.REXBID_DB ||
     !vehicleKey
@@ -1804,9 +1770,7 @@ async function getLocalHistorySummary(
     return null;
   }
 
-
   try {
-
     const result =
       await env.REXBID_DB
         .prepare(`
@@ -1822,12 +1786,9 @@ async function getLocalHistorySummary(
         )
         .first();
 
-
     return result ||
       null;
-
   } catch {
-
     return null;
   }
 }
@@ -1853,33 +1814,27 @@ async function getHistory(
   let apibaraHistory =
     null;
 
-
   try {
-
     const params =
       new URLSearchParams();
 
     const incoming =
       new URL(request.url);
 
-
     const perPage =
       incoming.searchParams.get(
         "per_page"
       );
-
 
     const cursor =
       incoming.searchParams.get(
         "cursor"
       );
 
-
     params.set(
       "per_page",
       perPage || "20"
     );
-
 
     if (cursor) {
       params.set(
@@ -1888,12 +1843,10 @@ async function getHistory(
       );
     }
 
-
     const encoded =
       encodeURIComponent(
         identifier
       );
-
 
     apibaraHistory =
       await fetchApibara(
@@ -1905,7 +1858,6 @@ async function getHistory(
       );
 
   } catch (error) {
-
     console.warn(
       "Rex.Bid Apibara history error:",
       error.message
@@ -1922,19 +1874,14 @@ async function getHistory(
   let localHistory =
     [];
 
-
   let localVehicle =
     null;
 
-
   if (env.REXBID_DB) {
-
     try {
-
       await ensureDatabase(
         env
       );
-
 
       localVehicle =
         await findLocalVehicle(
@@ -1942,9 +1889,7 @@ async function getHistory(
           identifier
         );
 
-
       if (localVehicle) {
-
         const rows =
           await env.REXBID_DB
             .prepare(`
@@ -1969,14 +1914,12 @@ async function getHistory(
             )
             .all();
 
-
         localHistory =
           rows.results ||
           [];
       }
 
     } catch (dbError) {
-
       console.error(
         "Rex.Bid local history error:",
         dbError
@@ -2042,14 +1985,11 @@ async function getCars(
   request,
   env
 ) {
-
   const incoming =
     new URL(request.url);
 
-
   const params =
     new URLSearchParams();
-
 
   const allowedParams = [
     "s",
@@ -2077,22 +2017,18 @@ async function getCars(
     "updated_within_minutes"
   ];
 
-
   for (
     const name of allowedParams
   ) {
-
     const value =
       incoming.searchParams.get(
         name
       );
 
-
     if (
       value !== null &&
       value !== ""
     ) {
-
       params.set(
         name,
         value
@@ -2100,11 +2036,9 @@ async function getCars(
     }
   }
 
-
   if (
     !params.has("per_page")
   ) {
-
     params.set(
       "per_page",
       "20"
@@ -2113,12 +2047,13 @@ async function getCars(
 
 
   /*
+   * ==========================================================
    * CACHE
+   * ==========================================================
    */
 
   const cache =
     caches.default;
-
 
   const cacheKey =
     new Request(
@@ -2128,26 +2063,21 @@ async function getCars(
       }
     );
 
-
   const cached =
     await cache.match(
       cacheKey
     );
 
-
   if (cached) {
-
     const headers =
       new Headers(
         cached.headers
       );
 
-
     headers.set(
       "X-RexBid-Cache",
       "HIT"
     );
-
 
     return new Response(
       cached.body,
@@ -2162,7 +2092,9 @@ async function getCars(
 
 
   /*
+   * ==========================================================
    * APiBARA
+   * ==========================================================
    */
 
   const result =
@@ -2174,19 +2106,19 @@ async function getCars(
 
 
   /*
+   * ==========================================================
    * ZAPISUJEMY W D1
+   * ==========================================================
    *
    * Każdy znaleziony pojazd
    * może zostać zapisany.
    */
 
   try {
-
     await saveApiVehicle(
       env,
       result
     );
-
   } catch (dbError) {
 
     /*
@@ -2200,6 +2132,12 @@ async function getCars(
     );
   }
 
+
+  /*
+   * ==========================================================
+   * RESPONSE
+   * ==========================================================
+   */
 
   const response =
     json(
@@ -2223,16 +2161,13 @@ async function getCars(
       CACHE_TTL_SECONDS
     );
 
-
   const cacheResponse =
     response.clone();
-
 
   await cache.put(
     cacheKey,
     cacheResponse
   );
-
 
   return response;
 }
@@ -2254,9 +2189,7 @@ async function getCars(
 async function getDatabaseStatus(
   env
 ) {
-
   if (!env.REXBID_DB) {
-
     return json(
       {
         ok: false,
@@ -2273,13 +2206,10 @@ async function getDatabaseStatus(
     );
   }
 
-
   try {
-
     await ensureDatabase(
       env
     );
-
 
     const vehicles =
       await env.REXBID_DB
@@ -2289,7 +2219,6 @@ async function getDatabaseStatus(
         `)
         .first();
 
-
     const snapshots =
       await env.REXBID_DB
         .prepare(`
@@ -2297,7 +2226,6 @@ async function getDatabaseStatus(
           FROM vehicle_snapshots
         `)
         .first();
-
 
     return json(
       {
@@ -2317,7 +2245,6 @@ async function getDatabaseStatus(
     );
 
   } catch (error) {
-
     return errorJson(
       "Błąd D1: " +
       error.message,
@@ -2350,7 +2277,6 @@ export default {
       request.method ===
       "OPTIONS"
     ) {
-
       return new Response(
         null,
         {
@@ -2372,14 +2298,15 @@ export default {
 
 
     /*
+     * --------------------------------------------------------
      * Tylko GET
+     * --------------------------------------------------------
      */
 
     if (
       request.method !==
       "GET"
     ) {
-
       return errorJson(
         "Metoda niedozwolona.",
         405
@@ -2403,21 +2330,16 @@ export default {
       url.pathname ===
       "/api/cars"
     ) {
-
       try {
-
         return await getCars(
           request,
           env
         );
-
       } catch (error) {
-
         console.error(
           "Rex.Bid cars error:",
           error
         );
-
 
         return errorJson(
           error.message
@@ -2438,15 +2360,11 @@ export default {
       url.pathname ===
       "/api/database"
     ) {
-
       try {
-
         return await getDatabaseStatus(
           env
         );
-
       } catch (error) {
-
         return errorJson(
           error.message,
           500
@@ -2484,31 +2402,24 @@ export default {
             )
         );
 
-
       if (!identifier) {
-
         return errorJson(
           "Brak identyfikatora samochodu",
           400
         );
       }
 
-
       try {
-
         return await getHistory(
           request,
           env,
           identifier
         );
-
       } catch (error) {
-
         console.error(
           "Rex.Bid history error:",
           error
         );
-
 
         return errorJson(
           error.message
@@ -2536,31 +2447,24 @@ export default {
           )
         );
 
-
       if (!identifier) {
-
         return errorJson(
           "Brak identyfikatora samochodu",
           400
         );
       }
 
-
       try {
-
         return await getCar(
           request,
           env,
           identifier
         );
-
       } catch (error) {
-
         console.error(
           "Rex.Bid vehicle error:",
           error
         );
-
 
         return errorJson(
           error.message
