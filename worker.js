@@ -1,387 +1,1158 @@
 const APIBARA_BASE =
   "https://apibara.tech/api/v1/vehicle-auction";
 
-const DEMO_CARS = [
-  {
-    vin: "1FMCU9GDXMUA10001",
-    year: 2021,
-    make: "Ford",
-    model: "Escape",
-    title: "2021 Ford Escape",
-    platform: "COPART",
-    price: 8500,
-    mileage: "52,341 mi",
-    damage: "Front End",
-    location: "USA",
-    lot: "10001",
-    transmission: "Automatic",
-    fuel_type: "Gasoline",
-    drive_type: "AWD",
-    engine: "1.5L",
-    body_type: "SUV",
-    color: "White"
-  },
-  {
-    vin: "1C4RJFBG8LC200002",
-    year: 2020,
-    make: "Jeep",
-    model: "Grand Cherokee",
-    title: "2020 Jeep Grand Cherokee",
-    platform: "IAAI",
-    price: 11200,
-    mileage: "68,120 mi",
-    damage: "Side",
-    location: "USA",
-    lot: "20002",
-    transmission: "Automatic",
-    fuel_type: "Gasoline",
-    drive_type: "4WD",
-    engine: "3.6L",
-    body_type: "SUV",
-    color: "Black"
-  },
-  {
-    vin: "1HGCV1F34LA300003",
-    year: 2020,
-    make: "Honda",
-    model: "Accord",
-    title: "2020 Honda Accord",
-    platform: "COPART",
-    price: 9800,
-    mileage: "45,600 mi",
-    damage: "Rear End",
-    location: "USA",
-    lot: "30003",
-    transmission: "Automatic",
-    fuel_type: "Gasoline",
-    drive_type: "FWD",
-    engine: "1.5L",
-    body_type: "Sedan",
-    color: "Gray"
-  },
-  {
-    vin: "5YFB4MDE2LP400004",
-    year: 2020,
-    make: "Toyota",
-    model: "Corolla",
-    title: "2020 Toyota Corolla",
-    platform: "IAAI",
-    price: 7600,
-    mileage: "39,400 mi",
-    damage: "Front End",
-    location: "USA",
-    lot: "40004",
-    transmission: "Automatic",
-    fuel_type: "Gasoline",
-    drive_type: "FWD",
-    engine: "1.8L",
-    body_type: "Sedan",
-    color: "Red"
-  },
-  {
-    vin: "1G1ZD5ST5LF500005",
-    year: 2020,
-    make: "Chevrolet",
-    model: "Malibu",
-    title: "2020 Chevrolet Malibu",
-    platform: "COPART",
-    price: 6900,
-    mileage: "61,200 mi",
-    damage: "Hail",
-    location: "USA",
-    lot: "50005",
-    transmission: "Automatic",
-    fuel_type: "Gasoline",
-    drive_type: "FWD",
-    engine: "1.5L",
-    body_type: "Sedan",
-    color: "Silver"
-  },
-  {
-    vin: "WBA5R1C04LF600006",
-    year: 2020,
-    make: "BMW",
-    model: "530i",
-    title: "2020 BMW 530i",
-    platform: "IAAI",
-    price: 15400,
-    mileage: "48,900 mi",
-    damage: "Front End",
-    location: "USA",
-    lot: "60006",
-    transmission: "Automatic",
-    fuel_type: "Gasoline",
-    drive_type: "RWD",
-    engine: "2.0L Turbo",
-    body_type: "Sedan",
-    color: "Black"
-  }
-];
 
-function json(data, status = 200) {
+// ============================================================
+// REX.BID — CACHE
+// ============================================================
+
+const SEARCH_CACHE_SECONDS = 60;
+const VEHICLE_CACHE_SECONDS = 300;
+const HISTORY_CACHE_SECONDS = 3600;
+
+
+// ============================================================
+// JSON RESPONSE
+// ============================================================
+
+function json(data, status = 200, headers = {}) {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
       "Content-Type": "application/json; charset=UTF-8",
       "Access-Control-Allow-Origin": "*",
-      "Cache-Control": "no-store"
+      "Cache-Control": "no-store",
+      ...headers
     }
   });
 }
 
-function demoResponse(search = "") {
-  let data = DEMO_CARS;
 
-  if (search) {
-    const q = search.toLowerCase();
+// ============================================================
+// CORS
+// ============================================================
 
-    data = DEMO_CARS.filter(car =>
-      String(car.vin).toLowerCase().includes(q) ||
-      String(car.lot).toLowerCase().includes(q) ||
-      String(car.make).toLowerCase().includes(q) ||
-      String(car.model).toLowerCase().includes(q) ||
-      String(car.title).toLowerCase().includes(q)
-    );
-  }
+function corsHeaders() {
+  return {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type"
+  };
+}
 
-  return json({
-    ok: true,
-    data,
-    demo: true
+
+// ============================================================
+// CACHE KEY
+// ============================================================
+
+function cacheRequest(url) {
+  return new Request(url.toString(), {
+    method: "GET"
   });
 }
 
-async function apiBara(request, env) {
+
+// ============================================================
+// APibara REQUEST
+// ============================================================
+
+async function apibaraFetch(url, env) {
+
   if (!env.APIBARA_API_KEY) {
-    return demoResponse(
-      new URL(request.url).searchParams.get("s") || ""
+    return json(
+      {
+        ok: false,
+        error:
+          "Brak klucza APIBARA_API_KEY. API nie jest skonfigurowane."
+      },
+      500,
+      corsHeaders()
     );
   }
 
-  const incoming = new URL(request.url);
-  const apiUrl = new URL(
-    APIBARA_BASE + "/vehicles"
-  );
-
-  const allowedParams = [
-    "s",
-    "platform",
-    "auction_type",
-    "lot_status",
-    "lot_sub_status",
-    "upcoming",
-    "make",
-    "model",
-    "type",
-    "year_from",
-    "year_to",
-    "price_min",
-    "price_max",
-    "odometer_from",
-    "odometer_to",
-    "fuel_type",
-    "transmission",
-    "drive_type",
-    "run_cond",
-    "color",
-    "per_page",
-    "cursor"
-  ];
-
-  for (const name of allowedParams) {
-    const value = incoming.searchParams.get(name);
-
-    if (value !== null && value !== "") {
-      apiUrl.searchParams.set(name, value);
-    }
-  }
-
-  if (!apiUrl.searchParams.has("per_page")) {
-    apiUrl.searchParams.set("per_page", "20");
-  }
-
-  const response = await fetch(apiUrl.toString(), {
+  return fetch(url, {
     method: "GET",
     headers: {
       "Accept": "application/json",
       "X-API-Key": env.APIBARA_API_KEY
     }
   });
+}
 
-  const text = await response.text();
+
+// ============================================================
+// SEARCH VEHICLES
+// ============================================================
+
+async function searchVehicles(request, env) {
+
+  const incoming =
+    new URL(request.url);
+
+  const apiUrl =
+    new URL(
+      APIBARA_BASE + "/vehicles"
+    );
+
+
+  // ----------------------------------------------------------
+  // Parametry obsługiwane przez Rex.Bid
+  // ----------------------------------------------------------
+
+  const allowedParams = [
+
+    "s",
+
+    "platform",
+
+    "auction_type",
+
+    "lot_status",
+
+    "lot_sub_status",
+
+    "upcoming",
+
+    "make",
+
+    "model",
+
+    "type",
+
+    "year_from",
+
+    "year_to",
+
+    "price_min",
+
+    "price_max",
+
+    "odometer_from",
+
+    "odometer_to",
+
+    "fuel_type",
+
+    "transmission",
+
+    "drive_type",
+
+    "run_cond",
+
+    "color",
+
+    "has_key",
+
+    "seller_type",
+
+    "sale_document_type",
+
+    "sale_document_pending",
+
+    "has_shipping_price",
+
+    "loc_state",
+
+    "office_name",
+
+    "facility_id",
+
+    "zip",
+
+    "radius",
+
+    "auction_date_from",
+
+    "auction_date_to",
+
+    "today_only",
+
+    "updated_within_minutes",
+
+    "units",
+
+    "per_page",
+
+    "cursor"
+
+  ];
+
+
+  for (const name of allowedParams) {
+
+    const value =
+      incoming.searchParams.get(name);
+
+    if (
+      value !== null &&
+      value !== ""
+    ) {
+      apiUrl.searchParams.set(
+        name,
+        value
+      );
+    }
+
+  }
+
+
+  // Maksymalnie 20 zgodnie z API Apibara
+  if (
+    !apiUrl.searchParams.has(
+      "per_page"
+    )
+  ) {
+
+    apiUrl.searchParams.set(
+      "per_page",
+      "20"
+    );
+
+  }
+
+
+  // ----------------------------------------------------------
+  // CACHE
+  // ----------------------------------------------------------
+
+  const cache =
+    caches.default;
+
+  const cacheKey =
+    cacheRequest(incoming);
+
+
+  const cached =
+    await cache.match(
+      cacheKey
+    );
+
+
+  if (cached) {
+
+    const response =
+      new Response(
+        cached.body,
+        cached
+      );
+
+    response.headers.set(
+      "X-Rex-Cache",
+      "HIT"
+    );
+
+    return response;
+
+  }
+
+
+  // ----------------------------------------------------------
+  // APibara
+  // ----------------------------------------------------------
+
+  const response =
+    await apibaraFetch(
+      apiUrl.toString(),
+      env
+    );
+
+
+  const text =
+    await response.text();
+
 
   let result;
 
-  try {
-    result = JSON.parse(text);
-  } catch {
-    return json(
-      {
-        ok: false,
-        error: "Nieprawidłowa odpowiedź APIbara"
-      },
-      502
-    );
-  }
 
-  if (!response.ok) {
+  try {
+
+    result =
+      JSON.parse(text);
+
+  } catch {
+
     return json(
       {
         ok: false,
         error:
-          result.message ||
-          "APIbara zwróciło błąd",
-        status: response.status,
-        details: result.errors || null
+          "Apibara zwróciła nieprawidłową odpowiedź.",
+        status:
+          response.status
       },
-      response.status
+      502,
+      corsHeaders()
     );
+
   }
 
-  return json({
-    ok: true,
-    data: Array.isArray(result.data)
-      ? result.data
-      : [],
-    meta: result.meta || null,
-    demo: false
-  });
+
+  if (!response.ok) {
+
+    return json(
+      {
+        ok: false,
+
+        error:
+          result?.message ||
+          result?.error ||
+          `Apibara HTTP ${response.status}`,
+
+        status:
+          response.status,
+
+        details:
+          result?.errors || null
+
+      },
+      response.status,
+      corsHeaders()
+    );
+
+  }
+
+
+  // ----------------------------------------------------------
+  // Format używany przez Rex.Bid
+  // ----------------------------------------------------------
+
+  const output =
+    new Response(
+      JSON.stringify({
+        ok: true,
+
+        data:
+          Array.isArray(
+            result?.data
+          )
+            ? result.data
+            : [],
+
+        meta:
+          result?.meta || null,
+
+        demo: false
+      }),
+      {
+        status: 200,
+
+        headers: {
+          "Content-Type":
+            "application/json; charset=UTF-8",
+
+          "Access-Control-Allow-Origin":
+            "*",
+
+          "Cache-Control":
+            `public, max-age=${SEARCH_CACHE_SECONDS}`,
+
+          "X-Rex-Cache":
+            "MISS"
+        }
+      }
+    );
+
+
+  // ----------------------------------------------------------
+  // Zapis do cache
+  // ----------------------------------------------------------
+
+  await cache.put(
+    cacheKey,
+    output.clone()
+  );
+
+
+  return output;
 }
 
-async function singleVehicle(request, env, identifier) {
-  if (!env.APIBARA_API_KEY) {
-    return demoResponse(identifier);
+
+// ============================================================
+// SINGLE VEHICLE
+// ============================================================
+
+async function singleVehicle(
+  request,
+  env,
+  identifier
+) {
+
+  if (!identifier) {
+
+    return json(
+      {
+        ok: false,
+        error:
+          "Brak identyfikatora samochodu."
+      },
+      400,
+      corsHeaders()
+    );
+
   }
+
+
+  const incoming =
+    new URL(request.url);
+
+
+  const apiUrl =
+    new URL(
+      APIBARA_BASE +
+      "/vehicles/" +
+      encodeURIComponent(
+        identifier
+      )
+    );
+
+
+  const cache =
+    caches.default;
+
+
+  const cacheKey =
+    cacheRequest(incoming);
+
+
+  const cached =
+    await cache.match(
+      cacheKey
+    );
+
+
+  if (cached) {
+
+    const response =
+      new Response(
+        cached.body,
+        cached
+      );
+
+    response.headers.set(
+      "X-Rex-Cache",
+      "HIT"
+    );
+
+    return response;
+
+  }
+
+
+  const response =
+    await apibaraFetch(
+      apiUrl.toString(),
+      env
+    );
+
+
+  const text =
+    await response.text();
+
+
+  let result;
+
+
+  try {
+
+    result =
+      JSON.parse(text);
+
+  } catch {
+
+    return json(
+      {
+        ok: false,
+        error:
+          "Apibara zwróciła nieprawidłową odpowiedź.",
+        status:
+          response.status
+      },
+      502,
+      corsHeaders()
+    );
+
+  }
+
+
+  if (!response.ok) {
+
+    return json(
+      {
+        ok: false,
+
+        error:
+          result?.message ||
+          result?.error ||
+          `Apibara HTTP ${response.status}`,
+
+        status:
+          response.status
+
+      },
+      response.status,
+      corsHeaders()
+    );
+
+  }
+
+
+  const car =
+    result?.data || null;
+
+
+  const output =
+    new Response(
+      JSON.stringify({
+        ok: true,
+
+        data:
+          car
+            ? [car]
+            : [],
+
+        demo: false
+
+      }),
+      {
+        status: 200,
+
+        headers: {
+          "Content-Type":
+            "application/json; charset=UTF-8",
+
+          "Access-Control-Allow-Origin":
+            "*",
+
+          "Cache-Control":
+            `public, max-age=${VEHICLE_CACHE_SECONDS}`,
+
+          "X-Rex-Cache":
+            "MISS"
+        }
+      }
+    );
+
+
+  await cache.put(
+    cacheKey,
+    output.clone()
+  );
+
+
+  return output;
+}
+
+
+// ============================================================
+// VEHICLE HISTORY
+// ============================================================
+
+async function vehicleHistory(
+  request,
+  env,
+  identifier
+) {
+
+  if (!identifier) {
+
+    return json(
+      {
+        ok: false,
+        error:
+          "Brak identyfikatora samochodu."
+      },
+      400,
+      corsHeaders()
+    );
+
+  }
+
+
+  const incoming =
+    new URL(request.url);
+
+
+  const apiUrl =
+    new URL(
+      APIBARA_BASE +
+      "/vehicles/" +
+      encodeURIComponent(
+        identifier
+      ) +
+      "/history"
+    );
+
+
+  const perPage =
+    incoming.searchParams.get(
+      "per_page"
+    );
+
+
+  const cursor =
+    incoming.searchParams.get(
+      "cursor"
+    );
+
+
+  if (perPage) {
+
+    apiUrl.searchParams.set(
+      "per_page",
+      perPage
+    );
+
+  }
+
+
+  if (cursor) {
+
+    apiUrl.searchParams.set(
+      "cursor",
+      cursor
+    );
+
+  }
+
+
+  const cache =
+    caches.default;
+
+
+  const cacheKey =
+    cacheRequest(incoming);
+
+
+  const cached =
+    await cache.match(
+      cacheKey
+    );
+
+
+  if (cached) {
+
+    const response =
+      new Response(
+        cached.body,
+        cached
+      );
+
+    response.headers.set(
+      "X-Rex-Cache",
+      "HIT"
+    );
+
+    return response;
+
+  }
+
+
+  const response =
+    await apibaraFetch(
+      apiUrl.toString(),
+      env
+    );
+
+
+  const text =
+    await response.text();
+
+
+  let result;
+
+
+  try {
+
+    result =
+      JSON.parse(text);
+
+  } catch {
+
+    return json(
+      {
+        ok: false,
+        error:
+          "Apibara zwróciła nieprawidłową odpowiedź.",
+        status:
+          response.status
+      },
+      502,
+      corsHeaders()
+    );
+
+  }
+
+
+  if (!response.ok) {
+
+    return json(
+      {
+        ok: false,
+
+        error:
+          result?.message ||
+          result?.error ||
+          `Apibara HTTP ${response.status}`,
+
+        status:
+          response.status
+
+      },
+      response.status,
+      corsHeaders()
+    );
+
+  }
+
+
+  const output =
+    new Response(
+      JSON.stringify({
+        ok: true,
+
+        data:
+          result?.data || null,
+
+        meta:
+          result?.meta || null,
+
+        demo: false
+
+      }),
+      {
+        status: 200,
+
+        headers: {
+          "Content-Type":
+            "application/json; charset=UTF-8",
+
+          "Access-Control-Allow-Origin":
+            "*",
+
+          "Cache-Control":
+            `public, max-age=${HISTORY_CACHE_SECONDS}`,
+
+          "X-Rex-Cache":
+            "MISS"
+        }
+      }
+    );
+
+
+  await cache.put(
+    cacheKey,
+    output.clone()
+  );
+
+
+  return output;
+}
+
+
+// ============================================================
+// FILTERS
+// ============================================================
+
+async function filters(
+  request,
+  env
+) {
+
+  const incoming =
+    new URL(request.url);
+
+
+  const cache =
+    caches.default;
+
+
+  const cacheKey =
+    cacheRequest(incoming);
+
+
+  const cached =
+    await cache.match(
+      cacheKey
+    );
+
+
+  if (cached) {
+
+    const response =
+      new Response(
+        cached.body,
+        cached
+      );
+
+    response.headers.set(
+      "X-Rex-Cache",
+      "HIT"
+    );
+
+    return response;
+
+  }
+
 
   const apiUrl =
     APIBARA_BASE +
-    "/vehicles/" +
-    encodeURIComponent(identifier);
+    "/vehicles/filters";
 
-  const response = await fetch(apiUrl, {
-    method: "GET",
-    headers: {
-      "Accept": "application/json",
-      "X-API-Key": env.APIBARA_API_KEY
-    }
-  });
 
-  const text = await response.text();
+  const response =
+    await apibaraFetch(
+      apiUrl,
+      env
+    );
+
+
+  const text =
+    await response.text();
+
 
   let result;
 
-  try {
-    result = JSON.parse(text);
-  } catch {
-    return json(
-      {
-        ok: false,
-        error: "Nieprawidłowa odpowiedź APIbara"
-      },
-      502
-    );
-  }
 
-  if (!response.ok) {
+  try {
+
+    result =
+      JSON.parse(text);
+
+  } catch {
+
     return json(
       {
         ok: false,
         error:
-          result.message ||
-          "Nie udało się pobrać samochodu z APIbara",
-        status: response.status
+          "Nieprawidłowa odpowiedź Apibara."
       },
-      response.status
+      502,
+      corsHeaders()
     );
+
   }
 
-  const car =
-    result.data && !Array.isArray(result.data)
-      ? result.data
-      : Array.isArray(result.data)
-        ? result.data[0]
-        : null;
 
-  if (!car) {
-    return json({
-      ok: true,
-      data: [],
-      demo: false
-    });
+  if (!response.ok) {
+
+    return json(
+      {
+        ok: false,
+
+        error:
+          result?.message ||
+          result?.error ||
+          "Błąd filtrów Apibara",
+
+        status:
+          response.status
+
+      },
+      response.status,
+      corsHeaders()
+    );
+
   }
 
-  return json({
-    ok: true,
-    data: [car],
-    demo: false
-  });
+
+  const output =
+    new Response(
+      JSON.stringify({
+        ok: true,
+        data:
+          result?.data ||
+          result
+      }),
+      {
+        status: 200,
+
+        headers: {
+          "Content-Type":
+            "application/json; charset=UTF-8",
+
+          "Access-Control-Allow-Origin":
+            "*",
+
+          "Cache-Control":
+            "public, max-age=3600",
+
+          "X-Rex-Cache":
+            "MISS"
+        }
+      }
+    );
+
+
+  await cache.put(
+    cacheKey,
+    output.clone()
+  );
+
+
+  return output;
 }
 
+
+// ============================================================
+// MAIN WORKER
+// ============================================================
+
 export default {
-  async fetch(request, env) {
-    const url = new URL(request.url);
 
-    /*
-     * API MTBID
-     */
+  async fetch(
+    request,
+    env
+  ) {
 
-    if (url.pathname === "/api/cars") {
-      try {
-        return await apiBara(request, env);
-      } catch (error) {
-        console.error("APIbara error:", error);
+    const url =
+      new URL(request.url);
 
-        return json(
-          {
-            ok: false,
-            error:
-              "Nie udało się połączyć z APIbara",
-            details: error.message
-          },
-          502
-        );
-      }
+
+    // --------------------------------------------------------
+    // OPTIONS
+    // --------------------------------------------------------
+
+    if (
+      request.method ===
+      "OPTIONS"
+    ) {
+
+      return new Response(
+        null,
+        {
+          status: 204,
+          headers:
+            corsHeaders()
+        }
+      );
+
     }
 
-    /*
-     * Pojedynczy samochód.
-     *
-     * /api/car/VIN
-     */
 
-    if (url.pathname.startsWith("/api/car/")) {
-      const identifier =
-        decodeURIComponent(
-          url.pathname.substring("/api/car/".length)
-        );
+    // --------------------------------------------------------
+    // SEARCH
+    // /api/cars
+    // --------------------------------------------------------
+
+    if (
+      url.pathname ===
+      "/api/cars"
+    ) {
 
       try {
-        return await singleVehicle(
+
+        return await searchVehicles(
           request,
-          env,
-          identifier
+          env
         );
+
       } catch (error) {
+
         console.error(
-          "Single vehicle error:",
+          "Rex.Bid search error:",
           error
         );
 
         return json(
           {
             ok: false,
+
             error:
-              "Nie udało się pobrać samochodu z APIbara"
+              "Nie udało się pobrać ofert.",
+
+            details:
+              error?.message ||
+              "Unknown error"
+
           },
-          502
+          502,
+          corsHeaders()
         );
+
       }
+
     }
 
-    /*
-     * Reszta → pliki strony z /public
-     */
 
-    return env.ASSETS.fetch(request);
+    // --------------------------------------------------------
+    // HISTORY
+    //
+    // MUSI BYĆ PRZED /api/car/
+    // --------------------------------------------------------
+
+    if (
+      url.pathname.startsWith(
+        "/api/car/"
+      ) &&
+      url.pathname.endsWith(
+        "/history"
+      )
+    ) {
+
+      const identifier =
+        decodeURIComponent(
+          url.pathname
+            .substring(
+              "/api/car/".length
+            )
+            .replace(
+              /\/history$/,
+              ""
+            )
+        );
+
+
+      try {
+
+        return await vehicleHistory(
+          request,
+          env,
+          identifier
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Rex.Bid history error:",
+          error
+        );
+
+        return json(
+          {
+            ok: false,
+
+            error:
+              "Nie udało się pobrać historii aukcji."
+
+          },
+          502,
+          corsHeaders()
+        );
+
+      }
+
+    }
+
+
+    // --------------------------------------------------------
+    // SINGLE VEHICLE
+    //
+    // /api/car/VIN
+    // --------------------------------------------------------
+
+    if (
+      url.pathname.startsWith(
+        "/api/car/"
+      )
+    ) {
+
+      const identifier =
+        decodeURIComponent(
+          url.pathname.substring(
+            "/api/car/".length
+          )
+        );
+
+
+      try {
+
+        return await singleVehicle(
+          request,
+          env,
+          identifier
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Rex.Bid vehicle error:",
+          error
+        );
+
+        return json(
+          {
+            ok: false,
+
+            error:
+              "Nie udało się pobrać samochodu."
+
+          },
+          502,
+          corsHeaders()
+        );
+
+      }
+
+    }
+
+
+    // --------------------------------------------------------
+    // FILTERS
+    // --------------------------------------------------------
+
+    if (
+      url.pathname ===
+      "/api/filters"
+    ) {
+
+      try {
+
+        return await filters(
+          request,
+          env
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Rex.Bid filters error:",
+          error
+        );
+
+        return json(
+          {
+            ok: false,
+
+            error:
+              "Nie udało się pobrać filtrów."
+
+          },
+          502,
+          corsHeaders()
+        );
+
+      }
+
+    }
+
+
+    // --------------------------------------------------------
+    // HEALTH CHECK
+    // --------------------------------------------------------
+
+    if (
+      url.pathname ===
+      "/api/health"
+    ) {
+
+      return json({
+        ok: true,
+        service: "Rex.Bid",
+        apibara: Boolean(
+          env.APIBARA_API_KEY
+        )
+      });
+
+    }
+
+
+    // --------------------------------------------------------
+    // STRONA
+    // --------------------------------------------------------
+
+    return env.ASSETS.fetch(
+      request
+    );
+
   }
+
 };
