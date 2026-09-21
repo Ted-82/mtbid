@@ -18,6 +18,14 @@ const CACHE_TTL_SECONDS = 60;
  * 6. fallback wyszukiwania VIN
  * 7. zachowanie danych Apibara w raw_json
  *
+ * WAŻNE:
+ *
+ * Worker NIGDY nie wybiera przypadkowego pierwszego
+ * wyniku wyszukiwania VIN.
+ *
+ * Jeżeli użytkownik poda VIN, musimy mieć pewność,
+ * że zwracany samochód rzeczywiście posiada ten VIN.
+ *
  * Cloudflare binding:
  *
  * REXBID_DB = D1 Database
@@ -199,6 +207,156 @@ function numberOrNull(value) {
 
 /*
  * ============================================================
+ * NORMALIZACJA IDENTYFIKATORA
+ * ============================================================
+ *
+ * Usuwamy spacje, myślniki i inne przypadkowe znaki
+ * tylko na potrzeby porównania.
+ *
+ * Nie zmieniamy danych zapisywanych w bazie.
+ */
+
+function normalizeIdentifier(value) {
+  return cleanString(value)
+    .toUpperCase()
+    .replace(/[\s-]/g, "");
+}
+
+
+/*
+ * ============================================================
+ * SPRAWDZENIE DOKŁADNEGO DOPASOWANIA
+ * ============================================================
+ *
+ * To jest kluczowa poprawka dotycząca Mercedesa.
+ *
+ * Nie wolno robić:
+ *
+ * exact || searchResult.data[0]
+ *
+ * Jeżeli użytkownik poda VIN, zwracamy tylko rekord,
+ * który rzeczywiście zawiera ten VIN.
+ */
+
+function vehicleMatchesIdentifier(
+  vehicle,
+  identifier
+) {
+  if (
+    !vehicle ||
+    typeof vehicle !== "object"
+  ) {
+    return false;
+  }
+
+  const wanted =
+    normalizeIdentifier(
+      identifier
+    );
+
+  if (!wanted) {
+    return false;
+  }
+
+  /*
+   * ----------------------------------------------------------
+   * VIN
+   * ----------------------------------------------------------
+   */
+
+  const vinCandidates = [
+    vehicle.vin,
+    vehicle.VIN,
+    vehicle.slug_vin,
+    vehicle.slugVin,
+
+    getNested(
+      vehicle,
+      [["vehicle", "vin"]]
+    ),
+
+    getNested(
+      vehicle,
+      [["vehicle", "VIN"]]
+    ),
+
+    getNested(
+      vehicle,
+      [["details", "vin"]]
+    ),
+
+    getNested(
+      vehicle,
+      [["details", "VIN"]]
+    )
+  ];
+
+  for (
+    const candidate of vinCandidates
+  ) {
+    if (
+      normalizeIdentifier(
+        candidate
+      ) === wanted
+    ) {
+      return true;
+    }
+  }
+
+
+  /*
+   * ----------------------------------------------------------
+   * LOT / STOCK
+   * ----------------------------------------------------------
+   */
+
+  const lotCandidates = [
+    vehicle.lot_number,
+    vehicle.lot,
+    vehicle.stock_number,
+    vehicle.stock,
+    vehicle.stock_no,
+    vehicle.stockNo,
+
+    getNested(
+      vehicle,
+      [["vehicle", "lot_number"]]
+    ),
+
+    getNested(
+      vehicle,
+      [["vehicle", "lot"]]
+    ),
+
+    getNested(
+      vehicle,
+      [["vehicle", "stock_number"]]
+    ),
+
+    getNested(
+      vehicle,
+      [["details", "lot_number"]]
+    )
+  ];
+
+  for (
+    const candidate of lotCandidates
+  ) {
+    if (
+      normalizeIdentifier(
+        candidate
+      ) === wanted
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+
+/*
+ * ============================================================
  * APiBARA REQUEST
  * ============================================================
  */
@@ -216,15 +374,6 @@ async function fetchApibara(
   const url =
     APIBARA_BASE +
     endpoint;
-
-  /*
-   * Ważne:
-   *
-   * Nie usuwamy X-API-Key.
-   * Apibara wymaga klucza API.
-   *
-   * Accept informuje API, że oczekujemy JSON.
-   */
 
   const response =
     await fetch(
@@ -258,8 +407,8 @@ async function fetchApibara(
 
   if (!response.ok) {
     throw new Error(
-      result?.message ||
-      result?.error ||
+      result.message ||
+      result.error ||
       `Apibara HTTP ${response.status}`
     );
   }
@@ -272,10 +421,6 @@ async function fetchApibara(
  * ============================================================
  * NORMALIZACJA DANYCH POJAZDU
  * ============================================================
- *
- * Nie zastępujemy danych Apibara.
- * Tworzymy tylko dodatkowy rekord pomocniczy
- * do naszej bazy.
  */
 
 function normalizeVehicle(
@@ -376,9 +521,7 @@ function normalizeVehicle(
 
 
   /*
-   * ==========================================================
    * AUCTION
-   * ==========================================================
    */
 
   const auction =
@@ -424,9 +567,7 @@ function normalizeVehicle(
 
 
   /*
-   * ==========================================================
    * PRICING
-   * ==========================================================
    */
 
   const pricing =
@@ -473,9 +614,7 @@ function normalizeVehicle(
 
 
   /*
-   * ==========================================================
    * LOCATION
-   * ==========================================================
    */
 
   const location =
@@ -498,9 +637,7 @@ function normalizeVehicle(
 
 
   /*
-   * ==========================================================
    * CONDITION
-   * ==========================================================
    */
 
   const condition =
@@ -544,9 +681,7 @@ function normalizeVehicle(
 
 
   /*
-   * ==========================================================
    * ODOMETER
-   * ==========================================================
    */
 
   const odometer =
@@ -568,9 +703,7 @@ function normalizeVehicle(
 
 
   /*
-   * ==========================================================
    * SELLER
-   * ==========================================================
    */
 
   const seller =
@@ -606,9 +739,7 @@ function normalizeVehicle(
 
 
   /*
-   * ==========================================================
    * SALE DOCUMENT
-   * ==========================================================
    */
 
   const saleDocument =
@@ -663,9 +794,7 @@ function normalizeVehicle(
 
 
   /*
-   * ==========================================================
    * MEDIA
-   * ==========================================================
    */
 
   const media =
@@ -696,9 +825,7 @@ function normalizeVehicle(
 
 
   /*
-   * ==========================================================
    * ORIGINAL AUCTION URL
-   * ==========================================================
    */
 
   const auctionUrl =
@@ -719,12 +846,7 @@ function normalizeVehicle(
 
 
   /*
-   * ==========================================================
    * VEHICLE KEY
-   * ==========================================================
-   *
-   * VIN jest najważniejszy.
-   * Jeżeli VIN jest pusty, używamy lotu.
    */
 
   const identity =
@@ -747,11 +869,7 @@ function normalizeVehicle(
 
 
   /*
-   * ==========================================================
    * FINGERPRINT
-   * ==========================================================
-   *
-   * Służy do rozpoznawania zmian.
    */
 
   const fingerprintSource = {
@@ -827,9 +945,6 @@ function normalizeVehicle(
  * ============================================================
  * SIMPLE HASH
  * ============================================================
- *
- * Nie jest to hash bezpieczeństwa.
- * Służy tylko do wykrywania zmian rekordu.
  */
 
 function simpleHash(
@@ -867,8 +982,6 @@ function simpleHash(
  * ============================================================
  * D1 SCHEMA
  * ============================================================
- *
- * Baza sama przygotuje tabele.
  */
 
 async function ensureDatabase(
@@ -1016,12 +1129,6 @@ function boolToDb(
  * ============================================================
  * SAVE VEHICLE
  * ============================================================
- *
- * Zapisuje:
- *
- * 1. aktualny stan pojazdu
- * 2. snapshot tylko wtedy,
- *    gdy dane istotnie się zmieniły
  */
 
 async function saveVehicle(
@@ -1072,13 +1179,6 @@ async function saveVehicle(
     !existing ||
     existing.fingerprint !==
       vehicle.fingerprint;
-
-
-  /*
-   * ==========================================================
-   * UPDATE CURRENT VEHICLE
-   * ==========================================================
-   */
 
   await env.REXBID_DB
     .prepare(`
@@ -1146,105 +1246,56 @@ async function saveVehicle(
         ?,
         ?, ?,
         ?,
-        ?,
-        ?
+        ?, ?, ?, ?
       )
 
       ON CONFLICT(vehicle_key)
       DO UPDATE SET
 
-        vin =
-          excluded.vin,
+        vin = excluded.vin,
+        slug_vin = excluded.slug_vin,
+        platform = excluded.platform,
+        lot = excluded.lot,
 
-        slug_vin =
-          excluded.slug_vin,
+        title = excluded.title,
+        year = excluded.year,
+        make = excluded.make,
+        model = excluded.model,
 
-        platform =
-          excluded.platform,
+        auction_state = excluded.auction_state,
+        auction_at = excluded.auction_at,
+        auction_end = excluded.auction_end,
 
-        lot =
-          excluded.lot,
+        current_bid = excluded.current_bid,
+        buy_now = excluded.buy_now,
+        last_sold_price = excluded.last_sold_price,
 
-        title =
-          excluded.title,
+        location_display = excluded.location_display,
 
-        year =
-          excluded.year,
+        damage = excluded.damage,
+        loss_type = excluded.loss_type,
+        run_condition = excluded.run_condition,
 
-        make =
-          excluded.make,
+        mileage = excluded.mileage,
 
-        model =
-          excluded.model,
+        seller_name = excluded.seller_name,
+        seller_type = excluded.seller_type,
 
-        auction_state =
-          excluded.auction_state,
+        document_name = excluded.document_name,
+        document_type = excluded.document_type,
+        export_allowed = excluded.export_allowed,
+        registration_allowed = excluded.registration_allowed,
 
-        auction_at =
-          excluded.auction_at,
+        has_video = excluded.has_video,
+        has_360 = excluded.has_360,
 
-        auction_end =
-          excluded.auction_end,
+        auction_url = excluded.auction_url,
 
-        current_bid =
-          excluded.current_bid,
+        last_seen_at = excluded.last_seen_at,
 
-        buy_now =
-          excluded.buy_now,
+        fingerprint = excluded.fingerprint,
 
-        last_sold_price =
-          excluded.last_sold_price,
-
-        location_display =
-          excluded.location_display,
-
-        damage =
-          excluded.damage,
-
-        loss_type =
-          excluded.loss_type,
-
-        run_condition =
-          excluded.run_condition,
-
-        mileage =
-          excluded.mileage,
-
-        seller_name =
-          excluded.seller_name,
-
-        seller_type =
-          excluded.seller_type,
-
-        document_name =
-          excluded.document_name,
-
-        document_type =
-          excluded.document_type,
-
-        export_allowed =
-          excluded.export_allowed,
-
-        registration_allowed =
-          excluded.registration_allowed,
-
-        has_video =
-          excluded.has_video,
-
-        has_360 =
-          excluded.has_360,
-
-        auction_url =
-          excluded.auction_url,
-
-        last_seen_at =
-          excluded.last_seen_at,
-
-        fingerprint =
-          excluded.fingerprint,
-
-        raw_json =
-          excluded.raw_json
+        raw_json = excluded.raw_json
     `)
     .bind(
 
@@ -1310,15 +1361,6 @@ async function saveVehicle(
       )
     )
     .run();
-
-
-  /*
-   * ==========================================================
-   * SNAPSHOT
-   * ==========================================================
-   *
-   * Tylko kiedy coś się zmieniło.
-   */
 
   if (changed) {
     await env.REXBID_DB
@@ -1445,7 +1487,6 @@ async function getCar(
       identifier
     );
 
-
   /*
    * ----------------------------------------------------------
    * 1. NORMALNE SZUKANIE PO VIN / LOT
@@ -1469,45 +1510,69 @@ async function getCar(
           result.data
         );
 
-      if (normalized) {
-        try {
-          await saveVehicle(
-            env,
-            normalized,
-            result.data
-          );
-        } catch (dbError) {
-          console.error(
-            "Rex.Bid D1 save error:",
-            dbError
-          );
+      /*
+       * WAŻNE:
+       *
+       * Jeżeli endpoint bezpośredni zwróci rekord,
+       * ale jego VIN/LOT nie odpowiada temu, czego
+       * szuka użytkownik, NIE otwieramy go.
+       */
+
+      if (
+        vehicleMatchesIdentifier(
+          result.data,
+          identifier
+        )
+      ) {
+        if (normalized) {
+          try {
+            await saveVehicle(
+              env,
+              normalized,
+              result.data
+            );
+          } catch (dbError) {
+            console.error(
+              "Rex.Bid D1 save error:",
+              dbError
+            );
+          }
         }
+
+        return json(
+          {
+            ok:
+              result.ok !== false,
+
+            data:
+              result.data,
+
+            source:
+              "apibara",
+
+            match:
+              "exact",
+
+            rex_history:
+              normalized
+                ? await getLocalHistorySummary(
+                    env,
+                    normalized.vehicleKey
+                  )
+                : null
+          },
+          200,
+          "LIVE",
+          0
+        );
       }
 
-      return json(
-        {
-          ok:
-            result.ok !== false,
-
-          data:
-            result.data || null,
-
-          source:
-            "apibara",
-
-          rex_history:
-            normalized
-              ? await getLocalHistorySummary(
-                  env,
-                  normalized.vehicleKey
-                )
-              : null
-        },
-        200,
-        "LIVE",
-        0
+      console.warn(
+        "Rex.Bid direct endpoint returned non-matching vehicle:",
+        identifier
       );
     }
+
   } catch (directError) {
     console.warn(
       "Rex.Bid direct vehicle lookup failed:",
@@ -1520,10 +1585,6 @@ async function getCar(
    * ----------------------------------------------------------
    * 2. FALLBACK — SZUKANIE PO s=VIN / LOT
    * ----------------------------------------------------------
-   *
-   * To jest ważne dla przypadków,
-   * kiedy bezpośredni endpoint nie zwróci
-   * rekordu, ale wyszukiwarka go jeszcze widzi.
    */
 
   try {
@@ -1544,87 +1605,93 @@ async function getCar(
       ) &&
       searchResult.data.length
     ) {
-
       /*
-       * Najpierw próbujemy dokładny VIN/lot.
+       * ------------------------------------------------------
+       * SZUKAMY WYŁĄCZNIE DOKŁADNEGO DOPASOWANIA
+       * ------------------------------------------------------
        */
-
-      const identifierLower =
-        cleanString(
-          identifier
-        ).toLowerCase();
 
       const exact =
         searchResult.data.find(
-          item => {
-            const vin =
-              cleanString(
-                item.vin
-              );
+          item =>
+            vehicleMatchesIdentifier(
+              item,
+              identifier
+            )
+        );
 
-            const lot =
-              cleanString(
-                item.lot_number ||
-                item.lot ||
-                item.stock_number
-              );
+      /*
+       * NIE ROBIMY JUŻ:
+       *
+       * exact || searchResult.data[0]
+       *
+       * To właśnie mogło powodować otwieranie
+       * pierwszego Mercedesa / pierwszego wyniku.
+       */
 
-            return (
-              vin.toLowerCase() ===
-                identifierLower ||
-              lot.toLowerCase() ===
-                identifierLower
+      if (exact) {
+        const normalized =
+          normalizeVehicle(
+            exact
+          );
+
+        if (normalized) {
+          try {
+            await saveVehicle(
+              env,
+              normalized,
+              exact
+            );
+          } catch (dbError) {
+            console.error(
+              "Rex.Bid D1 fallback save error:",
+              dbError
             );
           }
-        );
-
-      const vehicle =
-        exact ||
-        searchResult.data[0];
-
-      const normalized =
-        normalizeVehicle(
-          vehicle
-        );
-
-      if (normalized) {
-        try {
-          await saveVehicle(
-            env,
-            normalized,
-            vehicle
-          );
-        } catch (dbError) {
-          console.error(
-            "Rex.Bid D1 fallback save error:",
-            dbError
-          );
         }
+
+        return json(
+          {
+            ok: true,
+
+            data:
+              exact,
+
+            source:
+              "apibara-search",
+
+            match:
+              "exact",
+
+            rex_history:
+              normalized
+                ? await getLocalHistorySummary(
+                    env,
+                    normalized.vehicleKey
+                  )
+                : null
+          },
+          200,
+          "LIVE",
+          0
+        );
       }
 
-      return json(
-        {
-          ok: true,
+      /*
+       * Apibara coś znalazła,
+       * ale żaden wynik nie jest dokładnym VIN-em/LOT-em.
+       *
+       * Nie wybieramy pierwszego wyniku.
+       *
+       * Przechodzimy do naszej bazy.
+       */
 
-          data:
-            vehicle,
-
-          source:
-            "apibara-search",
-
-          rex_history:
-            normalized
-              ? await getLocalHistorySummary(
-                  env,
-                  normalized.vehicleKey
-                )
-              : null
-        },
-        200,
-        "LIVE",
-        0
+      console.warn(
+        "Rex.Bid search returned results, but none matched identifier exactly:",
+        identifier
       );
     }
+
   } catch (searchError) {
     console.warn(
       "Rex.Bid VIN fallback failed:",
@@ -1652,45 +1719,88 @@ async function getCar(
         );
 
       if (local) {
-        let parsedRaw =
-          null;
+        let localData =
+          local;
 
-        try {
-          parsedRaw =
-            local.raw_json
-              ? JSON.parse(
-                  local.raw_json
-                )
-              : null;
-        } catch {
-          parsedRaw = null;
+        if (
+          local.raw_json
+        ) {
+          try {
+            localData =
+              JSON.parse(
+                local.raw_json
+              );
+          } catch {
+            localData =
+              local;
+          }
         }
 
-        return json(
-          {
-            ok: true,
+        /*
+         * Dodatkowe zabezpieczenie:
+         *
+         * Jeżeli szukamy VIN-u, rekord z D1 również
+         * musi się zgadzać.
+         */
 
-            data:
-              parsedRaw ||
-              local,
+        if (
+          vehicleMatchesIdentifier(
+            localData,
+            identifier
+          ) ||
+          normalizeIdentifier(
+            local.vin
+          ) ===
+            normalizeIdentifier(
+              identifier
+            ) ||
+          normalizeIdentifier(
+            local.lot
+          ) ===
+            normalizeIdentifier(
+              identifier
+            ) ||
+          normalizeIdentifier(
+            local.slug_vin
+          ) ===
+            normalizeIdentifier(
+              identifier
+            )
+        ) {
+          return json(
+            {
+              ok: true,
 
-            source:
-              "rexbid-database",
+              data:
+                localData,
 
-            local_record:
-              local,
+              source:
+                "rexbid-database",
 
-            rex_history:
-              await getLocalHistorySummary(
-                env,
-                local.vehicle_key
-              )
-          },
-          200,
-          "D1",
-          0
+              match:
+                "exact",
+
+              local_record:
+                local,
+
+              rex_history:
+                await getLocalHistorySummary(
+                  env,
+                  local.vehicle_key
+                )
+            },
+            200,
+            "D1",
+            0
+          );
+        }
+
+        console.warn(
+          "Rex.Bid D1 record did not match identifier:",
+          identifier
         );
       }
+
     } catch (dbError) {
       console.error(
         "Rex.Bid local vehicle lookup error:",
@@ -1707,7 +1817,7 @@ async function getCar(
    */
 
   return errorJson(
-    `Nie znaleziono pojazdu ${identifier} w bieżących danych aukcyjnych ani w bazie Rex.Bid.`,
+    `Nie znaleziono dokładnego pojazdu ${identifier} w bieżących danych aukcyjnych ani w bazie Rex.Bid.`,
     404
   );
 }
@@ -1788,6 +1898,7 @@ async function getLocalHistorySummary(
 
     return result ||
       null;
+
   } catch {
     return null;
   }
@@ -1805,7 +1916,6 @@ async function getHistory(
   env,
   identifier
 ) {
-
   /*
    * Najpierw pobieramy oficjalną
    * historię Apibara.
@@ -2047,9 +2157,7 @@ async function getCars(
 
 
   /*
-   * ==========================================================
    * CACHE
-   * ==========================================================
    */
 
   const cache =
@@ -2092,9 +2200,7 @@ async function getCars(
 
 
   /*
-   * ==========================================================
    * APiBARA
-   * ==========================================================
    */
 
   const result =
@@ -2106,12 +2212,7 @@ async function getCars(
 
 
   /*
-   * ==========================================================
    * ZAPISUJEMY W D1
-   * ==========================================================
-   *
-   * Każdy znaleziony pojazd
-   * może zostać zapisany.
    */
 
   try {
@@ -2119,25 +2220,14 @@ async function getCars(
       env,
       result
     );
+
   } catch (dbError) {
-
-    /*
-     * Baza nie może zepsuć
-     * normalnego działania strony.
-     */
-
     console.error(
       "Rex.Bid D1 list save error:",
       dbError
     );
   }
 
-
-  /*
-   * ==========================================================
-   * RESPONSE
-   * ==========================================================
-   */
 
   const response =
     json(
@@ -2177,13 +2267,6 @@ async function getCars(
  * ============================================================
  * LOCAL DATABASE STATS
  * ============================================================
- *
- * Pomocniczy endpoint:
- *
- * /api/database
- *
- * Pokazuje czy D1 działa.
- * Nie zwraca całych danych samochodów.
  */
 
 async function getDatabaseStatus(
@@ -2298,9 +2381,7 @@ export default {
 
 
     /*
-     * --------------------------------------------------------
      * Tylko GET
-     * --------------------------------------------------------
      */
 
     if (
@@ -2335,6 +2416,7 @@ export default {
           request,
           env
         );
+
       } catch (error) {
         console.error(
           "Rex.Bid cars error:",
@@ -2352,8 +2434,6 @@ export default {
      * --------------------------------------------------------
      * STATUS D1
      * --------------------------------------------------------
-     *
-     * /api/database
      */
 
     if (
@@ -2364,6 +2444,7 @@ export default {
         return await getDatabaseStatus(
           env
         );
+
       } catch (error) {
         return errorJson(
           error.message,
@@ -2389,7 +2470,6 @@ export default {
         "/history"
       )
     ) {
-
       const identifier =
         decodeURIComponent(
           url.pathname
@@ -2415,6 +2495,7 @@ export default {
           env,
           identifier
         );
+
       } catch (error) {
         console.error(
           "Rex.Bid history error:",
@@ -2439,7 +2520,6 @@ export default {
         "/api/car/"
       )
     ) {
-
       const identifier =
         decodeURIComponent(
           url.pathname.substring(
@@ -2460,6 +2540,7 @@ export default {
           env,
           identifier
         );
+
       } catch (error) {
         console.error(
           "Rex.Bid vehicle error:",
