@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Rex.Bid — Aukcje samochodów USA</title>
+
   <meta
     name="description"
     content="Rex.Bid — wyszukiwarka samochodów z aukcji Copart i IAAI."
@@ -441,6 +443,7 @@
 
 <header>
   <div class="container header-inner">
+
     <a href="/" class="logo">
       Rex<span>.Bid</span>
     </a>
@@ -450,6 +453,7 @@
       <a href="#search">Wyszukiwarka</a>
       <a href="#results">Aukcje</a>
     </nav>
+
   </div>
 </header>
 
@@ -457,6 +461,7 @@
 <main>
 
   <section class="hero" id="search">
+
     <div class="container">
 
       <h1>
@@ -471,6 +476,7 @@
       </p>
 
       <form class="search-box" id="searchForm">
+
         <input
           id="searchInput"
           type="text"
@@ -484,9 +490,11 @@
         >
           Szukaj
         </button>
+
       </form>
 
     </div>
+
   </section>
 
 
@@ -606,6 +614,12 @@
     document.getElementById("filterButton");
 
 
+  /*
+   * ==========================================================
+   * POMOCNICZE
+   * ==========================================================
+   */
+
   function escapeHtml(value) {
     if (
       value === null ||
@@ -632,8 +646,7 @@
       return "—";
     }
 
-    const number =
-      Number(value);
+    const number = Number(value);
 
     if (Number.isNaN(number)) {
       return escapeHtml(value);
@@ -644,127 +657,644 @@
   }
 
 
-  function getImage(car) {
-  if (car.image) {
-    return car.image;
-  }
+  /*
+   * ==========================================================
+   * TYTUŁ SAMOCHODU
+   * ==========================================================
+   */
 
-  if (
-    car.media &&
-    Array.isArray(car.media.thumbs) &&
-    car.media.thumbs.length
-  ) {
-    return car.media.thumbs[0];
-  }
+  function getTitle(car) {
 
-  if (
-    car.media &&
-    Array.isArray(car.media.items) &&
-    car.media.items.length
-  ) {
-    const firstImage =
-      car.media.items.find(
-        item => item && item.type === "image" && item.large
-      );
-
-    if (firstImage) {
-      return firstImage.large;
-    }
-  }
-
-  if (Array.isArray(car.media) && car.media.length) {
-    const first = car.media[0];
-
-    if (typeof first === "string") {
-      return first;
+    if (!car) {
+      return "Samochód";
     }
 
-    if (first && first.url) {
-      return first.url;
+    if (
+      car.title &&
+      String(car.title).trim()
+    ) {
+      return String(car.title).trim();
     }
+
+    if (
+      car.vehicle &&
+      typeof car.vehicle === "object"
+    ) {
+
+      const vehicleMake =
+        car.vehicle.make ||
+        car.vehicle.manufacturer ||
+        "";
+
+      const vehicleModel =
+        car.vehicle.model ||
+        "";
+
+      const vehicleYear =
+        car.vehicle.year ||
+        "";
+
+      const title =
+        [vehicleYear, vehicleMake, vehicleModel]
+          .filter(Boolean)
+          .join(" ");
+
+      if (title) {
+        return title;
+      }
+    }
+
+
+    const year =
+      car.year ||
+      car.vehicle_year ||
+      "";
+
+    const carMake =
+      car.make ||
+      car.brand ||
+      car.manufacturer ||
+      "";
+
+    const carModel =
+      car.model ||
+      "";
+
+    const title =
+      [year, carMake, carModel]
+        .filter(Boolean)
+        .join(" ");
+
+    if (title) {
+      return title;
+    }
+
+
+    if (car.vin) {
+      return "Samochód " + car.vin;
+    }
+
+    if (car.lot_number) {
+      return "Samochód — Lot " + car.lot_number;
+    }
+
+    return "Samochód";
   }
 
-  if (demoImages[car.vin]) {
-    return demoImages[car.vin];
+
+  /*
+   * ==========================================================
+   * ZDJĘCIE SAMOCHODU
+   *
+   * WAŻNE:
+   * Wcześniej kod wywoływał getCarImage(),
+   * ale taka funkcja nie istniała.
+   *
+   * Teraz funkcja obsługuje różne formaty API.
+   * ==========================================================
+   */
+
+  function getCarImage(car) {
+
+    if (!car) {
+      return "";
+    }
+
+
+    /* image */
+
+    if (
+      typeof car.image === "string" &&
+      car.image.trim()
+    ) {
+      return car.image.trim();
+    }
+
+
+    /* image_url */
+
+    if (
+      typeof car.image_url === "string" &&
+      car.image_url.trim()
+    ) {
+      return car.image_url.trim();
+    }
+
+
+    /* photo */
+
+    if (
+      typeof car.photo === "string" &&
+      car.photo.trim()
+    ) {
+      return car.photo.trim();
+    }
+
+
+    /* photo_url */
+
+    if (
+      typeof car.photo_url === "string" &&
+      car.photo_url.trim()
+    ) {
+      return car.photo_url.trim();
+    }
+
+
+    /*
+     * media.thumbs
+     */
+
+    if (
+      car.media &&
+      !Array.isArray(car.media) &&
+      Array.isArray(car.media.thumbs) &&
+      car.media.thumbs.length
+    ) {
+
+      const thumb =
+        car.media.thumbs.find(
+          item =>
+            typeof item === "string" &&
+            item.trim()
+        );
+
+      if (thumb) {
+        return thumb;
+      }
+    }
+
+
+    /*
+     * media.items
+     */
+
+    if (
+      car.media &&
+      !Array.isArray(car.media) &&
+      Array.isArray(car.media.items) &&
+      car.media.items.length
+    ) {
+
+      const firstImage =
+        car.media.items.find(
+          item =>
+            item &&
+            (
+              item.type === "image" ||
+              item.type === "photo" ||
+              !item.type
+            )
+        );
+
+      if (firstImage) {
+
+        if (
+          typeof firstImage.large === "string" &&
+          firstImage.large.trim()
+        ) {
+          return firstImage.large;
+        }
+
+        if (
+          typeof firstImage.url === "string" &&
+          firstImage.url.trim()
+        ) {
+          return firstImage.url;
+        }
+
+        if (
+          typeof firstImage.src === "string" &&
+          firstImage.src.trim()
+        ) {
+          return firstImage.src;
+        }
+
+        if (
+          typeof firstImage.medium === "string" &&
+          firstImage.medium.trim()
+        ) {
+          return firstImage.medium;
+        }
+
+        if (
+          typeof firstImage.thumb === "string" &&
+          firstImage.thumb.trim()
+        ) {
+          return firstImage.thumb;
+        }
+      }
+    }
+
+
+    /*
+     * media jako tablica
+     */
+
+    if (
+      Array.isArray(car.media) &&
+      car.media.length
+    ) {
+
+      for (const item of car.media) {
+
+        if (
+          typeof item === "string" &&
+          item.trim()
+        ) {
+          return item.trim();
+        }
+
+        if (
+          item &&
+          typeof item === "object"
+        ) {
+
+          const possibleImage =
+            item.large ||
+            item.url ||
+            item.src ||
+            item.medium ||
+            item.thumb ||
+            item.image;
+
+          if (
+            typeof possibleImage === "string" &&
+            possibleImage.trim()
+          ) {
+            return possibleImage.trim();
+          }
+        }
+      }
+    }
+
+
+    /*
+     * photos jako tablica
+     */
+
+    if (
+      Array.isArray(car.photos) &&
+      car.photos.length
+    ) {
+
+      for (const item of car.photos) {
+
+        if (
+          typeof item === "string" &&
+          item.trim()
+        ) {
+          return item.trim();
+        }
+
+        if (
+          item &&
+          typeof item === "object"
+        ) {
+
+          const possibleImage =
+            item.large ||
+            item.url ||
+            item.src ||
+            item.medium ||
+            item.thumb;
+
+          if (
+            typeof possibleImage === "string" &&
+            possibleImage.trim()
+          ) {
+            return possibleImage.trim();
+          }
+        }
+      }
+    }
+
+
+    /*
+     * images jako tablica
+     */
+
+    if (
+      Array.isArray(car.images) &&
+      car.images.length
+    ) {
+
+      for (const item of car.images) {
+
+        if (
+          typeof item === "string" &&
+          item.trim()
+        ) {
+          return item.trim();
+        }
+
+        if (
+          item &&
+          typeof item === "object"
+        ) {
+
+          const possibleImage =
+            item.large ||
+            item.url ||
+            item.src ||
+            item.medium ||
+            item.thumb;
+
+          if (
+            typeof possibleImage === "string" &&
+            possibleImage.trim()
+          ) {
+            return possibleImage.trim();
+          }
+        }
+      }
+    }
+
+
+    /*
+     * gallery
+     */
+
+    if (
+      Array.isArray(car.gallery) &&
+      car.gallery.length
+    ) {
+
+      for (const item of car.gallery) {
+
+        if (
+          typeof item === "string" &&
+          item.trim()
+        ) {
+          return item.trim();
+        }
+
+        if (
+          item &&
+          typeof item === "object"
+        ) {
+
+          const possibleImage =
+            item.large ||
+            item.url ||
+            item.src ||
+            item.medium ||
+            item.thumb;
+
+          if (
+            typeof possibleImage === "string" &&
+            possibleImage.trim()
+          ) {
+            return possibleImage.trim();
+          }
+        }
+      }
+    }
+
+
+    return "";
   }
 
-  return fallbackImage;
-}
 
+  /*
+   * ==========================================================
+   * VIN
+   * ==========================================================
+   */
 
   function getVin(car) {
+
+    if (!car) {
+      return "";
+    }
+
     return (
       car.vin ||
+      car.VIN ||
       car.slug_vin ||
+      car.vehicle_vin ||
       ""
     );
   }
 
 
+  /*
+   * ==========================================================
+   * LOT
+   * ==========================================================
+   */
+
   function getLot(car) {
+
+    if (!car) {
+      return "—";
+    }
+
     return (
       car.lot_number ||
       car.lot ||
       car.stock_number ||
+      car.stock ||
+      car.lotNumber ||
       "—"
     );
   }
 
 
+  /*
+   * ==========================================================
+   * CENA
+   * ==========================================================
+   */
+
   function getPrice(car) {
-    if (
-      car.pricing &&
-      car.pricing.current_bid_usd !==
-        undefined
-    ) {
-      return car.pricing.current_bid_usd;
+
+    if (!car) {
+      return null;
     }
 
+
+    if (
+      car.pricing &&
+      typeof car.pricing === "object"
+    ) {
+
+      if (
+        car.pricing.current_bid_usd !== undefined
+      ) {
+        return car.pricing.current_bid_usd;
+      }
+
+      if (
+        car.pricing.current_bid !== undefined
+      ) {
+        return car.pricing.current_bid;
+      }
+
+      if (
+        car.pricing.bid !== undefined
+      ) {
+        return car.pricing.bid;
+      }
+
+      if (
+        car.pricing.price !== undefined
+      ) {
+        return car.pricing.price;
+      }
+    }
+
+
     return (
-      car.price ||
-      car.current_bid ||
+      car.price ??
+      car.current_bid ??
+      car.bid ??
+      car.high_bid ??
       null
     );
   }
 
 
+  /*
+   * ==========================================================
+   * PRZEBIEG
+   * ==========================================================
+   */
+
   function getMileage(car) {
-    if (
-      car.odometer &&
-      car.odometer.mi !== undefined
-    ) {
-      return (
-        Number(car.odometer.mi)
-          .toLocaleString("en-US") +
-        " mi"
-      );
+
+    if (!car) {
+      return "—";
     }
 
-    return (
-      car.mileage ||
-      "—"
-    );
+
+    if (
+      car.odometer &&
+      typeof car.odometer === "object"
+    ) {
+
+      if (
+        car.odometer.mi !== undefined &&
+        car.odometer.mi !== null
+      ) {
+
+        const value =
+          Number(car.odometer.mi);
+
+        if (!Number.isNaN(value)) {
+          return (
+            value.toLocaleString("en-US") +
+            " mi"
+          );
+        }
+
+        return (
+          car.odometer.mi +
+          " mi"
+        );
+      }
+
+      if (
+        car.odometer.value !== undefined
+      ) {
+
+        return String(
+          car.odometer.value
+        );
+      }
+    }
+
+
+    if (
+      car.mileage !== undefined &&
+      car.mileage !== null &&
+      car.mileage !== ""
+    ) {
+
+      const value =
+        Number(car.mileage);
+
+      if (!Number.isNaN(value)) {
+
+        return (
+          value.toLocaleString("en-US") +
+          " mi"
+        );
+      }
+
+      return String(car.mileage);
+    }
+
+
+    return "—";
   }
 
 
+  /*
+   * ==========================================================
+   * USZKODZENIE
+   * ==========================================================
+   */
+
   function getDamage(car) {
+
+    if (!car) {
+      return "—";
+    }
+
+
     if (
       car.condition &&
-      car.condition.primary_damage
+      typeof car.condition === "object"
     ) {
-      return car.condition.primary_damage;
+
+      if (
+        car.condition.primary_damage
+      ) {
+        return car.condition.primary_damage;
+      }
+
+      if (
+        car.condition.primaryDamage
+      ) {
+        return car.condition.primaryDamage;
+      }
+
+      if (
+        car.condition.damage
+      ) {
+        return car.condition.damage;
+      }
     }
+
 
     return (
       car.damage ||
+      car.primary_damage ||
+      car.primaryDamage ||
       "—"
     );
   }
 
 
+  /*
+   * ==========================================================
+   * PLATFORMA
+   * ==========================================================
+   */
+
   function getPlatform(car) {
+
+    if (!car) {
+      return "—";
+    }
+
     return (
       car.platform ||
+      car.auction_platform ||
+      car.auctionPlatform ||
+      car.source ||
+      car.auction ||
       "—"
     )
       .toString()
@@ -772,43 +1302,109 @@
   }
 
 
+  /*
+   * ==========================================================
+   * LOKALIZACJA
+   * ==========================================================
+   */
+
   function getLocation(car) {
+
+    if (!car) {
+      return "—";
+    }
+
+
     if (
       car.location &&
       typeof car.location === "object"
     ) {
+
       return (
         car.location.display ||
+        car.location.name ||
+        car.location.city ||
+        car.location.state ||
         "—"
       );
     }
 
+
+    if (
+      car.location
+    ) {
+      return car.location;
+    }
+
+
+    if (
+      car.city &&
+      car.state
+    ) {
+      return (
+        car.city +
+        ", " +
+        car.state
+      );
+    }
+
+
     return (
-      car.location ||
+      car.city ||
+      car.state ||
       "—"
     );
   }
 
 
+  /*
+   * ==========================================================
+   * STATUS
+   * ==========================================================
+   */
+
   function getStatus(car) {
+
+    if (!car) {
+      return "";
+    }
+
+
     if (
       car.auction &&
+      typeof car.auction === "object" &&
       car.auction.state
     ) {
       return car.auction.state;
     }
 
-    return "";
+
+    return (
+      car.status ||
+      car.state ||
+      ""
+    );
   }
 
 
+  /*
+   * ==========================================================
+   * RENDEROWANIE SAMOCHODÓW
+   * ==========================================================
+   */
+
   function renderCars(cars) {
+
     if (
       !Array.isArray(cars) ||
       cars.length === 0
     ) {
+
       carsContainer.innerHTML = `
-        <div class="message" style="grid-column:1/-1">
+        <div
+          class="message"
+          style="grid-column:1/-1"
+        >
           Nie znaleziono samochodów.
         </div>
       `;
@@ -819,8 +1415,10 @@
       return;
     }
 
+
     resultStatus.textContent =
       `${cars.length} ofert`;
+
 
     carsContainer.innerHTML =
       cars.map(car => {
@@ -857,7 +1455,13 @@
 
         const identifier =
           vin ||
-          lot;
+          lot ||
+          "";
+
+
+        /*
+         * ZDJĘCIE
+         */
 
         const imageHtml =
           image
@@ -866,40 +1470,87 @@
                 src="${escapeHtml(image)}"
                 alt="${escapeHtml(title)}"
                 loading="lazy"
-                onerror="this.style.display='none'"
+                onerror="
+                  this.style.display='none';
+                  this.nextElementSibling.style.display='flex';
+                "
               />
+
+              <div
+                style="
+                  display:none;
+                  width:100%;
+                  height:100%;
+                  align-items:center;
+                  justify-content:center;
+                  color:#68717b;
+                  font-size:14px;
+                "
+              >
+                Brak zdjęcia
+              </div>
             `
             : `
-              <div style="
-                width:100%;
-                height:100%;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                color:#68717b;
-              ">
+              <div
+                style="
+                  width:100%;
+                  height:100%;
+                  display:flex;
+                  align-items:center;
+                  justify-content:center;
+                  color:#68717b;
+                  font-size:14px;
+                "
+              >
                 Brak zdjęcia
               </div>
             `;
 
-        const statusHtml =
-          status
-            ? `
-              <div class="status-badge">
-                ${escapeHtml(
-                  status === "open"
-                    ? "AKTYWNA"
-                    : status.toUpperCase()
-                )}
-              </div>
-            `
-            : "";
+
+        /*
+         * STATUS
+         */
+
+        let statusHtml = "";
+
+        if (status) {
+
+          const normalizedStatus =
+            String(status).toLowerCase();
+
+          let statusText =
+            String(status).toUpperCase();
+
+          if (
+            normalizedStatus === "open" ||
+            normalizedStatus === "active"
+          ) {
+            statusText = "AKTYWNA";
+          }
+
+          statusHtml = `
+            <div class="status-badge">
+              ${escapeHtml(statusText)}
+            </div>
+          `;
+        }
+
+
+        /*
+         * LINK
+         */
+
+        const detailUrl =
+          identifier
+            ? `/car.html?vin=${encodeURIComponent(identifier)}`
+            : "#";
+
 
         return `
           <article class="car-card">
 
             <a
-              href="/car.html?vin=${encodeURIComponent(identifier)}"
+              href="${detailUrl}"
             >
 
               <div class="car-image">
@@ -914,63 +1565,105 @@
 
               </div>
 
+
               <div class="car-content">
 
                 <h3 class="car-title">
                   ${escapeHtml(title)}
                 </h3>
 
+
                 <div class="car-vin">
-                  VIN: ${escapeHtml(vin || "—")}
+                  VIN:
+                  ${escapeHtml(vin || "—")}
                 </div>
+
 
                 <div class="car-grid">
 
                   <div class="spec">
-                    <small>Rok</small>
+
+                    <small>
+                      Rok
+                    </small>
+
                     <strong>
                       ${escapeHtml(
-                        car.year || "—"
+                        car.year ||
+                        car.vehicle_year ||
+                        "—"
                       )}
                     </strong>
+
                   </div>
 
+
                   <div class="spec">
-                    <small>Przebieg</small>
+
+                    <small>
+                      Przebieg
+                    </small>
+
                     <strong>
                       ${escapeHtml(mileage)}
                     </strong>
+
                   </div>
 
+
                   <div class="spec">
-                    <small>Uszkodzenie</small>
+
+                    <small>
+                      Uszkodzenie
+                    </small>
+
                     <strong>
                       ${escapeHtml(damage)}
                     </strong>
+
                   </div>
 
+
                   <div class="spec">
-                    <small>Lot</small>
+
+                    <small>
+                      Lot
+                    </small>
+
                     <strong>
                       ${escapeHtml(lot)}
                     </strong>
+
                   </div>
 
+
                   <div class="spec">
-                    <small>Lokalizacja</small>
+
+                    <small>
+                      Lokalizacja
+                    </small>
+
                     <strong>
                       ${escapeHtml(location)}
                     </strong>
+
                   </div>
 
+
                   <div class="spec">
-                    <small>Platforma</small>
+
+                    <small>
+                      Platforma
+                    </small>
+
                     <strong>
                       ${escapeHtml(platformName)}
                     </strong>
+
                   </div>
 
                 </div>
+
 
                 <div class="car-bottom">
 
@@ -990,18 +1683,29 @@
 
           </article>
         `;
+
       }).join("");
   }
 
 
+  /*
+   * ==========================================================
+   * LOADING
+   * ==========================================================
+   */
+
   function showLoading() {
+
     carsContainer.innerHTML = `
       <div
         class="message"
         style="grid-column:1/-1"
       >
+
         <div class="spinner"></div>
+
         Pobieranie ofert...
+
       </div>
     `;
 
@@ -1010,22 +1714,34 @@
   }
 
 
+  /*
+   * ==========================================================
+   * ERROR
+   * ==========================================================
+   */
+
   function showError(message) {
+
     carsContainer.innerHTML = `
       <div
         class="message"
         style="grid-column:1/-1"
       >
-        <strong style="
-          display:block;
-          color:#ff5d5d;
-          margin-bottom:10px;
-          font-size:18px;
-        ">
+
+        <strong
+          style="
+            display:block;
+            color:#ff5d5d;
+            margin-bottom:10px;
+            font-size:18px;
+          "
+        >
           Nie udało się pobrać ofert
         </strong>
 
-        ${escapeHtml(message)}
+        <div>
+          ${escapeHtml(message)}
+        </div>
 
       </div>
     `;
@@ -1035,59 +1751,84 @@
   }
 
 
+  /*
+   * ==========================================================
+   * WCZYTYWANIE OFERT
+   * ==========================================================
+   */
+
   async function loadCars() {
 
     showLoading();
 
+
     const params =
       new URLSearchParams();
+
 
     const search =
       searchInput.value.trim();
 
+
     if (search) {
-      params.set("s", search);
+
+      params.set(
+        "s",
+        search
+      );
     }
 
+
     if (platform.value) {
+
       params.set(
         "platform",
         platform.value
       );
     }
 
+
     if (make.value.trim()) {
+
       params.set(
         "make",
         make.value.trim()
       );
     }
 
+
     if (model.value.trim()) {
+
       params.set(
         "model",
         model.value.trim()
       );
     }
 
+
     if (yearFrom.value) {
+
       params.set(
         "year_from",
         yearFrom.value
       );
     }
 
+
     if (yearTo.value) {
+
       params.set(
         "year_to",
         yearTo.value
       );
     }
 
+
     params.set(
       "per_page",
       "20"
     );
+
 
     try {
 
@@ -1096,6 +1837,7 @@
           `${API_BASE}/cars?${params.toString()}`,
           {
             method: "GET",
+
             headers: {
               "Accept":
                 "application/json"
@@ -1103,26 +1845,99 @@
           }
         );
 
+
+      const contentType =
+        response.headers.get(
+          "content-type"
+        ) || "";
+
+
+      /*
+       * Jeżeli API nie zwróci JSON,
+       * pokażemy prawdziwą odpowiedź.
+       */
+
+      if (
+        !contentType.includes(
+          "application/json"
+        )
+      ) {
+
+        const text =
+          await response.text();
+
+        throw new Error(
+          `API nie zwróciło JSON. HTTP ${response.status}. ${text.slice(0, 300)}`
+        );
+      }
+
+
       const result =
         await response.json();
 
+
       if (!response.ok) {
+
         throw new Error(
           result.error ||
           `HTTP ${response.status}`
         );
       }
 
-      if (!result.ok) {
+
+      if (
+        result.ok === false
+      ) {
+
         throw new Error(
           result.error ||
           "API zwróciło błąd"
         );
       }
 
-      renderCars(
-        result.data || []
-      );
+
+      /*
+       * Obsługa kilku możliwych formatów odpowiedzi API.
+       */
+
+      let cars = [];
+
+
+      if (
+        Array.isArray(result.data)
+      ) {
+
+        cars = result.data;
+
+      } else if (
+        result.data &&
+        Array.isArray(result.data.cars)
+      ) {
+
+        cars = result.data.cars;
+
+      } else if (
+        Array.isArray(result.cars)
+      ) {
+
+        cars = result.cars;
+
+      } else if (
+        Array.isArray(result.results)
+      ) {
+
+        cars = result.results;
+
+      } else if (
+        Array.isArray(result.items)
+      ) {
+
+        cars = result.items;
+      }
+
+
+      renderCars(cars);
+
 
     } catch (error) {
 
@@ -1131,20 +1946,31 @@
         error
       );
 
+
       showError(
-        error.message ||
-        "Nieznany błąd"
+        error &&
+        error.message
+          ? error.message
+          : "Nieznany błąd"
       );
     }
   }
 
 
+  /*
+   * ==========================================================
+   * WYSZUKIWANIE
+   * ==========================================================
+   */
+
   searchForm.addEventListener(
     "submit",
     event => {
+
       event.preventDefault();
 
       loadCars();
+
 
       document
         .getElementById("results")
@@ -1156,13 +1982,26 @@
   );
 
 
+  /*
+   * ==========================================================
+   * FILTRY
+   * ==========================================================
+   */
+
   filterButton.addEventListener(
     "click",
     loadCars
   );
 
 
+  /*
+   * ==========================================================
+   * START
+   * ==========================================================
+   */
+
   loadCars();
+
 </script>
 
 </body>
