@@ -15,7 +15,9 @@ function json(data, status = 200, extraHeaders = {}) {
 
 async function apibaraFetch(path, env) {
   if (!env.APIBARA_API_KEY) {
-    throw new Error("APIBARA_API_KEY nie jest ustawiony");
+    throw new Error(
+      "Brak APIBARA_API_KEY w Cloudflare Secrets"
+    );
   }
 
   const response = await fetch(
@@ -37,7 +39,11 @@ async function apibaraFetch(path, env) {
     result = JSON.parse(text);
   } catch {
     throw new Error(
-      "Apibara zwróciła nieprawidłowy JSON"
+      "Apibara zwróciła nie-JSON. " +
+      "HTTP " +
+      response.status +
+      ". Odpowiedź: " +
+      text.substring(0, 1000)
     );
   }
 
@@ -58,12 +64,9 @@ async function apibaraFetch(path, env) {
  *
  * /api/cars
  * /api/cars?s=VIN
- * /api/cars?platform=iaai
- * itd.
  */
 
 async function cars(request, env) {
-
   const incoming =
     new URL(request.url);
 
@@ -98,7 +101,6 @@ async function cars(request, env) {
   ];
 
   for (const name of allowedParams) {
-
     const value =
       incoming.searchParams.get(name);
 
@@ -114,9 +116,7 @@ async function cars(request, env) {
   }
 
   if (
-    !apiUrl.searchParams.has(
-      "per_page"
-    )
+    !apiUrl.searchParams.has("per_page")
   ) {
     apiUrl.searchParams.set(
       "per_page",
@@ -142,7 +142,7 @@ async function cars(request, env) {
 
 
 /*
- * SZCZEGÓŁY JEDNEGO AUTA
+ * SZCZEGÓŁY JEDNEGO SAMOCHODU
  *
  * /api/car/VIN
  */
@@ -152,7 +152,6 @@ async function singleCar(
   env,
   identifier
 ) {
-
   const result =
     await apibaraFetch(
       "/vehicles/" +
@@ -178,7 +177,6 @@ async function carHistory(
   env,
   identifier
 ) {
-
   const incoming =
     new URL(request.url);
 
@@ -227,12 +225,15 @@ async function carHistory(
 }
 
 
+/*
+ * WORKER
+ */
+
 export default {
-
   async fetch(request, env) {
-
     const url =
       new URL(request.url);
+
 
     /*
      * CORS
@@ -241,7 +242,6 @@ export default {
     if (
       request.method === "OPTIONS"
     ) {
-
       return new Response(
         null,
         {
@@ -258,23 +258,18 @@ export default {
 
 
     /*
-     * LISTA
+     * LISTA SAMOCHODÓW
      */
 
     if (
-      url.pathname ===
-      "/api/cars"
+      url.pathname === "/api/cars"
     ) {
-
       try {
-
         return await cars(
           request,
           env
         );
-
       } catch (error) {
-
         console.error(
           "Cars API error:",
           error
@@ -294,8 +289,7 @@ export default {
     /*
      * HISTORIA
      *
-     * Musi być sprawdzona PRZED
-     * /api/car/
+     * Musi być przed /api/car/
      */
 
     if (
@@ -306,7 +300,6 @@ export default {
         "/history"
       )
     ) {
-
       const identifier =
         decodeURIComponent(
           url.pathname
@@ -319,16 +312,24 @@ export default {
             )
         );
 
-      try {
+      if (!identifier) {
+        return json(
+          {
+            ok: false,
+            error:
+              "Brak identyfikatora samochodu"
+          },
+          400
+        );
+      }
 
+      try {
         return await carHistory(
           request,
           env,
           identifier
         );
-
       } catch (error) {
-
         console.error(
           "History API error:",
           error
@@ -354,7 +355,6 @@ export default {
         "/api/car/"
       )
     ) {
-
       const identifier =
         decodeURIComponent(
           url.pathname.substring(
@@ -362,16 +362,24 @@ export default {
           )
         );
 
-      try {
+      if (!identifier) {
+        return json(
+          {
+            ok: false,
+            error:
+              "Brak identyfikatora samochodu"
+          },
+          400
+        );
+      }
 
+      try {
         return await singleCar(
           request,
           env,
           identifier
         );
-
       } catch (error) {
-
         console.error(
           "Single car API error:",
           error
@@ -389,7 +397,7 @@ export default {
 
 
     /*
-     * STRONA
+     * RESZTA → STRONA
      */
 
     return env.ASSETS.fetch(
