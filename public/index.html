@@ -644,42 +644,52 @@
   }
 
 
-  function getCarImage(car) {
-    if (
-      car.media &&
-      Array.isArray(car.media.thumbs) &&
-      car.media.thumbs.length
-    ) {
-      return car.media.thumbs[0];
-    }
-
-    if (
-      Array.isArray(car.images) &&
-      car.images.length
-    ) {
-      return car.images[0];
-    }
-
-    if (car.image) {
-      return car.image;
-    }
-
-    return "";
+  function getImage(car) {
+  if (car.image) {
+    return car.image;
   }
 
-
-  function getTitle(car) {
-    return (
-      car.title ||
-      [
-        car.year,
-        car.make,
-        car.model
-      ]
-        .filter(Boolean)
-        .join(" ")
-    );
+  if (
+    car.media &&
+    Array.isArray(car.media.thumbs) &&
+    car.media.thumbs.length
+  ) {
+    return car.media.thumbs[0];
   }
+
+  if (
+    car.media &&
+    Array.isArray(car.media.items) &&
+    car.media.items.length
+  ) {
+    const firstImage =
+      car.media.items.find(
+        item => item && item.type === "image" && item.large
+      );
+
+    if (firstImage) {
+      return firstImage.large;
+    }
+  }
+
+  if (Array.isArray(car.media) && car.media.length) {
+    const first = car.media[0];
+
+    if (typeof first === "string") {
+      return first;
+    }
+
+    if (first && first.url) {
+      return first.url;
+    }
+  }
+
+  if (demoImages[car.vin]) {
+    return demoImages[car.vin];
+  }
+
+  return fallbackImage;
+}
 
 
   function getVin(car) {
