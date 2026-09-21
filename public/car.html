@@ -924,6 +924,48 @@
     return null;
   }
 
+  // Zamienia wartości z API (również obiekty) na czytelny tekst.
+  // Dzięki temu pola typu seller / WhoCanBuy nie wyświetlają już [object Object].
+  function displayValue(value, depth = 0) {
+    if (isEmpty(value)) return null;
+    if (depth > 3) return null;
+
+    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+      return String(value);
+    }
+
+    if (Array.isArray(value)) {
+      const parts = value.map(v => displayValue(v, depth + 1)).filter(Boolean);
+      return parts.length ? parts.join(", ") : null;
+    }
+
+    if (typeof value === "object") {
+      const preferredKeys = [
+        "display", "displayName", "name", "sellerName", "seller_name",
+        "companyName", "company_name", "label", "title", "value",
+        "description", "text", "type", "code", "raw"
+      ];
+
+      for (const key of preferredKeys) {
+        if (Object.prototype.hasOwnProperty.call(value, key)) {
+          const result = displayValue(value[key], depth + 1);
+          if (!isEmpty(result)) return result;
+        }
+      }
+
+      const parts = [];
+      for (const [key, val] of Object.entries(value)) {
+        if (/^(id|uuid|url|href|slug|image|icon|sort|index)$/i.test(key)) continue;
+        const result = displayValue(val, depth + 1);
+        if (!isEmpty(result)) parts.push(`${key}: ${result}`);
+        if (parts.length >= 3) break;
+      }
+      return parts.length ? parts.join(" • ") : null;
+    }
+
+    return String(value);
+  }
+
   function bool(v) {
     if (v === true || v === 1) return true;
     if (typeof v === "string") return ["true","yes","1","present","available","actual"].includes(v.toLowerCase());
@@ -939,8 +981,9 @@
   }
 
   function nice(v) {
-    if (isEmpty(v)) return "—";
-    return esc(v);
+    const text = displayValue(v);
+    if (isEmpty(text)) return "—";
+    return esc(text);
   }
 
   function titleCase(v) {
@@ -1334,8 +1377,31 @@
     return null;
   }
 
+  function isConcreteAuctionUrl(url, platform, lot) {
+    if (!isHttpUrl(url)) return false;
+    try {
+      const u = new URL(url);
+      const host = u.hostname.toLowerCase();
+      const path = u.pathname.toLowerCase();
+      const lotText = String(lot || "").trim().toLowerCase();
+      if (platform.includes("copart")) {
+        return host.includes("copart.com") && /\/lot\//.test(path) && (!lotText || url.toLowerCase().includes(lotText));
+      }
+      if (platform.includes("iaai") || platform === "iaa") {
+        return host.includes("iaai.com") && /vehicledetail|vehicle-detail|lot/.test(path) && (!lotText || url.toLowerCase().includes(lotText));
+      }
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   function originalAuctionUrl() {
-    const directValues = valueFrom([
+    const platform = platformName().toLowerCase();
+    const lot = getLot();
+
+    // Najpierw używamy konkretnego linku przekazanego przez API.
+    const directValues = findAllByKeys(car, [
       "auctionUrl","auctionURL","auction_url",
       "originalUrl","originalURL","original_url",
       "sourceUrl","sourceURL","source_url",
@@ -1346,23 +1412,22 @@
       "href","link"
     ]);
 
-    const direct = urlFromValue(directValues,"source");
-    if (direct) return direct;
+    for (const value of directValues) {
+      const url = urlFromValue(value, "source");
+      if (url && isConcreteAuctionUrl(url, platform, lot)) return url;
+    }
 
-    const platform = platformName().toLowerCase();
-    const lot = getLot();
-
+    // Jeśli API podało tylko stronę główną IAA/Copart, budujemy link do konkretnego LOT-u.
     if (platform.includes("copart") && lot && lot !== "—") {
       return `https://www.copart.com/lot/${encodeURIComponent(lot)}`;
     }
 
-    if ((platform.includes("iaai") || platform === "IAA") && lot && lot !== "—") {
+    if ((platform.includes("iaai") || platform === "iaa") && lot && lot !== "—") {
       return `https://www.iaai.com/VehicleDetail/${encodeURIComponent(lot)}~US`;
     }
 
     return null;
   }
-
   function valueFrom(keys) {
     const vals = findAllByKeys(car, keys);
     return first(...vals);
@@ -1370,10 +1435,16 @@
 
   function sellerName() {
     return first(
-      valueFrom(["seller","Seller","sellerName","SellerName"]),
-      car.sale_information?.Seller,
       car.seller?.name,
-      car.seller?.seller_name
+      car.seller?.displayName,
+      car.seller?.seller_name,
+      car.seller?.companyName,
+      car.sale_information?.Seller?.name,
+      car.sale_information?.Seller?.displayName,
+      car.sale_information?.Seller?.seller_name,
+      car.sale_information?.Seller?.companyName,
+      valueFrom(["sellerName","SellerName","seller_name"]),
+      valueFrom(["seller","Seller"])
     );
   }
 
@@ -1514,11 +1585,12 @@
   }
 
   function sellerProfile(name) {
-    const s = String(name || "").toLowerCase();
-    const type = String(first(
+    const s = String(displayValue(name) || "").toLowerCase();
+    const rawType = first(
       valueFrom(["seller_type","sellerType","SellerType","ProviderType"]),
       valueFrom(["Origin"])
-    ) || "").toLowerCase();
+    );
+    const type = String(displayValue(rawType) || "").toLowerCase();
 
     if (!name && !type) {
       return {
@@ -1805,7 +1877,7 @@
               ${field("Szac. naprawa",getSale(["EstimatedRepairCost"]))}
               ${field("Minimalna oferta",valueFrom(["MinimumBidAmount"]))}
               ${field("Bid increment",valueFrom(["bid_increment","bidIncrement"]))}
-              ${field("Kto może kupić",valueFrom(["WhoCanBuy"]))}
+              ${field("Kto może kupić",valueFrom(["WhoCanBuy","whoCanBuy","WhoCanBid","whoCanBid"]))}
             </div>
           </section>
 
@@ -1852,7 +1924,7 @@
                 <span class="risk-dot ${sellerInfo.cls}"></span>
                 ${esc(sellerInfo.label)}
               </div>
-              ${seller ? `<div class="kv"><span>Sprzedawca</span><strong>${esc(seller)}</strong></div>` : ""}
+              ${seller ? `<div class="kv"><span>Sprzedawca</span><strong>${nice(seller)}</strong></div>` : ""}
               ${kv("Typ sprzedawcy",valueFrom(["seller_type","sellerType","SellerType","ProviderType"]))}
               ${kv("Pochodzenie",valueFrom(["Origin"]))}
               <div class="seller-note">${esc(sellerInfo.note)}</div>
@@ -1927,15 +1999,6 @@
             ${kv("ZIP",valueFrom(["Zip"]))}
             ${kv("Telefon",valueFrom(["Phone"]))}
             ${kv("Pozycja",valueFrom(["VehiclesVehicleLocation"]))}
-          </section>
-
-          <section class="panel side-section">
-            <h3>Materiały</h3>
-            <div class="materials">
-              <div class="material"><strong>${mediaCount}</strong><span>unikalnych zdjęć</span></div>
-              <div class="material"><strong>${video ? "✓" : "—"}</strong><span>wideo</span></div>
-              <div class="material"><strong>${image360 ? "✓" : "—"}</strong><span>widok 360°</span></div>
-            </div>
           </section>
 
           <section class="panel side-section">
