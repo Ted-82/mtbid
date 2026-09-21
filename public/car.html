@@ -360,11 +360,9 @@
       font-weight:800;
       font-size:11px;
     }
-    .action.primary {
-      background:var(--accent);
-      color:#111;
-      border-color:var(--accent);
-    }
+    .action.primary { background:var(--accent); color:#111; border-color:var(--accent); }
+    .source-links{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.source-link{display:flex;align-items:center;justify-content:center;min-height:42px;border:1px solid var(--border);border-radius:8px;background:var(--panel2);font-size:11px;font-weight:900}.source-link:hover{border-color:var(--accent)}
+    .calc-card{padding:14px;margin-bottom:14px}.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.calc-field label{display:block;color:var(--muted);font-size:9px;margin-bottom:4px}.calc-field input{width:100%;height:38px;padding:0 9px;border:1px solid var(--border);border-radius:7px;background:var(--panel2);color:#fff;outline:none;font-size:11px}.calc-field input:focus{border-color:var(--accent)}.calc-lines{margin-top:10px;border-top:1px solid var(--border)}.calc-line{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:10px}.calc-line span:first-child{color:var(--muted)}.calc-total{display:flex;justify-content:space-between;gap:10px;padding-top:11px;font-size:16px;font-weight:950}.calc-pln{color:var(--accent)}.calc-note{margin-top:8px;color:var(--muted);font-size:9px;line-height:1.5}
 
     .content-grid {
       display:grid;
@@ -747,6 +745,7 @@
       .summary h1 { font-size:24px; }
       .spec-grid { grid-template-columns:1fr 1fr; }
       .damage-grid { grid-template-columns:1fr; }
+      .calc-grid,.source-links { grid-template-columns:1fr; }
       .media-view iframe,.media-view video { height:55vh; }
       .lb-stage { inset:70px 12px 65px; }
       .lightbox-nav.left { left:4px; }
@@ -984,8 +983,8 @@
         return;
       }
 
-      const large = first(item.large, item.hd, item.big, item.original, item.url, item.src);
-      const thumb = first(item.thumb, item.thumbnail, item.small, item.normal, large);
+      const large = first(item.large, item.hd, item.big, item.original, item.original_url, item.large_url, item.url, item.src);
+      const thumb = first(item.thumb, item.thumbnail, item.small, item.normal, item.thumb_url, large);
 
       if (large || thumb) {
         found.push({ type:"image", thumb:thumb || large, large:large || thumb });
@@ -1022,8 +1021,8 @@
       const raw = p.large || p.thumb;
       if (!raw) continue;
 
-      // IAAI imageKeys są prawdziwą tożsamością zdjęcia.
-      // Usuwamy duplikaty thumb/large oraz powtarzające się rekordy.
+      // IAAI imageKeys are the real image identity. This removes duplicate
+      // thumb/large representations and repeated records.
       const keyMatch = raw.match(/imageKeys=([^&]+)/i);
       const key = keyMatch ? keyMatch[1] : raw.replace(/[?&](width|height)=[^&]+/g,"");
 
@@ -1041,25 +1040,15 @@
     for (const obj of objects) {
       for (const [key,value] of Object.entries(obj)) {
         const k = key.toLowerCase();
-
-        if (
-          type === "video" &&
-          ["video","videourl","enginesoundlink","enginesound","enginevideo"].includes(k)
-        ) {
+        if (type === "video" && ["video","videourl","video_url","enginesoundlink","enginesound","enginevideo","enginevideolink","engine_video_link"].includes(k)) {
           if (typeof value === "string" && /^https?:\/\//i.test(value)) return value;
-
           if (value && typeof value === "object") {
             const u = first(value.url,value.src,value.large);
             if (u) return u;
           }
         }
-
-        if (
-          type === "vr360" &&
-          ["vr360","link360","360url","panorama","panoramaurl","external_panorama_url"].includes(k)
-        ) {
+        if (type === "vr360" && ["vr360","vr360url","link360","link_360","url360","url_360","360url","360","panorama","panoramaurl","external_panorama_url","view360","view_360"].includes(k)) {
           if (typeof value === "string" && /^https?:\/\//i.test(value)) return value;
-
           if (value && typeof value === "object") {
             const u = first(value.url,value.src,value.href);
             if (u) return u;
@@ -1086,13 +1075,7 @@
   }
 
   function platformName() {
-    return String(
-      first(
-        car.platform,
-        car.source,
-        valueFrom(["platform","source","Tenant"])
-      ) || "—"
-    ).toUpperCase();
+    return String(first(car.platform, car.source, valueFrom(["platform","source","Tenant"])) || "—").toUpperCase();
   }
 
   function getVin() {
@@ -1120,21 +1103,10 @@
     );
   }
 
-  function getYear() {
-    return first(car.year,valueFrom(["Year"]));
-  }
-
-  function getMake() {
-    return first(car.make,valueFrom(["Make"]));
-  }
-
-  function getModel() {
-    return first(car.model,valueFrom(["Model"]));
-  }
-
-  function getSeries() {
-    return first(valueFrom(["Series"]));
-  }
+  function getYear() { return first(car.year,valueFrom(["Year"])); }
+  function getMake() { return first(car.make,valueFrom(["Make"])); }
+  function getModel() { return first(car.model,valueFrom(["Model"])); }
+  function getSeries() { return first(valueFrom(["Series"])); }
 
   function getDescription(keyList) {
     return first(
@@ -1196,17 +1168,11 @@
 
   function formatDate(v) {
     if (isEmpty(v)) return "—";
-
     const d = new Date(v);
-
     if (Number.isNaN(d.getTime())) return esc(v);
-
     return d.toLocaleString("pl-PL", {
-      year:"numeric",
-      month:"2-digit",
-      day:"2-digit",
-      hour:"2-digit",
-      minute:"2-digit"
+      year:"numeric", month:"2-digit", day:"2-digit",
+      hour:"2-digit", minute:"2-digit"
     });
   }
 
@@ -1231,7 +1197,6 @@
 
   function field(label, value) {
     if (isEmpty(value)) return "";
-
     return `
       <div class="spec">
         <small>${esc(label)}</small>
@@ -1242,24 +1207,15 @@
 
   function kv(label, value) {
     if (isEmpty(value)) return "";
-
-    return `
-      <div class="kv">
-        <span>${esc(label)}</span>
-        <strong>${nice(value)}</strong>
-      </div>
-    `;
+    return `<div class="kv"><span>${esc(label)}</span><strong>${nice(value)}</strong></div>`;
   }
 
   function sellerProfile(name) {
     const s = String(name || "").toLowerCase();
-
-    const type = String(
-      first(
-        valueFrom(["seller_type","sellerType","SellerType","ProviderType"]),
-        valueFrom(["Origin"])
-      ) || ""
-    ).toLowerCase();
+    const type = String(first(
+      valueFrom(["seller_type","sellerType","SellerType","ProviderType"]),
+      valueFrom(["Origin"])
+    ) || "").toLowerCase();
 
     if (!name && !type) {
       return {
@@ -1269,10 +1225,7 @@
       };
     }
 
-    if (
-      /insurance|ubezpiec|ins\b|rcc/.test(type) ||
-      /insurance|progressive|state farm|geico|allstate/.test(s)
-    ) {
+    if (/insurance|ubezpiec|ins\b|rcc/.test(type) || /insurance|progressive|state farm|geico|allstate/.test(s)) {
       return {
         label:"Ubezpieczyciel / salvage",
         cls:"red",
@@ -1280,11 +1233,7 @@
       };
     }
 
-    if (
-      /fleet|lease|rental|remarketing|enterprise|hertz|avis|alamo/.test(
-        s + " " + type
-      )
-    ) {
+    if (/fleet|lease|rental|remarketing|enterprise|hertz|avis|alamo/.test(s + " " + type)) {
       return {
         label:"Flota / leasing / remarketing",
         cls:"blue",
@@ -1316,13 +1265,9 @@
   }
 
   function titleRegistration(titleText, brand, state, notes, titleCode) {
-    const t =
-      `${titleText || ""} ${brand || ""} ${state || ""} ${notes || ""} ${titleCode || ""}`
-        .toLowerCase();
+    const t = `${titleText || ""} ${brand || ""} ${state || ""} ${notes || ""} ${titleCode || ""}`.toLowerCase();
 
-    if (
-      /parts only|parts-only|parts only title|scrap|junk|non repairable|non-repairable|certificate of destruction|destruction/.test(t)
-    ) {
+    if (/parts only|parts-only|parts only title|scrap|junk|non repairable|non-repairable|certificate of destruction|destruction/.test(t)) {
       return {
         cls:"bad",
         label:"🔴 Duże ryzyko rejestracji",
@@ -1330,9 +1275,7 @@
       };
     }
 
-    if (
-      /bill of sale|billofsale|rebuildable|salvage|rebuilt|rebuilt title|flood|certificate of salvage/.test(t)
-    ) {
+    if (/bill of sale|billofsale|rebuildable|salvage|rebuilt|rebuilt title|flood|certificate of salvage/.test(t)) {
       return {
         cls:"warn",
         label:"🟡 Wymaga dokładnej weryfikacji",
@@ -1354,6 +1297,12 @@
       text:"Brakuje wystarczających informacji o title. Przed zakupem trzeba zweryfikować oryginalny dokument."
     };
   }
+
+  function getAuctionUrl(){return first(car.auction_url,car.auction?.url,car.source_url,car.source?.url,car.url,valueFrom(["auction_url","auctionUrl","source_url","sourceUrl","listing_url","listingUrl","external_url","externalUrl"]));}
+  function getTrustedSeller(){const v=first(car.seller?.trusted,car.seller?.verified,car.trusted_seller,car.verified_seller,valueFrom(["TrustedSeller","trustedSeller","VerifiedSeller","verifiedSeller"]));if(v===true||/^(true|yes|verified|trusted|1)$/i.test(String(v||"")))return "Potwierdzony przez źródło";if(v===false||/^(false|no|unverified|0)$/i.test(String(v||"")))return "Niepotwierdzony";return "Brak danych";}
+  function getAuctionFeesDefault(){const v=first(car.pricing?.auction_fee,car.pricing?.fees,valueFrom(["AuctionFee","BuyerFee","BuyersFee","TotalFees"]));const n=Number(v);return Number.isFinite(n)?n:(platformName().toLowerCase().includes("copart")?1200:1000)}
+  function renderImportCalculator(){const bid=Number(getAuctionBid());return `<section class="panel calc-card"><div class="section-title"><h2>Szacowany koszt sprowadzenia do Polski</h2><span>kalkulator orientacyjny</span></div><div class="calc-grid"><div class="calc-field"><label>Cena auta / bid (USD)</label><input id="cxBid" type="number" min="0" step="50" value="${Number.isFinite(bid)?bid:""}"></div><div class="calc-field"><label>Opłaty aukcyjne (USD)</label><input id="cxFee" type="number" min="0" step="50" value="${getAuctionFeesDefault()}"></div><div class="calc-field"><label>Transport po USA (USD)</label><input id="cxUsa" type="number" min="0" step="50" value="800"></div><div class="calc-field"><label>Fracht + port (USD)</label><input id="cxSea" type="number" min="0" step="50" value="1500"></div><div class="calc-field"><label>Inne koszty USA/port (USD)</label><input id="cxOther" type="number" min="0" step="50" value="0"></div><div class="calc-field"><label>Kurs USD/PLN</label><input id="cxRate" type="number" min="0" step="0.01" value="3.65"></div><div class="calc-field"><label>Cło (%)</label><input id="cxDuty" type="number" min="0" step="0.1" value="10"></div><div class="calc-field"><label>Akcyza (%)</label><input id="cxExcise" type="number" min="0" step="0.1" value="3.1"></div><div class="calc-field"><label>VAT (%)</label><input id="cxVat" type="number" min="0" step="0.1" value="23"></div><div class="calc-field"><label>Transport / opłaty w PL (PLN)</label><input id="cxPl" type="number" min="0" step="100" value="1800"></div></div><div class="calc-lines" id="calcLines"></div><div class="calc-total"><span>RAZEM SZACUNKOWO</span><span class="calc-pln" id="calcTotal">—</span></div><div class="calc-note">Kalkulator jest orientacyjny. Podstawa cła, VAT i akcyzy może zależeć od dokumentów, rodzaju pojazdu, kursu i kosztów transportu. Wszystkie wartości można zmienić.</div></section>`}
+  function calculateImport(){const n=id=>Number(document.getElementById(id)?.value)||0;const bid=n("cxBid"),fee=n("cxFee"),usa=n("cxUsa"),sea=n("cxSea"),other=n("cxOther"),rate=n("cxRate"),dutyRate=n("cxDuty")/100,exciseRate=n("cxExcise")/100,vatRate=n("cxVat")/100,pl=n("cxPl");const base=bid+fee+usa+sea+other,duty=base*dutyRate,excise=(base+duty)*exciseRate,vat=(base+duty+excise)*vatRate,totalUsd=base+duty+excise+vat,totalPln=totalUsd*rate+pl;const line=(l,v)=>`<div class="calc-line"><span>${l}</span><strong>$${Math.round(v).toLocaleString("en-US")}</strong></div>`;const el=document.getElementById("calcLines");if(!el)return;el.innerHTML=line("Cena auta",bid)+line("Opłaty aukcyjne",fee)+line("Transport USA",usa)+line("Fracht + port",sea)+line("Inne koszty USA/port",other)+line("Cło",duty)+line("Akcyza",excise)+line("VAT",vat)+`<div class="calc-line"><span>Wartość po przeliczeniu</span><strong>${Math.round(totalUsd*rate).toLocaleString("pl-PL")} PLN</strong></div>`;const total=document.getElementById("calcTotal");if(total)total.textContent=Math.round(totalPln).toLocaleString("pl-PL")+" PLN"}
 
   function buildPage() {
     const vin = getVin();
@@ -1386,34 +1335,22 @@
       getSale(["TitleSaleDoc"]),
       valueFrom(["Title"])
     );
-
     const titleBrand = first(
       getInfo(["TitleSaleDocBrand"]),
       getSale(["Brand"]),
       valueFrom(["TitleBrand"])
     );
-
     const titleNotes = first(
       getInfo(["TitleSaleDocNotes"]),
       getSale(["Notes"]),
       valueFrom(["TitleNotes"])
     );
-
     const titleState = first(
       valueFrom(["TitleStateName","TitleState","CertState"])
     );
+    const titleCode = first(valueFrom(["TitleCode"]));
 
-    const titleCode = first(
-      valueFrom(["TitleCode"])
-    );
-
-    const verdict = titleRegistration(
-      titleDoc,
-      titleBrand,
-      titleState,
-      titleNotes,
-      titleCode
-    );
+    const verdict = titleRegistration(titleDoc,titleBrand,titleState,titleNotes,titleCode);
 
     const image360 = findMediaUrl("vr360");
     const video = findMediaUrl("video");
@@ -1429,13 +1366,9 @@
 
     const odometer = first(
       car.odometer?.display,
-      car.odometer?.mi !== undefined
-        ? `${Number(car.odometer.mi).toLocaleString("en-US")} mi`
-        : null,
+      car.odometer?.mi !== undefined ? `${Number(car.odometer.mi).toLocaleString("en-US")} mi` : null,
       getInfo(["Odometer"]),
-      valueFrom(["ODOValue"])
-        ? `${valueFrom(["ODOValue"])} ${valueFrom(["ODOUoM"]) || "mi"} (${valueFrom(["ODOBrand"]) || ""})`
-        : null
+      valueFrom(["ODOValue"]) ? `${valueFrom(["ODOValue"])} ${valueFrom(["ODOUoM"]) || "mi"} (${valueFrom(["ODOBrand"]) || ""})` : null
     );
 
     const runDrive = first(
@@ -1461,92 +1394,29 @@
         <section class="panel gallery">
           <div class="main-photo" id="mainPhoto">
             <div class="media-label">${esc(platformName())}</div>
-
-            <button
-              class="gallery-arrow prev"
-              id="prevPhoto"
-              aria-label="Poprzednie zdjęcie"
-            >‹</button>
-
-            <button
-              class="gallery-arrow next"
-              id="nextPhoto"
-              aria-label="Następne zdjęcie"
-            >›</button>
-
-            <img
-              id="mainImage"
-              alt="${esc(title)}"
-            />
-
-            <div
-              class="photo-count"
-              id="photoCount"
-            ></div>
+            <button class="gallery-arrow prev" id="prevPhoto" aria-label="Poprzednie zdjęcie">‹</button>
+            <button class="gallery-arrow next" id="nextPhoto" aria-label="Następne zdjęcie">›</button>
+            <img id="mainImage" alt="${esc(title)}" />
+            <div class="photo-count" id="photoCount"></div>
           </div>
 
           <div class="thumb-wrap">
-            <div
-              class="thumbs"
-              id="thumbs"
-            ></div>
+            <div class="thumbs" id="thumbs"></div>
           </div>
 
           <div class="media-toolbar">
-            <button
-              class="media-btn accent"
-              id="openHd"
-            >
-              HD / Powiększ
-            </button>
-
-            ${
-              video
-                ? `
-                  <button
-                    class="media-btn"
-                    id="openVideo"
-                  >
-                    ▶ Wideo
-                  </button>
-                `
-                : ""
-            }
-
-            ${
-              image360
-                ? `
-                  <button
-                    class="media-btn"
-                    id="open360"
-                  >
-                    ↻ Widok 360°
-                  </button>
-                `
-                : ""
-            }
+            <button class="media-btn accent" id="openHd">HD / Powiększ</button>
+            ${video ? `<button class="media-btn" id="openVideo">▶ Wideo</button>` : ""}
+            ${image360 ? `<button class="media-btn" id="open360">↻ Widok 360°</button>` : ""}
           </div>
         </section>
 
         <aside class="panel summary">
-
-          <div class="source-badge">
-            ${esc(platformName())}
-          </div>
+          <div class="source-badge">${esc(platformName())}</div>
 
           <h1>
             ${esc(title || `${year || ""} ${make || ""} ${model || ""}`)}
-
-            ${
-              String(getAuctionStatus() || "").toLowerCase() === "open"
-                ? `
-                  <span class="live">
-                    <span class="live-dot"></span>
-                    LIVE
-                  </span>
-                `
-                : ""
-            }
+            ${String(getAuctionStatus() || "").toLowerCase() === "open" ? `<span class="live"><span class="live-dot"></span> LIVE</span>` : ""}
           </h1>
 
           <div class="vin-row">
@@ -1554,13 +1424,7 @@
               <small>VIN</small>
               <strong>${esc(vin || "—")}</strong>
             </div>
-
-            <button
-              class="copy-btn"
-              id="copyVin"
-            >
-              Kopiuj
-            </button>
+            <button class="copy-btn" id="copyVin">Kopiuj</button>
           </div>
 
           <div class="auction-box">
@@ -1568,88 +1432,42 @@
             ${kv("LOT", lot)}
             ${kv("Status", getAuctionStatus())}
             ${kv("Lokalizacja", location)}
-
-            ${
-              getSale(["Lane"])
-                ? kv("Lane", getSale(["Lane"]))
-                : ""
-            }
-
-            ${
-              getSale(["Aisle"])
-                ? kv("Aisle", getSale(["Aisle"]))
-                : ""
-            }
+            ${getSale(["Lane"]) ? kv("Lane", getSale(["Lane"])) : ""}
+            ${getSale(["Aisle"]) ? kv("Aisle", getSale(["Aisle"])) : ""}
           </div>
 
-          ${
-            car.auction?.countdown
-              ? `
-                <div class="auction-box">
-                  <div class="auction-row">
-                    <div>
-                      <small>Do rozpoczęcia / końca</small>
-                    </div>
-
-                    <strong
-                      class="countdown"
-                      id="countdown"
-                    >
-                      —
-                    </strong>
-                  </div>
-                </div>
-              `
-              : ""
-          }
+          ${car.auction?.countdown ? `
+            <div class="auction-box">
+              <div class="auction-row">
+                <div><small>Do rozpoczęcia / końca</small></div>
+                <strong class="countdown" id="countdown">—</strong>
+              </div>
+            </div>
+          ` : ""}
 
           <div class="price-box">
             <small>Aktualna oferta</small>
-
-            <div class="price">
-              ${money(getAuctionBid())}
-            </div>
-
+            <div class="price">${money(getAuctionBid())}</div>
             <div class="price-sub">
-              ${
-                getBuyNow()
-                  ? `Buy Now: ${money(getBuyNow())}`
-                  : "Cena z aukcji, jeśli została przekazana"
-              }
+              ${getBuyNow() ? `Buy Now: ${money(getBuyNow())}` : "Cena z aukcji, jeśli została przekazana"}
             </div>
           </div>
 
           <div class="action-row">
-            <button
-              class="action"
-              id="copyLink"
-            >
-              Kopiuj link
-            </button>
-
-            <button
-              class="action primary"
-              id="scrollInfo"
-            >
-              Szczegóły auta
-            </button>
+            <button class="action" id="copyLink">Kopiuj link</button>
+            <button class="action primary" id="scrollInfo">Szczegóły auta</button>
           </div>
+
+          ${getAuctionUrl() ? `<div class="source-links"><a class="source-link" href="${esc(getAuctionUrl())}" target="_blank" rel="noopener noreferrer">OTWÓRZ ORYGINALNĄ AUKCJĘ ↗</a><a class="source-link" href="${esc(getAuctionUrl())}" target="_blank" rel="noopener noreferrer">${esc(platformName())} — ŹRÓDŁO</a></div>` : ""}
         </aside>
       </div>
 
       <div class="content-grid">
         <div>
-
-          <section
-            class="panel section"
-            id="details"
-          >
+          <section class="panel section" id="details">
             <div class="section-title">
               <h2>Dane samochodu</h2>
-
-              <span>
-                ${mediaCount} unikalnych zdjęć
-              </span>
+              <span>${mediaCount} unikalnych zdjęć</span>
             </div>
 
             <div class="spec-grid">
@@ -1658,219 +1476,55 @@
               ${field("Model",model)}
               ${field("Wersja / seria",series)}
               ${field("VIN",vin)}
-
-              ${field(
-                "Nadwozie",
-                getDescription(["BodyStyle","BodyStyleName"])
-              )}
-
-              ${field(
-                "Typ pojazdu",
-                getDescription([
-                  "Vehicle",
-                  "VehicleClass",
-                  "InventoryType"
-                ])
-              )}
-
-              ${field(
-                "Silnik",
-                getDescription([
-                  "Engine",
-                  "EngineSize",
-                  "EngineInformation"
-                ])
-              )}
-
-              ${field(
-                "Skrzynia",
-                getDescription([
-                  "Transmission",
-                  "TransmissionDesc"
-                ])
-              )}
-
-              ${field(
-                "Napęd",
-                getDescription([
-                  "DriveLineType",
-                  "DriveLineTypeDesc"
-                ])
-              )}
-
-              ${field(
-                "Paliwo",
-                getDescription([
-                  "FuelType",
-                  "FuelTypeDesc"
-                ])
-              )}
-
-              ${field(
-                "Cylindry",
-                getDescription([
-                  "Cylinders",
-                  "CylindersDesc"
-                ])
-              )}
-
+              ${field("Nadwozie",getDescription(["BodyStyle","BodyStyleName"]))}
+              ${field("Typ pojazdu",getDescription(["Vehicle","VehicleClass","InventoryType"]))}
+              ${field("Silnik",getDescription(["Engine","EngineSize","EngineInformation"]))}
+              ${field("Skrzynia",getDescription(["Transmission","TransmissionDesc"]))}
+              ${field("Napęd",getDescription(["DriveLineType","DriveLineTypeDesc"]))}
+              ${field("Paliwo",getDescription(["FuelType","FuelTypeDesc"]))}
+              ${field("Cylindry",getDescription(["Cylinders","CylindersDesc"]))}
               ${field("Przebieg",odometer)}
-
-              ${field(
-                "Status przebiegu",
-                valueFrom(["ODOBrand"])
-              )}
-
-              ${field(
-                "Kolor zewnętrzny",
-                valueFrom(["ExteriorColor"])
-              )}
-
-              ${field(
-                "Kolor wnętrza",
-                valueFrom(["InteriorColor"])
-              )}
-
-              ${field(
-                "Kolor",
-                getDescription(["ExteriorInterior"])
-              )}
-
+              ${field("Status przebiegu",valueFrom(["ODOBrand"]))}
+              ${field("Kolor zewnętrzny",valueFrom(["ExteriorColor"]))}
+              ${field("Kolor wnętrza",valueFrom(["InteriorColor"]))}
+              ${field("Kolor",getDescription(["ExteriorInterior"]))}
               ${field("Kluczyki",keys)}
               ${field("Run & Drive",runDrive)}
               ${field("Airbagi",airbags)}
-
-              ${field(
-                "Restraint / poduszki",
-                getDescription([
-                  "RestraintSystem",
-                  "RestraintType"
-                ])
-              )}
-
-              ${field(
-                "Kraj produkcji",
-                getDescription([
-                  "ManufacturedIn",
-                  "CountryOfOrigin"
-                ])
-              )}
-
-              ${field(
-                "Klasa pojazdu",
-                getDescription([
-                  "VehicleClass",
-                  "Segment",
-                  "SegmentDesc"
-                ])
-              )}
-
-              ${field(
-                "Opcje",
-                getDescription(["Options"])
-              )}
-
-              ${field(
-                "Typ straty",
-                getInfo(["Loss"])
-              )}
-
-              ${field(
-                "ACV",
-                getSale(["ActualCashValue"])
-              )}
-
-              ${field(
-                "Szac. naprawa",
-                getSale(["EstimatedRepairCost"])
-              )}
-
-              ${field(
-                "Minimalna oferta",
-                valueFrom(["MinimumBidAmount"])
-              )}
-
-              ${field(
-                "Bid increment",
-                valueFrom([
-                  "bid_increment",
-                  "bidIncrement"
-                ])
-              )}
-
-              ${field(
-                "Kto może kupić",
-                valueFrom(["WhoCanBuy"])
-              )}
+              ${field("Restraint / poduszki",getDescription(["RestraintSystem","RestraintType"]))}
+              ${field("Kraj produkcji",getDescription(["ManufacturedIn","CountryOfOrigin"]))}
+              ${field("Klasa pojazdu",getDescription(["VehicleClass","Segment","SegmentDesc"]))}
+              ${field("Opcje",getDescription(["Options"]))}
+              ${field("Typ straty",getInfo(["Loss"]))}
+              ${field("ACV",getSale(["ActualCashValue"]))}
+              ${field("Szac. naprawa",getSale(["EstimatedRepairCost"]))}
+              ${field("Minimalna oferta",valueFrom(["MinimumBidAmount"]))}
+              ${field("Bid increment",valueFrom(["bid_increment","bidIncrement"]))}
+              ${field("Kto może kupić",valueFrom(["WhoCanBuy"]))}
             </div>
           </section>
 
           <section class="panel section">
             <div class="section-title">
               <h2>Uszkodzenia</h2>
-
-              <span>
-                Dane ze źródła aukcyjnego
-              </span>
+              <span>Dane ze źródła aukcyjnego</span>
             </div>
-
             <div class="damage-grid">
-              ${
-                !isEmpty(primaryDamage)
-                  ? `
-                    <div class="damage main">
-                      <small>
-                        Główne uszkodzenie
-                      </small>
-
-                      <strong>
-                        ${nice(primaryDamage)}
-                      </strong>
-                    </div>
-                  `
-                  : ""
-              }
-
-              ${
-                !isEmpty(secondaryDamage)
-                  ? `
-                    <div class="damage">
-                      <small>
-                        Drugorzędne uszkodzenie
-                      </small>
-
-                      <strong>
-                        ${nice(secondaryDamage)}
-                      </strong>
-                    </div>
-                  `
-                  : ""
-              }
-
-              ${field(
-                "Rodzaj straty",
-                getInfo(["Loss"])
-              )}
+              ${!isEmpty(primaryDamage) ? `<div class="damage main"><small>Główne uszkodzenie</small><strong>${nice(primaryDamage)}</strong></div>` : ""}
+              ${!isEmpty(secondaryDamage) ? `<div class="damage"><small>Drugorzędne uszkodzenie</small><strong>${nice(secondaryDamage)}</strong></div>` : ""}
+              ${field("Rodzaj straty",getInfo(["Loss"]))}
             </div>
           </section>
 
           <section class="panel section">
             <div class="section-title">
               <h2>Dokumenty / TITLE</h2>
-
-              <span>
-                Analiza Rex.Bid
-              </span>
+              <span>Analiza Rex.Bid</span>
             </div>
 
             <div class="title-verdict ${verdict.cls}">
-              <div class="verdict-label">
-                ${verdict.label}
-              </div>
-
-              <div class="verdict-text">
-                ${verdict.text}
-              </div>
+              <div class="verdict-label">${verdict.label}</div>
+              <div class="verdict-text">${verdict.text}</div>
             </div>
 
             <div class="spec-grid">
@@ -1882,219 +1536,90 @@
             </div>
           </section>
 
+          ${renderImportCalculator()}
+
           <section class="panel section">
             <div class="section-title">
               <h2>Sprzedawca</h2>
-
-              <span>
-                Profil na podstawie danych aukcyjnych
-              </span>
+              <span>Profil na podstawie danych aukcyjnych</span>
             </div>
 
             <div class="seller-box">
-
               <div class="seller-rating">
                 <span class="risk-dot ${sellerInfo.cls}"></span>
-
                 ${esc(sellerInfo.label)}
               </div>
-
-              ${
-                seller
-                  ? `
-                    <div class="kv">
-                      <span>Sprzedawca</span>
-                      <strong>
-                        ${esc(seller)}
-                      </strong>
-                    </div>
-                  `
-                  : ""
-              }
-
-              ${kv(
-                "Typ sprzedawcy",
-                valueFrom([
-                  "seller_type",
-                  "sellerType",
-                  "SellerType",
-                  "ProviderType"
-                ])
-              )}
-
-              ${kv(
-                "Pochodzenie",
-                valueFrom(["Origin"])
-              )}
-
-              <div class="seller-note">
-                ${esc(sellerInfo.note)}
-              </div>
+              ${seller ? `<div class="kv"><span>Sprzedawca</span><strong>${esc(seller)}</strong></div>` : ""}
+              ${kv("Typ sprzedawcy",valueFrom(["seller_type","sellerType","SellerType","ProviderType"]))}
+              ${kv("Zaufany / zweryfikowany",getTrustedSeller())}
+              ${kv("Pochodzenie",valueFrom(["Origin"]))}
+              <div class="seller-note">${esc(sellerInfo.note)}</div>
             </div>
           </section>
 
-          ${
-            video || image360
-              ? `
-                <section
-                  class="panel section media-panel"
-                  id="media"
-                >
-                  <div
-                    class="section-title"
-                    style="padding:14px 14px 0"
-                  >
-                    <h2>Materiały</h2>
-
-                    <span>
-                      ${video ? "Wideo" : ""}
-                      ${video && image360 ? " + " : ""}
-                      ${image360 ? "360°" : ""}
-                    </span>
-                  </div>
-
-                  <div
-                    class="media-view"
-                    id="mediaView"
-                  >
-                    <div class="empty">
-                      Wybierz Wideo albo Widok 360° powyżej.
-                    </div>
-                  </div>
-                </section>
-              `
-              : ""
-          }
-
+          ${(video || image360) ? `
+            <section class="panel section media-panel" id="media">
+              <div class="section-title" style="padding:14px 14px 0">
+                <h2>Materiały</h2>
+                <span>${video ? "Wideo" : ""}${video && image360 ? " + " : ""}${image360 ? "360°" : ""}</span>
+              </div>
+              <div class="media-view" id="mediaView">
+                <div class="empty">Wybierz Wideo albo Widok 360° powyżej.</div>
+              </div>
+            </section>
+          ` : ""}
         </div>
 
         <aside>
-
           <section class="panel side-section">
             <h3>Informacje o aukcji</h3>
-
             ${kv("Platforma",platformName())}
             ${kv("Numer LOT",lot)}
             ${kv("Status",getAuctionStatus())}
             ${kv("Data aukcji",formatDate(date))}
             ${kv("Sprzedawca",seller)}
-
-            ${kv(
-              "Typ sprzedawcy",
-              valueFrom([
-                "seller_type",
-                "sellerType",
-                "SellerType",
-                "ProviderType"
-              ])
-            )}
-
-            ${kv(
-              "Lane",
-              getSale(["Lane"])
-            )}
-
-            ${kv(
-              "Aisle",
-              getSale(["Aisle"])
-            )}
-
-            ${kv(
-              "Bid increment",
-              valueFrom([
-                "bid_increment",
-                "bidIncrement"
-              ])
-            )}
+            ${kv("Typ sprzedawcy",valueFrom(["seller_type","sellerType","SellerType","ProviderType"]))}
+            ${kv("Lane",getSale(["Lane"]))}
+            ${kv("Aisle",getSale(["Aisle"]))}
+            ${kv("Bid increment",valueFrom(["bid_increment","bidIncrement"]))}
           </section>
 
           <section class="panel side-section">
             <h3>Lokalizacja</h3>
-
-            ${kv(
-              "Oddział",
-              getSale(["SellingBranch"])
-            )}
-
-            ${kv(
-              "Miejsce",
-              location
-            )}
-
-            ${kv(
-              "Adres",
-              valueFrom(["Address"])
-            )}
-
-            ${kv(
-              "Miasto",
-              valueFrom(["City"])
-            )}
-
-            ${kv(
-              "Stan",
-              valueFrom(["State","BranchState"])
-            )}
-
-            ${kv(
-              "ZIP",
-              valueFrom(["Zip"])
-            )}
-
-            ${kv(
-              "Telefon",
-              valueFrom(["Phone"])
-            )}
-
-            ${kv(
-              "Pozycja",
-              valueFrom(["VehiclesVehicleLocation"])
-            )}
+            ${kv("Oddział",getSale(["SellingBranch"]))}
+            ${kv("Miejsce",location)}
+            ${kv("Adres",valueFrom(["Address"]))}
+            ${kv("Miasto",valueFrom(["City"]))}
+            ${kv("Stan",valueFrom(["State","BranchState"]))}
+            ${kv("ZIP",valueFrom(["Zip"]))}
+            ${kv("Telefon",valueFrom(["Phone"]))}
+            ${kv("Pozycja",valueFrom(["VehiclesVehicleLocation"]))}
           </section>
 
           <section class="panel side-section">
             <h3>Materiały</h3>
-
             <div class="materials">
-
-              <div class="material">
-                <strong>${mediaCount}</strong>
-                <span>unikalnych zdjęć</span>
-              </div>
-
-              <div class="material">
-                <strong>
-                  ${video ? "✓" : "—"}
-                </strong>
-                <span>wideo</span>
-              </div>
-
-              <div class="material">
-                <strong>
-                  ${image360 ? "✓" : "—"}
-                </strong>
-                <span>widok 360°</span>
-              </div>
-
+              <div class="material"><strong>${mediaCount}</strong><span>unikalnych zdjęć</span></div>
+              <div class="material"><strong>${video ? "✓" : "—"}</strong><span>wideo</span></div>
+              <div class="material"><strong>${image360 ? "✓" : "—"}</strong><span>widok 360°</span></div>
             </div>
           </section>
 
           <section class="panel side-section">
             <h3>Dokument / tytuł</h3>
-
             ${kv("Title",titleDoc)}
             ${kv("Brand",titleBrand)}
             ${kv("State",titleState)}
             ${kv("Code",titleCode)}
             ${kv("VIN",vin)}
           </section>
-
         </aside>
       </div>
     `;
 
     bindPageEvents(video,image360);
     renderPhotos();
+    calculateImport();
     startCountdown();
   }
 
@@ -2105,679 +1630,288 @@
 
     if (!photos.length) {
       main.style.display = "none";
-
       count.textContent = "Brak zdjęć";
-
-      thumbs.innerHTML = `
-        <div
-          class="empty"
-          style="grid-column:1/-1;padding:20px"
-        >
-          Brak zdjęć w danych aukcji.
-        </div>
-      `;
-
+      thumbs.innerHTML = `<div class="empty" style="grid-column:1/-1;padding:20px">Brak zdjęć w danych aukcji.</div>`;
       return;
     }
 
     main.style.display = "block";
-
     const p = photos[photoIndex];
 
     main.src = p.large || p.thumb;
+    main.alt = `${getTitle() || "Samochód"} — zdjęcie ${photoIndex + 1}`;
+    count.textContent = `${photoIndex + 1} / ${photos.length} • HD`;
 
-    main.alt =
-      `${getTitle() || "Samochód"} — zdjęcie ${photoIndex + 1}`;
+    thumbs.innerHTML = photos.map((photo,i) => `
+      <button class="thumb ${i === photoIndex ? "active" : ""} hd" data-i="${i}" title="Zdjęcie ${i+1} HD">
+        <img src="${esc(photo.thumb || photo.large)}" loading="lazy" alt="Miniatura ${i+1}" />
+      </button>
+    `).join("");
 
-    count.textContent =
-      `${photoIndex + 1} / ${photos.length} • HD`;
-
-    thumbs.innerHTML =
-      photos.map((photo,i) => `
-        <button
-          class="thumb ${i === photoIndex ? "active" : ""} hd"
-          data-i="${i}"
-          title="Zdjęcie ${i+1} HD"
-        >
-          <img
-            src="${esc(photo.thumb || photo.large)}"
-            loading="lazy"
-            alt="Miniatura ${i+1}"
-          />
-        </button>
-      `).join("");
-
-    thumbs
-      .querySelectorAll(".thumb")
-      .forEach(btn => {
-        btn.addEventListener("click",() => {
-          photoIndex = Number(btn.dataset.i);
-          renderPhotos();
-        });
+    thumbs.querySelectorAll(".thumb").forEach(btn => {
+      btn.addEventListener("click",() => {
+        photoIndex = Number(btn.dataset.i);
+        renderPhotos();
       });
+    });
   }
 
   function bindPageEvents(video,image360) {
+    document.getElementById("prevPhoto")?.addEventListener("click",() => {
+      if (!photos.length) return;
+      photoIndex = (photoIndex - 1 + photos.length) % photos.length;
+      renderPhotos();
+    });
 
-    document
-      .getElementById("prevPhoto")
-      ?.addEventListener("click",() => {
-        if (!photos.length) return;
+    document.getElementById("nextPhoto")?.addEventListener("click",() => {
+      if (!photos.length) return;
+      photoIndex = (photoIndex + 1) % photos.length;
+      renderPhotos();
+    });
 
-        photoIndex =
-          (photoIndex - 1 + photos.length) %
-          photos.length;
+    document.getElementById("mainImage")?.addEventListener("click",openLightbox);
+    document.getElementById("openHd")?.addEventListener("click",openLightbox);
 
-        renderPhotos();
-      });
+    document.getElementById("openVideo")?.addEventListener("click",() => openViewer(video,"video"));
+    document.getElementById("open360")?.addEventListener("click",() => openViewer(image360,"360"));
 
-    document
-      .getElementById("nextPhoto")
-      ?.addEventListener("click",() => {
-        if (!photos.length) return;
+    document.getElementById("copyVin")?.addEventListener("click",async() => {
+      await navigator.clipboard?.writeText(getVin() || "");
+      const b = document.getElementById("copyVin");
+      if (b) {
+        b.textContent = "Skopiowano";
+        setTimeout(() => b.textContent = "Kopiuj",1200);
+      }
+    });
 
-        photoIndex =
-          (photoIndex + 1) %
-          photos.length;
+    document.getElementById("copyLink")?.addEventListener("click",async() => {
+      await navigator.clipboard?.writeText(location.href);
+      const b = document.getElementById("copyLink");
+      if (b) {
+        b.textContent = "Skopiowano";
+        setTimeout(() => b.textContent = "Kopiuj link",1200);
+      }
+    });
 
-        renderPhotos();
-      });
-
-    document
-      .getElementById("mainImage")
-      ?.addEventListener("click",openLightbox);
-
-    document
-      .getElementById("openHd")
-      ?.addEventListener("click",openLightbox);
-
-    document
-      .getElementById("openVideo")
-      ?.addEventListener(
-        "click",
-        () => openViewer(video,"video")
-      );
-
-    document
-      .getElementById("open360")
-      ?.addEventListener(
-        "click",
-        () => openViewer(image360,"360")
-      );
-
-    document
-      .getElementById("copyVin")
-      ?.addEventListener(
-        "click",
-        async() => {
-
-          await navigator.clipboard?.writeText(
-            getVin() || ""
-          );
-
-          const b =
-            document.getElementById("copyVin");
-
-          if (b) {
-            b.textContent = "Skopiowano";
-
-            setTimeout(
-              () => b.textContent = "Kopiuj",
-              1200
-            );
-          }
-        }
-      );
-
-    document
-      .getElementById("copyLink")
-      ?.addEventListener(
-        "click",
-        async() => {
-
-          await navigator.clipboard?.writeText(
-            location.href
-          );
-
-          const b =
-            document.getElementById("copyLink");
-
-          if (b) {
-            b.textContent = "Skopiowano";
-
-            setTimeout(
-              () => b.textContent = "Kopiuj link",
-              1200
-            );
-          }
-        }
-      );
-
-    document
-      .getElementById("scrollInfo")
-      ?.addEventListener(
-        "click",
-        () => {
-          document
-            .getElementById("details")
-            ?.scrollIntoView({
-              behavior:"smooth",
-              block:"start"
-            });
-        }
-      );
+    document.getElementById("scrollInfo")?.addEventListener("click",() => {
+      document.getElementById("details")?.scrollIntoView({behavior:"smooth",block:"start"});
+    });
+    ["cxBid","cxFee","cxUsa","cxSea","cxOther","cxRate","cxDuty","cxExcise","cxVat","cxPl"].forEach(id=>document.getElementById(id)?.addEventListener("input",calculateImport));
   }
 
   function openLightbox() {
     if (!photos.length) return;
 
-    photoIndex =
-      Math.max(
-        0,
-        Math.min(
-          photoIndex,
-          photos.length - 1
-        )
-      );
-
+    photoIndex = Math.max(0,Math.min(photoIndex,photos.length-1));
     zoom = 1;
     panX = 0;
     panY = 0;
 
-    const lb =
-      document.getElementById("lightbox");
-
+    const lb = document.getElementById("lightbox");
     lb.classList.add("open");
-    lb.setAttribute(
-      "aria-hidden",
-      "false"
-    );
-
+    lb.setAttribute("aria-hidden","false");
     document.body.classList.add("modal-open");
-
     updateLightbox();
   }
 
   function closeLightbox() {
-    const lb =
-      document.getElementById("lightbox");
-
+    const lb = document.getElementById("lightbox");
     lb.classList.remove("open");
-
-    lb.setAttribute(
-      "aria-hidden",
-      "true"
-    );
-
+    lb.setAttribute("aria-hidden","true");
     document.body.classList.remove("modal-open");
   }
 
   function updateLightbox() {
     if (!photos.length) return;
-
     const p = photos[photoIndex];
+    const img = document.getElementById("lbImage");
 
-    const img =
-      document.getElementById("lbImage");
+    img.src = p.large || p.thumb;
+    img.alt = `${getTitle() || "Samochód"} — HD ${photoIndex+1}`;
+    document.getElementById("lbInfo").textContent = `HD • ${photoIndex+1} / ${photos.length}`;
 
-    img.src =
-      p.large || p.thumb;
-
-    img.alt =
-      `${getTitle() || "Samochód"} — HD ${photoIndex+1}`;
-
-    document.getElementById("lbInfo").textContent =
-      `HD • ${photoIndex+1} / ${photos.length}`;
-
-    img.style.transform =
-      `translate(${panX}px,${panY}px) scale(${zoom})`;
+    img.style.transform = `translate(${panX}px,${panY}px) scale(${zoom})`;
   }
 
   function setZoom(next) {
-    zoom =
-      Math.max(
-        .5,
-        Math.min(5,next)
-      );
-
+    zoom = Math.max(.5,Math.min(5,next));
     if (zoom <= 1) {
       panX = 0;
       panY = 0;
     }
-
     updateLightbox();
   }
 
   function openViewer(url,type) {
     if (!url) return;
 
-    const modal =
-      document.getElementById("viewerModal");
-
-    const content =
-      document.getElementById("viewerContent");
+    const modal = document.getElementById("viewerModal");
+    const content = document.getElementById("viewerContent");
 
     if (type === "360") {
-
-      content.innerHTML = `
-        <iframe
-          src="${esc(url)}"
-          allow="fullscreen; autoplay; xr-spatial-tracking"
-          allowfullscreen
-          title="Widok 360°"
-        ></iframe>
-      `;
-
+      content.innerHTML = `<iframe src="${esc(url)}" allow="fullscreen; autoplay; xr-spatial-tracking" allowfullscreen title="Widok 360°"></iframe>`;
     } else {
-
       content.innerHTML = `
-        <video
-          controls
-          autoplay
-          playsinline
-        >
+        <video controls autoplay playsinline>
           <source src="${esc(url)}" />
-
-          Twoja przeglądarka nie może
-          odtworzyć tego materiału.
-
-          <a
-            href="${esc(url)}"
-            target="_blank"
-            rel="noopener"
-          >
-            Otwórz materiał
-          </a>
+          Twoja przeglądarka nie może odtworzyć tego materiału.
+          <a href="${esc(url)}" target="_blank" rel="noopener">Otwórz materiał</a>
         </video>
       `;
     }
 
     modal.classList.add("open");
-
-    modal.setAttribute(
-      "aria-hidden",
-      "false"
-    );
-
+    modal.setAttribute("aria-hidden","false");
     document.body.classList.add("modal-open");
   }
 
   function closeViewer() {
-    const modal =
-      document.getElementById("viewerModal");
-
+    const modal = document.getElementById("viewerModal");
     modal.classList.remove("open");
-
-    modal.setAttribute(
-      "aria-hidden",
-      "true"
-    );
-
-    document.getElementById(
-      "viewerContent"
-    ).innerHTML = "";
-
+    modal.setAttribute("aria-hidden","true");
+    document.getElementById("viewerContent").innerHTML = "";
     document.body.classList.remove("modal-open");
   }
 
-  document
-    .getElementById("lbClose")
-    .addEventListener(
-      "click",
-      closeLightbox
-    );
+  document.getElementById("lbClose").addEventListener("click",closeLightbox);
+  document.getElementById("lbMinus").addEventListener("click",() => setZoom(zoom-.25));
+  document.getElementById("lbPlus").addEventListener("click",() => setZoom(zoom+.25));
+  document.getElementById("lbReset").addEventListener("click",() => setZoom(1));
 
-  document
-    .getElementById("lbMinus")
-    .addEventListener(
-      "click",
-      () => setZoom(zoom-.25)
-    );
+  document.getElementById("lbPrev").addEventListener("click",() => {
+    if (!photos.length) return;
+    photoIndex = (photoIndex - 1 + photos.length) % photos.length;
+    zoom = 1; panX = 0; panY = 0;
+    updateLightbox();
+    renderPhotos();
+  });
 
-  document
-    .getElementById("lbPlus")
-    .addEventListener(
-      "click",
-      () => setZoom(zoom+.25)
-    );
+  document.getElementById("lbNext").addEventListener("click",() => {
+    if (!photos.length) return;
+    photoIndex = (photoIndex + 1) % photos.length;
+    zoom = 1; panX = 0; panY = 0;
+    updateLightbox();
+    renderPhotos();
+  });
 
-  document
-    .getElementById("lbReset")
-    .addEventListener(
-      "click",
-      () => setZoom(1)
-    );
+  document.getElementById("viewerClose").addEventListener("click",closeViewer);
 
-  document
-    .getElementById("lbPrev")
-    .addEventListener(
-      "click",
-      () => {
+  document.getElementById("lightbox").addEventListener("click",e => {
+    if (e.target.id === "lightbox") closeLightbox();
+  });
 
-        if (!photos.length) return;
+  document.getElementById("viewerModal").addEventListener("click",e => {
+    if (e.target.id === "viewerModal") closeViewer();
+  });
 
-        photoIndex =
-          (photoIndex - 1 + photos.length) %
-          photos.length;
-
-        zoom = 1;
-        panX = 0;
-        panY = 0;
-
-        updateLightbox();
-        renderPhotos();
-      }
-    );
-
-  document
-    .getElementById("lbNext")
-    .addEventListener(
-      "click",
-      () => {
-
-        if (!photos.length) return;
-
-        photoIndex =
-          (photoIndex + 1) %
-          photos.length;
-
-        zoom = 1;
-        panX = 0;
-        panY = 0;
-
-        updateLightbox();
-        renderPhotos();
-      }
-    );
-
-  document
-    .getElementById("viewerClose")
-    .addEventListener(
-      "click",
-      closeViewer
-    );
-
-  document
-    .getElementById("lightbox")
-    .addEventListener(
-      "click",
-      e => {
-        if (e.target.id === "lightbox") {
-          closeLightbox();
-        }
-      }
-    );
-
-  document
-    .getElementById("viewerModal")
-    .addEventListener(
-      "click",
-      e => {
-        if (e.target.id === "viewerModal") {
-          closeViewer();
-        }
-      }
-    );
-
-  document.addEventListener(
-    "keydown",
-    e => {
-
-      const lb =
-        document.getElementById("lightbox");
-
-      if (lb.classList.contains("open")) {
-
-        if (e.key === "Escape") {
-          closeLightbox();
-        }
-
-        if (e.key === "ArrowLeft") {
-          document
-            .getElementById("lbPrev")
-            .click();
-        }
-
-        if (e.key === "ArrowRight") {
-          document
-            .getElementById("lbNext")
-            .click();
-        }
-
-        if (e.key === "+") {
-          setZoom(zoom+.25);
-        }
-
-        if (e.key === "-") {
-          setZoom(zoom-.25);
-        }
-      }
-
-      if (
-        document
-          .getElementById("viewerModal")
-          .classList
-          .contains("open") &&
-        e.key === "Escape"
-      ) {
-        closeViewer();
-      }
+  document.addEventListener("keydown",e => {
+    const lb = document.getElementById("lightbox");
+    if (lb.classList.contains("open")) {
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowLeft") document.getElementById("lbPrev").click();
+      if (e.key === "ArrowRight") document.getElementById("lbNext").click();
+      if (e.key === "+") setZoom(zoom+.25);
+      if (e.key === "-") setZoom(zoom-.25);
     }
-  );
-
-  const lbStage =
-    document.getElementById("lbStage");
-
-  const lbImage =
-    document.getElementById("lbImage");
-
-  lbStage.addEventListener(
-    "wheel",
-    e => {
-
-      if (
-        !document
-          .getElementById("lightbox")
-          .classList
-          .contains("open")
-      ) {
-        return;
-      }
-
-      e.preventDefault();
-
-      setZoom(
-        zoom +
-        (e.deltaY < 0 ? .15 : -.15)
-      );
-    },
-    {passive:false}
-  );
-
-  lbImage.addEventListener(
-    "pointerdown",
-    e => {
-
-      if (zoom <= 1) return;
-
-      dragging = true;
-
-      lbImage.classList.add("dragging");
-
-      dragStartX = e.clientX;
-      dragStartY = e.clientY;
-
-      startPanX = panX;
-      startPanY = panY;
-
-      lbImage.setPointerCapture(
-        e.pointerId
-      );
+    if (document.getElementById("viewerModal").classList.contains("open") && e.key === "Escape") {
+      closeViewer();
     }
-  );
+  });
 
-  lbImage.addEventListener(
-    "pointermove",
-    e => {
+  const lbStage = document.getElementById("lbStage");
+  const lbImage = document.getElementById("lbImage");
 
-      if (!dragging) return;
+  lbStage.addEventListener("wheel",e => {
+    if (!document.getElementById("lightbox").classList.contains("open")) return;
+    e.preventDefault();
+    setZoom(zoom + (e.deltaY < 0 ? .15 : -.15));
+  },{passive:false});
 
-      panX =
-        startPanX +
-        (e.clientX - dragStartX);
+  lbImage.addEventListener("pointerdown",e => {
+    if (zoom <= 1) return;
+    dragging = true;
+    lbImage.classList.add("dragging");
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    startPanX = panX;
+    startPanY = panY;
+    lbImage.setPointerCapture(e.pointerId);
+  });
 
-      panY =
-        startPanY +
-        (e.clientY - dragStartY);
+  lbImage.addEventListener("pointermove",e => {
+    if (!dragging) return;
+    panX = startPanX + (e.clientX - dragStartX);
+    panY = startPanY + (e.clientY - dragStartY);
+    updateLightbox();
+  });
 
-      updateLightbox();
-    }
-  );
-
-  lbImage.addEventListener(
-    "pointerup",
-    e => {
-
-      dragging = false;
-
-      lbImage.classList.remove(
-        "dragging"
-      );
-
-      try {
-        lbImage.releasePointerCapture(
-          e.pointerId
-        );
-      } catch (_) {}
-    }
-  );
+  lbImage.addEventListener("pointerup",e => {
+    dragging = false;
+    lbImage.classList.remove("dragging");
+    try { lbImage.releasePointerCapture(e.pointerId); } catch (_) {}
+  });
 
   function startCountdown() {
-    const node =
-      document.getElementById("countdown");
-
+    const node = document.getElementById("countdown");
     const end = first(
       car.auction?.auction_at,
       car.auction?.full_date,
       getSale(["AuctionDateTime"])
     );
-
     if (!node || !end) return;
 
-    const target =
-      new Date(end).getTime();
-
+    const target = new Date(end).getTime();
     if (Number.isNaN(target)) return;
 
     function tick() {
-
-      const diff =
-        target - Date.now();
-
+      const diff = target - Date.now();
       if (diff <= 0) {
-        node.textContent =
-          "teraz / zakończona";
-
+        node.textContent = "teraz / zakończona";
         return;
       }
 
-      const total =
-        Math.floor(diff/1000);
-
-      const days =
-        Math.floor(total/86400);
-
-      const hours =
-        Math.floor(
-          (total%86400)/3600
-        );
-
-      const mins =
-        Math.floor(
-          (total%3600)/60
-        );
-
-      const secs =
-        total%60;
+      const total = Math.floor(diff/1000);
+      const days = Math.floor(total/86400);
+      const hours = Math.floor((total%86400)/3600);
+      const mins = Math.floor((total%3600)/60);
+      const secs = total%60;
 
       node.textContent =
         `${days ? days+"d " : ""}${String(hours).padStart(2,"0")}:${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
     }
 
     tick();
-
-    setInterval(
-      tick,
-      1000
-    );
+    setInterval(tick,1000);
   }
 
   async function init() {
-
     if (!VIN && !LOT) {
-
-      page.innerHTML = `
-        <div class="error">
-          Brak parametru VIN lub LOT w adresie strony.
-        </div>
-      `;
-
+      page.innerHTML = `<div class="error">Brak parametru VIN lub LOT w adresie strony.</div>`;
       return;
     }
 
     page.innerHTML = `
       <div class="panel empty">
-        <div
-          style="font-size:30px;margin-bottom:10px"
-        >
-          ⏳
-        </div>
-
+        <div style="font-size:30px;margin-bottom:10px">⏳</div>
         Pobieranie danych samochodu...
       </div>
     `;
 
     try {
-
       car = await fetchVehicle();
 
-      if (!car) {
-        throw new Error(
-          "Nie znaleziono samochodu."
-        );
-      }
+      if (!car) throw new Error("Nie znaleziono samochodu.");
 
-      photos =
-        normalizeMedia(car);
-
+      photos = normalizeMedia(car);
       buildPage();
-
     } catch (error) {
-
-      console.error(
-        "Rex.Bid car error:",
-        error
-      );
-
+      console.error("Rex.Bid car error:",error);
       page.innerHTML = `
         <div class="error">
-
-          <strong
-            style="
-              display:block;
-              color:#ff6d6d;
-              font-size:18px;
-              margin-bottom:8px
-            "
-          >
+          <strong style="display:block;color:#ff6d6d;font-size:18px;margin-bottom:8px">
             Nie udało się pobrać samochodu
           </strong>
-
-          ${esc(
-            error?.message ||
-            "Nieznany błąd"
-          )}
-
+          ${esc(error?.message || "Nieznany błąd")}
         </div>
       `;
     }
