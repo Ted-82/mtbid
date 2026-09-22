@@ -3081,9 +3081,11 @@ body{background:var(--bg);color:var(--text)}
       platformName()
     );
 
+    // Dla historii najważniejsza jest DATA AUKCJI, a nie data utworzenia/
+    // aktualizacji rekordu. Dzięki temu nie mieszamy dat snapshotów z datami aukcji.
     const date = first(
-      historyField(record,["auction_date","auctionDate","auction_at","auctionAt","sale_date","saleDate","date","sold_at","soldAt","created_at","createdAt"]),
-      historyNested(record,[["auction","auction_at"],["auction","auctionAt"],["sale","date"],["sale","auction_at"]])
+      historyNested(record,[["auction","auction_at"],["auction","auctionAt"],["auction","sale_date"],["auction","saleDate"]]),
+      historyField(record,["auction_date","auctionDate","auction_at","auctionAt","sale_date","saleDate","date","sold_at","soldAt"])
     );
 
     const lot = first(
@@ -3092,20 +3094,47 @@ body{background:var(--bg);color:var(--text)}
       getLot()
     );
 
-    const price = first(
-      historyField(record,["final_bid_usd","finalBidUsd","final_price_usd","finalPriceUsd","sold_price_usd","soldPriceUsd","sale_price_usd","salePriceUsd","price_usd","priceUsd","final_bid","finalBid","final_price","finalPrice","sold_price","soldPrice","sale_price","salePrice","price","current_bid_usd","currentBidUsd","current_bid","currentBid"]),
-      historyNested(record,[["pricing","last_sold_price_usd"],["pricing","final_bid_usd"],["pricing","current_bid_usd"]])
+    // Status odczytujemy przed ceną, ponieważ od niego zależy, czy cena
+    // jest rzeczywiście ceną sprzedaży, czy tylko ostatnią ofertą.
+    const status = first(
+      historyNested(record,[["auction","sale_status"],["auction","saleStatus"],["auction","outcome"],["auction","result"],["auction","status"],["auction","state"],["auction","lot_sub_status"]]),
+      historyField(record,["sale_status","saleStatus","outcome","result","status","auction_status","auctionStatus","state","lot_sub_status","lotSubStatus"]),
+      historyNested(record,[["sale","status"],["sale","outcome"]])
     );
 
-    const status = first(
-      historyField(record,["sale_status","saleStatus","status","outcome","result","auction_status","auctionStatus","state"]),
-      historyNested(record,[["auction","state"],["sale","status"]])
+    const statusText = String(displayValue(status) || "").toLowerCase();
+    const soldOutcome = /sold on approval|on approval|sale pending approval|sold|sale complete|completed|won|approved/.test(statusText)
+      && !/not sold|no sale|unsold|failed/.test(statusText);
+
+    // Apibara rozdziela current_bid od sale_price. W historii nie wolno
+    // podstawiać bieżącej oferty jako ceny sprzedaży. Najpierw próbujemy
+    // wartości finalnej/sprzedaży, dopiero przy zakończonej/niesprzedanej
+    // aukcji używamy ostatniej odnotowanej oferty jako "Końcowa oferta".
+    const salePrice = first(
+      historyNested(record,[["pricing","sale_price_usd"],["pricing","last_sold_price_usd"],["pricing","final_bid_usd"],["pricing","final_price_usd"],["pricing","sold_price_usd"],["auction","sale_price_usd"],["auction","last_sold_price_usd"],["auction","final_bid_usd"],["auction","final_price_usd"]]),
+      historyField(record,["sale_price_usd","salePriceUsd","last_sold_price_usd","lastSoldPriceUsd","final_bid_usd","finalBidUsd","final_price_usd","finalPriceUsd","sold_price_usd","soldPriceUsd","sale_price","salePrice","final_bid","finalBid","final_price","finalPrice","sold_price","soldPrice"])
     );
+
+    const currentBid = first(
+      historyNested(record,[["pricing","current_bid_usd"],["pricing","currentBidUsd"],["auction","current_bid_usd"],["auction","currentBidUsd"]]),
+      historyField(record,["current_bid_usd","currentBidUsd","current_bid","currentBid","bid","Bid","price_usd","priceUsd"])
+    );
+
+    let price = salePrice;
+    let priceType = "sale";
+
+    if (isEmpty(price)) {
+      // Dla "Nie sprzedano" Bid.Cars pokazuje ostatnią/końcową ofertę.
+      // To nadal NIE jest cena sprzedaży — dlatego wewnętrznie zachowujemy
+      // typ wartości jako bid.
+      price = currentBid;
+      priceType = "bid";
+    }
 
     const seller = first(
-      historyField(record,["seller_name","sellerName","seller"]),
-      historyNested(record,[["seller","name"],["seller","displayName"]]),
-      historyField(record,["seller_type","sellerType"])
+      historyNested(record,[["seller","name"],["seller","displayName"],["seller","seller_name"],["seller","sellerName"]]),
+      historyField(record,["seller_name","sellerName","seller","seller_type","sellerType"]),
+      historyNested(record,[["auction","seller_name"],["auction","sellerName"]])
     );
 
     if (isEmpty(date) && isEmpty(price) && isEmpty(status) && isEmpty(lot)) return null;
@@ -3115,6 +3144,8 @@ body{background:var(--bg);color:var(--text)}
       date,
       lot,
       price: isEmpty(price) ? null : price,
+      priceType,
+      soldOutcome,
       status: String(displayValue(status) || "").trim(),
       seller: String(displayValue(seller) || "").trim(),
       raw: record
@@ -3125,9 +3156,9 @@ body{background:var(--bg);color:var(--text)}
     const s = String(status || "").toLowerCase().trim();
     if (!s) return "Brak informacji";
     if (/sold on approval|on approval|sale pending approval/.test(s)) return "Sprzedano warunkowo";
-    if (/sold|sale complete|completed|won|approved/.test(s) && !/not sold|no sale|unsold|failed/.test(s)) return "Sprzedano";
-    if (/not sold|no sale|unsold|not_sold|failed/.test(s)) return "Nie sprzedano";
-    if (/live|open|active|running|in progress/.test(s)) return "W trakcie";
+    if (/not sold|no sale|unsold|not_sold|failed|no-sale/.test(s)) return "Nie sprzedano";
+    if (/sold|sale complete|completed|won|approved/.test(s)) return "Sprzedano";
+    if (/live|open|active|running|in progress|started|current/.test(s)) return "W trakcie";
     if (/upcoming|future|scheduled|pre.?bid/.test(s)) return "W przygotowaniu";
     if (/closed|ended|finished|complete/.test(s)) return "Zakończona";
     return displayValue(status) || "Brak informacji";
@@ -3135,7 +3166,7 @@ body{background:var(--bg);color:var(--text)}
 
   function historyStatusClass(status) {
     const label = historyStatusLabel(status).toLowerCase();
-    if (label.includes("sprzedano")) return "sold";
+    if (label === "sprzedano" || label.includes("warunkowo")) return "sold";
     if (label.includes("nie sprzedano")) return "not-sold";
     if (label.includes("trakcie")) return "live";
     if (label.includes("przygotowaniu")) return "upcoming";
@@ -3143,37 +3174,55 @@ body{background:var(--bg);color:var(--text)}
   }
 
   function historyRecordKey(item) {
+    const date = item.date ? new Date(item.date) : null;
+    const day = date && !Number.isNaN(date.getTime())
+      ? date.toISOString().slice(0,10)
+      : String(item.date || "");
+
     return [
       String(item.platform || "").toLowerCase(),
-      String(item.date || ""),
-      String(item.lot || ""),
-      String(item.price ?? ""),
-      String(item.status || "").toLowerCase()
+      String(item.lot || "").trim(),
+      day
     ].join("|");
   }
 
+  function historyRecordScore(item) {
+    const status = historyStatusLabel(item.status).toLowerCase();
+    let score = 0;
+
+    if (status.includes("sprzedano warunkowo")) score += 70;
+    else if (status === "sprzedano") score += 80;
+    else if (status.includes("nie sprzedano")) score += 60;
+    else if (status === "zakończona") score += 50;
+    else if (status.includes("trakcie")) score += 30;
+    else if (status.includes("przygotowaniu")) score += 10;
+
+    if (item.priceType === "sale") score += 20;
+    if (!isEmpty(item.price)) score += 5;
+    if (!isEmpty(item.seller)) score += 2;
+
+    const t = item.date ? new Date(item.date).getTime() : 0;
+    if (Number.isFinite(t)) score += Math.min(3, t / 1e13);
+
+    return score;
+  }
+
   function historyRecordsForRender() {
-    const all = [...auctionHistoryRecords];
-
-    const key = historyKey();
-    const data = readAuctionHistory();
-    const local = Array.isArray(data[key]) ? data[key] : [];
-
-    for (const item of local) {
-      const normalized = normalizeHistoryRecord({
-        platform: platformName(),
-        date: item.auctionStart || item.at,
-        lot: getLot(),
-        price: item.bid,
-        status: item.status || item.phase
-      });
-      if (normalized) all.push(normalized);
-    }
-
+    // Tabela historii sprzedaży pokazuje WYŁĄCZNIE rekordy z oficjalnego
+    // endpointu Apibara. Lokalne snapshoty Rex.Bid nie są tu mieszane,
+    // ponieważ są obserwacjami naszej aplikacji, a nie osobnymi aukcjami.
     const map = new Map();
-    for (const item of all) {
-      const key = historyRecordKey(item);
-      if (!map.has(key)) map.set(key,item);
+
+    for (const item of auctionHistoryRecords) {
+      const normalized = item && item.platform !== undefined ? item : normalizeHistoryRecord(item);
+      if (!normalized) continue;
+
+      const key = historyRecordKey(normalized);
+      const previous = map.get(key);
+
+      if (!previous || historyRecordScore(normalized) > historyRecordScore(previous)) {
+        map.set(key, normalized);
+      }
     }
 
     return Array.from(map.values()).sort((a,b) => {
@@ -3230,7 +3279,7 @@ body{background:var(--bg);color:var(--text)}
           <tbody>${rows}</tbody>
         </table>
       </div>
-      <div class="history-count">Dostępne rekordy historii: <strong>${list.length}</strong>. Historia pochodzi z danych aukcyjnych Apibara; snapshoty Rex.Bid są używane jako uzupełnienie.</div>
+      <div class="history-count">Dostępne rekordy historii: <strong>${list.length}</strong>. Dane pochodzą bezpośrednio z historii aukcyjnej Apibara; snapshoty Rex.Bid nie są mieszane z historią sprzedaży.</div>
     `;
   }
 
