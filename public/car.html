@@ -665,11 +665,13 @@
       height:38px;
       border:1px solid #d5dce2;
       border-radius:7px;
-      background:#f3f5f7;
-      color:#fff;
+      background:#ffffff;
+      color:#17202a;
       font-size:18px;
       font-weight:800;
+      box-shadow:0 2px 8px rgba(0,0,0,.18);
     }
+    .lb-controls button:hover { background:#f1f3f5; }
 
     .lb-stage {
       position:absolute;
@@ -712,10 +714,13 @@
       height:44px;
       border:1px solid #d5dce2;
       border-radius:50%;
-      background:rgba(255,255,255,.96);
-      color:#fff;
+      background:rgba(255,255,255,.98);
+      color:#17202a;
       font-size:25px;
+      font-weight:900;
+      box-shadow:0 2px 8px rgba(0,0,0,.18);
     }
+    .lightbox-nav:hover { background:#f1f3f5; }
     .lightbox-nav.left { left:10px; }
     .lightbox-nav.right { right:10px; }
 
@@ -953,6 +958,18 @@ body{background:var(--bg);color:var(--text)}
 .kv span,.seller-note,.section-title span,.color-legend{color:var(--muted)}
 .action{border-color:#d5dce2}
 .action.secondary{background:#f7f8fa;color:#17202a}
+
+
+/* AUCTION HISTORY + WATCH */
+.history-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:9px;background:#fff}
+.history-table{width:100%;border-collapse:collapse;min-width:620px;font-size:10px}
+.history-table th{background:#f7f8fa;color:#66727e;text-align:left;font-weight:800;padding:9px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+.history-table td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle;color:#17202a}
+.history-table tr:last-child td{border-bottom:0}
+.history-table .history-price{font-weight:900;color:#17202a;white-space:nowrap}
+.history-status{display:inline-flex;padding:4px 7px;border-radius:6px;background:#fff0f0;color:#b64242;font-weight:800;white-space:nowrap}
+.history-platform{display:inline-flex;padding:4px 7px;border-radius:5px;background:#1769aa;color:#fff;font-weight:900;white-space:nowrap}
+.watch-active{background:#1f9d5b!important;border-color:#1f9d5b!important;color:#fff!important}
 
 </style>
 </head>
@@ -1858,6 +1875,14 @@ body{background:var(--bg);color:var(--text)}
     );
   }
 
+  function getShippingOrigin() {
+    const loc = car.location;
+    if (loc && typeof loc === "object") {
+      return first(loc.send_from, loc.sendFrom, loc.port, loc.shipping_from);
+    }
+    return first(valueFrom(["SendFrom","ShippingFrom","PortFrom"]), getSale(["SendFrom","ShippingFrom"]));
+  }
+
   function field(label, value) {
     if (isEmpty(value)) return "";
     return `
@@ -2143,9 +2168,12 @@ body{background:var(--bg);color:var(--text)}
     );
 
     const titleDoc = first(
+      car.sale_document?.name,
+      car.sale_document?.display_name,
+      car.sale_document?.title,
       getInfo(["TitleSaleDoc"]),
       getSale(["TitleSaleDoc"]),
-      valueFrom(["Title"])
+      valueFrom(["TitleSaleDoc","SaleDocument","Title"])
     );
     const titleBrand = first(
       getInfo(["TitleSaleDocBrand"]),
@@ -2181,14 +2209,18 @@ body{background:var(--bg);color:var(--text)}
     );
 
     const runDrive = first(
+      car.condition?.run_condition?.label,
+      car.condition?.run_condition?.value,
       car.condition?.run_and_drive,
       getInfo(["StartCode"]),
       valueFrom(["RunAndDrive","StartsDesc","StartsCode"])
     );
 
     const keys = first(
+      car.condition?.has_key === true ? "Tak" : null,
+      car.condition?.has_key === false ? "Nie" : null,
       getInfo(["KeySlashFob"]),
-      valueFrom(["Keys","KeyFOB"])
+      valueFrom(["Keys","KeyFOB","HasKey","has_key"])
     );
 
     const airbags = first(
@@ -2245,11 +2277,14 @@ body{background:var(--bg);color:var(--text)}
             <div class="section-title"><h2>Dane samochodu</h2><span>${mediaCount} unikalnych zdjęć</span></div>
             <div class="spec-grid">
               ${field("Rok",year)}${field("Marka",make)}${field("Model",model)}
-              ${field("Wersja / seria",series)}${field("VIN",vin)}${field("Nadwozie",getDescription(["BodyStyle","BodyStyleName"]))}
+              ${field("LOT",lot)}${field("VIN",vin)}${field("Sprzedający",seller)}
+              ${field("Dokument",titleDoc)}${field("Główne uszkodzenie",primaryDamage)}${field("Pozostałe uszkodzenie",secondaryDamage)}
+              ${field("Status aukcji",auctionStatusLabel())}${field("Kluczyk",keys)}${field("Run & Drive",runDrive)}
+              ${field("Wersja / seria",series)}${field("Nadwozie",getDescription(["BodyStyle","BodyStyleName"]))}
               ${field("Typ pojazdu",getDescription(["Vehicle","VehicleClass","InventoryType"]))}${field("Silnik",getDescription(["Engine","EngineSize","EngineInformation"]))}${field("Skrzynia",getDescription(["Transmission","TransmissionDesc"]))}
               ${field("Napęd",getDescription(["DriveLineType","DriveLineTypeDesc"]))}${field("Paliwo",getDescription(["FuelType","FuelTypeDesc"]))}${field("Cylindry",getDescription(["Cylinders","CylindersDesc"]))}
               ${field("Przebieg",odometer)}${field("Status przebiegu",valueFrom(["ODOBrand"]))}${field("Kolor zewnętrzny",valueFrom(["ExteriorColor"]))}
-              ${field("Kolor wnętrza",valueFrom(["InteriorColor"]))}${field("Kluczyki",keys)}${field("Run & Drive",runDrive)}
+              ${field("Kolor wnętrza",valueFrom(["InteriorColor"]))}
               ${field("Airbagi",airbags)}${field("Typ straty",getInfo(["Loss"]))}${field("ACV",getSale(["ActualCashValue"]))}
               ${field("Szac. naprawa",getSale(["EstimatedRepairCost"]))}${field("Minimalna oferta",valueFrom(["MinimumBidAmount"]))}${field("Kto może kupić",valueFrom(["WhoCanBuy","whoCanBuy","WhoCanBid","whoCanBid"]))}
             </div>
@@ -2328,7 +2363,7 @@ body{background:var(--bg);color:var(--text)}
             <div class="info-card-body">
               <div class="mini-grid">
                 <div class="mini-stat"><small>Miejsce aukcji</small><strong>${nice(location) || "—"}</strong></div>
-                <div class="mini-stat"><small>Stan</small><strong>${nice(valueFrom(["State","BranchState"])) || "—"}</strong></div>
+                <div class="mini-stat"><small>Wysyłka z</small><strong>${nice(getShippingOrigin()) || "—"}</strong></div>
               </div>
               <div style="margin-top:9px">${kv("Oddział",getSale(["SellingBranch"]))}${kv("Adres",valueFrom(["Address"]))}${kv("Miasto",valueFrom(["City"]))}${kv("ZIP",valueFrom(["Zip"]))}</div>
               <div class="section-title" style="margin:12px 0 5px"><h2 style="font-size:12px">Orientacyjna trasa</h2></div>
@@ -2355,7 +2390,7 @@ body{background:var(--bg);color:var(--text)}
 
           <section class="info-card">
             <div class="info-card-head"><h3>Historia aukcji tego VIN</h3></div>
-            <div class="info-card-body"><div id="auctionHistory" class="auction-history"></div><div class="seller-note" style="margin-top:8px">Rex.Bid zapisuje kolejne odczyty ceny i statusu dla tego VIN-u, aby można było zobaczyć, jak aukcja się zmienia.</div></div>
+            <div class="info-card-body"><div id="auctionHistory" class="auction-history"></div><div class="seller-note" style="margin-top:8px">Historia pochodzi z danych aukcyjnych, a dodatkowe snapshoty Rex.Bid są używane jako uzupełnienie.</div></div>
           </section>
 
           <section class="info-card">
@@ -2372,6 +2407,7 @@ body{background:var(--bg);color:var(--text)}
     initImportCalculator();
     saveAuctionSnapshot();
     renderAuctionHistory();
+    fetchAuctionHistory();
     startAuctionRefresh();
   }
 
@@ -2408,6 +2444,30 @@ body{background:var(--bg);color:var(--text)}
     });
   }
 
+  const WATCH_KEY = "rex_bid_watched_v1";
+
+  function watchedCars() {
+    try { const raw = localStorage.getItem(WATCH_KEY); const data = raw ? JSON.parse(raw) : []; return Array.isArray(data) ? data : []; }
+    catch (_) { return []; }
+  }
+  function watchIdentifier() { return String(getVin() || getLot() || "").trim().toUpperCase(); }
+  function isWatched() { const id = watchIdentifier(); return !!id && watchedCars().includes(id); }
+  function updateWatchButton() {
+    const b = document.getElementById("watchBtn");
+    if (!b) return;
+    const active = isWatched();
+    b.textContent = active ? "✓ Obserwujesz" : "Obserwuj auto";
+    b.classList.toggle("watch-active",active);
+  }
+  function toggleWatch() {
+    const id = watchIdentifier();
+    if (!id) return;
+    const list = watchedCars(); const index = list.indexOf(id);
+    if (index >= 0) list.splice(index,1); else list.push(id);
+    try { localStorage.setItem(WATCH_KEY,JSON.stringify(list)); } catch (_) {}
+    updateWatchButton();
+  }
+
   function bindPageEvents(video,image360) {
     document.getElementById("prevPhoto")?.addEventListener("click",() => {
       if (!photos.length) return;
@@ -2435,6 +2495,9 @@ body{background:var(--bg);color:var(--text)}
         setTimeout(() => b.textContent = "Kopiuj",1200);
       }
     });
+
+    document.getElementById("watchBtn")?.addEventListener("click",toggleWatch);
+    updateWatchButton();
 
     document.getElementById("copyLink")?.addEventListener("click",async() => {
       await navigator.clipboard?.writeText(location.href);
@@ -2859,6 +2922,7 @@ body{background:var(--bg);color:var(--text)}
       const newBid = getAuctionBid();
       updateAuctionUi();
       saveAuctionSnapshot();
+      if (!remoteHistoryLoaded) fetchAuctionHistory();
       if (String(oldBid ?? "") !== String(newBid ?? "")) {
         const bidNode = document.getElementById("currentBidPrice");
         if (bidNode) {
@@ -2871,7 +2935,66 @@ body{background:var(--bg);color:var(--text)}
     }
   }
 
-  /* AUCTION HISTORY — historia zmian ceny/statusu dla każdego VIN-u */
+  /* AUCTION HISTORY — historia źródłowa + snapshoty Rex.Bid */
+  let remoteAuctionHistory = [];
+  let remoteHistoryLoading = false;
+  let remoteHistoryLoaded = false;
+
+  function formatHistoryDate(v) {
+    if (isEmpty(v)) return "—";
+    const raw = String(v);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+      const parts = raw.split("-");
+      return `${parts[2]}.${parts[1]}.${parts[0]}`;
+    }
+    return formatDate(v);
+  }
+
+  function normalizeHistoryRecord(item) {
+    if (!item || typeof item !== "object") return null;
+    const date = first(item.date,item.sale_date,item.saleDate,item.auction_date,item.auctionDate,item.auction_at,item.auctionAt,item.created_at,item.captured_at);
+    const price = first(item.price,item.final_bid,item.finalBid,item.sale_price,item.salePrice,item.last_sold_price,item.last_sold_price_usd,item.lastSoldPriceUsd,item.current_bid,item.current_bid_usd);
+    const platform = first(item.platform,item.source,item.auction_platform);
+    const lot = first(item.lot_number,item.lot,item.stock_number,item.stockNumber);
+    const status = first(item.status,item.sale_status,item.saleStatus,item.auction_status,item.auctionStatus);
+    const seller = first(item.seller,item.seller_name,item.sellerName);
+    if (isEmpty(date) && isEmpty(price) && isEmpty(lot) && isEmpty(status)) return null;
+    return {date,price,platform,lot,status,seller};
+  }
+
+  async function fetchAuctionHistory() {
+    const identifier = getVin() || getLot();
+    if (!identifier || remoteHistoryLoading) return;
+    remoteHistoryLoading = true;
+    try {
+      let cursor = null;
+      const records = [];
+      for (let pageNo = 0; pageNo < 10; pageNo++) {
+        const qs = new URLSearchParams({per_page:"20"});
+        if (cursor) qs.set("cursor",cursor);
+        const response = await fetch(`${API_BASE}/car/${encodeURIComponent(identifier)}/history?${qs.toString()}`, {headers:{"Accept":"application/json"}});
+        if (!response.ok) break;
+        const json = await response.json();
+        const data = json?.data || {};
+        const history = Array.isArray(data?.history) ? data.history : [];
+        for (const item of history) {
+          const normalized = normalizeHistoryRecord(item);
+          if (normalized) records.push(normalized);
+        }
+        const next = json?.meta?.next_cursor ?? data?.meta?.next_cursor ?? null;
+        if (!next || !history.length) break;
+        cursor = next;
+      }
+      remoteAuctionHistory = records;
+      remoteHistoryLoaded = true;
+      renderAuctionHistory();
+    } catch (error) {
+      console.warn("Rex.Bid history fetch:",error);
+    } finally {
+      remoteHistoryLoading = false;
+    }
+  }
+
   const HISTORY_KEY = "rex_bid_auction_history_v1";
   const HISTORY_MAX_PER_VIN = 500;
 
@@ -2939,37 +3062,34 @@ body{background:var(--bg);color:var(--text)}
     const box = document.getElementById("auctionHistory");
     if (!box) return;
 
-    const key = historyKey();
-    const data = readAuctionHistory();
-    const list = Array.isArray(data[key]) ? data[key] : [];
+    const localKey = historyKey();
+    const localData = readAuctionHistory();
+    const localList = Array.isArray(localData[localKey]) ? localData[localKey] : [];
 
-    if (!list.length) {
-      box.innerHTML = '<div class="empty" style="padding:20px">Historia zacznie się zapisywać przy kolejnych odczytach aukcji.</div>';
+    if (remoteAuctionHistory.length) {
+      const rows = remoteAuctionHistory.map(item => {
+        const date = formatHistoryDate(item.date);
+        const price = isEmpty(item.price) ? "—" : money(item.price);
+        const platform = isEmpty(item.platform) ? "—" : String(item.platform).toUpperCase();
+        const status = isEmpty(item.status) ? "—" : String(item.status);
+        return `<tr><td><span class="history-platform">${esc(platform)}</span></td><td>${esc(date)}</td><td>${isEmpty(item.lot) ? "—" : esc(item.lot)}</td><td class="history-price">${esc(price)}</td><td><span class="history-status">${esc(status)}</span></td><td>${isEmpty(item.seller) ? "—" : nice(item.seller)}</td></tr>`;
+      }).join("");
+      box.innerHTML = `<div class="history-table-wrap"><table class="history-table"><thead><tr><th>Aukcja</th><th>Data</th><th>LOT</th><th>Końcowa oferta</th><th>Status</th><th>Sprzedający</th></tr></thead><tbody>${rows}</tbody></table></div><div class="seller-note" style="margin-top:8px">Znaleziono ${remoteAuctionHistory.length} historycznych rekordów aukcyjnych dla tego VIN-u.</div>`;
       return;
     }
 
-    const rows = list.slice().reverse().slice(0,30).map(item => {
-      const phaseLabel =
-        item.phase === "prebid" ? "Przed licytacją" :
-        item.phase === "live" ? "LIVE" :
-        item.phase === "ended" ? "Zakończona" : "Zaplanowana";
+    if (!remoteHistoryLoaded && remoteHistoryLoading) {
+      box.innerHTML = '<div class="empty" style="padding:20px">Pobieram pełną historię aukcji…</div>';
+      return;
+    }
 
-      const bid = item.bid === null || Number.isNaN(Number(item.bid))
-        ? "—"
-        : money(item.bid);
+    if (!localList.length) {
+      box.innerHTML = '<div class="empty" style="padding:20px">Brak dostępnej historii aukcji dla tego VIN-u.</div>';
+      return;
+    }
 
-      return `
-        <div class="history-row">
-          <div>
-            <strong>${esc(formatDate(item.at))}</strong>
-            <small>${esc(phaseLabel)}${item.status ? " • " + esc(item.status) : ""}</small>
-          </div>
-          <strong>${esc(bid)}</strong>
-        </div>
-      `;
-    }).join("");
-
-    box.innerHTML = rows;
+    const rows = localList.slice().reverse().map(item => `<tr><td><span class="history-platform">${esc(platformName())}</span></td><td>${esc(formatDate(item.at))}</td><td>${esc(getLot() || "—")}</td><td class="history-price">${item.bid == null ? "—" : esc(money(item.bid))}</td><td><span class="history-status">${esc(item.phase || "—")}</span></td><td>—</td></tr>`).join("");
+    box.innerHTML = `<div class="history-table-wrap"><table class="history-table"><thead><tr><th>Aukcja</th><th>Data</th><th>LOT</th><th>Oferta</th><th>Status</th><th>Sprzedający</th></tr></thead><tbody>${rows}</tbody></table></div>`;
   }
 
   function startAuctionRefresh() {
