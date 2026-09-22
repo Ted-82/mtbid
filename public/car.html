@@ -852,6 +852,171 @@
 @media(max-width:760px){.calc-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:480px){.calc-grid{grid-template-columns:1fr}}
 
+
+/* ==========================================================
+   REX.BID — uporządkowany układ strony pojazdu
+   Tylko warstwa prezentacji. Logika API/aukcji pozostaje bez zmian.
+   ========================================================== */
+.vehicle-head {
+  margin-bottom:14px;
+  padding:16px 18px;
+  display:grid;
+  grid-template-columns:minmax(0,1.15fr) minmax(420px,1fr);
+  gap:16px;
+  align-items:center;
+}
+.vehicle-head-main { min-width:0; }
+.vehicle-head-top {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:7px;
+}
+.vehicle-head .source-badge { margin:0; }
+.vehicle-head h1 {
+  margin:0;
+  font-size:28px;
+  line-height:1.08;
+  letter-spacing:-1.1px;
+}
+.vehicle-head .vehicle-vin {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:9px;
+  color:var(--muted);
+  font-size:11px;
+}
+.vehicle-head .vehicle-vin strong {
+  color:#fff;
+  font-size:11px;
+  word-break:break-all;
+}
+.vehicle-head .vehicle-vin .copy-btn { margin-left:2px; }
+.vehicle-head-facts {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:7px;
+}
+.vehicle-head-fact {
+  min-width:0;
+  padding:9px 10px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--panel2);
+}
+.vehicle-head-fact small {
+  display:block;
+  color:var(--muted);
+  font-size:8px;
+  margin-bottom:3px;
+  text-transform:uppercase;
+  letter-spacing:.25px;
+}
+.vehicle-head-fact strong {
+  display:block;
+  font-size:10px;
+  line-height:1.25;
+  overflow-wrap:anywhere;
+}
+.vehicle-head-fact.damage-fact strong { color:var(--red); }
+.vehicle-head-fact.title-fact strong { color:var(--green); }
+
+/* Górna sekcja ma być najważniejszym miejscem na stronie. */
+.top-grid {
+  grid-template-columns:minmax(0,1.62fr) minmax(350px,.72fr);
+  gap:14px;
+}
+.main-photo { height:min(55vw,500px); min-height:340px; }
+.thumbs { max-height:150px; }
+.summary {
+  padding:14px;
+  top:88px;
+}
+.summary > .source-badge,
+.summary > h1,
+.summary > .vin-row { display:none; }
+.summary .auction-box { margin-bottom:8px; }
+.summary .auction-row { padding:9px 10px; }
+.summary .price-box { margin-bottom:8px; padding:12px; }
+.summary .price { font-size:30px; }
+.summary .action-row { margin-top:2px; }
+
+.auction-primary {
+  border:1px solid var(--border);
+  border-radius:10px;
+  overflow:hidden;
+  margin-bottom:8px;
+  background:#11151a;
+}
+.auction-status-bar {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 11px;
+  border-bottom:1px solid var(--border);
+}
+.auction-status-bar small { color:var(--muted); font-size:9px; }
+.auction-status-value { font-size:11px; font-weight:900; text-align:right; }
+.auction-status-value.live-status { color:var(--green); }
+.auction-status-value.prebid-status { color:var(--accent); }
+.auction-status-value.ended-status { color:var(--muted); }
+.auction-mini-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+}
+.auction-mini-cell {
+  min-width:0;
+  padding:9px 10px;
+  border-bottom:1px solid var(--border);
+}
+.auction-mini-cell:nth-child(odd) { border-right:1px solid var(--border); }
+.auction-mini-cell:nth-last-child(-n+2) { border-bottom:0; }
+.auction-mini-cell small {
+  display:block;
+  color:var(--muted);
+  font-size:8px;
+  margin-bottom:3px;
+}
+.auction-mini-cell strong {
+  display:block;
+  font-size:10px;
+  overflow-wrap:anywhere;
+}
+
+/* Prawa kolumna pozostaje dostępna podczas przewijania szczegółów. */
+.content-grid > aside {
+  position:sticky;
+  top:88px;
+  align-self:start;
+}
+.content-grid > aside .side-section { margin-bottom:10px; }
+.content-grid > aside .side-section h3 { font-size:13px; margin-bottom:7px; }
+.content-grid > aside .kv { padding:7px 0; font-size:9px; }
+.content-grid > aside .auction-history { max-height:250px; }
+
+/* Mniej pustego miejsca, ale nadal czytelne sekcje. */
+.section { padding:13px; margin-bottom:10px; }
+.section-title { margin-bottom:10px; }
+.spec { padding:9px; }
+.damage { padding:11px; }
+
+@media (max-width:1050px) {
+  .vehicle-head { grid-template-columns:1fr; }
+  .top-grid { grid-template-columns:1fr; }
+  .summary { position:static; }
+  .content-grid > aside { position:static; }
+}
+@media (max-width:700px) {
+  .vehicle-head { padding:13px; gap:12px; }
+  .vehicle-head h1 { font-size:23px; }
+  .vehicle-head-facts { grid-template-columns:1fr 1fr; }
+  .main-photo { height:62vw; min-height:260px; }
+  .thumbs { max-height:180px; }
+}
+
 </style>
 </head>
 
@@ -1027,124 +1192,22 @@
       .replace(/\b\w/g, c => c.toUpperCase());
   }
 
-  function normalizeIdentifier(value) {
-    if (value === null || value === undefined) return "";
-    return String(value).trim().toUpperCase().replace(/[\s-]/g, "");
-  }
-
-  function objectContainsIdentifier(obj, identifier, type = "vin") {
-    if (!obj || typeof obj !== "object") return false;
-
-    const wanted = normalizeIdentifier(identifier);
-    if (!wanted) return false;
-
-    const keys = type === "lot"
-      ? [
-          "lot","lot_number","lotNumber","stock","stock_number",
-          "stockNumber","StockNumber","SalvageId","salvageId",
-          "itemId","vehicleId"
-        ]
-      : [
-          "vin","VIN","vehicle_vin","vehicleVin","slug_vin",
-          "slugVin","Vin","vin_number","vinNumber"
-        ];
-
-    for (const key of keys) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        const value = normalizeIdentifier(obj[key]);
-        if (value && value === wanted) return true;
-      }
-    }
-
-    return false;
-  }
-
-  function findExactVehicle(data, identifier, type = "vin") {
-    if (!identifier) return null;
-
-    const wanted = normalizeIdentifier(identifier);
-    if (!wanted) return null;
-
-    const objects = collectObjects(data);
-
-    for (const obj of objects) {
-      if (objectContainsIdentifier(obj, identifier, type)) return obj;
-    }
-
-    for (const obj of objects) {
-      for (const [key, value] of Object.entries(obj)) {
-        if (typeof value !== "string" && typeof value !== "number") continue;
-
-        const normalized = normalizeIdentifier(value);
-        if (normalized !== wanted) continue;
-
-        const lowerKey = String(key).toLowerCase();
-
-        if (
-          type === "vin" &&
-          lowerKey.includes("vin")
-        ) {
-          return obj;
-        }
-
-        if (
-          type === "lot" &&
-          (
-            lowerKey.includes("lot") ||
-            lowerKey.includes("stock") ||
-            lowerKey.includes("salvage") ||
-            lowerKey.includes("item") ||
-            lowerKey.includes("vehicle")
-          )
-        ) {
-          return obj;
-        }
-      }
-    }
-
-    return null;
-  }
-
   function unwrapResult(json) {
     if (!json) return null;
 
-    let data =
-      json.data ??
-      json.result ??
-      json.vehicle ??
-      json.car ??
-      json;
+    let data = json.data ?? json.result ?? json.vehicle ?? json.car ?? json;
 
-    if (
-      data &&
-      data.data &&
-      !Array.isArray(data.data)
-    ) {
-      data = data.data;
-    }
-
-    /*
-     * Jeżeli mamy VIN, nie wolno nigdy wybrać pierwszego
-     * elementu tylko dlatego, że API zwróciło listę.
-     */
-    if (VIN) {
-      const exact = findExactVehicle(data, VIN, "vin");
-      return exact || null;
-    }
-
-    /*
-     * Analogicznie dla numeru LOT.
-     */
-    if (LOT) {
-      const exact = findExactVehicle(data, LOT, "lot");
-      return exact || null;
-    }
-
-    /*
-     * Bez identyfikatora akceptujemy tylko pojedynczy obiekt.
-     */
+    if (data && data.data && !Array.isArray(data.data)) data = data.data;
     if (Array.isArray(data)) {
-      return data.length === 1 ? data[0] : null;
+      if (VIN) {
+        const exact = data.find(x => String(x?.vin || "").toUpperCase() === VIN.toUpperCase());
+        if (exact) return exact;
+      }
+      if (LOT) {
+        const exact = data.find(x => String(x?.lot_number || x?.lot || "").toUpperCase() === LOT.toUpperCase());
+        if (exact) return exact;
+      }
+      return data[0] || null;
     }
 
     return data;
@@ -2085,6 +2148,31 @@
     const mediaCount = photos.length;
 
     page.innerHTML = `
+      <section class="panel vehicle-head">
+        <div class="vehicle-head-main">
+          <div class="vehicle-head-top">
+            <span class="source-badge">${esc(platformName())}</span>
+            ${auctionPhase() === "live" ? `<span class="live"><span class="live-dot"></span> LIVE</span>` : ""}
+            ${auctionPhase() === "prebid" ? `<span class="live" style="color:var(--accent);background:rgba(255,176,0,.12)">PRZED LICYTACJĄ</span>` : ""}
+          </div>
+          <h1>${esc(title || `${year || ""} ${make || ""} ${model || ""}`)}</h1>
+          <div class="vehicle-vin">
+            <span>VIN</span>
+            <strong>${esc(vin || "—")}</strong>
+            <button class="copy-btn" id="copyVin">Kopiuj</button>
+          </div>
+        </div>
+
+        <div class="vehicle-head-facts">
+          ${field("Rok",year).replace('<div class="spec">','<div class="vehicle-head-fact">').replace('</div>','</div>')}
+          <div class="vehicle-head-fact"><small>LOT</small><strong>${esc(lot || "—")}</strong></div>
+          <div class="vehicle-head-fact"><small>Data aukcji</small><strong>${esc(formatDate(date) || "—")}</strong></div>
+          <div class="vehicle-head-fact"><small>Lokalizacja</small><strong>${nice(location || "—")}</strong></div>
+          <div class="vehicle-head-fact"><small>Przebieg</small><strong>${nice(odometer || "—")}</strong></div>
+          <div class="vehicle-head-fact damage-fact"><small>Główne uszkodzenie</small><strong>${nice(primaryDamage || "—")}</strong></div>
+        </div>
+      </section>
+
       <div class="top-grid">
         <section class="panel gallery">
           <div class="main-photo" id="mainPhoto">
@@ -2107,28 +2195,17 @@
         </section>
 
         <aside class="panel summary">
-          <div class="source-badge">${esc(platformName())}</div>
-
-          <h1>
-            ${esc(title || `${year || ""} ${make || ""} ${model || ""}`)}
-            ${auctionPhase() === "live" ? `<span class="live"><span class="live-dot"></span> LIVE</span>` : ""}
-          </h1>
-
-          <div class="vin-row">
-            <div>
-              <small>VIN</small>
-              <strong>${esc(vin || "—")}</strong>
+          <div class="auction-primary">
+            <div class="auction-status-bar">
+              <small>Status aukcji</small>
+              <strong class="auction-status-value ${auctionPhase() === "live" ? "live-status" : auctionPhase() === "prebid" ? "prebid-status" : auctionPhase() === "ended" ? "ended-status" : ""}" id="auctionStatusText">${esc(auctionStatusLabel())}</strong>
             </div>
-            <button class="copy-btn" id="copyVin">Kopiuj</button>
-          </div>
-
-          <div class="auction-box">
-            ${kv("Aukcja", formatDate(date))}
-            ${kv("LOT", lot)}
-            <div class="auction-row"><div><small>Status</small></div><strong id="auctionStatusText">${esc(auctionStatusLabel())}</strong></div>
-            ${kv("Lokalizacja", location)}
-            ${getSale(["Lane"]) ? kv("Lane", getSale(["Lane"])) : ""}
-            ${getSale(["Aisle"]) ? kv("Aisle", getSale(["Aisle"])) : ""}
+            <div class="auction-mini-grid">
+              <div class="auction-mini-cell"><small>LOT</small><strong>${esc(lot || "—")}</strong></div>
+              <div class="auction-mini-cell"><small>DATA AUKCJI</small><strong>${esc(formatDate(date) || "—")}</strong></div>
+              <div class="auction-mini-cell"><small>LOKALIZACJA</small><strong>${nice(location || "—")}</strong></div>
+              <div class="auction-mini-cell"><small>PLATFORMA</small><strong>${esc(platformName() || "—")}</strong></div>
+            </div>
           </div>
 
           <div class="auction-box" id="auctionTimerBox">
