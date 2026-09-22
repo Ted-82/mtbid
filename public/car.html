@@ -1777,19 +1777,29 @@
       };
     }
 
-    // UWAGA: "Non-Insurance" / "Non Insurance" NIE oznacza firmy ubezpieczeniowej.
-    // Najpierw wykluczamy ten przypadek, ponieważ zwykłe wyszukiwanie słowa
-    // "insurance" wcześniej błędnie nadawało mu zielony status.
+    // Zaufany profil nadajemy tylko wtedy, gdy dane jednoznacznie wskazują
+    // na ubezpieczyciela. Ważne: "Non-Insurance" nie jest ubezpieczycielem.
+    // Zielony kolor nie oznacza gwarancji stanu auta.
     const sellerText = `${s} ${type}`;
-    const isNonInsurance = /\bnon[\s-]?insurance\b/.test(sellerText);
+    const isNonInsurance = /non[\s-]*insurance|non[\s-]*insurer|nieubezpiec/.test(sellerText);
+    const isInsuranceCompany = !isNonInsurance && (
+      /(^|[\s,._-])insurance([\s,._-]|$)|insurance company|ubezpieczeni/.test(sellerText) ||
+      /progressive|state farm|geico|allstate|arbella|erie insurance|liberty mutual|farmers insurance|nationwide/.test(sellerText)
+    );
 
-    // Zielony status nadajemy tylko wtedy, gdy rzeczywiście rozpoznajemy
-    // ubezpieczyciela i nie ma oznaczenia Non-Insurance.
-    if (!isNonInsurance && (/insurance|ubezpiec|ins\b|rcc/.test(type) || /insurance|progressive|state farm|geico|allstate|arbella/.test(s))) {
+    if (isInsuranceCompany) {
       return {
         label:"🟢 Zaufany profil — ubezpieczyciel",
         cls:"green",
-        note:"Sprzedawca jest rozpoznany jako firma ubezpieczeniowa. To zielony profil sprzedawcy, zgodny z klasyfikacją stosowaną przez BidCars. Nie oznacza gwarancji stanu pojazdu ani wyniku rejestracji w Polsce."
+        note:"Sprzedawca jest rozpoznany jako firma ubezpieczeniowa. Zielony profil oznacza typ sprzedawcy o niskim ryzyku źródła danych, a nie gwarancję stanu pojazdu."
+      };
+    }
+
+    if (isNonInsurance) {
+      return {
+        label:"🟡 Non-Insurance — wymaga weryfikacji",
+        cls:"orange",
+        note:"Sprzedawca jest oznaczony jako Non-Insurance, więc nie kwalifikujemy go jako ubezpieczyciela. Przed zakupem warto zweryfikować sprzedawcę, dokumenty i historię pojazdu."
       };
     }
 
@@ -1848,14 +1858,14 @@
     if (/warning|warn|dealer only|duplicate|lien|bonded|export only|non repairable|non-repairable|parts only|parts-only|scrap|junk|certificate of destruction|destruction/.test(text + " " + all)) return "warn";
     if (/approved|verified|accepted/.test(text)) return "good";
     if (/parts only|parts-only|scrap|junk|non repairable|non-repairable|certificate of destruction|destruction/.test(all)) return "bad";
-    if (/salvage|rebuilt|rebuildable|reconstructed|flood|certificate of salvage|bill of sale/.test(all)) return "salvage";
+    if (/salvage|rebuilt|rebuildable|flood|certificate of salvage|bill of sale/.test(all)) return "salvage";
     if (/clean|clear|clean title|clear title/.test(all)) return "good";
     return "unknown";
   }
 
   function titleVerdictLabel(kind) {
     if (kind === "good") return "🟢 Dokument zaakceptowany / korzystny";
-    if (kind === "salvage") return "🟡 Salvage — możliwa rejestracja w Polsce po spełnieniu warunków, wymaga weryfikacji";
+    if (kind === "salvage") return "🟡 Salvage — możliwa rejestracja po spełnieniu warunków";
     if (kind === "warn") return "🟡 Dokument z ograniczeniem / ostrzeżeniem";
     if (kind === "bad") return "🔴 Duże ryzyko dokumentowe";
     return "⚪ Brak wystarczających danych";
@@ -1863,7 +1873,7 @@
 
   function titleVerdictNote(kind) {
     if (kind === "good") return "Źródło aukcyjne wskazuje korzystny lub zatwierdzony status dokumentu. To nie jest prawna gwarancja rejestracji w Polsce.";
-    if (kind === "salvage") return "Salvage nie oznacza automatycznie zakazu rejestracji w Polsce, ale wymaga sprawdzenia konkretnego dokumentu, jego oznaczeń oraz spełnienia wymaganych warunków po naprawie. Nie traktujemy Salvage jako statusu zielonego.";
+    if (kind === "salvage") return "Salvage oznacza szkodę całkowitą w historii pojazdu, ale sam status Salvage nie wyklucza rejestracji w Polsce. Po naprawie pojazd może zostać zarejestrowany po spełnieniu wymaganych warunków i badań. Zawsze trzeba sprawdzić konkretny dokument oraz jego oznaczenia.";
     if (kind === "warn") return "Źródło aukcyjne sygnalizuje ograniczenie dokumentu, np. dealer only lub duplicate. Przed zakupem trzeba sprawdzić oryginalny title i możliwość rejestracji.";
     if (kind === "bad") return "Dokument może powodować poważne problemy z legalnym zarejestrowaniem pojazdu. Wymagana jest szczegółowa weryfikacja przed zakupem.";
     return "Brakuje wystarczających informacji o dokumencie, aby nadać mu wiarygodny kolor.";
@@ -1883,8 +1893,8 @@
     if (/salvage|certificate of salvage/.test(t)) {
       return {
         cls:"warn",
-        label:"🟡 Salvage — możliwa rejestracja po spełnieniu warunków",
-        text:"Sam status Salvage nie wyklucza rejestracji w Polsce. Po naprawie pojazd może wymagać dodatkowego badania technicznego i spełnienia pozostałych wymagań rejestracyjnych. Rex.Bid nie daje gwarancji rejestracji konkretnego pojazdu."
+        label:"🟡 Salvage — wymaga weryfikacji",
+        text:"Sam status Salvage nie oznacza automatycznie braku możliwości rejestracji w Polsce, ale dokument i jego oznaczenia wymagają dokładnej weryfikacji. Po naprawie mogą być wymagane dodatkowe badania i dokumenty. Rex.Bid nie daje gwarancji rejestracji konkretnego pojazdu."
       };
     }
 
