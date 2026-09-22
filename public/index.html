@@ -17,17 +17,17 @@
     }
 
     :root {
-      --bg: #0b0d10;
-      --panel: #12161b;
-      --panel2: #181d23;
-      --border: #282e36;
-      --text: #f4f6f8;
-      --muted: #9aa3ad;
-      --accent: #ffb000;
-      --accent2: #ffcc55;
-      --green: #35d07f;
-      --red: #ff5d5d;
-      --blue: #55aaff;
+      --bg: #f4f6f8;
+      --panel: #ffffff;
+      --panel2: #f8f9fb;
+      --border: #dfe4e9;
+      --text: #17202a;
+      --muted: #687581;
+      --accent: #f0a800;
+      --accent2: #ffc94d;
+      --green: #1f9d5b;
+      --red: #d94a4a;
+      --blue: #287bc1;
     }
 
     body {
@@ -66,7 +66,7 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(11, 13, 16, 0.94);
+      background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
     }
@@ -145,7 +145,7 @@
       border-radius: 12px;
       outline: none;
       background: var(--panel);
-      color: white;
+      color: var(--text);
       font-size: 16px;
     }
 
@@ -203,7 +203,7 @@
       border: 1px solid var(--border);
       border-radius: 9px;
       background: var(--panel2);
-      color: white;
+      color: var(--text);
       outline: none;
     }
 
@@ -246,14 +246,14 @@
     }
 
     .car-card:hover {
-      border-color: #454c55;
+      border-color: #c7cfd7;
       transform: translateY(-2px);
     }
 
     .car-image {
       position: relative;
       height: 230px;
-      background: #080a0c;
+      background: #e9edf1;
       overflow: hidden;
     }
 
@@ -270,7 +270,7 @@
       left: 12px;
       padding: 6px 9px;
       border-radius: 7px;
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(17, 19, 21, 0.82);
       font-size: 11px;
       font-weight: 800;
     }
@@ -281,7 +281,7 @@
       top: 12px;
       padding: 6px 9px;
       border-radius: 7px;
-      background: rgba(53, 208, 127, 0.9);
+      background: rgba(31, 157, 91, 0.92);
       color: #07140d;
       font-size: 11px;
       font-weight: 800;
@@ -379,6 +379,37 @@
       color: var(--muted);
       text-align: center;
       font-size: 13px;
+    }
+
+    /* LIGHT THEME REFINEMENTS */
+
+    header {
+      box-shadow: 0 1px 8px rgba(20, 30, 40, 0.05);
+    }
+
+    .hero h1 {
+      color: #17202a;
+    }
+
+    .search-box input::placeholder,
+    .filters input::placeholder {
+      color: #8a949e;
+    }
+
+    .filters,
+    .car-card {
+      box-shadow: 0 2px 10px rgba(20, 30, 40, 0.04);
+    }
+
+    .car-title,
+    .spec strong,
+    .price,
+    .results-header h2 {
+      color: #17202a;
+    }
+
+    .car-bottom {
+      border-top-color: #e1e5e9;
     }
 
     /* RESPONSIVE */
