@@ -552,8 +552,8 @@
     .legend-dot.orange { background:var(--orange); }
     .legend-dot.red { background:var(--red); }
     .legend-dot.unknown { background:#7b858f; }
-    .title-verdict.salvage { border-color:#c47b00; }
-    .title-verdict.salvage .verdict-label { color:var(--orange); }
+    .title-verdict.salvage { border-color:#276f4b; }
+    .title-verdict.salvage .verdict-label { color:var(--green); }
 
     .auction-history {
       border:1px solid var(--border);
@@ -665,13 +665,11 @@
       height:38px;
       border:1px solid #d5dce2;
       border-radius:7px;
-      background:#ffffff;
-      color:#17202a;
+      background:#f3f5f7;
+      color:#fff;
       font-size:18px;
       font-weight:800;
-      box-shadow:0 2px 8px rgba(0,0,0,.18);
     }
-    .lb-controls button:hover { background:#f1f3f5; }
 
     .lb-stage {
       position:absolute;
@@ -714,13 +712,10 @@
       height:44px;
       border:1px solid #d5dce2;
       border-radius:50%;
-      background:rgba(255,255,255,.98);
-      color:#17202a;
+      background:rgba(255,255,255,.96);
+      color:#fff;
       font-size:25px;
-      font-weight:900;
-      box-shadow:0 2px 8px rgba(0,0,0,.18);
     }
-    .lightbox-nav:hover { background:#f1f3f5; }
     .lightbox-nav.left { left:10px; }
     .lightbox-nav.right { right:10px; }
 
@@ -960,16 +955,36 @@ body{background:var(--bg);color:var(--text)}
 .action.secondary{background:#f7f8fa;color:#17202a}
 
 
-/* AUCTION HISTORY + WATCH */
-.history-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:9px;background:#fff}
-.history-table{width:100%;border-collapse:collapse;min-width:620px;font-size:10px}
-.history-table th{background:#f7f8fa;color:#66727e;text-align:left;font-weight:800;padding:9px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
-.history-table td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle;color:#17202a}
-.history-table tr:last-child td{border-bottom:0}
-.history-table .history-price{font-weight:900;color:#17202a;white-space:nowrap}
-.history-status{display:inline-flex;padding:4px 7px;border-radius:6px;background:#fff0f0;color:#b64242;font-weight:800;white-space:nowrap}
-.history-platform{display:inline-flex;padding:4px 7px;border-radius:5px;background:#1769aa;color:#fff;font-weight:900;white-space:nowrap}
-.watch-active{background:#1f9d5b!important;border-color:#1f9d5b!important;color:#fff!important}
+
+/* ==========================================================
+   REX.BID — AUCTION HISTORY / SIMPLE STATUS / SOURCE LINK
+   ========================================================== */
+.platform-link{cursor:pointer;text-decoration:none!important}
+.platform-link.copart{background:#1769b0;color:#fff!important}
+.platform-link.iaai{background:#c93636;color:#fff!important}
+.platform-link.other{background:#17202a;color:#fff!important}
+.platform-link:hover{filter:brightness(.95)}
+.auction-state.live{color:#1f9d5b!important}
+.auction-state.ended{color:#c33b3b!important}
+.auction-state.prebid{color:#c47b00!important}
+.auction-history{max-height:none!important;overflow:hidden!important}
+.history-scroll{max-height:430px;overflow:auto;border:1px solid var(--border);border-radius:9px;background:#fff}
+.history-table{width:100%;border-collapse:collapse;min-width:720px;font-size:10px;background:#fff}
+.history-table th{position:sticky;top:0;z-index:2;text-align:left;padding:9px 10px;background:#f5f7f9;color:#66727e;border-bottom:1px solid var(--border);font-size:9px;white-space:nowrap}
+.history-table td{padding:9px 10px;border-bottom:1px solid #e3e7eb;color:#17202a;white-space:nowrap;vertical-align:middle}
+.history-table tbody tr:hover{background:#fafbfd}
+.history-platform{display:inline-flex;padding:5px 8px;border-radius:6px;color:#fff;font-size:9px;font-weight:900}
+.history-platform.copart{background:#1769b0}
+.history-platform.iaai{background:#c93636}
+.history-price{font-weight:900}
+.history-status{display:inline-flex;padding:5px 8px;border-radius:6px;font-size:9px;font-weight:800}
+.history-status.sold{background:#e8f7ef;color:#187a47}
+.history-status.not-sold{background:#fdeced;color:#b43b3b}
+.history-status.live{background:#e9f3ff;color:#1769b0}
+.history-status.upcoming{background:#fff4d8;color:#8a6500}
+.history-status.unknown{background:#f0f2f4;color:#66727e}
+.history-count{padding:8px 2px 0;color:#66727e;font-size:9px;line-height:1.5}
+@media(max-width:760px){.history-scroll{max-height:380px}.history-table{min-width:700px}}
 
 </style>
 </head>
@@ -1039,6 +1054,8 @@ body{background:var(--bg);color:var(--text)}
 
   let car = null;
   let photos = [];
+  let auctionHistoryRecords = [];
+
   let photoIndex = 0;
 
   let zoom = 1;
@@ -1817,6 +1834,9 @@ body{background:var(--bg);color:var(--text)}
     if (auctionPhase() === "ended") {
       const finalBid = getFinalBid();
       if (!isEmpty(finalBid)) return finalBid;
+
+      const historyBid = getCurrentAuctionHistoryFinalBid();
+      if (!isEmpty(historyBid)) return historyBid;
     }
 
     return first(
@@ -1878,9 +1898,60 @@ body{background:var(--bg);color:var(--text)}
   function getShippingOrigin() {
     const loc = car.location;
     if (loc && typeof loc === "object") {
-      return first(loc.send_from, loc.sendFrom, loc.port, loc.shipping_from);
+      return first(
+        loc.send_from,
+        loc.sendFrom,
+        loc.shipping_origin,
+        loc.shippingOrigin,
+        loc.port,
+        loc.city
+      );
     }
-    return first(valueFrom(["SendFrom","ShippingFrom","PortFrom"]), getSale(["SendFrom","ShippingFrom"]));
+
+    return first(
+      valueFrom(["ShippingOrigin","shippingOrigin","SendFrom","send_from","PortName"]),
+      getSale(["ShippingOrigin","SendFrom"]),
+      getLocation()
+    );
+  }
+
+  function getTitleDocument() {
+    const direct = first(
+      getInfo(["TitleSaleDoc","SaleDocument","SaleDocumentName","DocumentName"]),
+      getSale(["TitleSaleDoc","SaleDocument","SaleDocumentName","DocumentName"]),
+      car.sale_document?.name,
+      car.sale_document?.display,
+      car.sale_document?.title,
+      car.sale_document?.document,
+      car.document?.name,
+      car.document?.display,
+      valueFrom(["document_name","documentName","sale_document_name","SaleDocumentName"])
+    );
+
+    if (!isEmpty(direct)) return direct;
+
+    const generic = first(valueFrom(["Title"]));
+    const text = String(displayValue(generic) || "");
+    if (/clean|clear|salvage|title|certificate|dis\/dlr|export|lien|non[- ]?repairable|parts only|rebuilt/i.test(text)) {
+      return generic;
+    }
+
+    return null;
+  }
+
+  function platformClass() {
+    const p = platformName().toLowerCase();
+    if (p.includes("copart")) return "copart";
+    if (p.includes("iaai") || p === "iaa") return "iaai";
+    return "other";
+  }
+
+  function platformBadgeHtml() {
+    const label = esc(platformName());
+    const url = originalAuctionUrl();
+    const cls = platformClass();
+    if (!url) return `<span class="platform-pill ${cls}">${label}</span>`;
+    return `<a class="platform-pill platform-link ${cls}" href="${esc(url)}" target="_blank" rel="noopener noreferrer" title="Otwórz oryginalną aukcję">${label} ↗</a>`;
   }
 
   function field(label, value) {
@@ -1920,18 +1991,18 @@ body{background:var(--bg);color:var(--text)}
       };
     }
 
-    // WAŻNE: "Non-Insurance" zawiera słowo "insurance", dlatego musi być
-    // sprawdzone PRZED wykrywaniem prawdziwej firmy ubezpieczeniowej.
-    if (/non[- ]?insurance|non[- ]?ins\b|nieubezpieczeni|nie[- ]?ubezpieczeni/.test(type + " " + s)) {
+    // "Non-Insurance" / "Non Insurance" nie jest firmą ubezpieczeniową.
+    // Ten przypadek musi być rozpatrzony przed ogólnym wykrywaniem słowa "insurance".
+    if (/non[-\s]?insurance|non[-\s]?insur/.test(s + " " + type)) {
       return {
         label:"🟡 Non-Insurance — wymaga weryfikacji",
         cls:"orange",
-        note:"Sprzedawca nie jest oznaczony jako firma ubezpieczeniowa. Profil wymaga dodatkowej weryfikacji przed zakupem."
+        note:"Sprzedawca został oznaczony jako nieubezpieczeniowy. Nie nadajemy mu automatycznie statusu zaufanego ubezpieczyciela."
       };
     }
 
-    // Firmy ubezpieczeniowe otrzymują zielony profil. Nie jest to gwarancja
-    // jakości auta ani gwarancja rejestracji w Polsce.
+    // Zielony profil ubezpieczyciela nadajemy tylko wtedy, gdy dane rzeczywiście
+    // wskazują na firmę ubezpieczeniową. Nie jest to gwarancja stanu auta.
     if (/insurance|ubezpiec|ins\b|rcc/.test(type) || /insurance|progressive|state farm|geico|allstate|arbella/.test(s)) {
       return {
         label:"🟢 Zaufany profil — ubezpieczyciel",
@@ -2002,7 +2073,7 @@ body{background:var(--bg);color:var(--text)}
 
   function titleVerdictLabel(kind) {
     if (kind === "good") return "🟢 Dokument zaakceptowany / korzystny";
-    if (kind === "salvage") return "🟡 Salvage — wymaga weryfikacji przed zakupem";
+    if (kind === "salvage") return "🟡 Salvage — wymaga weryfikacji dokumentu";
     if (kind === "warn") return "🟡 Dokument z ograniczeniem / ostrzeżeniem";
     if (kind === "bad") return "🔴 Duże ryzyko dokumentowe";
     return "⚪ Brak wystarczających danych";
@@ -2010,7 +2081,7 @@ body{background:var(--bg);color:var(--text)}
 
   function titleVerdictNote(kind) {
     if (kind === "good") return "Źródło aukcyjne wskazuje korzystny lub zatwierdzony status dokumentu. To nie jest prawna gwarancja rejestracji w Polsce.";
-    if (kind === "salvage") return "Salvage oznacza szkodę całkowitą w historii pojazdu. Sam status nie oznacza automatycznej odmowy rejestracji w Polsce, ale dokument i jego oznaczenia wymagają dokładnej weryfikacji przed zakupem.";
+    if (kind === "salvage") return "Salvage oznacza szkodę całkowitą w historii pojazdu, ale sam status Salvage nie oznacza automatycznie zakazu rejestracji w Polsce. Dokument wymaga indywidualnej weryfikacji, a po naprawie mogą być wymagane dodatkowe badania i dokumenty.";
     if (kind === "warn") return "Źródło aukcyjne sygnalizuje ograniczenie dokumentu, np. dealer only lub duplicate. Przed zakupem trzeba sprawdzić oryginalny title i możliwość rejestracji.";
     if (kind === "bad") return "Dokument może powodować poważne problemy z legalnym zarejestrowaniem pojazdu. Wymagana jest szczegółowa weryfikacja przed zakupem.";
     return "Brakuje wystarczających informacji o dokumencie, aby nadać mu wiarygodny kolor.";
@@ -2031,7 +2102,7 @@ body{background:var(--bg);color:var(--text)}
       return {
         cls:"warn",
         label:"🟡 Salvage — wymaga weryfikacji",
-        text:"Sam status Salvage nie oznacza automatycznej odmowy rejestracji w Polsce, ale konkretny dokument i jego oznaczenia trzeba dokładnie sprawdzić przed zakupem."
+        text:"Sam status Salvage nie oznacza automatycznie zakazu rejestracji w Polsce, ale dokument wymaga indywidualnej weryfikacji. Po naprawie mogą być wymagane dodatkowe badania i dokumenty. Rex.Bid nie daje gwarancji rejestracji konkretnego pojazdu."
       };
     }
 
@@ -2135,10 +2206,17 @@ body{background:var(--bg);color:var(--text)}
 
   function auctionStatusLabel() {
     const phase = auctionPhase();
-    if (phase === "prebid") return "PRZED LICYTACJĄ — ZBIERANIE OFERT";
-    if (phase === "live") return "LIVE — LICYTACJA TRWA";
+    if (phase === "prebid") return "W PRZYGOTOWANIU";
+    if (phase === "live") return "W TRAKCIE — LIVE";
     if (phase === "ended") return "ZAKOŃCZONA";
-    return displayValue(getAuctionStatus()) || "—";
+    return "W PRZYGOTOWANIU";
+  }
+
+  function auctionStatusClass() {
+    const phase = auctionPhase();
+    if (phase === "live") return "live";
+    if (phase === "ended") return "ended";
+    return "prebid";
   }
 
   function buildPage() {
@@ -2167,14 +2245,7 @@ body{background:var(--bg);color:var(--text)}
       valueFrom(["SecondaryDamageDesc"])
     );
 
-    const titleDoc = first(
-      car.sale_document?.name,
-      car.sale_document?.display_name,
-      car.sale_document?.title,
-      getInfo(["TitleSaleDoc"]),
-      getSale(["TitleSaleDoc"]),
-      valueFrom(["TitleSaleDoc","SaleDocument","Title"])
-    );
+    const titleDoc = getTitleDocument();
     const titleBrand = first(
       getInfo(["TitleSaleDocBrand"]),
       getSale(["Brand"]),
@@ -2209,18 +2280,14 @@ body{background:var(--bg);color:var(--text)}
     );
 
     const runDrive = first(
-      car.condition?.run_condition?.label,
-      car.condition?.run_condition?.value,
       car.condition?.run_and_drive,
       getInfo(["StartCode"]),
       valueFrom(["RunAndDrive","StartsDesc","StartsCode"])
     );
 
     const keys = first(
-      car.condition?.has_key === true ? "Tak" : null,
-      car.condition?.has_key === false ? "Nie" : null,
       getInfo(["KeySlashFob"]),
-      valueFrom(["Keys","KeyFOB","HasKey","has_key"])
+      valueFrom(["Keys","KeyFOB"])
     );
 
     const airbags = first(
@@ -2239,7 +2306,7 @@ body{background:var(--bg);color:var(--text)}
             <a href="/#results">Samochody</a><span>›</span>
             <span>${esc(platformName())}</span><span>›</span><span>${esc(lot || vin)}</span>
           </div>
-          <div class="platform-pill">${esc(platformName())}</div>
+          ${platformBadgeHtml()}
           <h1>${esc(title || `${year || ""} ${make || ""} ${model || ""}`)}</h1>
           <div class="vehicle-meta">
             ${!isEmpty(vin) ? `<span>VIN: <b>${esc(vin)}</b></span>` : ""}
@@ -2277,14 +2344,11 @@ body{background:var(--bg);color:var(--text)}
             <div class="section-title"><h2>Dane samochodu</h2><span>${mediaCount} unikalnych zdjęć</span></div>
             <div class="spec-grid">
               ${field("Rok",year)}${field("Marka",make)}${field("Model",model)}
-              ${field("LOT",lot)}${field("VIN",vin)}${field("Sprzedający",seller)}
-              ${field("Dokument",titleDoc)}${field("Główne uszkodzenie",primaryDamage)}${field("Pozostałe uszkodzenie",secondaryDamage)}
-              ${field("Status aukcji",auctionStatusLabel())}${field("Kluczyk",keys)}${field("Run & Drive",runDrive)}
-              ${field("Wersja / seria",series)}${field("Nadwozie",getDescription(["BodyStyle","BodyStyleName"]))}
+              ${field("Wersja / seria",series)}${field("VIN",vin)}${field("Nadwozie",getDescription(["BodyStyle","BodyStyleName"]))}
               ${field("Typ pojazdu",getDescription(["Vehicle","VehicleClass","InventoryType"]))}${field("Silnik",getDescription(["Engine","EngineSize","EngineInformation"]))}${field("Skrzynia",getDescription(["Transmission","TransmissionDesc"]))}
               ${field("Napęd",getDescription(["DriveLineType","DriveLineTypeDesc"]))}${field("Paliwo",getDescription(["FuelType","FuelTypeDesc"]))}${field("Cylindry",getDescription(["Cylinders","CylindersDesc"]))}
               ${field("Przebieg",odometer)}${field("Status przebiegu",valueFrom(["ODOBrand"]))}${field("Kolor zewnętrzny",valueFrom(["ExteriorColor"]))}
-              ${field("Kolor wnętrza",valueFrom(["InteriorColor"]))}
+              ${field("Kolor wnętrza",valueFrom(["InteriorColor"]))}${field("Kluczyki",keys)}${field("Run & Drive",runDrive)}
               ${field("Airbagi",airbags)}${field("Typ straty",getInfo(["Loss"]))}${field("ACV",getSale(["ActualCashValue"]))}
               ${field("Szac. naprawa",getSale(["EstimatedRepairCost"]))}${field("Minimalna oferta",valueFrom(["MinimumBidAmount"]))}${field("Kto może kupić",valueFrom(["WhoCanBuy","whoCanBuy","WhoCanBid","whoCanBid"]))}
             </div>
@@ -2345,14 +2409,14 @@ body{background:var(--bg);color:var(--text)}
 
         <aside class="right-column">
           <section class="info-card">
-            <div class="info-card-head"><h3>Aktualna aukcja</h3><span class="platform-pill" style="margin:0">${esc(platformName())}</span></div>
+            <div class="info-card-head"><h3>Aktualna aukcja</h3>${platformBadgeHtml()}</div>
             <div class="info-card-body">
               <div class="primary-auction">
-                <div class="auction-main"><div class="auction-label" id="bidLabel">${auctionPhase() === "prebid" ? "Najwyższa oferta przed licytacją" : "Aktualna oferta"}</div><div class="auction-price" id="currentBidPrice">${money(getAuctionBid())}</div><div class="auction-state" id="auctionStatusText">${esc(auctionStatusLabel())}</div><div class="auction-countdown" id="auctionTimerBox"><span id="countdownLabel">Termin licytacji</span>: <span id="countdown">${formatDate(date)}</span></div></div>
+                <div class="auction-main"><div class="auction-label" id="bidLabel">${auctionPhase() === "prebid" ? "Najwyższa oferta przed licytacją" : "Aktualna oferta"}</div><div class="auction-price" id="currentBidPrice">${money(getAuctionBid())}</div><div class="auction-state ${auctionStatusClass()}" id="auctionStatusText">${esc(auctionStatusLabel())}</div><div class="auction-countdown" id="auctionTimerBox"><span id="countdownLabel">Termin licytacji</span>: <span id="countdown">${formatDate(date)}</span></div></div>
                 <div class="info-card-body" style="padding-top:10px">
                   ${kv("Numer LOT",lot)}${kv("Data aukcji",formatDate(date))}${kv("Lokalizacja",location)}
                   <div class="action-row" style="margin-top:9px"><button class="action secondary" id="copyVin">Kopiuj VIN</button><button class="action primary" id="watchBtn">Obserwuj auto</button></div>
-                  ${originalAuctionUrl() ? `<a href="${esc(originalAuctionUrl())}" target="_blank" rel="noopener noreferrer" class="action primary green" style="display:flex;align-items:center;justify-content:center;margin-top:8px">Oryginalna aukcja ${esc(platformName())} ↗</a>` : ""}
+
                 </div>
               </div>
             </div>
@@ -2390,7 +2454,7 @@ body{background:var(--bg);color:var(--text)}
 
           <section class="info-card">
             <div class="info-card-head"><h3>Historia aukcji tego VIN</h3></div>
-            <div class="info-card-body"><div id="auctionHistory" class="auction-history"></div><div class="seller-note" style="margin-top:8px">Historia pochodzi z danych aukcyjnych, a dodatkowe snapshoty Rex.Bid są używane jako uzupełnienie.</div></div>
+            <div class="info-card-body"><div id="auctionHistory" class="auction-history"></div><div class="seller-note" style="margin-top:8px">Historia jest pobierana z archiwum aukcyjnego; dodatkowe snapshoty Rex.Bid są używane jako uzupełnienie.</div></div>
           </section>
 
           <section class="info-card">
@@ -2444,30 +2508,6 @@ body{background:var(--bg);color:var(--text)}
     });
   }
 
-  const WATCH_KEY = "rex_bid_watched_v1";
-
-  function watchedCars() {
-    try { const raw = localStorage.getItem(WATCH_KEY); const data = raw ? JSON.parse(raw) : []; return Array.isArray(data) ? data : []; }
-    catch (_) { return []; }
-  }
-  function watchIdentifier() { return String(getVin() || getLot() || "").trim().toUpperCase(); }
-  function isWatched() { const id = watchIdentifier(); return !!id && watchedCars().includes(id); }
-  function updateWatchButton() {
-    const b = document.getElementById("watchBtn");
-    if (!b) return;
-    const active = isWatched();
-    b.textContent = active ? "✓ Obserwujesz" : "Obserwuj auto";
-    b.classList.toggle("watch-active",active);
-  }
-  function toggleWatch() {
-    const id = watchIdentifier();
-    if (!id) return;
-    const list = watchedCars(); const index = list.indexOf(id);
-    if (index >= 0) list.splice(index,1); else list.push(id);
-    try { localStorage.setItem(WATCH_KEY,JSON.stringify(list)); } catch (_) {}
-    updateWatchButton();
-  }
-
   function bindPageEvents(video,image360) {
     document.getElementById("prevPhoto")?.addEventListener("click",() => {
       if (!photos.length) return;
@@ -2495,9 +2535,6 @@ body{background:var(--bg);color:var(--text)}
         setTimeout(() => b.textContent = "Kopiuj",1200);
       }
     });
-
-    document.getElementById("watchBtn")?.addEventListener("click",toggleWatch);
-    updateWatchButton();
 
     document.getElementById("copyLink")?.addEventListener("click",async() => {
       await navigator.clipboard?.writeText(location.href);
@@ -2752,6 +2789,16 @@ body{background:var(--bg);color:var(--text)}
     return 3.10;
   }
 
+  function updateForecastFromCalculator() {
+    const topForecast = document.getElementById("topForecast");
+    if (!topForecast) return;
+    const rate = Number(document.getElementById("calcRate")?.value || 0);
+    const result = document.getElementById("calcResult");
+    if (!rate || !result) return;
+    const totalLine = result.querySelector(".calc-total strong");
+    if (totalLine) topForecast.textContent = totalLine.textContent.split("≈").pop().trim();
+  }
+
   function initImportCalculator() {
     const bid = document.getElementById("calcBid");
     const excise = document.getElementById("calcExcise");
@@ -2902,7 +2949,10 @@ body{background:var(--bg);color:var(--text)}
     const bidNode = document.getElementById("currentBidPrice");
     const bidLabel = document.getElementById("bidLabel");
 
-    if (statusNode) statusNode.textContent = auctionStatusLabel();
+    if (statusNode) {
+      statusNode.textContent = auctionStatusLabel();
+      statusNode.className = `auction-state ${auctionStatusClass()}`;
+    }
     if (bidNode) bidNode.textContent = money(getAuctionBid());
     if (bidLabel) bidLabel.textContent = phase === "prebid"
       ? "Najwyższa oferta przed licytacją"
@@ -2922,7 +2972,6 @@ body{background:var(--bg);color:var(--text)}
       const newBid = getAuctionBid();
       updateAuctionUi();
       saveAuctionSnapshot();
-      if (!remoteHistoryLoaded) fetchAuctionHistory();
       if (String(oldBid ?? "") !== String(newBid ?? "")) {
         const bidNode = document.getElementById("currentBidPrice");
         if (bidNode) {
@@ -2935,66 +2984,7 @@ body{background:var(--bg);color:var(--text)}
     }
   }
 
-  /* AUCTION HISTORY — historia źródłowa + snapshoty Rex.Bid */
-  let remoteAuctionHistory = [];
-  let remoteHistoryLoading = false;
-  let remoteHistoryLoaded = false;
-
-  function formatHistoryDate(v) {
-    if (isEmpty(v)) return "—";
-    const raw = String(v);
-    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
-      const parts = raw.split("-");
-      return `${parts[2]}.${parts[1]}.${parts[0]}`;
-    }
-    return formatDate(v);
-  }
-
-  function normalizeHistoryRecord(item) {
-    if (!item || typeof item !== "object") return null;
-    const date = first(item.date,item.sale_date,item.saleDate,item.auction_date,item.auctionDate,item.auction_at,item.auctionAt,item.created_at,item.captured_at);
-    const price = first(item.price,item.final_bid,item.finalBid,item.sale_price,item.salePrice,item.last_sold_price,item.last_sold_price_usd,item.lastSoldPriceUsd,item.current_bid,item.current_bid_usd);
-    const platform = first(item.platform,item.source,item.auction_platform);
-    const lot = first(item.lot_number,item.lot,item.stock_number,item.stockNumber);
-    const status = first(item.status,item.sale_status,item.saleStatus,item.auction_status,item.auctionStatus);
-    const seller = first(item.seller,item.seller_name,item.sellerName);
-    if (isEmpty(date) && isEmpty(price) && isEmpty(lot) && isEmpty(status)) return null;
-    return {date,price,platform,lot,status,seller};
-  }
-
-  async function fetchAuctionHistory() {
-    const identifier = getVin() || getLot();
-    if (!identifier || remoteHistoryLoading) return;
-    remoteHistoryLoading = true;
-    try {
-      let cursor = null;
-      const records = [];
-      for (let pageNo = 0; pageNo < 10; pageNo++) {
-        const qs = new URLSearchParams({per_page:"20"});
-        if (cursor) qs.set("cursor",cursor);
-        const response = await fetch(`${API_BASE}/car/${encodeURIComponent(identifier)}/history?${qs.toString()}`, {headers:{"Accept":"application/json"}});
-        if (!response.ok) break;
-        const json = await response.json();
-        const data = json?.data || {};
-        const history = Array.isArray(data?.history) ? data.history : [];
-        for (const item of history) {
-          const normalized = normalizeHistoryRecord(item);
-          if (normalized) records.push(normalized);
-        }
-        const next = json?.meta?.next_cursor ?? data?.meta?.next_cursor ?? null;
-        if (!next || !history.length) break;
-        cursor = next;
-      }
-      remoteAuctionHistory = records;
-      remoteHistoryLoaded = true;
-      renderAuctionHistory();
-    } catch (error) {
-      console.warn("Rex.Bid history fetch:",error);
-    } finally {
-      remoteHistoryLoading = false;
-    }
-  }
-
+  /* AUCTION HISTORY — historia zmian ceny/statusu dla każdego VIN-u */
   const HISTORY_KEY = "rex_bid_auction_history_v1";
   const HISTORY_MAX_PER_VIN = 500;
 
@@ -3058,38 +3048,270 @@ body{background:var(--bg);color:var(--text)}
     renderAuctionHistory();
   }
 
+  function historyField(record, keys) {
+    for (const key of keys) {
+      if (record && Object.prototype.hasOwnProperty.call(record, key) && !isEmpty(record[key])) {
+        return record[key];
+      }
+    }
+    return null;
+  }
+
+  function historyNested(record, paths) {
+    for (const path of paths) {
+      let value = record;
+      for (const part of path) {
+        if (!value || typeof value !== "object") {
+          value = null;
+          break;
+        }
+        value = value[part];
+      }
+      if (!isEmpty(value)) return value;
+    }
+    return null;
+  }
+
+  function normalizeHistoryRecord(record) {
+    if (!record || typeof record !== "object") return null;
+
+    const platform = first(
+      historyField(record,["platform","source","auction_platform"]),
+      historyNested(record,[["auction","platform"]]),
+      platformName()
+    );
+
+    const date = first(
+      historyField(record,["auction_date","auctionDate","auction_at","auctionAt","sale_date","saleDate","date","sold_at","soldAt","created_at","createdAt"]),
+      historyNested(record,[["auction","auction_at"],["auction","auctionAt"],["sale","date"],["sale","auction_at"]])
+    );
+
+    const lot = first(
+      historyField(record,["lot_number","lotNumber","lot","stock_number","stockNumber","stock"]),
+      historyNested(record,[["auction","lot_number"],["auction","lotNumber"]]),
+      getLot()
+    );
+
+    const price = first(
+      historyField(record,["final_bid_usd","finalBidUsd","final_price_usd","finalPriceUsd","sold_price_usd","soldPriceUsd","sale_price_usd","salePriceUsd","price_usd","priceUsd","final_bid","finalBid","final_price","finalPrice","sold_price","soldPrice","sale_price","salePrice","price","current_bid_usd","currentBidUsd","current_bid","currentBid"]),
+      historyNested(record,[["pricing","last_sold_price_usd"],["pricing","final_bid_usd"],["pricing","current_bid_usd"]])
+    );
+
+    const status = first(
+      historyField(record,["sale_status","saleStatus","status","outcome","result","auction_status","auctionStatus","state"]),
+      historyNested(record,[["auction","state"],["sale","status"]])
+    );
+
+    const seller = first(
+      historyField(record,["seller_name","sellerName","seller"]),
+      historyNested(record,[["seller","name"],["seller","displayName"]]),
+      historyField(record,["seller_type","sellerType"])
+    );
+
+    if (isEmpty(date) && isEmpty(price) && isEmpty(status) && isEmpty(lot)) return null;
+
+    return {
+      platform: String(displayValue(platform) || platformName()),
+      date,
+      lot,
+      price: isEmpty(price) ? null : price,
+      status: String(displayValue(status) || "").trim(),
+      seller: String(displayValue(seller) || "").trim(),
+      raw: record
+    };
+  }
+
+  function historyStatusLabel(status) {
+    const s = String(status || "").toLowerCase().trim();
+    if (!s) return "Brak informacji";
+    if (/sold on approval|on approval|sale pending approval/.test(s)) return "Sprzedano warunkowo";
+    if (/sold|sale complete|completed|won|approved/.test(s) && !/not sold|no sale|unsold|failed/.test(s)) return "Sprzedano";
+    if (/not sold|no sale|unsold|not_sold|failed/.test(s)) return "Nie sprzedano";
+    if (/live|open|active|running|in progress/.test(s)) return "W trakcie";
+    if (/upcoming|future|scheduled|pre.?bid/.test(s)) return "W przygotowaniu";
+    if (/closed|ended|finished|complete/.test(s)) return "Zakończona";
+    return displayValue(status) || "Brak informacji";
+  }
+
+  function historyStatusClass(status) {
+    const label = historyStatusLabel(status).toLowerCase();
+    if (label.includes("sprzedano")) return "sold";
+    if (label.includes("nie sprzedano")) return "not-sold";
+    if (label.includes("trakcie")) return "live";
+    if (label.includes("przygotowaniu")) return "upcoming";
+    return "unknown";
+  }
+
+  function historyRecordKey(item) {
+    return [
+      String(item.platform || "").toLowerCase(),
+      String(item.date || ""),
+      String(item.lot || ""),
+      String(item.price ?? ""),
+      String(item.status || "").toLowerCase()
+    ].join("|");
+  }
+
+  function historyRecordsForRender() {
+    const all = [...auctionHistoryRecords];
+
+    const key = historyKey();
+    const data = readAuctionHistory();
+    const local = Array.isArray(data[key]) ? data[key] : [];
+
+    for (const item of local) {
+      const normalized = normalizeHistoryRecord({
+        platform: platformName(),
+        date: item.auctionStart || item.at,
+        lot: getLot(),
+        price: item.bid,
+        status: item.status || item.phase
+      });
+      if (normalized) all.push(normalized);
+    }
+
+    const map = new Map();
+    for (const item of all) {
+      const key = historyRecordKey(item);
+      if (!map.has(key)) map.set(key,item);
+    }
+
+    return Array.from(map.values()).sort((a,b) => {
+      const da = new Date(a.date || 0).getTime();
+      const db = new Date(b.date || 0).getTime();
+      return db - da;
+    });
+  }
+
   function renderAuctionHistory() {
     const box = document.getElementById("auctionHistory");
     if (!box) return;
 
-    const localKey = historyKey();
-    const localData = readAuctionHistory();
-    const localList = Array.isArray(localData[localKey]) ? localData[localKey] : [];
+    const list = historyRecordsForRender();
 
-    if (remoteAuctionHistory.length) {
-      const rows = remoteAuctionHistory.map(item => {
-        const date = formatHistoryDate(item.date);
-        const price = isEmpty(item.price) ? "—" : money(item.price);
-        const platform = isEmpty(item.platform) ? "—" : String(item.platform).toUpperCase();
-        const status = isEmpty(item.status) ? "—" : String(item.status);
-        return `<tr><td><span class="history-platform">${esc(platform)}</span></td><td>${esc(date)}</td><td>${isEmpty(item.lot) ? "—" : esc(item.lot)}</td><td class="history-price">${esc(price)}</td><td><span class="history-status">${esc(status)}</span></td><td>${isEmpty(item.seller) ? "—" : nice(item.seller)}</td></tr>`;
-      }).join("");
-      box.innerHTML = `<div class="history-table-wrap"><table class="history-table"><thead><tr><th>Aukcja</th><th>Data</th><th>LOT</th><th>Końcowa oferta</th><th>Status</th><th>Sprzedający</th></tr></thead><tbody>${rows}</tbody></table></div><div class="seller-note" style="margin-top:8px">Znaleziono ${remoteAuctionHistory.length} historycznych rekordów aukcyjnych dla tego VIN-u.</div>`;
-      return;
-    }
-
-    if (!remoteHistoryLoaded && remoteHistoryLoading) {
-      box.innerHTML = '<div class="empty" style="padding:20px">Pobieram pełną historię aukcji…</div>';
-      return;
-    }
-
-    if (!localList.length) {
+    if (!list.length) {
       box.innerHTML = '<div class="empty" style="padding:20px">Brak dostępnej historii aukcji dla tego VIN-u.</div>';
       return;
     }
 
-    const rows = localList.slice().reverse().map(item => `<tr><td><span class="history-platform">${esc(platformName())}</span></td><td>${esc(formatDate(item.at))}</td><td>${esc(getLot() || "—")}</td><td class="history-price">${item.bid == null ? "—" : esc(money(item.bid))}</td><td><span class="history-status">${esc(item.phase || "—")}</span></td><td>—</td></tr>`).join("");
-    box.innerHTML = `<div class="history-table-wrap"><table class="history-table"><thead><tr><th>Aukcja</th><th>Data</th><th>LOT</th><th>Oferta</th><th>Status</th><th>Sprzedający</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    const rows = list.map(item => {
+      const price = item.price === null || isEmpty(item.price) || Number.isNaN(Number(item.price))
+        ? "—"
+        : money(item.price);
+      const status = historyStatusLabel(item.status);
+      const platform = String(item.platform || platformName()).toUpperCase();
+      const platformCls = platform.toLowerCase().includes("iaai") || platform === "IAA" ? "iaai" : "copart";
+
+      return `
+        <tr>
+          <td><span class="history-platform ${platformCls}">${esc(platform)}</span></td>
+          <td>${esc(formatHistoryDate(item.date))}</td>
+          <td>${esc(item.lot || "—")}</td>
+          <td class="history-price">${esc(price)}</td>
+          <td><span class="history-status ${historyStatusClass(item.status)}">${esc(status)}</span></td>
+          <td>${esc(item.seller || "—")}</td>
+        </tr>
+      `;
+    }).join("");
+
+    box.innerHTML = `
+      <div class="history-scroll">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Aukcja</th>
+              <th>Data</th>
+              <th>LOT</th>
+              <th>Końcowa oferta</th>
+              <th>Status</th>
+              <th>Sprzedający</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div class="history-count">Dostępne rekordy historii: <strong>${list.length}</strong>. Historia pochodzi z danych aukcyjnych Apibara; snapshoty Rex.Bid są używane jako uzupełnienie.</div>
+    `;
+  }
+
+  function formatHistoryDate(value) {
+    if (isEmpty(value)) return "—";
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return String(value);
+    return d.toLocaleDateString("pl-PL", {year:"numeric",month:"2-digit",day:"2-digit"});
+  }
+
+  function getCurrentAuctionHistoryFinalBid() {
+    const currentLot = String(getLot() || "").trim();
+    const currentDate = getAuctionStart();
+    const currentTime = currentDate ? new Date(currentDate).getTime() : NaN;
+
+    const candidates = auctionHistoryRecords.filter(item => {
+      const lotMatch = !currentLot || String(item.lot || "").trim() === currentLot;
+      if (!lotMatch) return false;
+      const t = item.date ? new Date(item.date).getTime() : NaN;
+      if (!Number.isFinite(currentTime) || !Number.isFinite(t)) return true;
+      return Math.abs(currentTime - t) <= 48 * 60 * 60 * 1000;
+    });
+
+    for (const item of candidates) {
+      if (historyStatusLabel(item.status) === "Sprzedano" || historyStatusLabel(item.status) === "Sprzedano warunkowo") {
+        if (!isEmpty(item.price)) return item.price;
+      }
+    }
+
+    return null;
+  }
+
+  async function fetchAuctionHistory() {
+    const box = document.getElementById("auctionHistory");
+    if (!box) return;
+
+    const identifier = getVin() || getLot();
+    if (!identifier) return;
+
+    try {
+      let cursor = null;
+      const collected = [];
+      const seenCursors = new Set();
+      const maxPages = 20;
+
+      for (let pageNo = 0; pageNo < maxPages; pageNo++) {
+        const query = new URLSearchParams({per_page:"20"});
+        if (cursor) query.set("cursor",cursor);
+
+        const response = await fetch(`${API_BASE}/car/${encodeURIComponent(identifier)}/history?${query.toString()}`, {
+          headers: {"Accept":"application/json"},
+          cache: "no-store"
+        });
+
+        if (!response.ok) throw new Error(`Historia HTTP ${response.status}`);
+        const json = await response.json();
+        const data = json?.data;
+        const rawRecords = Array.isArray(data?.history)
+          ? data.history
+          : Array.isArray(data) ? data : [];
+
+        rawRecords.forEach(record => {
+          const normalized = normalizeHistoryRecord(record);
+          if (normalized) collected.push(normalized);
+        });
+
+        const next = json?.meta?.next_cursor || data?.meta?.next_cursor || null;
+        if (!next || seenCursors.has(next)) break;
+        seenCursors.add(next);
+        cursor = next;
+      }
+
+      auctionHistoryRecords = collected;
+      renderAuctionHistory();
+      updateAuctionUi();
+      updateForecastFromCalculator();
+    } catch (error) {
+      console.warn("Rex.Bid auction history:", error);
+      // Jeżeli historia źródłowa jest niedostępna, zostawiamy lokalne snapshoty.
+      renderAuctionHistory();
+    }
   }
 
   function startAuctionRefresh() {
