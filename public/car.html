@@ -1003,9 +1003,81 @@
 .spec { padding:9px; }
 .damage { padding:11px; }
 
+/* ==========================================================
+   REX.BID — jasny, uporządkowany interfejs + szybki podgląd danych
+   ========================================================== */
+:root {
+  --bg:#f4f6f8;
+  --panel:#ffffff;
+  --panel2:#f7f8fa;
+  --border:#dfe4e9;
+  --text:#17202a;
+  --muted:#66727e;
+  --accent:#f0a800;
+  --accent2:#ffc94d;
+  --green:#1f9d5b;
+  --red:#d94a4a;
+  --orange:#d97720;
+  --blue:#287bc1;
+}
+body { background:var(--bg); color:var(--text); }
+header { background:rgba(255,255,255,.94); }
+.nav a:hover { color:#111; }
+.panel { background:var(--panel); box-shadow:0 1px 2px rgba(20,30,40,.03); }
+.vehicle-head-fact,
+.auction-primary,
+.key-info,
+.seller-box,
+.title-verdict,
+.damage,
+.spec,
+.auction-history { background:#fff; }
+.vehicle-vin strong,
+.vehicle-head-fact strong,
+.spec strong,
+.kv strong { color:#17202a; }
+.auction-mini-cell,
+.kv,
+.spec,
+.auction-row { border-color:var(--border); }
+.auction-history { background:#fff; }
+.media-toolbar,.thumb-wrap { background:#f7f8fa; border-color:var(--border); }
+.media-btn,.action,.copy-btn { background:#fff; color:#17202a; border-color:#d5dbe1; }
+.media-btn:hover,.action:hover,.copy-btn:hover { background:#f2f4f6; }
+.price-box { background:#f7faf8; border-color:#d7e4dc; }
+.price { color:#17202a; }
+.auction-status-bar { background:#fff; }
+.key-info { padding:14px; }
+.compact-title { margin-bottom:8px; }
+.compact-title h2 { font-size:14px; }
+.key-info-list { border:1px solid var(--border); border-radius:9px; overflow:hidden; }
+.key-info .kv { padding:8px 10px; font-size:10px; background:#fff; }
+.key-info .kv:last-child { border-bottom:0; }
+.key-info .kv strong { max-width:62%; }
+.top-grid { grid-template-columns:minmax(0,1.5fr) minmax(250px,.82fr) minmax(300px,.76fr); }
+.top-grid > .key-info { align-self:start; }
+.summary { padding:14px; }
+.vehicle-head-facts { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.vehicle-head-fact:nth-child(4) strong,
+.vehicle-head-fact:nth-child(5) strong { color:#1f5f92; }
+.vehicle-head-fact:nth-child(6) strong { color:#9a6500; }
+.content-grid > aside .side-section { background:#fff; }
+footer { border-color:var(--border); }
+
+@media (max-width:1180px) {
+  .top-grid { grid-template-columns:minmax(0,1.45fr) minmax(280px,.9fr); }
+  .top-grid > .key-info { grid-column:1 / -1; order:3; }
+  .key-info-list { display:grid; grid-template-columns:1fr 1fr; }
+  .key-info .kv { border-right:1px solid var(--border); }
+  .key-info .kv:nth-child(even) { border-right:0; }
+}
+
 @media (max-width:1050px) {
   .vehicle-head { grid-template-columns:1fr; }
   .top-grid { grid-template-columns:1fr; }
+  .top-grid > .key-info { grid-column:auto; order:initial; }
+  .key-info-list { display:block; }
+  .key-info .kv { border-right:0; }
   .summary { position:static; }
   .content-grid > aside { position:static; }
 }
@@ -1816,6 +1888,72 @@
     );
   }
 
+  function getShippingFrom() {
+    return first(
+      car.shipping?.from,
+      car.shipping?.origin,
+      car.shipping?.port,
+      car.transport?.from,
+      car.transport?.origin,
+      car.logistics?.shipping_from,
+      car.logistics?.shippingFrom,
+      getSale(["ShippingFrom","shippingFrom","ShippingOrigin","shipping_origin","OriginPort","PortName"]),
+      valueFrom(["ShippingFrom","shippingFrom","shipping_from","ShippingOrigin","shipping_origin","OriginPort","PortName","ExportPort","DeparturePort"])
+    );
+  }
+
+  function getAcvErc() {
+    const acv = first(
+      car.sale_information?.ActualCashValue,
+      car.sale_information?.actual_cash_value,
+      valueFrom(["ActualCashValue","ACV","actualCashValue"])
+    );
+    const erc = first(
+      car.sale_information?.EstimatedRepairCost,
+      car.sale_information?.estimated_repair_cost,
+      valueFrom(["EstimatedRepairCost","ERC","estimatedRepairCost"])
+    );
+    if (isEmpty(acv) && isEmpty(erc)) return null;
+    return `${money(acv)} / ${money(erc)}`;
+  }
+
+  function getEstimatedCost() {
+    const direct = first(
+      car.estimated_cost,
+      car.estimatedCost,
+      car.pricing?.estimated_cost,
+      car.pricing?.estimatedCost,
+      car.shipping?.estimated_cost,
+      car.shipping?.estimatedCost,
+      valueFrom(["EstimatedCost","estimatedCost","estimated_cost","EstimatedShippingCost","estimatedShippingCost","EstimatedTransportCost","estimatedTransportCost","CostEstimate","costEstimate"])
+    );
+
+    if (direct && typeof direct === "object") {
+      const min = first(direct.min, direct.minimum, direct.from, direct.low, direct.lower);
+      const max = first(direct.max, direct.maximum, direct.to, direct.high, direct.upper);
+      if (!isEmpty(min) && !isEmpty(max)) return `${money(min)} – ${money(max)}`;
+      if (!isEmpty(min)) return money(min);
+      if (!isEmpty(max)) return money(max);
+    }
+
+    if (!isEmpty(direct)) return direct;
+
+    const min = first(
+      car.estimated_cost_min,
+      car.estimatedCostMin,
+      valueFrom(["EstimatedCostMin","estimatedCostMin","estimated_cost_min","EstimatedMinCost"])
+    );
+    const max = first(
+      car.estimated_cost_max,
+      car.estimatedCostMax,
+      valueFrom(["EstimatedCostMax","estimatedCostMax","estimated_cost_max","EstimatedMaxCost"])
+    );
+    if (!isEmpty(min) && !isEmpty(max)) return `${money(min)} – ${money(max)}`;
+    if (!isEmpty(min)) return money(min);
+    if (!isEmpty(max)) return money(max);
+    return null;
+  }
+
   function field(label, value) {
     if (isEmpty(value)) return "";
     return `
@@ -2121,6 +2259,8 @@
     const date = getAuctionStart();
 
     const location = getLocation();
+    const shippingFrom = getShippingFrom();
+    const estimatedCost = getEstimatedCost();
 
     const odometer = first(
       car.odometer?.display,
@@ -2168,8 +2308,8 @@
           <div class="vehicle-head-fact"><small>LOT</small><strong>${esc(lot || "—")}</strong></div>
           <div class="vehicle-head-fact"><small>Data aukcji</small><strong>${esc(formatDate(date) || "—")}</strong></div>
           <div class="vehicle-head-fact"><small>Lokalizacja</small><strong>${nice(location || "—")}</strong></div>
-          <div class="vehicle-head-fact"><small>Przebieg</small><strong>${nice(odometer || "—")}</strong></div>
-          <div class="vehicle-head-fact damage-fact"><small>Główne uszkodzenie</small><strong>${nice(primaryDamage || "—")}</strong></div>
+          <div class="vehicle-head-fact"><small>Wysyłka z</small><strong>${nice(shippingFrom || "—")}</strong></div>
+          <div class="vehicle-head-fact"><small>Szacowany koszt</small><strong>${nice(estimatedCost || "—")}</strong></div>
         </div>
       </section>
 
@@ -2194,6 +2334,26 @@
           </div>
         </section>
 
+        <section class="panel key-info">
+          <div class="section-title compact-title">
+            <h2>Najważniejsze informacje</h2>
+            <span>Podstawowe dane aukcji</span>
+          </div>
+          <div class="key-info-list">
+            ${kv("LOT",lot)}
+            ${kv("VIN",vin)}
+            ${kv("Sprzedający",seller)}
+            ${kv("Dokument",titleDoc)}
+            ${kv("Przyczyna uszk.",getInfo(["Loss"]))}
+            ${kv("Główne uszk.",primaryDamage)}
+            ${kv("Pozostałe uszk.",secondaryDamage)}
+            ${kv("Przebieg",odometer)}
+            ${kv("Status",auctionStatusLabel())}
+            ${kv("Kluczyk",keys)}
+            ${kv("ACV / ERC",getAcvErc())}
+          </div>
+        </section>
+
         <aside class="panel summary">
           <div class="auction-primary">
             <div class="auction-status-bar">
@@ -2202,8 +2362,8 @@
             </div>
             <div class="auction-mini-grid">
               <div class="auction-mini-cell"><small>LOT</small><strong>${esc(lot || "—")}</strong></div>
-              <div class="auction-mini-cell"><small>DATA AUKCJI</small><strong>${esc(formatDate(date) || "—")}</strong></div>
               <div class="auction-mini-cell"><small>LOKALIZACJA</small><strong>${nice(location || "—")}</strong></div>
+              <div class="auction-mini-cell"><small>WYSYŁKA Z</small><strong>${nice(shippingFrom || "—")}</strong></div>
               <div class="auction-mini-cell"><small>PLATFORMA</small><strong>${esc(platformName() || "—")}</strong></div>
             </div>
           </div>
@@ -2365,9 +2525,10 @@
             ${kv("Platforma",platformName())}
             ${kv("Numer LOT",lot)}
             ${kv("Status",auctionStatusLabel())}
-            ${kv("Data aukcji",formatDate(date))}
             ${kv("Sprzedawca",seller)}
             ${kv("Typ sprzedawcy",valueFrom(["seller_type","sellerType","SellerType","ProviderType"]))}
+            ${kv("Wysyłka z",shippingFrom)}
+            ${kv("Szacowany koszt",estimatedCost)}
             ${kv("Lane",getSale(["Lane"]))}
             ${kv("Aisle",getSale(["Aisle"]))}
             ${kv("Bid increment",valueFrom(["bid_increment","bidIncrement"]))}
