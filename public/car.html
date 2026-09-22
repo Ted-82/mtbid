@@ -10,18 +10,18 @@
     * { box-sizing: border-box; }
 
     :root {
-      --bg:#0b0d10;
-      --panel:#12161b;
-      --panel2:#181d23;
-      --border:#282e36;
-      --text:#f4f6f8;
-      --muted:#9aa3ad;
-      --accent:#ffb000;
-      --accent2:#ffd05c;
-      --green:#35d07f;
-      --red:#ff5d5d;
-      --orange:#ff8d3a;
-      --blue:#55aaff;
+      --bg:#f4f6f8;
+      --panel:#ffffff;
+      --panel2:#f7f8fa;
+      --border:#dfe4e9;
+      --text:#17202a;
+      --muted:#66727e;
+      --accent:#f0a800;
+      --accent2:#ffc94d;
+      --green:#1f9d5b;
+      --red:#d94a4a;
+      --orange:#d97720;
+      --blue:#287bc1;
     }
 
     html { scroll-behavior:smooth; }
@@ -45,7 +45,7 @@
       position:sticky;
       top:0;
       z-index:100;
-      background:rgba(11,13,16,.94);
+      background:rgba(255,255,255,.96);
       backdrop-filter:blur(16px);
       border-bottom:1px solid var(--border);
     }
@@ -71,7 +71,7 @@
       color:var(--muted);
       font-size:13px;
     }
-    .nav a:hover { color:#fff; }
+    .nav a:hover { color:#111; }
 
     main { padding:18px 0 70px; }
 
@@ -101,14 +101,14 @@
 
     .gallery {
       padding:0;
-      background:#080a0c;
+      background:#e9edf1;
     }
 
     .main-photo {
       position:relative;
       height:min(62vw,560px);
       min-height:360px;
-      background:#080a0c;
+      background:#eef1f4;
       overflow:hidden;
       display:flex;
       align-items:center;
@@ -131,7 +131,9 @@
       top:12px;
       padding:7px 10px;
       border-radius:7px;
-      background:rgba(0,0,0,.76);
+      background:rgba(255,255,255,.94);
+      color:#17202a;
+      border:1px solid #dfe4e9;
       font-size:11px;
       font-weight:900;
       z-index:3;
@@ -143,7 +145,9 @@
       bottom:12px;
       padding:7px 10px;
       border-radius:7px;
-      background:rgba(0,0,0,.76);
+      background:rgba(255,255,255,.94);
+      color:#17202a;
+      border:1px solid #dfe4e9;
       font-size:11px;
       z-index:3;
     }
@@ -156,19 +160,20 @@
       height:42px;
       border:1px solid rgba(255,255,255,.15);
       border-radius:50%;
-      background:rgba(0,0,0,.6);
-      color:#fff;
+      background:rgba(255,255,255,.95);
+      color:#17202a;
+      border-color:#d5dce2;
       font-size:25px;
       z-index:5;
     }
-    .gallery-arrow:hover { background:rgba(0,0,0,.85); }
+    .gallery-arrow:hover { background:#f1f3f5; }
     .gallery-arrow.prev { left:12px; }
     .gallery-arrow.next { right:12px; }
 
     .thumb-wrap {
       padding:8px;
       border-top:1px solid var(--border);
-      background:#0c0f12;
+      background:#f7f8fa;
     }
 
     .thumbs {
@@ -187,7 +192,7 @@
       border:1px solid transparent;
       border-radius:7px;
       overflow:hidden;
-      background:#101318;
+      background:#e9edf1;
     }
     .thumb:hover { border-color:#6d7680; }
     .thumb.active { border-color:var(--accent); }
@@ -216,13 +221,13 @@
       gap:8px;
       padding:10px;
       border-top:1px solid var(--border);
-      background:#0e1115;
+      background:#ffffff;
     }
 
     .media-btn {
       border:1px solid var(--border);
       background:var(--panel2);
-      color:#fff;
+      color:#17202a;
       padding:9px 12px;
       border-radius:8px;
       font-size:12px;
@@ -248,8 +253,8 @@
       display:inline-flex;
       padding:6px 9px;
       border-radius:7px;
-      background:#20262d;
-      color:#fff;
+      background:#f1f3f5;
+      color:#17202a;
       font-size:10px;
       font-weight:900;
       margin-bottom:12px;
@@ -300,8 +305,8 @@
     .copy-btn {
       flex:none;
       border:1px solid var(--border);
-      background:#20262d;
-      color:#fff;
+      background:#f1f3f5;
+      color:#17202a;
       padding:7px 9px;
       border-radius:6px;
       font-size:10px;
@@ -335,7 +340,7 @@
       padding:12px;
       border:1px solid var(--border);
       border-radius:9px;
-      background:linear-gradient(180deg,#20221f,#171a18);
+      background:linear-gradient(180deg,#fffdf5,#fff7df);
       margin-bottom:10px;
     }
     .price-box small { color:var(--muted); font-size:9px; }
@@ -410,7 +415,7 @@
       padding:10px;
       border-right:1px solid var(--border);
       border-bottom:1px solid var(--border);
-      background:#11151a;
+      background:#ffffff;
     }
     .spec:nth-child(3n) { border-right:0; }
     .spec:nth-last-child(-n+3) { border-bottom:0; }
@@ -547,14 +552,14 @@
     .legend-dot.orange { background:var(--orange); }
     .legend-dot.red { background:var(--red); }
     .legend-dot.unknown { background:#7b858f; }
-    .title-verdict.salvage { border-color:#276f4b; }
-    .title-verdict.salvage .verdict-label { color:var(--green); }
+    .title-verdict.salvage { border-color:#c47b00; }
+    .title-verdict.salvage .verdict-label { color:var(--orange); }
 
     .auction-history {
       border:1px solid var(--border);
       border-radius:9px;
       overflow:hidden;
-      background:#11151a;
+      background:#ffffff;
       max-height:320px;
       overflow-y:auto;
     }
@@ -582,7 +587,7 @@
 
     .media-view {
       min-height:360px;
-      background:#07090b;
+      background:#eef1f4;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -606,9 +611,9 @@
       max-width:800px;
       padding:25px;
       border:1px solid #663333;
-      background:#211316;
+      background:#fff1f1;
       border-radius:12px;
-      color:#ff8d8d;
+      color:#b52b2b;
     }
 
     footer {
@@ -642,11 +647,11 @@
     }
 
     .lb-info {
-      color:#fff;
+      color:#17202a;
       font-size:12px;
       padding:8px 10px;
-      background:rgba(20,23,27,.9);
-      border:1px solid #343a42;
+      background:rgba(255,255,255,.96);
+      border:1px solid #d5dce2;
       border-radius:7px;
     }
 
@@ -658,9 +663,9 @@
     .lb-controls button {
       width:38px;
       height:38px;
-      border:1px solid #343a42;
+      border:1px solid #d5dce2;
       border-radius:7px;
-      background:#171b20;
+      background:#f3f5f7;
       color:#fff;
       font-size:18px;
       font-weight:800;
@@ -705,9 +710,9 @@
       z-index:4;
       width:44px;
       height:44px;
-      border:1px solid #343a42;
+      border:1px solid #d5dce2;
       border-radius:50%;
-      background:rgba(20,23,27,.9);
+      background:rgba(255,255,255,.96);
       color:#fff;
       font-size:25px;
     }
@@ -834,23 +839,120 @@
     }
   
 
+
+/* ==========================================================
+   REX.BID — VEHICLE DETAIL LAYOUT
+   Jasny układ inspirowany najlepszymi marketplace'ami aukcyjnymi.
+   Nie zmienia logiki API ani danych pojazdu.
+   ========================================================== */
+.vehicle-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:0 0 14px;padding:2px 0}
+.vehicle-head-main{min-width:0}
+.breadcrumbs{display:flex;gap:7px;flex-wrap:wrap;color:#7a858f;font-size:10px;margin-bottom:7px}
+.breadcrumbs a:hover{color:#17202a}
+.vehicle-head h1{margin:0;font-size:28px;line-height:1.08;letter-spacing:-.8px}
+.vehicle-meta{display:flex;gap:12px;flex-wrap:wrap;margin-top:7px;color:#66727e;font-size:11px}
+.vehicle-meta b{color:#17202a}
+.vehicle-head-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.head-chip{padding:8px 11px;border:1px solid var(--border);background:#fff;border-radius:8px;font-size:10px;font-weight:800;color:#17202a}
+.head-chip.accent{background:#fff4cf;border-color:#efc65a}
+.platform-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;background:#17202a;color:#fff;font-size:9px;font-weight:900;margin-bottom:8px}
+.detail-layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(350px,.8fr);gap:14px;align-items:start}
+.main-column,.right-column{min-width:0}
+.right-column{display:grid;gap:12px}
+.info-card{background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 2px 10px rgba(20,30,40,.04);overflow:hidden}
+.info-card-head{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.info-card-head h3{margin:0;font-size:13px}
+.info-card-body{padding:13px 14px}
+.primary-auction{border:1px solid #dfe4e9;border-radius:10px;overflow:hidden;background:#fff}
+.primary-auction .auction-main{padding:14px;background:#f8fafb;border-bottom:1px solid var(--border)}
+.primary-auction .auction-label{font-size:10px;color:#66727e;margin-bottom:3px}
+.primary-auction .auction-price{font-size:27px;font-weight:950;line-height:1.05;color:#17202a}
+.primary-auction .auction-state{margin-top:6px;color:#c47b00;font-size:10px;font-weight:900}
+.primary-auction .auction-countdown{margin-top:7px;font-size:12px;font-weight:900;color:#d38b00}
+.action.primary.green{background:#20a95c;border-color:#20a95c;color:#fff}
+.action.primary.green:hover{background:#198b4b}
+.summary .price-box{background:#fff7df;border-color:#efd276}
+.summary .source-badge{background:#17202a;color:#fff}
+.summary .copy-btn{background:#f1f3f5;color:#17202a}
+.summary .auction-row{background:#fff}
+.location-card,.shipping-card,.forecast-card{border:1px solid var(--border);border-radius:10px;background:#fff}
+.location-card .kv,.shipping-card .kv,.forecast-card .kv{padding:8px 0}
+.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mini-stat{padding:10px;border:1px solid var(--border);border-radius:8px;background:#f8fafb}
+.mini-stat small{display:block;color:#7a858f;font-size:9px;margin-bottom:4px}
+.mini-stat strong{display:block;font-size:12px}
+.forecast-total{padding:12px;border-radius:9px;background:#fff7df;border:1px solid #efd276;margin-bottom:9px}
+.forecast-total small{display:block;color:#80651a;font-size:9px;margin-bottom:4px}
+.forecast-total strong{display:block;font-size:20px;color:#17202a}
+.jump-links{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.jump-links a{padding:7px 9px;border:1px solid var(--border);border-radius:7px;background:#f7f8fa;color:#17202a;font-size:9px;font-weight:800}
+.jump-links a:hover{border-color:#efc65a;background:#fffaf0}
+.section{box-shadow:0 2px 10px rgba(20,30,40,.035)}
+.spec{background:#fff}
+.auction-history{background:#fff}
+.thumb-wrap{background:#fff}
+.thumbs{background:#fff}
+.media-toolbar{background:#fff}
+.media-btn{color:#17202a;background:#f7f8fa}
+.media-btn:hover{background:#eef1f4;color:#17202a}
+.main-photo{background:#eef1f4}
+.gallery{background:#fff}
+.gallery-arrow{background:rgba(255,255,255,.95);color:#17202a;border-color:#d5dce2;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.gallery-arrow:hover{background:#fff}
+.media-label,.photo-count{background:rgba(255,255,255,.94)!important;color:#17202a!important;border:1px solid #dfe4e9}
+.spec-grid{background:#fff}
+.import-calc{box-shadow:0 2px 10px rgba(20,30,40,.035)}
+.import-calc .calc-result{box-shadow:none}
+.side-section{box-shadow:0 2px 10px rgba(20,30,40,.035)}
+
+@media(max-width:1050px){
+  .detail-layout{grid-template-columns:1fr}
+  .vehicle-head{align-items:flex-start;flex-direction:column}
+  .vehicle-head-actions{justify-content:flex-start}
+  .right-column{grid-template-columns:1fr 1fr}
+}
+@media(max-width:760px){
+  .right-column{grid-template-columns:1fr}
+  .vehicle-head h1{font-size:23px}
+  .vehicle-head-actions{width:100%}
+  .head-chip{flex:1}
+  .mini-grid{grid-template-columns:1fr 1fr}
+}
+
 /* IMPORT COST CALCULATOR */
 .import-calc{margin-top:18px;padding:18px}
-.import-calc h2{margin:0 0 6px;font-size:20px}
-.import-calc .calc-sub{color:#99a3ae;font-size:11px;line-height:1.5;margin-bottom:14px}
+.import-calc h2{margin:0 0 6px;font-size:20px;color:#17202a}
+.import-calc .calc-sub{color:#66727e;font-size:11px;line-height:1.5;margin-bottom:14px}
 .calc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.calc-field label{display:block;color:#99a3ae;font-size:10px;margin-bottom:5px}
-.calc-field input,.calc-field select{width:100%;height:42px;background:#181d23;color:#fff;border:1px solid #29313a;border-radius:8px;padding:0 10px;outline:none}
-.calc-field input:focus,.calc-field select:focus{border-color:#ffb000}
-.calc-result{margin-top:14px;border:1px solid #29313a;border-radius:10px;overflow:hidden}
-.calc-line{display:flex;justify-content:space-between;gap:15px;padding:10px 12px;border-bottom:1px solid #29313a;font-size:12px}
+.calc-field label{display:block;color:#66727e;font-size:10px;margin-bottom:5px}
+.calc-field input,.calc-field select{width:100%;height:42px;background:#ffffff;color:#17202a;border:1px solid #d5dce2;border-radius:8px;padding:0 10px;outline:none}
+.calc-field input:focus,.calc-field select:focus{border-color:#f0a800;box-shadow:0 0 0 3px rgba(240,168,0,.12)}
+.calc-result{margin-top:14px;border:1px solid #dfe4e9;border-radius:10px;overflow:hidden;background:#ffffff}
+.calc-line{display:flex;justify-content:space-between;gap:15px;padding:10px 12px;border-bottom:1px solid #e3e7eb;font-size:12px;background:#ffffff;color:#17202a}
 .calc-line:last-child{border-bottom:0}
-.calc-line span{color:#99a3ae}
-.calc-total{background:#20231f;font-size:16px;font-weight:900}
-.calc-note{margin-top:10px;color:#99a3ae;font-size:10px;line-height:1.55}
-.calc-warning{margin-top:10px;padding:10px 12px;border:1px solid #6d5923;background:#211d12;border-radius:8px;color:#e7d59b;font-size:10px;line-height:1.5}
+.calc-line span{color:#66727e}
+.calc-line strong{color:#17202a;font-weight:800;text-align:right}
+.calc-total{background:#fff7df;font-size:16px;font-weight:900;color:#17202a;border-top:2px solid #f0a800}
+.calc-total span{color:#17202a;font-weight:900}
+.calc-total strong{color:#111;font-size:16px}
+.calc-note{margin-top:10px;color:#66727e;font-size:10px;line-height:1.55}
+.calc-warning{margin-top:10px;padding:10px 12px;border:1px solid #e4c66d;background:#fff8e6;border-radius:8px;color:#6d5514;font-size:10px;line-height:1.5}
 @media(max-width:760px){.calc-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:480px){.calc-grid{grid-template-columns:1fr}}
+
+
+/* ==========================================================
+   REX.BID — LIGHT UI
+   Zachowujemy istniejącą strukturę i logikę strony.
+   ========================================================== */
+body{background:var(--bg);color:var(--text)}
+.panel{background:var(--panel);border-color:var(--border);box-shadow:0 2px 10px rgba(20,30,40,.04)}
+.gallery{background:#e9edf1}
+.key-info,.vehicle-head-fact,.seller-box,.title-verdict,.damage,.auction-primary,.spec,.side-section,.auction-history{background:#fff;border-color:var(--border)}
+.kv{border-color:#e3e7eb}
+.kv span,.seller-note,.section-title span,.color-legend{color:var(--muted)}
+.action{border-color:#d5dce2}
+.action.secondary{background:#f7f8fa;color:#17202a}
 
 </style>
 </head>
@@ -1140,16 +1242,23 @@
   async function fetchVehicle() {
     const attempts = [];
 
+    /*
+     * Najpierw korzystamy z właściwego endpointu pojedynczego auta.
+     * Worker obsługuje /api/car/{VIN} oraz /api/car/{LOT} i sam
+     * wykonuje dokładne sprawdzenie identyfikatora.
+     *
+     * Nie używamy tutaj /api/cars?vin=... jako pierwszej metody,
+     * ponieważ /api/cars jest endpointem listy i nie przyjmuje
+     * parametru vin jako filtra.
+     */
     if (VIN) {
-      attempts.push(`${API_BASE}/cars?vin=${encodeURIComponent(VIN)}`);
+      attempts.push(`${API_BASE}/car/${encodeURIComponent(VIN)}`);
       attempts.push(`${API_BASE}/cars?s=${encodeURIComponent(VIN)}&per_page=20`);
-      attempts.push(`${API_BASE}/car?vin=${encodeURIComponent(VIN)}`);
     }
 
     if (LOT) {
-      attempts.push(`${API_BASE}/cars?lot=${encodeURIComponent(LOT)}`);
+      attempts.push(`${API_BASE}/car/${encodeURIComponent(LOT)}`);
       attempts.push(`${API_BASE}/cars?s=${encodeURIComponent(LOT)}&per_page=20`);
-      attempts.push(`${API_BASE}/car?lot=${encodeURIComponent(LOT)}`);
     }
 
     let lastError = null;
@@ -1163,17 +1272,26 @@
         const text = await response.text();
         let json = null;
 
-        try { json = JSON.parse(text); } catch (_) {}
+        try {
+          json = JSON.parse(text);
+        } catch (_) {}
 
         if (!response.ok) {
-          lastError = new Error(json?.error || `HTTP ${response.status}`);
+          lastError = new Error(
+            json?.error || `HTTP ${response.status}`
+          );
           continue;
         }
 
         const result = unwrapResult(json);
-        if (result) return result;
 
-        lastError = new Error("API nie zwróciło samochodu.");
+        if (result) {
+          return result;
+        }
+
+        lastError = new Error(
+          "API nie zwróciło dokładnie szukanego samochodu."
+        );
       } catch (e) {
         lastError = e;
       }
@@ -1777,29 +1895,23 @@
       };
     }
 
-    // Zaufany profil nadajemy tylko wtedy, gdy dane jednoznacznie wskazują
-    // na ubezpieczyciela. Ważne: "Non-Insurance" nie jest ubezpieczycielem.
-    // Zielony kolor nie oznacza gwarancji stanu auta.
-    const sellerText = `${s} ${type}`;
-    const isNonInsurance = /non[\s-]*insurance|non[\s-]*insurer|nieubezpiec/.test(sellerText);
-    const isInsuranceCompany = !isNonInsurance && (
-      /(^|[\s,._-])insurance([\s,._-]|$)|insurance company|ubezpieczeni/.test(sellerText) ||
-      /progressive|state farm|geico|allstate|arbella|erie insurance|liberty mutual|farmers insurance|nationwide/.test(sellerText)
-    );
-
-    if (isInsuranceCompany) {
-      return {
-        label:"🟢 Zaufany profil — ubezpieczyciel",
-        cls:"green",
-        note:"Sprzedawca jest rozpoznany jako firma ubezpieczeniowa. Zielony profil oznacza typ sprzedawcy o niskim ryzyku źródła danych, a nie gwarancję stanu pojazdu."
-      };
-    }
-
-    if (isNonInsurance) {
+    // WAŻNE: "Non-Insurance" zawiera słowo "insurance", dlatego musi być
+    // sprawdzone PRZED wykrywaniem prawdziwej firmy ubezpieczeniowej.
+    if (/non[- ]?insurance|non[- ]?ins\b|nieubezpieczeni|nie[- ]?ubezpieczeni/.test(type + " " + s)) {
       return {
         label:"🟡 Non-Insurance — wymaga weryfikacji",
         cls:"orange",
-        note:"Sprzedawca jest oznaczony jako Non-Insurance, więc nie kwalifikujemy go jako ubezpieczyciela. Przed zakupem warto zweryfikować sprzedawcę, dokumenty i historię pojazdu."
+        note:"Sprzedawca nie jest oznaczony jako firma ubezpieczeniowa. Profil wymaga dodatkowej weryfikacji przed zakupem."
+      };
+    }
+
+    // Firmy ubezpieczeniowe otrzymują zielony profil. Nie jest to gwarancja
+    // jakości auta ani gwarancja rejestracji w Polsce.
+    if (/insurance|ubezpiec|ins\b|rcc/.test(type) || /insurance|progressive|state farm|geico|allstate|arbella/.test(s)) {
+      return {
+        label:"🟢 Zaufany profil — ubezpieczyciel",
+        cls:"green",
+        note:"Sprzedawca jest rozpoznany jako firma ubezpieczeniowa. To zielony profil sprzedawcy, zgodny z klasyfikacją stosowaną przez BidCars. Nie oznacza gwarancji stanu pojazdu ani wyniku rejestracji w Polsce."
       };
     }
 
@@ -1865,7 +1977,7 @@
 
   function titleVerdictLabel(kind) {
     if (kind === "good") return "🟢 Dokument zaakceptowany / korzystny";
-    if (kind === "salvage") return "🟡 Salvage — możliwa rejestracja po spełnieniu warunków";
+    if (kind === "salvage") return "🟡 Salvage — wymaga weryfikacji przed zakupem";
     if (kind === "warn") return "🟡 Dokument z ograniczeniem / ostrzeżeniem";
     if (kind === "bad") return "🔴 Duże ryzyko dokumentowe";
     return "⚪ Brak wystarczających danych";
@@ -1873,7 +1985,7 @@
 
   function titleVerdictNote(kind) {
     if (kind === "good") return "Źródło aukcyjne wskazuje korzystny lub zatwierdzony status dokumentu. To nie jest prawna gwarancja rejestracji w Polsce.";
-    if (kind === "salvage") return "Salvage oznacza szkodę całkowitą w historii pojazdu, ale sam status Salvage nie wyklucza rejestracji w Polsce. Po naprawie pojazd może zostać zarejestrowany po spełnieniu wymaganych warunków i badań. Zawsze trzeba sprawdzić konkretny dokument oraz jego oznaczenia.";
+    if (kind === "salvage") return "Salvage oznacza szkodę całkowitą w historii pojazdu. Sam status nie oznacza automatycznej odmowy rejestracji w Polsce, ale dokument i jego oznaczenia wymagają dokładnej weryfikacji przed zakupem.";
     if (kind === "warn") return "Źródło aukcyjne sygnalizuje ograniczenie dokumentu, np. dealer only lub duplicate. Przed zakupem trzeba sprawdzić oryginalny title i możliwość rejestracji.";
     if (kind === "bad") return "Dokument może powodować poważne problemy z legalnym zarejestrowaniem pojazdu. Wymagana jest szczegółowa weryfikacja przed zakupem.";
     return "Brakuje wystarczających informacji o dokumencie, aby nadać mu wiarygodny kolor.";
@@ -1894,7 +2006,7 @@
       return {
         cls:"warn",
         label:"🟡 Salvage — wymaga weryfikacji",
-        text:"Sam status Salvage nie oznacza automatycznie braku możliwości rejestracji w Polsce, ale dokument i jego oznaczenia wymagają dokładnej weryfikacji. Po naprawie mogą być wymagane dodatkowe badania i dokumenty. Rex.Bid nie daje gwarancji rejestracji konkretnego pojazdu."
+        text:"Sam status Salvage nie oznacza automatycznej odmowy rejestracji w Polsce, ale konkretny dokument i jego oznaczenia trzeba dokładnie sprawdzić przed zakupem."
       };
     }
 
@@ -2086,125 +2198,66 @@
 
     const mediaCount = photos.length;
 
+    const forecastAnchor = document.getElementById("page");
     page.innerHTML = `
-      <div class="top-grid">
-        <section class="panel gallery">
-          <div class="main-photo" id="mainPhoto">
-            <div class="media-label">${esc(platformName())}</div>
-            <button class="gallery-arrow prev" id="prevPhoto" aria-label="Poprzednie zdjęcie">‹</button>
-            <button class="gallery-arrow next" id="nextPhoto" aria-label="Następne zdjęcie">›</button>
-            <img id="mainImage" alt="${esc(title)}" />
-            <div class="photo-count" id="photoCount"></div>
+      <div class="vehicle-head">
+        <div class="vehicle-head-main">
+          <div class="breadcrumbs">
+            <a href="/">Rex.Bid</a><span>›</span>
+            <a href="/#results">Samochody</a><span>›</span>
+            <span>${esc(platformName())}</span><span>›</span><span>${esc(lot || vin)}</span>
           </div>
-
-          <div class="thumb-wrap">
-            <div class="thumbs" id="thumbs"></div>
+          <div class="platform-pill">${esc(platformName())}</div>
+          <h1>${esc(title || `${year || ""} ${make || ""} ${model || ""}`)}</h1>
+          <div class="vehicle-meta">
+            ${!isEmpty(vin) ? `<span>VIN: <b>${esc(vin)}</b></span>` : ""}
+            ${!isEmpty(lot) ? `<span>LOT: <b>${esc(lot)}</b></span>` : ""}
+            ${!isEmpty(location) ? `<span>Lokalizacja: <b>${esc(location)}</b></span>` : ""}
+            ${!isEmpty(date) ? `<span>Aukcja: <b>${esc(formatDate(date))}</b></span>` : ""}
           </div>
-
-          <div class="media-toolbar">
-            <button class="media-btn accent" id="openHd">HD / Pełne zdjęcie / Powiększ</button>
-            ${video ? `<button class="media-btn" id="openVideo">▶ Wideo</button>` : ""}
-            ${image360 ? `<button class="media-btn" id="open360">↻ Widok 360°</button>` : ""}
-          </div>
-        </section>
-
-        <aside class="panel summary">
-          <div class="source-badge">${esc(platformName())}</div>
-
-          <h1>
-            ${esc(title || `${year || ""} ${make || ""} ${model || ""}`)}
-            ${auctionPhase() === "live" ? `<span class="live"><span class="live-dot"></span> LIVE</span>` : ""}
-          </h1>
-
-          <div class="vin-row">
-            <div>
-              <small>VIN</small>
-              <strong>${esc(vin || "—")}</strong>
-            </div>
-            <button class="copy-btn" id="copyVin">Kopiuj</button>
-          </div>
-
-          <div class="auction-box">
-            ${kv("Aukcja", formatDate(date))}
-            ${kv("LOT", lot)}
-            <div class="auction-row"><div><small>Status</small></div><strong id="auctionStatusText">${esc(auctionStatusLabel())}</strong></div>
-            ${kv("Lokalizacja", location)}
-            ${getSale(["Lane"]) ? kv("Lane", getSale(["Lane"])) : ""}
-            ${getSale(["Aisle"]) ? kv("Aisle", getSale(["Aisle"])) : ""}
-          </div>
-
-          <div class="auction-box" id="auctionTimerBox">
-            <div class="auction-row">
-              <div><small id="countdownLabel">Do rozpoczęcia</small></div>
-              <strong class="countdown" id="countdown">—</strong>
-            </div>
-          </div>
-
-          <div class="price-box">
-            <small id="bidLabel">${auctionPhase() === "prebid" ? "Najwyższa oferta przed licytacją" : "Aktualna oferta"}</small>
-            <div class="price" id="currentBidPrice">${money(getAuctionBid())}</div>
-            <div class="price-sub">
-              ${auctionPhase() === "ended" && !isEmpty(getFinalBid())
-                ? "Oferta końcowa aukcji"
-                : getBuyNow() ? `Buy Now: ${money(getBuyNow())}` : "Cena z aukcji, jeśli została przekazana"}
-            </div>
-          </div>
-
-          <div class="action-row">
-            <button class="action" id="copyLink">Kopiuj link</button>
-            <button class="action primary" id="scrollInfo">Szczegóły auta</button>
-          </div>
-
-        </aside>
+        </div>
+        <div class="vehicle-head-actions">
+          <a class="head-chip" href="#details">Dane samochodu</a>
+          <a class="head-chip" href="#shipping">Wysyłka</a>
+          <a class="head-chip accent" href="#importCalculator">Prognozowany koszt</a>
+        </div>
       </div>
 
-      <div class="content-grid">
-        <div>
-          <section class="panel section" id="details">
-            <div class="section-title">
-              <h2>Dane samochodu</h2>
-              <span>${mediaCount} unikalnych zdjęć</span>
+      <div class="detail-layout">
+        <div class="main-column">
+          <section class="panel gallery">
+            <div class="main-photo" id="mainPhoto">
+              <div class="media-label">${esc(platformName())}</div>
+              <button class="gallery-arrow prev" id="prevPhoto" aria-label="Poprzednie zdjęcie">‹</button>
+              <button class="gallery-arrow next" id="nextPhoto" aria-label="Następne zdjęcie">›</button>
+              <img id="mainImage" alt="${esc(title)}" />
+              <div class="photo-count" id="photoCount"></div>
             </div>
-
-            <div class="spec-grid">
-              ${field("Rok",year)}
-              ${field("Marka",make)}
-              ${field("Model",model)}
-              ${field("Wersja / seria",series)}
-              ${field("VIN",vin)}
-              ${field("Nadwozie",getDescription(["BodyStyle","BodyStyleName"]))}
-              ${field("Typ pojazdu",getDescription(["Vehicle","VehicleClass","InventoryType"]))}
-              ${field("Silnik",getDescription(["Engine","EngineSize","EngineInformation"]))}
-              ${field("Skrzynia",getDescription(["Transmission","TransmissionDesc"]))}
-              ${field("Napęd",getDescription(["DriveLineType","DriveLineTypeDesc"]))}
-              ${field("Paliwo",getDescription(["FuelType","FuelTypeDesc"]))}
-              ${field("Cylindry",getDescription(["Cylinders","CylindersDesc"]))}
-              ${field("Przebieg",odometer)}
-              ${field("Status przebiegu",valueFrom(["ODOBrand"]))}
-              ${field("Kolor zewnętrzny",valueFrom(["ExteriorColor"]))}
-              ${field("Kolor wnętrza",valueFrom(["InteriorColor"]))}
-              ${field("Kolor",getDescription(["ExteriorInterior"]))}
-              ${field("Kluczyki",keys)}
-              ${field("Run & Drive",runDrive)}
-              ${field("Airbagi",airbags)}
-              ${field("Restraint / poduszki",getDescription(["RestraintSystem","RestraintType"]))}
-              ${field("Kraj produkcji",getDescription(["ManufacturedIn","CountryOfOrigin"]))}
-              ${field("Klasa pojazdu",getDescription(["VehicleClass","Segment","SegmentDesc"]))}
-              ${field("Opcje",getDescription(["Options"]))}
-              ${field("Typ straty",getInfo(["Loss"]))}
-              ${field("ACV",getSale(["ActualCashValue"]))}
-              ${field("Szac. naprawa",getSale(["EstimatedRepairCost"]))}
-              ${field("Minimalna oferta",valueFrom(["MinimumBidAmount"]))}
-              ${field("Bid increment",valueFrom(["bid_increment","bidIncrement"]))}
-              ${field("Kto może kupić",valueFrom(["WhoCanBuy","whoCanBuy","WhoCanBid","whoCanBid"]))}
+            <div class="thumb-wrap"><div class="thumbs" id="thumbs"></div></div>
+            <div class="media-toolbar">
+              <button class="media-btn accent" id="openHd">HD / Pełne zdjęcie / Powiększ</button>
+              ${video ? `<button class="media-btn" id="openVideo">▶ Wideo</button>` : ""}
+              ${image360 ? `<button class="media-btn" id="open360">↻ Widok 360°</button>` : ""}
             </div>
           </section>
 
-          <section class="panel section">
-            <div class="section-title">
-              <h2>Uszkodzenia</h2>
-              <span>Dane ze źródła aukcyjnego</span>
+          <section class="panel section" id="details">
+            <div class="section-title"><h2>Dane samochodu</h2><span>${mediaCount} unikalnych zdjęć</span></div>
+            <div class="spec-grid">
+              ${field("Rok",year)}${field("Marka",make)}${field("Model",model)}
+              ${field("Wersja / seria",series)}${field("VIN",vin)}${field("Nadwozie",getDescription(["BodyStyle","BodyStyleName"]))}
+              ${field("Typ pojazdu",getDescription(["Vehicle","VehicleClass","InventoryType"]))}${field("Silnik",getDescription(["Engine","EngineSize","EngineInformation"]))}${field("Skrzynia",getDescription(["Transmission","TransmissionDesc"]))}
+              ${field("Napęd",getDescription(["DriveLineType","DriveLineTypeDesc"]))}${field("Paliwo",getDescription(["FuelType","FuelTypeDesc"]))}${field("Cylindry",getDescription(["Cylinders","CylindersDesc"]))}
+              ${field("Przebieg",odometer)}${field("Status przebiegu",valueFrom(["ODOBrand"]))}${field("Kolor zewnętrzny",valueFrom(["ExteriorColor"]))}
+              ${field("Kolor wnętrza",valueFrom(["InteriorColor"]))}${field("Kluczyki",keys)}${field("Run & Drive",runDrive)}
+              ${field("Airbagi",airbags)}${field("Typ straty",getInfo(["Loss"]))}${field("ACV",getSale(["ActualCashValue"]))}
+              ${field("Szac. naprawa",getSale(["EstimatedRepairCost"]))}${field("Minimalna oferta",valueFrom(["MinimumBidAmount"]))}${field("Kto może kupić",valueFrom(["WhoCanBuy","whoCanBuy","WhoCanBid","whoCanBid"]))}
             </div>
+            <div class="jump-links"><a href="#damage">Uszkodzenia</a><a href="#title">TITLE</a><a href="#seller">Sprzedawca</a><a href="#shipping">Wysyłka i lokalizacja</a></div>
+          </section>
+
+          <section class="panel section" id="damage">
+            <div class="section-title"><h2>Uszkodzenia</h2><span>Dane ze źródła aukcyjnego</span></div>
             <div class="damage-grid">
               ${!isEmpty(primaryDamage) ? `<div class="damage main"><small>Główne uszkodzenie</small><strong>${nice(primaryDamage)}</strong></div>` : ""}
               ${!isEmpty(secondaryDamage) ? `<div class="damage"><small>Drugorzędne uszkodzenie</small><strong>${nice(secondaryDamage)}</strong></div>` : ""}
@@ -2212,55 +2265,28 @@
             </div>
           </section>
 
-          <section class="panel section">
-            <div class="section-title">
-              <h2>Dokumenty / TITLE</h2>
-              <span>Analiza Rex.Bid</span>
-            </div>
-
-            <div class="title-verdict ${displayTitleKind}">
-              <div class="verdict-label">${esc(titleVerdictLabel(displayTitleKind))}</div>
-              <div class="verdict-text">${esc(titleVerdictNote(displayTitleKind))}</div>
-            </div>
+          <section class="panel section" id="title">
+            <div class="section-title"><h2>Dokumenty / TITLE</h2><span>Analiza Rex.Bid</span></div>
+            <div class="title-verdict ${displayTitleKind}"><div class="verdict-label">${esc(titleVerdictLabel(displayTitleKind))}</div><div class="verdict-text">${esc(titleVerdictNote(displayTitleKind))}</div></div>
             <div class="color-legend">
               <span><i class="legend-dot green"></i><b>Zielony</b> — źródło aukcyjne oznacza sprzedawcę/dokument jako zatwierdzony lub korzystny.</span>
               <span><i class="legend-dot orange"></i><b>Żółty</b> — wymaga dodatkowej weryfikacji.</span>
               <span><i class="legend-dot red"></i><b>Czerwony</b> — podwyższone ryzyko dokumentowe.</span>
             </div>
-
-            <div class="spec-grid">
-              ${field("Dokument",titleDoc)}
-              ${field("Title brand",titleBrand)}
-              ${field("Stan / kod title",titleCode)}
-              ${field("Stan title",titleState)}
-              ${field("Uwagi do title",titleNotes)}
-            </div>
+            <div class="spec-grid">${field("Dokument",titleDoc)}${field("Title brand",titleBrand)}${field("Stan / kod title",titleCode)}${field("Stan title",titleState)}${field("Uwagi do title",titleNotes)}</div>
           </section>
 
-          <section class="panel section">
-            <div class="section-title">
-              <h2>Sprzedawca</h2>
-              <span>Profil na podstawie danych aukcyjnych</span>
-            </div>
-
+          <section class="panel section" id="seller">
+            <div class="section-title"><h2>Sprzedawca</h2><span>Profil na podstawie danych aukcyjnych</span></div>
             <div class="seller-box">
-              <div class="seller-rating">
-                <span class="risk-dot ${sellerInfo.cls}"></span>
-                ${esc(sellerInfo.label)}
-              </div>
+              <div class="seller-rating"><span class="risk-dot ${sellerInfo.cls}"></span>${esc(sellerInfo.label)}</div>
               ${seller ? `<div class="kv"><span>Sprzedawca</span><strong>${nice(seller)}</strong></div>` : ""}
               ${kv("Typ sprzedawcy",valueFrom(["seller_type","sellerType","SellerType","ProviderType"]))}
               ${kv("Pochodzenie",valueFrom(["Origin"]))}
               <div class="seller-note">${esc(sellerInfo.note)}</div>
-              <div class="color-legend compact">
-                <span><i class="legend-dot green"></i><b>Zielony</b> — profil zaufany/zaakceptowany przez źródło.</span>
-                <span><i class="legend-dot orange"></i><b>Żółty</b> — dealer, prywatny lub profil wymagający sprawdzenia.</span>
-                <span><i class="legend-dot unknown"></i><b>Szary</b> — brak danych do oceny.</span>
-              </div>
+              <div class="color-legend compact"><span><i class="legend-dot green"></i><b>Zielony</b> — profil zaufany/zaakceptowany przez źródło.</span><span><i class="legend-dot orange"></i><b>Żółty</b> — dealer, prywatny lub profil wymagający sprawdzenia.</span><span><i class="legend-dot unknown"></i><b>Szary</b> — brak danych do oceny.</span></div>
             </div>
           </section>
-
-
 
           <section class="panel import-calc" id="importCalculator">
             <h2>Prognozowany koszt sprowadzenia do Polski</h2>
@@ -2277,63 +2303,64 @@
               <div class="calc-field"><label>Akcyza (%)</label><input id="calcExcise" type="number" min="0" step="0.01"></div>
               <div class="calc-field"><label>Broker / dokumenty / inne (USD)</label><input id="calcOther" type="number" min="0" step="1" value="300"></div>
             </div>
-            <div class="calc-result" id="calcResult"></div>
-            <div class="calc-warning" id="calcWarning"></div>
+            <div class="calc-result" id="calcResult"></div><div class="calc-warning" id="calcWarning"></div>
             <div class="calc-note">Domyślne stawki: cło 10% i VAT 23%. Akcyza jest dobierana orientacyjnie na podstawie danych silnika/napędu i może być ręcznie zmieniona. Podstawa podatków może obejmować koszty transportu i inne elementy, dlatego wynik należy traktować jako prognozę.</div>
           </section>
-
         </div>
 
-        <aside>
-          <section class="panel side-section">
-            <h3>Informacje o aukcji</h3>
-            ${kv("Platforma",platformName())}
-            ${kv("Numer LOT",lot)}
-            ${kv("Status",auctionStatusLabel())}
-            ${kv("Data aukcji",formatDate(date))}
-            ${kv("Sprzedawca",seller)}
-            ${kv("Typ sprzedawcy",valueFrom(["seller_type","sellerType","SellerType","ProviderType"]))}
-            ${kv("Lane",getSale(["Lane"]))}
-            ${kv("Aisle",getSale(["Aisle"]))}
-            ${kv("Bid increment",valueFrom(["bid_increment","bidIncrement"]))}
-            ${originalAuctionUrl() ? `
-              <a
-                href="${esc(originalAuctionUrl())}"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="action primary"
-                style="display:flex;align-items:center;justify-content:center;margin-top:10px"
-              >Oryginalna aukcja ${esc(platformName())} ↗</a>
-            ` : ""}
-          </section>
-
-          <section class="panel side-section">
-            <h3>Historia aukcji tego VIN</h3>
-            <div id="auctionHistory" class="auction-history"></div>
-            <div class="seller-note" style="margin-top:8px">
-              Rex.Bid zapisuje kolejne odczyty ceny i statusu dla tego VIN-u, aby można było zobaczyć, jak aukcja się zmieniała. Historia jest obecnie przechowywana lokalnie w przeglądarce.
+        <aside class="right-column">
+          <section class="info-card">
+            <div class="info-card-head"><h3>Aktualna aukcja</h3><span class="platform-pill" style="margin:0">${esc(platformName())}</span></div>
+            <div class="info-card-body">
+              <div class="primary-auction">
+                <div class="auction-main"><div class="auction-label" id="bidLabel">${auctionPhase() === "prebid" ? "Najwyższa oferta przed licytacją" : "Aktualna oferta"}</div><div class="auction-price" id="currentBidPrice">${money(getAuctionBid())}</div><div class="auction-state" id="auctionStatusText">${esc(auctionStatusLabel())}</div><div class="auction-countdown" id="auctionTimerBox"><span id="countdownLabel">Termin licytacji</span>: <span id="countdown">${formatDate(date)}</span></div></div>
+                <div class="info-card-body" style="padding-top:10px">
+                  ${kv("Numer LOT",lot)}${kv("Data aukcji",formatDate(date))}${kv("Lokalizacja",location)}
+                  <div class="action-row" style="margin-top:9px"><button class="action secondary" id="copyVin">Kopiuj VIN</button><button class="action primary" id="watchBtn">Obserwuj auto</button></div>
+                  ${originalAuctionUrl() ? `<a href="${esc(originalAuctionUrl())}" target="_blank" rel="noopener noreferrer" class="action primary green" style="display:flex;align-items:center;justify-content:center;margin-top:8px">Oryginalna aukcja ${esc(platformName())} ↗</a>` : ""}
+                </div>
+              </div>
             </div>
           </section>
 
-          <section class="panel side-section">
-            <h3>Lokalizacja</h3>
-            ${kv("Oddział",getSale(["SellingBranch"]))}
-            ${kv("Miejsce",location)}
-            ${kv("Adres",valueFrom(["Address"]))}
-            ${kv("Miasto",valueFrom(["City"]))}
-            ${kv("Stan",valueFrom(["State","BranchState"]))}
-            ${kv("ZIP",valueFrom(["Zip"]))}
-            ${kv("Telefon",valueFrom(["Phone"]))}
-            ${kv("Pozycja",valueFrom(["VehiclesVehicleLocation"]))}
+          <section class="info-card" id="shipping">
+            <div class="info-card-head"><h3>Wysyłka i lokalizacja</h3></div>
+            <div class="info-card-body">
+              <div class="mini-grid">
+                <div class="mini-stat"><small>Miejsce aukcji</small><strong>${nice(location) || "—"}</strong></div>
+                <div class="mini-stat"><small>Stan</small><strong>${nice(valueFrom(["State","BranchState"])) || "—"}</strong></div>
+              </div>
+              <div style="margin-top:9px">${kv("Oddział",getSale(["SellingBranch"]))}${kv("Adres",valueFrom(["Address"]))}${kv("Miasto",valueFrom(["City"]))}${kv("ZIP",valueFrom(["Zip"]))}</div>
+              <div class="section-title" style="margin:12px 0 5px"><h2 style="font-size:12px">Orientacyjna trasa</h2></div>
+              <div class="mini-grid">
+                <div class="mini-stat"><small>USA → port</small><strong>900 USD</strong></div>
+                <div class="mini-stat"><small>Fracht morski</small><strong>1 400 USD</strong></div>
+                <div class="mini-stat"><small>Port → Polska</small><strong>450 USD</strong></div>
+                <div class="mini-stat"><small>Broker / inne</small><strong>300 USD</strong></div>
+              </div>
+              <a class="jump-links" style="display:flex" href="#importCalculator">Przejdź do kalkulatora kosztów →</a>
+            </div>
           </section>
 
-          <section class="panel side-section">
-            <h3>Dokument / tytuł</h3>
-            ${kv("Title",titleDoc)}
-            ${kv("Brand",titleBrand)}
-            ${kv("State",titleState)}
-            ${kv("Code",titleCode)}
-            ${kv("VIN",vin)}
+          <section class="info-card forecast-card">
+            <div class="info-card-head"><h3>Prognozowany koszt sprowadzenia</h3></div>
+            <div class="info-card-body">
+              <div class="forecast-total"><small>Orientacyjnie do Polski</small><strong id="topForecast">Obliczanie…</strong></div>
+              <div class="kv"><span>Cena auta</span><strong>${money(getAuctionBid())}</strong></div>
+              <div class="kv"><span>Transport + fracht</span><strong>2 750 USD</strong></div>
+              <div class="kv"><span>Cło / VAT / akcyza</span><strong>wg kalkulatora</strong></div>
+              <a class="action primary" style="display:flex;align-items:center;justify-content:center;margin-top:10px" href="#importCalculator">Zobacz pełne wyliczenie</a>
+            </div>
+          </section>
+
+          <section class="info-card">
+            <div class="info-card-head"><h3>Historia aukcji tego VIN</h3></div>
+            <div class="info-card-body"><div id="auctionHistory" class="auction-history"></div><div class="seller-note" style="margin-top:8px">Rex.Bid zapisuje kolejne odczyty ceny i statusu dla tego VIN-u, aby można było zobaczyć, jak aukcja się zmienia.</div></div>
+          </section>
+
+          <section class="info-card">
+            <div class="info-card-head"><h3>Dokument / tytuł</h3></div>
+            <div class="info-card-body">${kv("Title",titleDoc)}${kv("Brand",titleBrand)}${kv("State",titleState)}${kv("Code",titleCode)}${kv("VIN",vin)}</div>
           </section>
         </aside>
       </div>
@@ -2635,7 +2662,8 @@
 
 
 
-  /* IMPORT COST CALCULATOR */
+  
+/* IMPORT COST CALCULATOR */
   function guessEngineCc() {
     const raw = String(first(
       getDescription(["Engine","EngineSize","EngineInformation"]),
@@ -2719,6 +2747,13 @@
           <strong>${esc(x[1])}</strong>
         </div>
       `).join("");
+    }
+
+    const topForecast = document.getElementById("topForecast");
+    if (topForecast) {
+      topForecast.textContent = Number.isFinite(totalPln)
+        ? totalPln.toLocaleString("pl-PL", { maximumFractionDigits: 0 }) + " zł"
+        : "—";
     }
 
     const cc = guessEngineCc();
