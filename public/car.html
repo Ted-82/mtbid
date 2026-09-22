@@ -1,287 +1,2994 @@
-function normalizeIdentifier(value) {
-  if (value === null || value === undefined) {
-    return "";
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rex.Bid — samochód</title>
+  <meta name="description" content="Rex.Bid — szczegóły pojazdu z aukcji Copart i IAAI." />
+
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      --bg:#0b0d10;
+      --panel:#12161b;
+      --panel2:#181d23;
+      --border:#282e36;
+      --text:#f4f6f8;
+      --muted:#9aa3ad;
+      --accent:#ffb000;
+      --accent2:#ffd05c;
+      --green:#35d07f;
+      --red:#ff5d5d;
+      --orange:#ff8d3a;
+      --blue:#55aaff;
+    }
+
+    html { scroll-behavior:smooth; }
+    body {
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    }
+    body.modal-open { overflow:hidden; }
+    button,input { font:inherit; }
+    button { cursor:pointer; }
+    a { color:inherit; text-decoration:none; }
+
+    .container {
+      width:min(1440px,calc(100% - 32px));
+      margin:0 auto;
+    }
+
+    header {
+      position:sticky;
+      top:0;
+      z-index:100;
+      background:rgba(11,13,16,.94);
+      backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
+    }
+
+    .header-inner {
+      min-height:72px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+    }
+
+    .logo {
+      font-size:24px;
+      font-weight:900;
+      letter-spacing:-1.4px;
+    }
+    .logo span { color:var(--accent); }
+
+    .nav {
+      display:flex;
+      gap:22px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .nav a:hover { color:#fff; }
+
+    main { padding:18px 0 70px; }
+
+    .back {
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      margin-bottom:14px;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .back:hover { color:#fff; }
+
+    .top-grid {
+      display:grid;
+      grid-template-columns:minmax(0,1.65fr) minmax(320px,.7fr);
+      gap:14px;
+      align-items:start;
+    }
+
+    .panel {
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:14px;
+      overflow:hidden;
+    }
+
+    .gallery {
+      padding:0;
+      background:#080a0c;
+    }
+
+    .main-photo {
+      position:relative;
+      height:min(62vw,560px);
+      min-height:360px;
+      background:#080a0c;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .main-photo img {
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block;
+      user-select:none;
+      -webkit-user-drag:none;
+      cursor:zoom-in;
+    }
+
+    .main-photo .media-label {
+      position:absolute;
+      left:12px;
+      top:12px;
+      padding:7px 10px;
+      border-radius:7px;
+      background:rgba(0,0,0,.76);
+      font-size:11px;
+      font-weight:900;
+      z-index:3;
+    }
+
+    .photo-count {
+      position:absolute;
+      right:12px;
+      bottom:12px;
+      padding:7px 10px;
+      border-radius:7px;
+      background:rgba(0,0,0,.76);
+      font-size:11px;
+      z-index:3;
+    }
+
+    .gallery-arrow {
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      width:42px;
+      height:42px;
+      border:1px solid rgba(255,255,255,.15);
+      border-radius:50%;
+      background:rgba(0,0,0,.6);
+      color:#fff;
+      font-size:25px;
+      z-index:5;
+    }
+    .gallery-arrow:hover { background:rgba(0,0,0,.85); }
+    .gallery-arrow.prev { left:12px; }
+    .gallery-arrow.next { right:12px; }
+
+    .thumb-wrap {
+      padding:8px;
+      border-top:1px solid var(--border);
+      background:#0c0f12;
+    }
+
+    .thumbs {
+      display:grid;
+      grid-template-columns:repeat(8,minmax(0,1fr));
+      gap:6px;
+      max-height:220px;
+      overflow:auto;
+      scrollbar-width:thin;
+    }
+
+    .thumb {
+      position:relative;
+      aspect-ratio:4/3;
+      padding:0;
+      border:1px solid transparent;
+      border-radius:7px;
+      overflow:hidden;
+      background:#101318;
+    }
+    .thumb:hover { border-color:#6d7680; }
+    .thumb.active { border-color:var(--accent); }
+    .thumb img {
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .thumb.hd::after {
+      content:"HD";
+      position:absolute;
+      right:4px;
+      bottom:4px;
+      padding:2px 4px;
+      border-radius:3px;
+      background:rgba(0,0,0,.75);
+      color:#fff;
+      font-size:8px;
+      font-weight:900;
+    }
+
+    .media-toolbar {
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      padding:10px;
+      border-top:1px solid var(--border);
+      background:#0e1115;
+    }
+
+    .media-btn {
+      border:1px solid var(--border);
+      background:var(--panel2);
+      color:#fff;
+      padding:9px 12px;
+      border-radius:8px;
+      font-size:12px;
+      font-weight:800;
+    }
+    .media-btn:hover {
+      border-color:#59616b;
+      background:#20262d;
+    }
+    .media-btn.accent {
+      background:var(--accent);
+      color:#111;
+      border-color:var(--accent);
+    }
+
+    .summary {
+      padding:18px;
+      position:sticky;
+      top:88px;
+    }
+
+    .source-badge {
+      display:inline-flex;
+      padding:6px 9px;
+      border-radius:7px;
+      background:#20262d;
+      color:#fff;
+      font-size:10px;
+      font-weight:900;
+      margin-bottom:12px;
+    }
+
+    .summary h1 {
+      margin:0 0 12px;
+      font-size:27px;
+      line-height:1.05;
+      letter-spacing:-1px;
+    }
+
+    .live {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      margin-left:6px;
+      padding:5px 8px;
+      border-radius:6px;
+      background:rgba(53,208,127,.16);
+      color:var(--green);
+      font-size:10px;
+      font-weight:900;
+      vertical-align:middle;
+    }
+
+    .live-dot {
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:var(--green);
+    }
+
+    .vin-row {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      padding:10px;
+      margin-bottom:10px;
+      background:var(--panel2);
+      border:1px solid var(--border);
+      border-radius:8px;
+    }
+    .vin-row small { color:var(--muted); display:block; font-size:9px; margin-bottom:3px; }
+    .vin-row strong { font-size:11px; word-break:break-all; }
+
+    .copy-btn {
+      flex:none;
+      border:1px solid var(--border);
+      background:#20262d;
+      color:#fff;
+      padding:7px 9px;
+      border-radius:6px;
+      font-size:10px;
+      font-weight:800;
+    }
+
+    .auction-box {
+      border:1px solid var(--border);
+      border-radius:9px;
+      overflow:hidden;
+      margin-bottom:10px;
+    }
+
+    .auction-row {
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:10px;
+      border-bottom:1px solid var(--border);
+    }
+    .auction-row:last-child { border-bottom:0; }
+    .auction-row small { color:var(--muted); display:block; font-size:9px; margin-bottom:3px; }
+    .auction-row strong { font-size:11px; text-align:right; }
+
+    .countdown {
+      color:var(--accent);
+      font-size:18px!important;
+    }
+
+    .price-box {
+      padding:12px;
+      border:1px solid var(--border);
+      border-radius:9px;
+      background:linear-gradient(180deg,#20221f,#171a18);
+      margin-bottom:10px;
+    }
+    .price-box small { color:var(--muted); font-size:9px; }
+    .price {
+      font-size:26px;
+      font-weight:950;
+      margin-top:2px;
+    }
+    .price-sub { color:var(--muted); font-size:9px; margin-top:2px; }
+
+    .action-row {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+    .action {
+      height:42px;
+      border-radius:8px;
+      border:1px solid var(--border);
+      background:var(--panel2);
+      color:#fff;
+      font-weight:800;
+      font-size:11px;
+    }
+    .action.primary {
+      background:var(--accent);
+      color:#111;
+      border-color:var(--accent);
+    }
+
+    .content-grid {
+      display:grid;
+      grid-template-columns:minmax(0,1.65fr) minmax(280px,.7fr);
+      gap:14px;
+      margin-top:14px;
+      align-items:start;
+    }
+
+    .section {
+      padding:14px;
+      margin-bottom:14px;
+    }
+
+    .section-title {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:12px;
+    }
+
+    .section-title h2 {
+      margin:0;
+      font-size:16px;
+    }
+
+    .section-title span {
+      color:var(--muted);
+      font-size:10px;
+    }
+
+    .spec-grid {
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      border:1px solid var(--border);
+      border-radius:9px;
+      overflow:hidden;
+    }
+
+    .spec {
+      min-width:0;
+      padding:10px;
+      border-right:1px solid var(--border);
+      border-bottom:1px solid var(--border);
+      background:#11151a;
+    }
+    .spec:nth-child(3n) { border-right:0; }
+    .spec:nth-last-child(-n+3) { border-bottom:0; }
+    .spec small {
+      display:block;
+      color:var(--muted);
+      font-size:9px;
+      margin-bottom:4px;
+    }
+    .spec strong {
+      display:block;
+      font-size:11px;
+      line-height:1.35;
+      overflow-wrap:anywhere;
+    }
+
+    .damage-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+
+    .damage {
+      padding:13px;
+      border:1px solid var(--border);
+      border-radius:8px;
+      background:var(--panel2);
+    }
+    .damage.main { border-color:#8b3d3d; }
+    .damage small { color:var(--muted); font-size:9px; display:block; margin-bottom:4px; }
+    .damage strong { font-size:13px; }
+    .damage.main strong { color:var(--red); }
+
+    .side-section {
+      padding:14px;
+      margin-bottom:14px;
+    }
+
+    .side-section h3 {
+      margin:0 0 10px;
+      font-size:14px;
+    }
+
+    .kv {
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:9px 0;
+      border-bottom:1px solid var(--border);
+      font-size:10px;
+    }
+    .kv:last-child { border-bottom:0; }
+    .kv span { color:var(--muted); }
+    .kv strong { text-align:right; overflow-wrap:anywhere; }
+
+    .seller-box {
+      padding:12px;
+      border-radius:9px;
+      background:var(--panel2);
+      border:1px solid var(--border);
+    }
+
+    .seller-rating {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:9px;
+      font-weight:900;
+      font-size:12px;
+    }
+
+    .risk-dot {
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:#6d747c;
+    }
+    .risk-dot.green { background:var(--green); }
+    .risk-dot.orange { background:var(--orange); }
+    .risk-dot.red { background:var(--red); }
+    .risk-dot.blue { background:var(--blue); }
+
+    .seller-note {
+      color:var(--muted);
+      font-size:10px;
+      line-height:1.5;
+    }
+
+    .title-verdict {
+      padding:12px;
+      border-radius:9px;
+      border:1px solid var(--border);
+      background:var(--panel2);
+      margin-bottom:9px;
+    }
+
+    .title-verdict.good { border-color:#276f4b; }
+    .title-verdict.warn { border-color:#7c5b24; }
+    .title-verdict.bad { border-color:#813c3c; }
+    .title-verdict.unknown { border-color:#39414a; }
+
+    .verdict-label {
+      font-size:13px;
+      font-weight:900;
+      margin-bottom:5px;
+    }
+
+    .verdict-text {
+      color:var(--muted);
+      font-size:10px;
+      line-height:1.5;
+    }
+
+    .color-legend {
+      display:grid;
+      gap:6px;
+      margin:0 0 10px;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      border-radius:9px;
+      background:rgba(255,255,255,.02);
+      color:var(--muted);
+      font-size:10px;
+      line-height:1.45;
+    }
+    .color-legend.compact { margin-top:10px; margin-bottom:0; }
+    .color-legend span { display:block; }
+    .legend-dot {
+      display:inline-block;
+      width:8px; height:8px; border-radius:50%;
+      margin-right:6px; vertical-align:middle;
+    }
+    .legend-dot.green { background:var(--green); }
+    .legend-dot.orange { background:var(--orange); }
+    .legend-dot.red { background:var(--red); }
+    .legend-dot.unknown { background:#7b858f; }
+    .title-verdict.salvage { border-color:#276f4b; }
+    .title-verdict.salvage .verdict-label { color:var(--green); }
+
+    .auction-history {
+      border:1px solid var(--border);
+      border-radius:9px;
+      overflow:hidden;
+      background:#11151a;
+      max-height:320px;
+      overflow-y:auto;
+    }
+
+    .history-row {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:9px 10px;
+      border-bottom:1px solid var(--border);
+      font-size:10px;
+    }
+    .history-row:last-child { border-bottom:0; }
+    .history-row small {
+      display:block;
+      margin-top:3px;
+      color:var(--muted);
+      font-size:9px;
+    }
+
+    .media-panel {
+      padding:0;
+    }
+
+    .media-view {
+      min-height:360px;
+      background:#07090b;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .media-view iframe,
+    .media-view video {
+      width:100%;
+      height:560px;
+      border:0;
+      background:#000;
+    }
+
+    .empty {
+      padding:50px 20px;
+      text-align:center;
+      color:var(--muted);
+    }
+
+    .error {
+      margin:30px auto;
+      max-width:800px;
+      padding:25px;
+      border:1px solid #663333;
+      background:#211316;
+      border-radius:12px;
+      color:#ff8d8d;
+    }
+
+    footer {
+      padding:28px 0;
+      border-top:1px solid var(--border);
+      color:var(--muted);
+      text-align:center;
+      font-size:11px;
+    }
+
+    /* LIGHTBOX */
+    .lightbox {
+      position:fixed;
+      inset:0;
+      z-index:1000;
+      display:none;
+      background:rgba(0,0,0,.94);
+    }
+    .lightbox.open { display:block; }
+
+    .lb-top {
+      position:absolute;
+      left:15px;
+      right:15px;
+      top:15px;
+      z-index:5;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+
+    .lb-info {
+      color:#fff;
+      font-size:12px;
+      padding:8px 10px;
+      background:rgba(20,23,27,.9);
+      border:1px solid #343a42;
+      border-radius:7px;
+    }
+
+    .lb-controls {
+      display:flex;
+      gap:6px;
+    }
+
+    .lb-controls button {
+      width:38px;
+      height:38px;
+      border:1px solid #343a42;
+      border-radius:7px;
+      background:#171b20;
+      color:#fff;
+      font-size:18px;
+      font-weight:800;
+    }
+
+    .lb-stage {
+      position:absolute;
+      inset:70px 60px 65px;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      touch-action:none;
+    }
+
+    .lb-stage img {
+      max-width:100%;
+      max-height:100%;
+      object-fit:contain;
+      transform-origin:center center;
+      user-select:none;
+      -webkit-user-drag:none;
+      cursor:grab;
+    }
+    .lb-stage img.dragging { cursor:grabbing; }
+
+    .lb-bottom {
+      position:absolute;
+      left:15px;
+      right:15px;
+      bottom:12px;
+      display:flex;
+      justify-content:center;
+      color:#aaa;
+      font-size:10px;
+    }
+
+    .lightbox-nav {
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      z-index:4;
+      width:44px;
+      height:44px;
+      border:1px solid #343a42;
+      border-radius:50%;
+      background:rgba(20,23,27,.9);
+      color:#fff;
+      font-size:25px;
+    }
+    .lightbox-nav.left { left:10px; }
+    .lightbox-nav.right { right:10px; }
+
+    .viewer-modal {
+      position:fixed;
+      inset:0;
+      z-index:1100;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:#000;
+      padding:0;
+    }
+    .viewer-modal.open { display:flex; }
+
+    .viewer-inner {
+      width:100vw;
+      height:100vh;
+      max-width:none;
+      max-height:none;
+      background:#000;
+      border:0;
+      border-radius:0;
+      overflow:hidden;
+      position:relative;
+    }
+
+    #viewerContent {
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      background:#000;
+    }
+
+    .viewer-close {
+      position:absolute;
+      right:14px;
+      top:14px;
+      z-index:20;
+      width:42px;
+      height:42px;
+      border:1px solid rgba(255,255,255,.35);
+      border-radius:50%;
+      background:rgba(0,0,0,.72);
+      color:#fff;
+      font-size:24px;
+    }
+
+    .viewer-fullscreen {
+      position:absolute;
+      right:64px;
+      top:14px;
+      z-index:20;
+      width:42px;
+      height:42px;
+      border:1px solid rgba(255,255,255,.35);
+      border-radius:50%;
+      background:rgba(0,0,0,.72);
+      color:#fff;
+      font-size:18px;
+    }
+
+    .viewer-inner iframe,
+    .viewer-inner video {
+      display:block;
+      width:100% !important;
+      height:100% !important;
+      min-width:100%;
+      min-height:100%;
+      border:0;
+      background:#000;
+      object-fit:contain;
+    }
+
+    .viewer-fallback {
+      width:100%;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      gap:14px;
+      color:#fff;
+      background:#000;
+      text-align:center;
+      padding:30px;
+    }
+
+    .viewer-fallback a {
+      display:inline-block;
+      padding:11px 16px;
+      border-radius:8px;
+      background:var(--accent);
+      color:#111;
+      font-weight:900;
+    }
+
+    @media (max-width:1050px) {
+      .top-grid,.content-grid { grid-template-columns:1fr; }
+      .summary { position:static; }
+      .spec-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .spec:nth-child(3n) { border-right:1px solid var(--border); }
+      .spec:nth-child(2n) { border-right:0; }
+      .spec:nth-last-child(-n+3) { border-bottom:1px solid var(--border); }
+      .spec:last-child,.spec:nth-last-child(2) { border-bottom:0; }
+    }
+
+    @media (max-width:700px) {
+      .container { width:calc(100% - 20px); }
+      .nav { display:none; }
+      .main-photo { height:62vw; min-height:260px; }
+      .thumbs { grid-template-columns:repeat(5,minmax(0,1fr)); max-height:180px; }
+      .summary h1 { font-size:24px; }
+      .spec-grid { grid-template-columns:1fr 1fr; }
+      .damage-grid { grid-template-columns:1fr; }
+      .media-view iframe,.media-view video { height:55vh; }
+      .lb-stage { inset:70px 12px 65px; }
+      .lightbox-nav.left { left:4px; }
+      .lightbox-nav.right { right:4px; }
+    }
+  
+
+/* IMPORT COST CALCULATOR */
+.import-calc{margin-top:18px;padding:18px}
+.import-calc h2{margin:0 0 6px;font-size:20px}
+.import-calc .calc-sub{color:#99a3ae;font-size:11px;line-height:1.5;margin-bottom:14px}
+.calc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.calc-field label{display:block;color:#99a3ae;font-size:10px;margin-bottom:5px}
+.calc-field input,.calc-field select{width:100%;height:42px;background:#181d23;color:#fff;border:1px solid #29313a;border-radius:8px;padding:0 10px;outline:none}
+.calc-field input:focus,.calc-field select:focus{border-color:#ffb000}
+.calc-result{margin-top:14px;border:1px solid #29313a;border-radius:10px;overflow:hidden}
+.calc-line{display:flex;justify-content:space-between;gap:15px;padding:10px 12px;border-bottom:1px solid #29313a;font-size:12px}
+.calc-line:last-child{border-bottom:0}
+.calc-line span{color:#99a3ae}
+.calc-total{background:#20231f;font-size:16px;font-weight:900}
+.calc-note{margin-top:10px;color:#99a3ae;font-size:10px;line-height:1.55}
+.calc-warning{margin-top:10px;padding:10px 12px;border:1px solid #6d5923;background:#211d12;border-radius:8px;color:#e7d59b;font-size:10px;line-height:1.5}
+@media(max-width:760px){.calc-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.calc-grid{grid-template-columns:1fr}}
+
+</style>
+</head>
+
+<body>
+<header>
+  <div class="container header-inner">
+    <a href="/" class="logo">Rex<span>.Bid</span></a>
+    <nav class="nav">
+      <a href="/">Samochody</a>
+      <a href="/#search">Wyszukiwarka</a>
+      <a href="/#results">Aukcje</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <a class="back" href="/">← Wróć do samochodów</a>
+
+    <div id="page"></div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">Rex.Bid — Vehicle Auction Marketplace</div>
+</footer>
+
+<div id="lightbox" class="lightbox" aria-hidden="true">
+  <div class="lb-top">
+    <div id="lbInfo" class="lb-info">HD</div>
+    <div class="lb-controls">
+      <button id="lbMinus" title="Pomniejsz">−</button>
+      <button id="lbReset" title="Reset">1:1</button>
+      <button id="lbPlus" title="Powiększ">+</button>
+      <button id="lbClose" title="Zamknij">×</button>
+    </div>
+  </div>
+
+  <button id="lbPrev" class="lightbox-nav left">‹</button>
+  <button id="lbNext" class="lightbox-nav right">›</button>
+
+  <div id="lbStage" class="lb-stage">
+    <img id="lbImage" alt="" />
+  </div>
+
+  <div class="lb-bottom">
+    Kółko myszy / przyciski + i − = zoom • przeciągnij zdjęcie po powiększeniu
+  </div>
+</div>
+
+<div id="viewerModal" class="viewer-modal" aria-hidden="true">
+  <div class="viewer-inner" id="viewerInner">
+    <button id="viewerFullscreen" class="viewer-fullscreen" title="Pełny ekran">⛶</button>
+    <button id="viewerClose" class="viewer-close" title="Zamknij">×</button>
+    <div id="viewerContent"></div>
+  </div>
+</div>
+
+<script>
+  const API_BASE = "/api";
+  const params = new URLSearchParams(location.search);
+  const VIN = (params.get("vin") || "").trim();
+  const LOT = (params.get("lot") || "").trim();
+
+  const page = document.getElementById("page");
+
+  let car = null;
+  let photos = [];
+  let photoIndex = 0;
+
+  let zoom = 1;
+  let panX = 0;
+  let panY = 0;
+  let dragging = false;
+  let dragStartX = 0;
+  let dragStartY = 0;
+  let startPanX = 0;
+  let startPanY = 0;
+
+  function esc(v) {
+    if (v === null || v === undefined) return "";
+    return String(v)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
   }
 
-  return String(value)
-    .trim()
-    .toUpperCase()
-    .replace(/[\s-]/g, "");
-}
+  function isEmpty(v) {
+    return v === null || v === undefined || String(v).trim() === "" ||
+      String(v).trim() === "—" || String(v).trim().toLowerCase() === "null";
+  }
 
+  function first(...values) {
+    for (const v of values) {
+      if (!isEmpty(v)) return v;
+    }
+    return null;
+  }
 
-function objectContainsIdentifier(obj, identifier, type = "vin") {
+  // Zamienia wartości z API (również obiekty) na czytelny tekst.
+  // Dzięki temu pola typu seller / WhoCanBuy nie wyświetlają już [object Object].
+  function displayValue(value, depth = 0) {
+    if (isEmpty(value)) return null;
+    if (depth > 3) return null;
 
-  if (!obj || typeof obj !== "object") {
+    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+      return String(value);
+    }
+
+    if (Array.isArray(value)) {
+      const parts = value.map(v => displayValue(v, depth + 1)).filter(Boolean);
+      return parts.length ? parts.join(", ") : null;
+    }
+
+    if (typeof value === "object") {
+      const preferredKeys = [
+        "display", "displayName", "name", "sellerName", "seller_name",
+        "companyName", "company_name", "label", "title", "value",
+        "description", "text", "type", "code", "raw"
+      ];
+
+      for (const key of preferredKeys) {
+        if (Object.prototype.hasOwnProperty.call(value, key)) {
+          const result = displayValue(value[key], depth + 1);
+          if (!isEmpty(result)) return result;
+        }
+      }
+
+      const parts = [];
+      for (const [key, val] of Object.entries(value)) {
+        if (/^(id|uuid|url|href|slug|image|icon|sort|index)$/i.test(key)) continue;
+        const result = displayValue(val, depth + 1);
+        if (!isEmpty(result)) parts.push(`${key}: ${result}`);
+        if (parts.length >= 3) break;
+      }
+      return parts.length ? parts.join(" • ") : null;
+    }
+
+    return String(value);
+  }
+
+  function bool(v) {
+    if (v === true || v === 1) return true;
+    if (typeof v === "string") return ["true","yes","1","present","available","actual"].includes(v.toLowerCase());
     return false;
   }
 
-  const wanted =
-    normalizeIdentifier(identifier);
+  function money(v, currency = "USD") {
+    if (isEmpty(v)) return "—";
+    if (typeof v === "string" && /[$€£]|\bzł\b|\bPLN\b/i.test(v)) return esc(v);
+    const n = Number(v);
+    if (Number.isNaN(n)) return esc(v);
 
-  if (!wanted) {
-    return false;
+    if (String(currency).toUpperCase() === "PLN") {
+      return n.toLocaleString("pl-PL", { maximumFractionDigits: 0 }) + " zł";
+    }
+
+    return "$" + n.toLocaleString("en-US", { maximumFractionDigits: 0 });
   }
 
-  const keys =
-    type === "lot"
+  function nice(v) {
+    const text = displayValue(v);
+    if (isEmpty(text)) return "—";
+    return esc(text);
+  }
+
+  function titleCase(v) {
+    if (isEmpty(v)) return "";
+    return String(v)
+      .toLowerCase()
+      .replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  function normalizeIdentifier(value) {
+    if (value === null || value === undefined) return "";
+    return String(value).trim().toUpperCase().replace(/[\s-]/g, "");
+  }
+
+  function objectContainsIdentifier(obj, identifier, type = "vin") {
+    if (!obj || typeof obj !== "object") return false;
+
+    const wanted = normalizeIdentifier(identifier);
+    if (!wanted) return false;
+
+    const keys = type === "lot"
       ? [
-          "lot",
-          "lot_number",
-          "lotNumber",
-          "stock",
-          "stock_number",
-          "stockNumber",
-          "stock_number",
-          "StockNumber",
-          "SalvageId",
-          "salvageId",
-          "itemId",
-          "vehicleId"
+          "lot","lot_number","lotNumber","stock","stock_number",
+          "stockNumber","StockNumber","SalvageId","salvageId",
+          "itemId","vehicleId"
         ]
       : [
-          "vin",
-          "VIN",
-          "vehicle_vin",
-          "vehicleVin",
-          "slug_vin",
-          "slugVin",
-          "Vin",
-          "vin_number",
-          "vinNumber"
+          "vin","VIN","vehicle_vin","vehicleVin","slug_vin",
+          "slugVin","Vin","vin_number","vinNumber"
         ];
 
-  for (const key of keys) {
-
-    if (
-      Object.prototype.hasOwnProperty.call(
-        obj,
-        key
-      )
-    ) {
-
-      const value =
-        normalizeIdentifier(obj[key]);
-
-      if (
-        value &&
-        value === wanted
-      ) {
-        return true;
+    for (const key of keys) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        const value = normalizeIdentifier(obj[key]);
+        if (value && value === wanted) return true;
       }
     }
+
+    return false;
   }
 
-  return false;
-}
+  function findExactVehicle(data, identifier, type = "vin") {
+    if (!identifier) return null;
 
+    const wanted = normalizeIdentifier(identifier);
+    if (!wanted) return null;
 
-function findExactVehicle(data, identifier, type = "vin") {
+    const objects = collectObjects(data);
 
-  if (!identifier) {
-    return null;
-  }
-
-  const wanted =
-    normalizeIdentifier(identifier);
-
-  if (!wanted) {
-    return null;
-  }
-
-
-  /*
-   * Przeszukujemy cały wynik API,
-   * również zagnieżdżone obiekty.
-   */
-
-  const objects =
-    collectObjects(data);
-
-
-  /*
-   * Najpierw szukamy obiektu,
-   * który bezpośrednio zawiera właściwy VIN/LOT.
-   */
-
-  for (const obj of objects) {
-
-    if (
-      objectContainsIdentifier(
-        obj,
-        identifier,
-        type
-      )
-    ) {
-      return obj;
+    for (const obj of objects) {
+      if (objectContainsIdentifier(obj, identifier, type)) return obj;
     }
-  }
 
+    for (const obj of objects) {
+      for (const [key, value] of Object.entries(obj)) {
+        if (typeof value !== "string" && typeof value !== "number") continue;
 
-  /*
-   * Dodatkowe zabezpieczenie:
-   * jeżeli API ma nietypową strukturę,
-   * sprawdzamy również wszystkie wartości
-   * tekstowe w obiektach.
-   */
+        const normalized = normalizeIdentifier(value);
+        if (normalized !== wanted) continue;
 
-  for (const obj of objects) {
-
-    for (const [key, value] of Object.entries(obj)) {
-
-      if (
-        typeof value === "string" ||
-        typeof value === "number"
-      ) {
-
-        const normalized =
-          normalizeIdentifier(value);
+        const lowerKey = String(key).toLowerCase();
 
         if (
-          normalized === wanted
+          type === "vin" &&
+          lowerKey.includes("vin")
         ) {
+          return obj;
+        }
 
-          const lowerKey =
-            String(key).toLowerCase();
+        if (
+          type === "lot" &&
+          (
+            lowerKey.includes("lot") ||
+            lowerKey.includes("stock") ||
+            lowerKey.includes("salvage") ||
+            lowerKey.includes("item") ||
+            lowerKey.includes("vehicle")
+          )
+        ) {
+          return obj;
+        }
+      }
+    }
 
-          if (
-            type === "vin" &&
-            (
-              lowerKey.includes("vin")
-            )
-          ) {
-            return obj;
+    return null;
+  }
+
+  function unwrapResult(json) {
+    if (!json) return null;
+
+    let data =
+      json.data ??
+      json.result ??
+      json.vehicle ??
+      json.car ??
+      json;
+
+    if (
+      data &&
+      data.data &&
+      !Array.isArray(data.data)
+    ) {
+      data = data.data;
+    }
+
+    /*
+     * Jeżeli mamy VIN, nie wolno nigdy wybrać pierwszego
+     * elementu tylko dlatego, że API zwróciło listę.
+     */
+    if (VIN) {
+      const exact = findExactVehicle(data, VIN, "vin");
+      return exact || null;
+    }
+
+    /*
+     * Analogicznie dla numeru LOT.
+     */
+    if (LOT) {
+      const exact = findExactVehicle(data, LOT, "lot");
+      return exact || null;
+    }
+
+    /*
+     * Bez identyfikatora akceptujemy tylko pojedynczy obiekt.
+     */
+    if (Array.isArray(data)) {
+      return data.length === 1 ? data[0] : null;
+    }
+
+    return data;
+  }
+
+  async function fetchVehicle() {
+    const attempts = [];
+
+    if (VIN) {
+      attempts.push(`${API_BASE}/cars?vin=${encodeURIComponent(VIN)}`);
+      attempts.push(`${API_BASE}/cars?s=${encodeURIComponent(VIN)}&per_page=20`);
+      attempts.push(`${API_BASE}/car?vin=${encodeURIComponent(VIN)}`);
+    }
+
+    if (LOT) {
+      attempts.push(`${API_BASE}/cars?lot=${encodeURIComponent(LOT)}`);
+      attempts.push(`${API_BASE}/cars?s=${encodeURIComponent(LOT)}&per_page=20`);
+      attempts.push(`${API_BASE}/car?lot=${encodeURIComponent(LOT)}`);
+    }
+
+    let lastError = null;
+
+    for (const url of attempts) {
+      try {
+        const response = await fetch(url, {
+          headers: { "Accept":"application/json" }
+        });
+
+        const text = await response.text();
+        let json = null;
+
+        try { json = JSON.parse(text); } catch (_) {}
+
+        if (!response.ok) {
+          lastError = new Error(json?.error || `HTTP ${response.status}`);
+          continue;
+        }
+
+        const result = unwrapResult(json);
+        if (result) return result;
+
+        lastError = new Error("API nie zwróciło samochodu.");
+      } catch (e) {
+        lastError = e;
+      }
+    }
+
+    throw lastError || new Error("Nie udało się pobrać samochodu.");
+  }
+
+  function collectObjects(root, out = []) {
+    if (!root || typeof root !== "object") return out;
+    if (out.includes(root)) return out;
+    out.push(root);
+
+    if (Array.isArray(root)) {
+      root.forEach(x => collectObjects(x, out));
+    } else {
+      Object.values(root).forEach(x => {
+        if (x && typeof x === "object") collectObjects(x, out);
+      });
+    }
+    return out;
+  }
+
+  function findAllByKeys(root, keys) {
+    const wanted = new Set(keys.map(k => k.toLowerCase()));
+    const result = [];
+    for (const obj of collectObjects(root)) {
+      for (const [k,v] of Object.entries(obj)) {
+        if (wanted.has(k.toLowerCase()) && v !== null && v !== undefined) {
+          result.push(v);
+        }
+      }
+    }
+    return result;
+  }
+
+  function isHttpUrl(v) {
+    return typeof v === "string" && /^https?:\/\//i.test(v.trim());
+  }
+
+  function mediaScore(url, item = {}) {
+    if (!isHttpUrl(url)) return -1;
+
+    const u = String(url).toLowerCase();
+    let score = 0;
+
+    // Prefer original/full-resolution variants.
+    if (/original|orig|full|master|source/.test(u)) score += 80;
+    if (/hd|high|large|big|hires|highres|1920|2048|2560|3000|4000|4096/.test(u)) score += 60;
+    if (/thumb|thumbnail|small|tiny|preview|320x|400x|480x|640x/.test(u)) score -= 70;
+
+    // Explicit object fields are stronger than a generic URL field.
+    if (item.original) score += 50;
+    if (item.hd) score += 45;
+    if (item.large) score += 35;
+    if (item.big) score += 30;
+    if (item.url) score += 10;
+
+    return score;
+  }
+
+  function bestMediaUrl(item) {
+    if (!item) return null;
+
+    if (typeof item === "string") return isHttpUrl(item) ? item : null;
+
+    const candidates = [
+      item.original,
+      item.originalUrl,
+      item.original_url,
+      item.master,
+      item.full,
+      item.fullsize,
+      item.fullSize,
+      item.hd,
+      item.hdUrl,
+      item.hd_url,
+      item.high,
+      item.highres,
+      item.high_res,
+      item.large,
+      item.big,
+      item.imageUrl,
+      item.image_url,
+      item.url,
+      item.src,
+      item.href
+    ].filter(isHttpUrl);
+
+    candidates.sort((a,b) => mediaScore(b,item) - mediaScore(a,item));
+    return candidates[0] || null;
+  }
+
+  function mediaIdentity(url) {
+    if (!url) return "";
+
+    let u = String(url);
+
+    // IAAI imageKeys identify the actual image independently of thumbnail/full-size URL.
+    const imageKeys = u.match(/imageKeys=([^&]+)/i);
+    if (imageKeys) return `iaai:${decodeURIComponent(imageKeys[1])}`;
+
+    // Remove common resizing/query parameters so thumb + full-size become one image.
+    u = u
+      .replace(/[?&](width|height|w|h|size|quality|q|resize|fit|format)=[^&]+/gi, "")
+      .replace(/[?&](thumb|thumbnail|small|medium|large|hd)=true/gi, "")
+      .replace(/[?&]+$/,"");
+
+    // Common CDN suffixes.
+    u = u.replace(/([_-])(thumb|thumbnail|small|medium|large|hd)(?=\.[a-z0-9]+$)/i, "");
+
+    return u;
+  }
+
+  function normalizeMedia(root) {
+    const found = [];
+    const objects = collectObjects(root);
+
+    function addImage(item) {
+      if (!item) return;
+
+      const large = bestMediaUrl(item);
+      const thumb = typeof item === "object"
+        ? first(
+            item.thumb,
+            item.thumbnail,
+            item.thumbnailUrl,
+            item.thumbnail_url,
+            item.small,
+            item.normal,
+            item.medium,
+            large
+          )
+        : large;
+
+      if (large || thumb) {
+        found.push({
+          type:"image",
+          thumb: isHttpUrl(thumb) ? thumb : large,
+          large: large || thumb
+        });
+      }
+    }
+
+    function addArray(arr) {
+      if (!Array.isArray(arr)) return;
+      arr.forEach(x => {
+        if (!x) return;
+
+        if (typeof x === "string") {
+          if (isHttpUrl(x)) addImage(x);
+          return;
+        }
+
+        if (typeof x === "object") {
+          const type = String(x.type || x.mediaType || x.kind || "").toLowerCase();
+          if (/video|vr|360|panorama/.test(type)) return;
+          addImage(x);
+        }
+      });
+    }
+
+    for (const obj of objects) {
+      for (const key of ["items","images","photos","media","imageList","photoList","imageItems"]) {
+        const val = obj[key];
+        if (!val) continue;
+
+        if (Array.isArray(val)) {
+          addArray(val);
+        } else if (typeof val === "object") {
+          addArray(val.items);
+          addArray(val.images);
+          addArray(val.photos);
+          addArray(val.thumbs);
+          addArray(val.normal);
+          addArray(val.medium);
+          addArray(val.large);
+          addArray(val.big);
+
+          // Some APIs store parallel thumbnail/full arrays.
+          if (Array.isArray(val.thumbs)) {
+            val.thumbs.forEach((x,i) => {
+              const full = val.original?.[i] || val.hd?.[i] || val.large?.[i] ||
+                           val.big?.[i] || val.full?.[i] || x;
+              addImage({thumb:x, large:full, hd:val.hd?.[i], original:val.original?.[i]});
+            });
           }
-
-          if (
-            type === "lot" &&
-            (
-              lowerKey.includes("lot") ||
-              lowerKey.includes("stock") ||
-              lowerKey.includes("salvage") ||
-              lowerKey.includes("item") ||
-              lowerKey.includes("vehicle")
-            )
-          ) {
-            return obj;
+          if (Array.isArray(val.normal)) {
+            val.normal.forEach((x,i) => {
+              const full = val.original?.[i] || val.hd?.[i] || val.large?.[i] ||
+                           val.big?.[i] || x;
+              addImage({thumb:x, large:full, hd:val.hd?.[i], original:val.original?.[i]});
+            });
           }
         }
       }
     }
+
+    const byIdentity = new Map();
+
+    for (const p of found) {
+      const identity = mediaIdentity(p.large || p.thumb);
+      if (!identity) continue;
+
+      const previous = byIdentity.get(identity);
+      if (!previous) {
+        byIdentity.set(identity, p);
+        continue;
+      }
+
+      // Keep the candidate whose full URL looks more like a real HD/original.
+      const oldScore = mediaScore(previous.large, previous);
+      const newScore = mediaScore(p.large, p);
+      if (newScore > oldScore) byIdentity.set(identity, p);
+    }
+
+    return Array.from(byIdentity.values());
   }
 
+  function urlFromValue(value, type) {
+    if (!value) return null;
 
-  return null;
-}
+    if (typeof value === "string") {
+      return isHttpUrl(value) ? value : null;
+    }
 
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        const found = urlFromValue(item,type);
+        if (found) return found;
+      }
+      return null;
+    }
 
-function unwrapResult(json) {
+    if (typeof value === "object") {
+      const candidates = [
+        value.url, value.src, value.href, value.link,
+        value.videoUrl, value.video_url, value.mediaUrl, value.media_url,
+        value.large, value.original, value.file, value.path
+      ];
 
-  if (!json) {
+      for (const candidate of candidates) {
+        if (isHttpUrl(candidate)) return candidate;
+      }
+
+      for (const [k,v] of Object.entries(value)) {
+        const lk = k.toLowerCase();
+        if (
+          (type === "video" && /video|media|movie|mp4|stream/.test(lk)) ||
+          (type === "vr360" && /360|vr|panorama|spin|viewer/.test(lk))
+        ) {
+          const found = urlFromValue(v,type);
+          if (found) return found;
+        }
+      }
+    }
+
     return null;
   }
 
+  function findMediaUrl(type) {
+    const objects = collectObjects(car);
 
-  let data =
-    json.data ??
-    json.result ??
-    json.vehicle ??
-    json.car ??
-    json;
+    const explicitKeys = type === "video"
+      ? [
+          "video","videos","videoUrl","videoURL","video_url","videoLink","video_link",
+          "mediaVideo","media_video","videoSource","video_source","mp4","mp4Url",
+          "streamUrl","stream_url","playerUrl","player_url","engineVideo","engine_video",
+          "engineVideoUrl","engine_video_url","engineSoundLink","engineSound","engine_sound"
+        ]
+      : [
+          "vr360","VR360","360","360View","360ViewUrl","360URL","360Url","link360",
+          "link_360","url360","url_360","panorama","panoramaUrl","panorama_url",
+          "externalPanoramaUrl","external_panorama_url","panoramaLink","spinUrl",
+          "spin_url","viewer360","viewer_360","threeSixty","three_sixty"
+        ];
 
+    // First: exact/known fields.
+    for (const obj of objects) {
+      for (const key of explicitKeys) {
+        if (Object.prototype.hasOwnProperty.call(obj,key)) {
+          const found = urlFromValue(obj[key],type);
+          if (found) return found;
+        }
+      }
+    }
 
-  /*
-   * Rozpakowanie dodatkowego poziomu data.
-   */
+    // Second: semantic key matching. This catches new API field names.
+    for (const obj of objects) {
+      for (const [key,value] of Object.entries(obj)) {
+        const k = key.toLowerCase();
 
-  if (
-    data &&
-    data.data &&
-    !Array.isArray(data.data)
-  ) {
-    data = data.data;
+        const isCandidate = type === "video"
+          ? /(^|[_-])(video|videos|videourl|videolink|mp4|stream|movie)([_-]|$)|video|videourl/.test(k)
+          : /(^|[_-])(360|vr|vr360|panorama|spin|viewer)([_-]|$)|360|panorama|vr360/.test(k);
+
+        if (!isCandidate) continue;
+
+        const found = urlFromValue(value,type);
+        if (found) return found;
+      }
+    }
+
+    // Third: scan URL-bearing strings. Useful when the API nests media in
+    // generic arrays without naming the field "video" or "360".
+    for (const obj of objects) {
+      for (const value of Object.values(obj)) {
+        if (typeof value !== "string" || !isHttpUrl(value)) continue;
+
+        const v = value.toLowerCase();
+
+        if (
+          type === "video" &&
+          /(\.mp4|\.m3u8|\.webm|video|videoplay|stream)/i.test(v)
+        ) return value;
+
+        if (
+          type === "vr360" &&
+          /(360|vr|panorama|spin|equirect|virtualtour)/i.test(v)
+        ) return value;
+      }
+    }
+
+    return null;
   }
 
+  function auctionLotId(lot) {
+    const raw = String(lot || "").trim();
+    if (!raw || raw === "—") return "";
+    // IAA często pokazuje LOT w formacie 0-45244113.
+    // Do adresu VehicleDetail potrzebny jest właściwy numer pojazdu.
+    const match = raw.match(/(\d+)\s*$/);
+    return match ? match[1] : raw.replace(/[^0-9]/g, "");
+  }
 
-  /*
-   * ==========================================================
-   * NAJWAŻNIEJSZE:
-   *
-   * Jeżeli szukamy VIN-u, MUSIMY znaleźć dokładnie ten VIN.
-   *
-   * Nie wolno już nigdy robić:
-   *
-   * return data[0]
-   *
-   * ponieważ wtedy Mercedes może otworzyć pierwszy samochód.
-   * ==========================================================
-   */
+  function isConcreteAuctionUrl(url, platform, lot) {
+    if (!isHttpUrl(url)) return false;
+    try {
+      const u = new URL(url);
+      const host = u.hostname.toLowerCase();
+      const path = u.pathname.toLowerCase();
+      const lotRaw = String(lot || "").trim().toLowerCase();
+      const lotId = auctionLotId(lot).toLowerCase();
+      const haystack = (u.href || "").toLowerCase();
 
-  if (VIN) {
+      if (platform.includes("copart")) {
+        return host.includes("copart.com") && /\/lot\//.test(path) &&
+          (!lotId || haystack.includes(lotId) || haystack.includes(lotRaw));
+      }
 
-    const exact =
-      findExactVehicle(
-        data,
-        VIN,
-        "vin"
+      if (platform.includes("iaai") || platform === "iaa") {
+        // IAAI URL zawiera salvageId, który jest inny niż widoczny numer stock/LOT.
+        // Nie porównujemy więc URL z numerem LOT, bo odrzucałoby prawidłowe linki.
+        return host.includes("iaai.com") &&
+          /vehicledetail|vehicle-detail|\/vehicle\//.test(path);
+      }
+
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function originalAuctionUrl() {
+    const platform = platformName().toLowerCase();
+    const lot = getLot();
+
+    // Najpierw prawdziwy, konkretny URL przekazany przez API.
+    const directValues = findAllByKeys(car, [
+      "auctionUrl","auctionURL","auction_url",
+      "originalUrl","originalURL","original_url",
+      "sourceUrl","sourceURL","source_url",
+      "listingUrl","listingURL","listing_url",
+      "vehicleUrl","vehicleURL","vehicle_url",
+      "detailUrl","detailURL","detail_url",
+      "lotUrl","lotURL","lot_url",
+      "href","link","url"
+    ]);
+
+    for (const value of directValues) {
+      const url = urlFromValue(value, "source");
+      if (url && isConcreteAuctionUrl(url, platform, lot)) return url;
+    }
+
+    if (platform.includes("copart") && auctionLotId(lot)) {
+      return `https://www.copart.com/lot/${encodeURIComponent(auctionLotId(lot))}`;
+    }
+
+    if (platform.includes("iaai") || platform === "iaa") {
+      // WAŻNE: IAAI używa w VehicleDetail identyfikatora salvageId/itemId,
+      // a nie numeru stock/LOT widocznego użytkownikowi.
+      const itemRaw = first(
+        valueFrom(["salvageId","SalvageId","salvage_id","itemId","ItemId","item_id","vehicleId","VehicleId","vehicle_id","sourceId","SourceId","source_id"])
       );
-
-    if (exact) {
-      return exact;
+      let itemId = displayValue(itemRaw) || "";
+      itemId = String(itemId).trim();
+      if (itemId.includes("~")) itemId = itemId.split("~")[0];
+      itemId = itemId.replace(/[^0-9]/g, "");
+      if (itemId) return `https://www.iaai.com/VehicleDetail/${encodeURIComponent(itemId)}~US`;
     }
-
-    /*
-     * VIN został podany, ale nie znaleźliśmy
-     * dokładnego pojazdu.
-     *
-     * ZWRACAMY NULL.
-     *
-     * Dzięki temu kod nie otworzy przypadkowego
-     * pierwszego samochodu.
-     */
 
     return null;
   }
 
+  function valueFrom(keys) {
+    const vals = findAllByKeys(car, keys);
+    return first(...vals);
+  }
 
-  /*
-   * Analogiczna zasada dla LOT.
-   */
+  function sellerName() {
+    return first(
+      car.seller?.name,
+      car.seller?.displayName,
+      car.seller?.seller_name,
+      car.seller?.companyName,
+      car.sale_information?.Seller?.name,
+      car.sale_information?.Seller?.displayName,
+      car.sale_information?.Seller?.seller_name,
+      car.sale_information?.Seller?.companyName,
+      valueFrom(["sellerName","SellerName","seller_name"]),
+      valueFrom(["seller","Seller"])
+    );
+  }
 
-  if (LOT) {
+  function platformName() {
+    return String(first(car.platform, car.source, valueFrom(["platform","source","Tenant"])) || "—").toUpperCase();
+  }
 
-    const exact =
-      findExactVehicle(
-        data,
-        LOT,
-        "lot"
+  function getVin() {
+    return first(
+      car.vin,
+      valueFrom(["VIN","vin","VINStatus"]),
+      car.slug_vin
+    );
+  }
+
+  function getLot() {
+    return first(
+      car.lot_number,
+      car.lot,
+      car.stock_number,
+      valueFrom(["StockNumber","stockNumber","lotNumber"])
+    );
+  }
+
+  function getTitle() {
+    return first(
+      car.title,
+      valueFrom(["YearMakeModelSeries"]),
+      `${first(car.year,valueFrom(["Year"])) || ""} ${first(car.make,valueFrom(["Make"])) || ""} ${first(car.model,valueFrom(["Model"])) || ""} ${first(valueFrom(["Series"])) || ""}`
+    );
+  }
+
+  function getYear() { return first(car.year,valueFrom(["Year"])); }
+  function getMake() { return first(car.make,valueFrom(["Make"])); }
+  function getModel() { return first(car.model,valueFrom(["Model"])); }
+  function getSeries() { return first(valueFrom(["Series"])); }
+
+  function getDescription(keyList) {
+    return first(
+      ...keyList.flatMap(k => [
+        car.vehicle_description?.[k],
+        car.vehicle_description?.[k.charAt(0).toUpperCase()+k.slice(1)],
+        car.details?.vehicle_description?.[k],
+        valueFrom([k])
+      ])
+    );
+  }
+
+  function getInfo(keyList) {
+    return first(
+      ...keyList.flatMap(k => [
+        car.vehicle_information?.[k],
+        car.vehicle_information?.[k.charAt(0).toUpperCase()+k.slice(1)],
+        valueFrom([k])
+      ])
+    );
+  }
+
+  function getSale(keyList) {
+    return first(
+      ...keyList.flatMap(k => [
+        car.sale_information?.[k],
+        car.sale_information?.[k.charAt(0).toUpperCase()+k.slice(1)],
+        valueFrom([k])
+      ])
+    );
+  }
+
+  function getFinalBid() {
+    return first(
+      car.pricing?.last_sold_price_usd,
+      car.pricing?.final_bid_usd,
+      car.auction?.last_sold_price_usd,
+      car.auction?.final_bid_usd,
+      car.final_bid,
+      car.final_price,
+      valueFrom(["FinalBid","FinalBidAmount","lastSoldPriceUsd","LastSoldPriceUSD","SalePrice"])
+    );
+  }
+
+  function getAuctionBid() {
+    // W trakcie oczekiwania/LIVE pokazujemy bieżącą ofertę.
+    // Po faktycznym zakończeniu aukcji pokazujemy finalną ofertę,
+    // jeżeli źródło ją przekazało. Nie mieszamy obu wartości.
+    if (auctionPhase() === "ended") {
+      const finalBid = getFinalBid();
+      if (!isEmpty(finalBid)) return finalBid;
+    }
+
+    return first(
+      car.pricing?.current_bid_usd,
+      car.pricing?.current_bid2_usd,
+      car.current_bid,
+      car.price,
+      car.auction?.current_bid,
+      valueFrom(["currentBid","CurrentBid","bid","Bid","MinimumBidAmount"])
+    );
+  }
+
+  function getBuyNow() {
+    return first(
+      car.pricing?.buy_now_usd,
+      car.buy_now,
+      car.auction?.buy_now,
+      valueFrom(["buyNow","BuyNow","buyNowAmount","buyNowPrice"])
+    );
+  }
+
+  function getAuctionStatus() {
+    return first(
+      car.auction?.state,
+      car.status,
+      valueFrom(["auctionStatus","AuctionStatus","InventoryStatus"])
+    );
+  }
+
+  function formatDate(v) {
+    if (isEmpty(v)) return "—";
+    const d = new Date(v);
+    if (Number.isNaN(d.getTime())) return esc(v);
+    return d.toLocaleString("pl-PL", {
+      year:"numeric", month:"2-digit", day:"2-digit",
+      hour:"2-digit", minute:"2-digit"
+    });
+  }
+
+  function getLocation() {
+    const loc = car.location;
+
+    if (loc && typeof loc === "object") {
+      return first(
+        loc.display,
+        loc.name,
+        loc.city && loc.state ? `${loc.city} (${loc.state})` : null,
+        loc.raw
       );
-
-    if (exact) {
-      return exact;
     }
 
-    return null;
+    return first(
+      loc,
+      getSale(["SellingBranch"]),
+      valueFrom(["BranchName","Name","branchLink"])
+    );
+  }
+
+  function field(label, value) {
+    if (isEmpty(value)) return "";
+    return `
+      <div class="spec">
+        <small>${esc(label)}</small>
+        <strong>${nice(value)}</strong>
+      </div>
+    `;
+  }
+
+  function kv(label, value) {
+    if (isEmpty(value)) return "";
+    return `<div class="kv"><span>${esc(label)}</span><strong>${nice(value)}</strong></div>`;
+  }
+
+  function sellerProfile(name) {
+    const s = String(displayValue(name) || "").toLowerCase();
+    const rawType = first(
+      valueFrom(["seller_type","sellerType","SellerType","ProviderType"]),
+      valueFrom(["Origin"])
+    );
+    const type = String(displayValue(rawType) || "").toLowerCase();
+
+    const approvalRaw = first(
+      valueFrom(["sellerApproval","seller_approval","SellerApproval","sellerStatus","SellerStatus","sellerBadge","seller_badge"]),
+      valueFrom(["Approved","approved","isApproved","sellerApproved"])
+    );
+    const approval = String(displayValue(approvalRaw) || "").toLowerCase();
+
+    if (!name && !type) {
+      return {
+        label:"⚪ Brak danych o sprzedawcy",
+        cls:"unknown",
+        note:"Aukcja nie przekazała wystarczających danych, aby ocenić profil sprzedawcy."
+      };
+    }
+
+    // BidCars oznacza firmy ubezpieczeniowe jako Approved i opisuje je
+    // jako zaufanego sprzedawcę. U nas zielony kolor oznacza więc:
+    // znany typ sprzedawcy + profil ubezpieczyciela. Nie jest to gwarancja jakości auta.
+    if (/insurance|ubezpiec|ins\b|rcc/.test(type) || /insurance|progressive|state farm|geico|allstate|arbella/.test(s)) {
+      return {
+        label:"🟢 Zaufany profil — ubezpieczyciel",
+        cls:"green",
+        note:"Sprzedawca jest rozpoznany jako firma ubezpieczeniowa. To zielony profil sprzedawcy, zgodny z klasyfikacją stosowaną przez BidCars. Nie oznacza gwarancji stanu pojazdu ani wyniku rejestracji w Polsce."
+      };
+    }
+
+    if (/approved|verified|trusted/.test(approval)) {
+      return {
+        label:"🟢 Zweryfikowany sprzedawca",
+        cls:"green",
+        note:"Źródło aukcyjne przekazuje pozytywny status sprzedawcy. To ocena profilu źródła, a nie gwarancja transakcji."
+      };
+    }
+
+    if (/dealer|dealership|dealer|retailer|merchant/.test(s + " " + type)) {
+      return {
+        label:"🟡 Dealer / handlarz",
+        cls:"orange",
+        note:"Sprzedawca ma profil handlowy. Nie oznacza to oszustwa, ale warto dokładnie sprawdzić dokumenty, historię i warunki sprzedaży."
+      };
+    }
+
+    if (/fleet|lease|rental|remarketing|enterprise|hertz|avis|alamo/.test(s + " " + type)) {
+      return {
+        label:"🟡 Flota / leasing / remarketing",
+        cls:"orange",
+        note:"Sprzedawca wygląda na podmiot flotowy lub remarketingowy. To neutralny profil, wymagający sprawdzenia źródła pojazdu."
+      };
+    }
+
+    if (/private|individual|prywat/.test(s + " " + type)) {
+      return {
+        label:"🟡 Sprzedawca prywatny",
+        cls:"orange",
+        note:"Profil wygląda na prywatny. Nie oznacza to automatycznie większego ani mniejszego ryzyka — ważne są dokumenty i historia auta."
+      };
+    }
+
+    return {
+      label:"⚪ Profil sprzedawcy nieokreślony",
+      cls:"unknown",
+      note:"Brak wystarczających danych, aby rzetelnie przypisać sprzedawcę do profilu zielonego lub ostrzegawczego."
+    };
+  }
+
+  function titleSourceStatus(titleDoc, titleBrand, titleState, titleNotes, titleCode) {
+    const raw = findAllByKeys(car, [
+      "titleApproval","title_approval","TitleApproval",
+      "titleStatus","TitleStatus","titleBadge","title_badge",
+      "saleDocumentStatus","SaleDocumentStatus",
+      "saleDocumentApproval","SaleDocumentApproval",
+      "documentStatus","DocumentStatus",
+      "documentApproval","DocumentApproval"
+    ]);
+
+    const text = raw.map(v => String(displayValue(v) || "").toLowerCase()).join(" ");
+    const all = `${titleDoc || ""} ${titleBrand || ""} ${titleState || ""} ${titleNotes || ""} ${titleCode || ""}`.toLowerCase();
+
+    if (/warning|warn|dealer only|duplicate|lien|bonded|export only|non repairable|non-repairable|parts only|parts-only|scrap|junk|certificate of destruction|destruction/.test(text + " " + all)) return "warn";
+    if (/approved|verified|accepted/.test(text)) return "good";
+    if (/parts only|parts-only|scrap|junk|non repairable|non-repairable|certificate of destruction|destruction/.test(all)) return "bad";
+    if (/salvage|rebuilt|rebuildable|flood|certificate of salvage|bill of sale/.test(all)) return "salvage";
+    if (/clean|clear|clean title|clear title/.test(all)) return "good";
+    return "unknown";
+  }
+
+  function titleVerdictLabel(kind) {
+    if (kind === "good") return "🟢 Dokument zaakceptowany / korzystny";
+    if (kind === "salvage") return "🟢 Salvage — możliwa rejestracja w Polsce po spełnieniu warunków";
+    if (kind === "warn") return "🟡 Dokument z ograniczeniem / ostrzeżeniem";
+    if (kind === "bad") return "🔴 Duże ryzyko dokumentowe";
+    return "⚪ Brak wystarczających danych";
+  }
+
+  function titleVerdictNote(kind) {
+    if (kind === "good") return "Źródło aukcyjne wskazuje korzystny lub zatwierdzony status dokumentu. To nie jest prawna gwarancja rejestracji w Polsce.";
+    if (kind === "salvage") return "Salvage oznacza szkodę całkowitą w historii pojazdu, ale sam status Salvage nie wyklucza rejestracji w Polsce. Po naprawie pojazd może zostać zarejestrowany po spełnieniu wymaganych warunków i badań. Zawsze trzeba sprawdzić konkretny dokument oraz jego oznaczenia.";
+    if (kind === "warn") return "Źródło aukcyjne sygnalizuje ograniczenie dokumentu, np. dealer only lub duplicate. Przed zakupem trzeba sprawdzić oryginalny title i możliwość rejestracji.";
+    if (kind === "bad") return "Dokument może powodować poważne problemy z legalnym zarejestrowaniem pojazdu. Wymagana jest szczegółowa weryfikacja przed zakupem.";
+    return "Brakuje wystarczających informacji o dokumencie, aby nadać mu wiarygodny kolor.";
+  }
+
+  function titleRegistration(titleText, brand, state, notes, titleCode) {
+    const t = `${titleText || ""} ${brand || ""} ${state || ""} ${notes || ""} ${titleCode || ""}`.toLowerCase();
+
+    if (/parts only|parts-only|parts only title|scrap|junk|non repairable|non-repairable|certificate of destruction|destruction/.test(t)) {
+      return {
+        cls:"bad",
+        label:"🔴 Duże ryzyko rejestracji",
+        text:"Dokument wygląda na taki, który może uniemożliwiać legalne zarejestrowanie pojazdu w Polsce."
+      };
+    }
+
+    if (/salvage|certificate of salvage/.test(t)) {
+      return {
+        cls:"good",
+        label:"🟢 Rejestracja w Polsce możliwa",
+        text:"Sam status Salvage nie wyklucza rejestracji w Polsce. Po naprawie pojazd może wymagać dodatkowego badania technicznego i spełnienia pozostałych wymagań rejestracyjnych. Rex.Bid nie daje gwarancji rejestracji konkretnego pojazdu."
+      };
+    }
+
+    if (/bill of sale|billofsale|rebuildable|rebuilt|rebuilt title|flood/.test(t)) {
+      return {
+        cls:"warn",
+        label:"🟡 Wymaga dokładnej weryfikacji",
+        text:"Typ dokumentu lub marka title może wymagać dodatkowych dokumentów i indywidualnej weryfikacji przed zakupem. Rex.Bid nie daje gwarancji rejestracji."
+      };
+    }
+
+    if (/clean|clear|clean title|clear title/.test(t)) {
+      return {
+        cls:"good",
+        label:"🟢 Dokument wygląda korzystnie",
+        text:"Dane aukcji wskazują na CLEAR/CLEAN, ale ostateczna możliwość rejestracji zależy od dokumentu, stanu, kraju/województwa oraz polskiej procedury rejestracyjnej."
+      };
+    }
+
+    return {
+      cls:"unknown",
+      label:"⚪ Nie można ocenić",
+      text:"Brakuje wystarczających informacji o title. Przed zakupem trzeba zweryfikować oryginalny dokument."
+    };
+  }
+
+  function getAuctionStart() {
+    return first(
+      car.auction?.start_time, car.auction?.startTime,
+      car.auction?.start_date_time, car.auction?.startDateTime,
+      car.auction?.auction_start, car.auction?.auctionStart,
+      car.auction?.auction_start_time, car.auction?.auctionStartTime,
+      car.auction?.live_start, car.auction?.liveStart,
+      getSale(["AuctionStartDateTime","AuctionStartTime","StartDateTime","StartTime","SaleDateTime"]),
+      valueFrom(["AuctionStartDateTime","AuctionStartTime","StartDateTime","StartTime","SaleDateTime"]),
+      car.auction?.auction_at, car.auction?.full_date,
+      getSale(["AuctionDateTime"]),
+      valueFrom(["AuctionDateTime"])
+    );
+  }
+
+  function getAuctionEnd() {
+    return first(
+      car.auction?.end_time, car.auction?.endTime,
+      car.auction?.end_date_time, car.auction?.endDateTime,
+      car.auction?.auction_end, car.auction?.auctionEnd,
+      car.auction?.auction_end_time, car.auction?.auctionEndTime,
+      car.auction?.close_time, car.auction?.closeTime,
+      car.auction?.close_date_time, car.auction?.closeDateTime,
+      getSale(["AuctionEndDateTime","AuctionEndTime","EndDateTime","EndTime","CloseDateTime"]),
+      valueFrom(["AuctionEndDateTime","AuctionEndTime","EndDateTime","EndTime","CloseDateTime"])
+    );
+  }
+
+  function auctionPhase() {
+    const state = String(getAuctionStatus() || "").toLowerCase().trim();
+
+    const startRaw = getAuctionStart();
+    const endRaw = getAuctionEnd();
+    const start = startRaw ? new Date(startRaw).getTime() : NaN;
+    const end = endRaw ? new Date(endRaw).getTime() : NaN;
+    const now = Date.now();
+
+    const explicitlyCancelled =
+      /cancel|cancelled|canceled|withdrawn/.test(state);
+
+    // Najważniejsze: jeżeli aukcja ma przyszły czas rozpoczęcia,
+    // nie wolno uznać jej za zakończoną tylko dlatego, że API
+    // przekazało stary/statusowy "sold/closed".
+    if (Number.isFinite(start) && now < start) {
+      return explicitlyCancelled ? "ended" : "prebid";
+    }
+
+    // Jeżeli źródło podało rzeczywisty czas końca i już minął,
+    // dopiero wtedy uznajemy aukcję za zakończoną.
+    if (Number.isFinite(end) && now >= end) return "ended";
+
+    // Po rozpoczęciu aukcji status LIVE/OPEN/ACTIVE ma pierwszeństwo.
+    if (/live|open|active|running|in progress|current|started/.test(state)) {
+      return "live";
+    }
+
+    // Jeżeli aukcja rozpoczęła się, ale API nie podało końca,
+    // nie pokazujemy fałszywego "Zakończona" tylko dlatego,
+    // że pole statusu jest nieaktualne. Potrzebujemy finalnej ceny
+    // lub rzeczywistego czasu końca, żeby zamrozić aukcję.
+    if (Number.isFinite(start) && now >= start) {
+      const finalBid = getFinalBid();
+      if (!isEmpty(finalBid) && /sold|closed|ended|complete|completed|no sale|notsold/.test(state)) {
+        return "ended";
+      }
+      return "live";
+    }
+
+    if (/sold|closed|ended|complete|completed|no sale|notsold/.test(state)) {
+      return "ended";
+    }
+
+    return "scheduled";
+  }
+
+  function auctionStatusLabel() {
+    const phase = auctionPhase();
+    if (phase === "prebid") return "PRZED LICYTACJĄ — ZBIERANIE OFERT";
+    if (phase === "live") return "LIVE — LICYTACJA TRWA";
+    if (phase === "ended") return "ZAKOŃCZONA";
+    return displayValue(getAuctionStatus()) || "—";
+  }
+
+  function buildPage() {
+    const vin = getVin();
+    const lot = getLot();
+    const title = getTitle();
+    const seller = sellerName();
+    const sellerInfo = sellerProfile(seller);
+
+    const year = getYear();
+    const make = getMake();
+    const model = getModel();
+    const series = getSeries();
+
+    const primaryDamage = first(
+      car.condition?.primary_damage,
+      car.damage?.main,
+      getInfo(["PrimaryDamage"]),
+      valueFrom(["PrimaryDamageDesc"])
+    );
+
+    const secondaryDamage = first(
+      car.condition?.secondary_damage,
+      car.damage?.second,
+      getInfo(["SecondaryDamage"]),
+      valueFrom(["SecondaryDamageDesc"])
+    );
+
+    const titleDoc = first(
+      getInfo(["TitleSaleDoc"]),
+      getSale(["TitleSaleDoc"]),
+      valueFrom(["Title"])
+    );
+    const titleBrand = first(
+      getInfo(["TitleSaleDocBrand"]),
+      getSale(["Brand"]),
+      valueFrom(["TitleBrand"])
+    );
+    const titleNotes = first(
+      getInfo(["TitleSaleDocNotes"]),
+      getSale(["Notes"]),
+      valueFrom(["TitleNotes"])
+    );
+    const titleState = first(
+      valueFrom(["TitleStateName","TitleState","CertState"])
+    );
+    const titleCode = first(valueFrom(["TitleCode"]));
+
+    const verdict = titleRegistration(titleDoc,titleBrand,titleState,titleNotes,titleCode);
+    const sourceTitleKind = titleSourceStatus(titleDoc,titleBrand,titleState,titleNotes,titleCode);
+    const displayTitleKind = sourceTitleKind === "unknown" ? (verdict.cls === "good" ? "good" : verdict.cls === "bad" ? "bad" : verdict.cls === "warn" ? "warn" : "unknown") : sourceTitleKind;
+
+    const image360 = findMediaUrl("vr360");
+    const video = findMediaUrl("video");
+
+    const date = getAuctionStart();
+
+    const location = getLocation();
+
+    const odometer = first(
+      car.odometer?.display,
+      car.odometer?.mi !== undefined ? `${Number(car.odometer.mi).toLocaleString("en-US")} mi` : null,
+      getInfo(["Odometer"]),
+      valueFrom(["ODOValue"]) ? `${valueFrom(["ODOValue"])} ${valueFrom(["ODOUoM"]) || "mi"} (${valueFrom(["ODOBrand"]) || ""})` : null
+    );
+
+    const runDrive = first(
+      car.condition?.run_and_drive,
+      getInfo(["StartCode"]),
+      valueFrom(["RunAndDrive","StartsDesc","StartsCode"])
+    );
+
+    const keys = first(
+      getInfo(["KeySlashFob"]),
+      valueFrom(["Keys","KeyFOB"])
+    );
+
+    const airbags = first(
+      getInfo(["Airbags"]),
+      valueFrom(["AirbagState","DriverPassengerAirbag"])
+    );
+
+    const mediaCount = photos.length;
+
+    page.innerHTML = `
+      <div class="top-grid">
+        <section class="panel gallery">
+          <div class="main-photo" id="mainPhoto">
+            <div class="media-label">${esc(platformName())}</div>
+            <button class="gallery-arrow prev" id="prevPhoto" aria-label="Poprzednie zdjęcie">‹</button>
+            <button class="gallery-arrow next" id="nextPhoto" aria-label="Następne zdjęcie">›</button>
+            <img id="mainImage" alt="${esc(title)}" />
+            <div class="photo-count" id="photoCount"></div>
+          </div>
+
+          <div class="thumb-wrap">
+            <div class="thumbs" id="thumbs"></div>
+          </div>
+
+          <div class="media-toolbar">
+            <button class="media-btn accent" id="openHd">HD / Pełne zdjęcie / Powiększ</button>
+            ${video ? `<button class="media-btn" id="openVideo">▶ Wideo</button>` : ""}
+            ${image360 ? `<button class="media-btn" id="open360">↻ Widok 360°</button>` : ""}
+          </div>
+        </section>
+
+        <aside class="panel summary">
+          <div class="source-badge">${esc(platformName())}</div>
+
+          <h1>
+            ${esc(title || `${year || ""} ${make || ""} ${model || ""}`)}
+            ${auctionPhase() === "live" ? `<span class="live"><span class="live-dot"></span> LIVE</span>` : ""}
+          </h1>
+
+          <div class="vin-row">
+            <div>
+              <small>VIN</small>
+              <strong>${esc(vin || "—")}</strong>
+            </div>
+            <button class="copy-btn" id="copyVin">Kopiuj</button>
+          </div>
+
+          <div class="auction-box">
+            ${kv("Aukcja", formatDate(date))}
+            ${kv("LOT", lot)}
+            <div class="auction-row"><div><small>Status</small></div><strong id="auctionStatusText">${esc(auctionStatusLabel())}</strong></div>
+            ${kv("Lokalizacja", location)}
+            ${getSale(["Lane"]) ? kv("Lane", getSale(["Lane"])) : ""}
+            ${getSale(["Aisle"]) ? kv("Aisle", getSale(["Aisle"])) : ""}
+          </div>
+
+          <div class="auction-box" id="auctionTimerBox">
+            <div class="auction-row">
+              <div><small id="countdownLabel">Do rozpoczęcia</small></div>
+              <strong class="countdown" id="countdown">—</strong>
+            </div>
+          </div>
+
+          <div class="price-box">
+            <small id="bidLabel">${auctionPhase() === "prebid" ? "Najwyższa oferta przed licytacją" : "Aktualna oferta"}</small>
+            <div class="price" id="currentBidPrice">${money(getAuctionBid())}</div>
+            <div class="price-sub">
+              ${auctionPhase() === "ended" && !isEmpty(getFinalBid())
+                ? "Oferta końcowa aukcji"
+                : getBuyNow() ? `Buy Now: ${money(getBuyNow())}` : "Cena z aukcji, jeśli została przekazana"}
+            </div>
+          </div>
+
+          <div class="action-row">
+            <button class="action" id="copyLink">Kopiuj link</button>
+            <button class="action primary" id="scrollInfo">Szczegóły auta</button>
+          </div>
+
+        </aside>
+      </div>
+
+      <div class="content-grid">
+        <div>
+          <section class="panel section" id="details">
+            <div class="section-title">
+              <h2>Dane samochodu</h2>
+              <span>${mediaCount} unikalnych zdjęć</span>
+            </div>
+
+            <div class="spec-grid">
+              ${field("Rok",year)}
+              ${field("Marka",make)}
+              ${field("Model",model)}
+              ${field("Wersja / seria",series)}
+              ${field("VIN",vin)}
+              ${field("Nadwozie",getDescription(["BodyStyle","BodyStyleName"]))}
+              ${field("Typ pojazdu",getDescription(["Vehicle","VehicleClass","InventoryType"]))}
+              ${field("Silnik",getDescription(["Engine","EngineSize","EngineInformation"]))}
+              ${field("Skrzynia",getDescription(["Transmission","TransmissionDesc"]))}
+              ${field("Napęd",getDescription(["DriveLineType","DriveLineTypeDesc"]))}
+              ${field("Paliwo",getDescription(["FuelType","FuelTypeDesc"]))}
+              ${field("Cylindry",getDescription(["Cylinders","CylindersDesc"]))}
+              ${field("Przebieg",odometer)}
+              ${field("Status przebiegu",valueFrom(["ODOBrand"]))}
+              ${field("Kolor zewnętrzny",valueFrom(["ExteriorColor"]))}
+              ${field("Kolor wnętrza",valueFrom(["InteriorColor"]))}
+              ${field("Kolor",getDescription(["ExteriorInterior"]))}
+              ${field("Kluczyki",keys)}
+              ${field("Run & Drive",runDrive)}
+              ${field("Airbagi",airbags)}
+              ${field("Restraint / poduszki",getDescription(["RestraintSystem","RestraintType"]))}
+              ${field("Kraj produkcji",getDescription(["ManufacturedIn","CountryOfOrigin"]))}
+              ${field("Klasa pojazdu",getDescription(["VehicleClass","Segment","SegmentDesc"]))}
+              ${field("Opcje",getDescription(["Options"]))}
+              ${field("Typ straty",getInfo(["Loss"]))}
+              ${field("ACV",getSale(["ActualCashValue"]))}
+              ${field("Szac. naprawa",getSale(["EstimatedRepairCost"]))}
+              ${field("Minimalna oferta",valueFrom(["MinimumBidAmount"]))}
+              ${field("Bid increment",valueFrom(["bid_increment","bidIncrement"]))}
+              ${field("Kto może kupić",valueFrom(["WhoCanBuy","whoCanBuy","WhoCanBid","whoCanBid"]))}
+            </div>
+          </section>
+
+          <section class="panel section">
+            <div class="section-title">
+              <h2>Uszkodzenia</h2>
+              <span>Dane ze źródła aukcyjnego</span>
+            </div>
+            <div class="damage-grid">
+              ${!isEmpty(primaryDamage) ? `<div class="damage main"><small>Główne uszkodzenie</small><strong>${nice(primaryDamage)}</strong></div>` : ""}
+              ${!isEmpty(secondaryDamage) ? `<div class="damage"><small>Drugorzędne uszkodzenie</small><strong>${nice(secondaryDamage)}</strong></div>` : ""}
+              ${field("Rodzaj straty",getInfo(["Loss"]))}
+            </div>
+          </section>
+
+          <section class="panel section">
+            <div class="section-title">
+              <h2>Dokumenty / TITLE</h2>
+              <span>Analiza Rex.Bid</span>
+            </div>
+
+            <div class="title-verdict ${displayTitleKind}">
+              <div class="verdict-label">${esc(titleVerdictLabel(displayTitleKind))}</div>
+              <div class="verdict-text">${esc(titleVerdictNote(displayTitleKind))}</div>
+            </div>
+            <div class="color-legend">
+              <span><i class="legend-dot green"></i><b>Zielony</b> — źródło aukcyjne oznacza sprzedawcę/dokument jako zatwierdzony lub korzystny.</span>
+              <span><i class="legend-dot orange"></i><b>Żółty</b> — wymaga dodatkowej weryfikacji.</span>
+              <span><i class="legend-dot red"></i><b>Czerwony</b> — podwyższone ryzyko dokumentowe.</span>
+            </div>
+
+            <div class="spec-grid">
+              ${field("Dokument",titleDoc)}
+              ${field("Title brand",titleBrand)}
+              ${field("Stan / kod title",titleCode)}
+              ${field("Stan title",titleState)}
+              ${field("Uwagi do title",titleNotes)}
+            </div>
+          </section>
+
+          <section class="panel section">
+            <div class="section-title">
+              <h2>Sprzedawca</h2>
+              <span>Profil na podstawie danych aukcyjnych</span>
+            </div>
+
+            <div class="seller-box">
+              <div class="seller-rating">
+                <span class="risk-dot ${sellerInfo.cls}"></span>
+                ${esc(sellerInfo.label)}
+              </div>
+              ${seller ? `<div class="kv"><span>Sprzedawca</span><strong>${nice(seller)}</strong></div>` : ""}
+              ${kv("Typ sprzedawcy",valueFrom(["seller_type","sellerType","SellerType","ProviderType"]))}
+              ${kv("Pochodzenie",valueFrom(["Origin"]))}
+              <div class="seller-note">${esc(sellerInfo.note)}</div>
+              <div class="color-legend compact">
+                <span><i class="legend-dot green"></i><b>Zielony</b> — profil zaufany/zaakceptowany przez źródło.</span>
+                <span><i class="legend-dot orange"></i><b>Żółty</b> — dealer, prywatny lub profil wymagający sprawdzenia.</span>
+                <span><i class="legend-dot unknown"></i><b>Szary</b> — brak danych do oceny.</span>
+              </div>
+            </div>
+          </section>
+
+
+
+          <section class="panel import-calc" id="importCalculator">
+            <h2>Prognozowany koszt sprowadzenia do Polski</h2>
+            <div class="calc-sub">Wartości są edytowalne. Kalkulator pokazuje orientacyjny koszt od zakupu na aukcji do Polski; nie zastępuje odprawy celnej ani wyceny firmy transportowej.</div>
+            <div class="calc-grid">
+              <div class="calc-field"><label>Cena auta / aktualna oferta (USD)</label><input id="calcBid" type="number" min="0" step="1"></div>
+              <div class="calc-field"><label>Kurs USD → PLN</label><input id="calcRate" type="number" min="0" step="0.0001" value="3.65"></div>
+              <div class="calc-field"><label>Prowizja aukcyjna (USD)</label><input id="calcAuctionFee" type="number" min="0" step="1" value="0"></div>
+              <div class="calc-field"><label>Transport do portu USA (USD)</label><input id="calcUsPort" type="number" min="0" step="1" value="900"></div>
+              <div class="calc-field"><label>Fracht morski (USD)</label><input id="calcSea" type="number" min="0" step="1" value="1400"></div>
+              <div class="calc-field"><label>Port → Polska (USD)</label><input id="calcPoland" type="number" min="0" step="1" value="450"></div>
+              <div class="calc-field"><label>Cło (%)</label><input id="calcDuty" type="number" min="0" step="0.1" value="10"></div>
+              <div class="calc-field"><label>VAT (%)</label><input id="calcVat" type="number" min="0" step="0.1" value="23"></div>
+              <div class="calc-field"><label>Akcyza (%)</label><input id="calcExcise" type="number" min="0" step="0.01"></div>
+              <div class="calc-field"><label>Broker / dokumenty / inne (USD)</label><input id="calcOther" type="number" min="0" step="1" value="300"></div>
+            </div>
+            <div class="calc-result" id="calcResult"></div>
+            <div class="calc-warning" id="calcWarning"></div>
+            <div class="calc-note">Domyślne stawki: cło 10% i VAT 23%. Akcyza jest dobierana orientacyjnie na podstawie danych silnika/napędu i może być ręcznie zmieniona. Podstawa podatków może obejmować koszty transportu i inne elementy, dlatego wynik należy traktować jako prognozę.</div>
+          </section>
+
+        </div>
+
+        <aside>
+          <section class="panel side-section">
+            <h3>Informacje o aukcji</h3>
+            ${kv("Platforma",platformName())}
+            ${kv("Numer LOT",lot)}
+            ${kv("Status",auctionStatusLabel())}
+            ${kv("Data aukcji",formatDate(date))}
+            ${kv("Sprzedawca",seller)}
+            ${kv("Typ sprzedawcy",valueFrom(["seller_type","sellerType","SellerType","ProviderType"]))}
+            ${kv("Lane",getSale(["Lane"]))}
+            ${kv("Aisle",getSale(["Aisle"]))}
+            ${kv("Bid increment",valueFrom(["bid_increment","bidIncrement"]))}
+            ${originalAuctionUrl() ? `
+              <a
+                href="${esc(originalAuctionUrl())}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="action primary"
+                style="display:flex;align-items:center;justify-content:center;margin-top:10px"
+              >Oryginalna aukcja ${esc(platformName())} ↗</a>
+            ` : ""}
+          </section>
+
+          <section class="panel side-section">
+            <h3>Historia aukcji tego VIN</h3>
+            <div id="auctionHistory" class="auction-history"></div>
+            <div class="seller-note" style="margin-top:8px">
+              Rex.Bid zapisuje kolejne odczyty ceny i statusu dla tego VIN-u, aby można było zobaczyć, jak aukcja się zmieniała. Historia jest obecnie przechowywana lokalnie w przeglądarce.
+            </div>
+          </section>
+
+          <section class="panel side-section">
+            <h3>Lokalizacja</h3>
+            ${kv("Oddział",getSale(["SellingBranch"]))}
+            ${kv("Miejsce",location)}
+            ${kv("Adres",valueFrom(["Address"]))}
+            ${kv("Miasto",valueFrom(["City"]))}
+            ${kv("Stan",valueFrom(["State","BranchState"]))}
+            ${kv("ZIP",valueFrom(["Zip"]))}
+            ${kv("Telefon",valueFrom(["Phone"]))}
+            ${kv("Pozycja",valueFrom(["VehiclesVehicleLocation"]))}
+          </section>
+
+          <section class="panel side-section">
+            <h3>Dokument / tytuł</h3>
+            ${kv("Title",titleDoc)}
+            ${kv("Brand",titleBrand)}
+            ${kv("State",titleState)}
+            ${kv("Code",titleCode)}
+            ${kv("VIN",vin)}
+          </section>
+        </aside>
+      </div>
+    `;
+
+    bindPageEvents(video,image360);
+    renderPhotos();
+    startCountdown();
+    initImportCalculator();
+    saveAuctionSnapshot();
+    renderAuctionHistory();
+    startAuctionRefresh();
+  }
+
+  function renderPhotos() {
+    const main = document.getElementById("mainImage");
+    const thumbs = document.getElementById("thumbs");
+    const count = document.getElementById("photoCount");
+
+    if (!photos.length) {
+      main.style.display = "none";
+      count.textContent = "Brak zdjęć";
+      thumbs.innerHTML = `<div class="empty" style="grid-column:1/-1;padding:20px">Brak zdjęć w danych aukcji.</div>`;
+      return;
+    }
+
+    main.style.display = "block";
+    const p = photos[photoIndex];
+
+    main.src = p.large || p.thumb;
+    main.alt = `${getTitle() || "Samochód"} — zdjęcie ${photoIndex + 1}`;
+    count.textContent = `${photoIndex + 1} / ${photos.length} • pełna rozdzielczość`;
+
+    thumbs.innerHTML = photos.map((photo,i) => `
+      <button class="thumb ${i === photoIndex ? "active" : ""} hd" data-i="${i}" title="Zdjęcie ${i+1} HD">
+        <img src="${esc(photo.thumb || photo.large)}" loading="lazy" alt="Miniatura ${i+1}" />
+      </button>
+    `).join("");
+
+    thumbs.querySelectorAll(".thumb").forEach(btn => {
+      btn.addEventListener("click",() => {
+        photoIndex = Number(btn.dataset.i);
+        renderPhotos();
+      });
+    });
+  }
+
+  function bindPageEvents(video,image360) {
+    document.getElementById("prevPhoto")?.addEventListener("click",() => {
+      if (!photos.length) return;
+      photoIndex = (photoIndex - 1 + photos.length) % photos.length;
+      renderPhotos();
+    });
+
+    document.getElementById("nextPhoto")?.addEventListener("click",() => {
+      if (!photos.length) return;
+      photoIndex = (photoIndex + 1) % photos.length;
+      renderPhotos();
+    });
+
+    document.getElementById("mainImage")?.addEventListener("click",openLightbox);
+    document.getElementById("openHd")?.addEventListener("click",openLightbox);
+
+    document.getElementById("openVideo")?.addEventListener("click",() => openViewer(video,"video"));
+    document.getElementById("open360")?.addEventListener("click",() => openViewer(image360,"360"));
+
+    document.getElementById("copyVin")?.addEventListener("click",async() => {
+      await navigator.clipboard?.writeText(getVin() || "");
+      const b = document.getElementById("copyVin");
+      if (b) {
+        b.textContent = "Skopiowano";
+        setTimeout(() => b.textContent = "Kopiuj",1200);
+      }
+    });
+
+    document.getElementById("copyLink")?.addEventListener("click",async() => {
+      await navigator.clipboard?.writeText(location.href);
+      const b = document.getElementById("copyLink");
+      if (b) {
+        b.textContent = "Skopiowano";
+        setTimeout(() => b.textContent = "Kopiuj link",1200);
+      }
+    });
+
+    document.getElementById("scrollInfo")?.addEventListener("click",() => {
+      document.getElementById("details")?.scrollIntoView({behavior:"smooth",block:"start"});
+    });
+  }
+
+  function openLightbox() {
+    if (!photos.length) return;
+
+    photoIndex = Math.max(0,Math.min(photoIndex,photos.length-1));
+    zoom = 1;
+    panX = 0;
+    panY = 0;
+
+    const lb = document.getElementById("lightbox");
+    lb.classList.add("open");
+    lb.setAttribute("aria-hidden","false");
+    document.body.classList.add("modal-open");
+    updateLightbox();
+  }
+
+  function closeLightbox() {
+    const lb = document.getElementById("lightbox");
+    lb.classList.remove("open");
+    lb.setAttribute("aria-hidden","true");
+    document.body.classList.remove("modal-open");
+  }
+
+  function updateLightbox() {
+    if (!photos.length) return;
+    const p = photos[photoIndex];
+    const img = document.getElementById("lbImage");
+
+    img.src = p.large || p.thumb;
+    img.alt = `${getTitle() || "Samochód"} — HD ${photoIndex+1}`;
+    document.getElementById("lbInfo").textContent = `Pełna rozdzielczość • ${photoIndex+1} / ${photos.length}`;
+
+    img.style.transform = `translate(${panX}px,${panY}px) scale(${zoom})`;
+  }
+
+  function setZoom(next) {
+    zoom = Math.max(.5,Math.min(5,next));
+    if (zoom <= 1) {
+      panX = 0;
+      panY = 0;
+    }
+    updateLightbox();
+  }
+
+  async function openViewer(url,type) {
+    if (!url) return;
+
+    const modal = document.getElementById("viewerModal");
+    const content = document.getElementById("viewerContent");
+
+    content.innerHTML = "";
+
+    if (type === "360") {
+      // 360 pages are often their own interactive viewer. Put the iframe
+      // directly into a 100vw x 100vh stage instead of the old 1200x800 box.
+      const iframe = document.createElement("iframe");
+      iframe.src = url;
+      iframe.allow = "fullscreen; autoplay; xr-spatial-tracking; gyroscope; accelerometer";
+      iframe.allowFullscreen = true;
+      iframe.referrerPolicy = "no-referrer-when-downgrade";
+      iframe.title = "Widok 360°";
+      iframe.style.width = "100%";
+      iframe.style.height = "100%";
+      iframe.style.display = "block";
+      iframe.style.border = "0";
+      content.appendChild(iframe);
+    } else {
+      const lower = String(url).toLowerCase();
+      const directVideo = /\.(mp4|m3u8|webm|mov)(\?|#|$)/i.test(lower) ||
+                          /(^|[?&])(video|stream|file)=/i.test(lower);
+
+      if (directVideo) {
+        const video = document.createElement("video");
+        video.controls = true;
+        video.autoplay = true;
+        video.playsInline = true;
+        video.preload = "metadata";
+        video.src = url;
+        content.appendChild(video);
+
+        video.addEventListener("error",() => {
+          content.innerHTML = `
+            <div class="viewer-fallback">
+              <strong>Nie udało się odtworzyć wideo bezpośrednio.</strong>
+              <a href="${esc(url)}" target="_blank" rel="noopener noreferrer">Otwórz wideo w nowej karcie ↗</a>
+            </div>
+          `;
+        },{once:true});
+      } else {
+        // Some auction providers return a video/player page rather than mp4.
+        const iframe = document.createElement("iframe");
+        iframe.src = url;
+        iframe.allow = "fullscreen; autoplay; picture-in-picture";
+        iframe.allowFullscreen = true;
+        iframe.referrerPolicy = "no-referrer-when-downgrade";
+        iframe.title = "Wideo z aukcji";
+        iframe.style.width = "100%";
+        iframe.style.height = "100%";
+        iframe.style.display = "block";
+        iframe.style.border = "0";
+        content.appendChild(iframe);
+      }
+    }
+
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden","false");
+    document.body.classList.add("modal-open");
+  }
+
+  async function closeViewer() {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+    } catch (_) {}
+
+    const modal = document.getElementById("viewerModal");
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden","true");
+    document.getElementById("viewerContent").innerHTML = "";
+    document.body.classList.remove("modal-open");
+  }
+
+  document.getElementById("lbClose").addEventListener("click",closeLightbox);
+  document.getElementById("lbMinus").addEventListener("click",() => setZoom(zoom-.25));
+  document.getElementById("lbPlus").addEventListener("click",() => setZoom(zoom+.25));
+  document.getElementById("lbReset").addEventListener("click",() => setZoom(1));
+
+  document.getElementById("lbPrev").addEventListener("click",() => {
+    if (!photos.length) return;
+    photoIndex = (photoIndex - 1 + photos.length) % photos.length;
+    zoom = 1; panX = 0; panY = 0;
+    updateLightbox();
+    renderPhotos();
+  });
+
+  document.getElementById("lbNext").addEventListener("click",() => {
+    if (!photos.length) return;
+    photoIndex = (photoIndex + 1) % photos.length;
+    zoom = 1; panX = 0; panY = 0;
+    updateLightbox();
+    renderPhotos();
+  });
+
+  document.getElementById("viewerClose").addEventListener("click",closeViewer);
+
+  document.getElementById("viewerFullscreen")?.addEventListener("click",async() => {
+    const target = document.getElementById("viewerInner");
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else if (target?.requestFullscreen) {
+        await target.requestFullscreen();
+      }
+    } catch (_) {}
+  });
+
+
+  document.getElementById("lightbox").addEventListener("click",e => {
+    if (e.target.id === "lightbox") closeLightbox();
+  });
+
+  document.getElementById("viewerModal").addEventListener("click",e => {
+    if (e.target.id === "viewerModal") closeViewer();
+  });
+
+  document.addEventListener("keydown",e => {
+    const lb = document.getElementById("lightbox");
+    if (lb.classList.contains("open")) {
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowLeft") document.getElementById("lbPrev").click();
+      if (e.key === "ArrowRight") document.getElementById("lbNext").click();
+      if (e.key === "+") setZoom(zoom+.25);
+      if (e.key === "-") setZoom(zoom-.25);
+    }
+    if (document.getElementById("viewerModal").classList.contains("open") && e.key === "Escape") {
+      closeViewer();
+    }
+  });
+
+  const lbStage = document.getElementById("lbStage");
+  const lbImage = document.getElementById("lbImage");
+
+  lbStage.addEventListener("wheel",e => {
+    if (!document.getElementById("lightbox").classList.contains("open")) return;
+    e.preventDefault();
+    setZoom(zoom + (e.deltaY < 0 ? .15 : -.15));
+  },{passive:false});
+
+  lbImage.addEventListener("pointerdown",e => {
+    if (zoom <= 1) return;
+    dragging = true;
+    lbImage.classList.add("dragging");
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    startPanX = panX;
+    startPanY = panY;
+    lbImage.setPointerCapture(e.pointerId);
+  });
+
+  lbImage.addEventListener("pointermove",e => {
+    if (!dragging) return;
+    panX = startPanX + (e.clientX - dragStartX);
+    panY = startPanY + (e.clientY - dragStartY);
+    updateLightbox();
+  });
+
+  lbImage.addEventListener("pointerup",e => {
+    dragging = false;
+    lbImage.classList.remove("dragging");
+    try { lbImage.releasePointerCapture(e.pointerId); } catch (_) {}
+  });
+
+
+
+  /* IMPORT COST CALCULATOR */
+  function guessEngineCc() {
+    const raw = String(first(
+      getDescription(["Engine","EngineSize","EngineInformation"]),
+      valueFrom(["DisplLiters"])
+    ) || "");
+    const m = raw.match(/([0-9]+(?:[.,][0-9]+)?)\s*L/i);
+    if (m) return Math.round(parseFloat(m[1].replace(",",".")) * 1000);
+    const cc = Number(valueFrom(["EngineCC","EngineCc","CubicCentimeters","DisplacementCC"]));
+    return Number.isFinite(cc) && cc > 0 ? cc : 0;
+  }
+
+  function guessExciseRate() {
+    const engine = String(first(getDescription(["Engine","EngineSize","EngineInformation"]),"")).toLowerCase();
+    const fuel = String(first(getDescription(["FuelType","FuelTypeDesc"]),"")).toLowerCase();
+    const cc = guessEngineCc();
+    const hybrid = /hybrid|mhev|phev/.test(engine + " " + fuel);
+    const electric = /electric|bev|ev\b/.test(engine + " " + fuel) && !/hybrid|phev/.test(engine + " " + fuel);
+
+    if (electric) return 0;
+    if (hybrid && cc > 0 && cc <= 2000) return 1.55;
+    if (hybrid && cc > 2000 && cc <= 3500) return 9.30;
+    if (cc > 2000) return 18.60;
+    return 3.10;
+  }
+
+  function initImportCalculator() {
+    const bid = document.getElementById("calcBid");
+    const excise = document.getElementById("calcExcise");
+    if (!bid || !excise) return;
+
+    const currentBid = Number(getAuctionBid());
+    bid.value = Number.isFinite(currentBid) ? currentBid : 0;
+    excise.value = guessExciseRate().toFixed(2);
+
+    ["calcBid","calcRate","calcAuctionFee","calcUsPort","calcSea","calcPoland","calcDuty","calcVat","calcExcise","calcOther"]
+      .forEach(id => document.getElementById(id)?.addEventListener("input", updateImportCalculator));
+
+    updateImportCalculator();
+  }
+
+  function updateImportCalculator() {
+    const n = id => Number(document.getElementById(id)?.value || 0);
+    const bid = n("calcBid");
+    const rate = n("calcRate") || 1;
+    const auctionFee = n("calcAuctionFee");
+    const usPort = n("calcUsPort");
+    const sea = n("calcSea");
+    const poland = n("calcPoland");
+    const dutyRate = n("calcDuty") / 100;
+    const vatRate = n("calcVat") / 100;
+    const exciseRate = n("calcExcise") / 100;
+    const other = n("calcOther");
+
+    const customsBaseUsd = bid + auctionFee + usPort + sea;
+    const dutyUsd = customsBaseUsd * dutyRate;
+    const exciseBaseUsd = customsBaseUsd + dutyUsd;
+    const exciseUsd = exciseBaseUsd * exciseRate;
+    const vatBaseUsd = customsBaseUsd + dutyUsd + exciseUsd;
+    const vatUsd = vatBaseUsd * vatRate;
+    const totalUsd = customsBaseUsd + dutyUsd + exciseUsd + vatUsd + poland + other;
+    const totalPln = totalUsd * rate;
+
+    const lines = [
+      ["Cena auta", money(bid)],
+      ["Prowizja aukcyjna", money(auctionFee)],
+      ["Transport USA → port", money(usPort)],
+      ["Fracht morski", money(sea)],
+      ["Cło", money(dutyUsd)],
+      ["Akcyza", money(exciseUsd)],
+      ["VAT", money(vatUsd)],
+      ["Port → Polska", money(poland)],
+      ["Broker / dokumenty / inne", money(other)],
+      ["RAZEM", money(totalUsd) + " ≈ " + money(totalPln, "PLN")]
+    ];
+
+    const result = document.getElementById("calcResult");
+    if (result) {
+      result.innerHTML = lines.map((x,i) => `
+        <div class="calc-line ${i === lines.length-1 ? "calc-total" : ""}">
+          <span>${esc(x[0])}</span>
+          <strong>${esc(x[1])}</strong>
+        </div>
+      `).join("");
+    }
+
+    const cc = guessEngineCc();
+    const warning = document.getElementById("calcWarning");
+    if (warning) {
+      const title = first(getInfo(["TitleSaleDoc"]),getSale(["TitleSaleDoc"]),valueFrom(["Title"]));
+      const notes = first(getInfo(["TitleSaleDocNotes"]),getSale(["Notes"]),valueFrom(["TitleNotes"]));
+      const titleText = String(title || "").toUpperCase() + " " + String(notes || "").toUpperCase();
+      const flags = [];
+      if (/PENDING|TBO|BILL\s*OF\s*SALE|DEALERS\s*ONLY/.test(titleText)) flags.push("title wymaga szczegółowej weryfikacji");
+      if (cc) flags.push(`pojemność użyta do podpowiedzi akcyzy: ${cc.toLocaleString("pl-PL")} cm³`);
+      warning.textContent = flags.length
+        ? "Uwaga: " + flags.join("; ") + "."
+        : "Kalkulator nie wykrył dodatkowych ostrzeżeń z danych aukcyjnych.";
+    }
   }
 
 
-  /*
-   * Jeżeli nie podano ani VIN, ani LOT,
-   * dopiero wtedy możemy zaakceptować pojedynczy
-   * obiekt zwrócony przez API.
-   */
+  let auctionRefreshTimer = null;
+  let auctionCountdownTimer = null;
 
-  if (
-    Array.isArray(data)
-  ) {
+  function startCountdown() {
+    const node = document.getElementById("countdown");
+    const label = document.getElementById("countdownLabel");
+    const box = document.getElementById("auctionTimerBox");
+    if (!node) return;
 
-    if (data.length === 1) {
-      return data[0];
+    if (auctionCountdownTimer) clearInterval(auctionCountdownTimer);
+
+    function tick() {
+      const phase = auctionPhase();
+      const startRaw = getAuctionStart();
+      const endRaw = getAuctionEnd();
+      const start = startRaw ? new Date(startRaw).getTime() : NaN;
+      const end = endRaw ? new Date(endRaw).getTime() : NaN;
+      const now = Date.now();
+
+      let target = NaN;
+      if (phase === "prebid" && Number.isFinite(start)) {
+        target = start;
+        if (label) label.textContent = "Do rozpoczęcia licytacji";
+      } else if (phase === "live" && Number.isFinite(end)) {
+        target = end;
+        if (label) label.textContent = "Do przewidywanego końca";
+      } else if (phase === "ended") {
+        if (label) label.textContent = "Status aukcji";
+        node.textContent = "Zakończona";
+        return;
+      } else {
+        if (label) label.textContent = "Termin licytacji";
+        node.textContent = Number.isFinite(start) ? formatDate(startRaw) : "—";
+        return;
+      }
+
+      const diff = target - now;
+      if (diff <= 0) {
+        // Po przejściu z pre-bid do live nie pokazujemy „zakończona”.
+        // Aukcja może trwać jeszcze wiele minut/godzin.
+        if (phase === "prebid") {
+          node.textContent = "startuje teraz";
+        } else if (Number.isFinite(end)) {
+          node.textContent = "w toku";
+        }
+        return;
+      }
+
+      const total = Math.floor(diff / 1000);
+      const days = Math.floor(total / 86400);
+      const hours = Math.floor((total % 86400) / 3600);
+      const mins = Math.floor((total % 3600) / 60);
+      const secs = total % 60;
+      node.textContent = `${days ? days + "d " : ""}${String(hours).padStart(2,"0")}:${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+      if (box) box.style.display = "";
     }
 
-    return null;
+    tick();
+    auctionCountdownTimer = setInterval(tick, 1000);
   }
 
+  function updateAuctionUi() {
+    const phase = auctionPhase();
+    const statusNode = document.getElementById("auctionStatusText");
+    const bidNode = document.getElementById("currentBidPrice");
+    const bidLabel = document.getElementById("bidLabel");
 
-  return data;
-}
+    if (statusNode) statusNode.textContent = auctionStatusLabel();
+    if (bidNode) bidNode.textContent = money(getAuctionBid());
+    if (bidLabel) bidLabel.textContent = phase === "prebid"
+      ? "Najwyższa oferta przed licytacją"
+      : phase === "live"
+        ? "Aktualna oferta — LIVE"
+        : "Aktualna oferta";
+
+    startCountdown();
+  }
+
+  async function refreshAuctionData() {
+    try {
+      const fresh = await fetchVehicle();
+      if (!fresh) return;
+      const oldBid = getAuctionBid();
+      car = fresh;
+      const newBid = getAuctionBid();
+      updateAuctionUi();
+      saveAuctionSnapshot();
+      if (String(oldBid ?? "") !== String(newBid ?? "")) {
+        const bidNode = document.getElementById("currentBidPrice");
+        if (bidNode) {
+          bidNode.animate([{transform:"scale(1)"},{transform:"scale(1.04)"},{transform:"scale(1)"}], {duration:350});
+        }
+      }
+    } catch (e) {
+      // Odświeżanie aukcji nie może zepsuć działającej strony.
+      console.warn("Rex.Bid auction refresh:", e);
+    }
+  }
+
+  /* AUCTION HISTORY — historia zmian ceny/statusu dla każdego VIN-u */
+  const HISTORY_KEY = "rex_bid_auction_history_v1";
+  const HISTORY_MAX_PER_VIN = 500;
+
+  function historyKey() {
+    const vin = String(getVin() || "").trim().toUpperCase();
+    const platform = String(platformName() || "").trim().toUpperCase();
+    const lot = String(getLot() || "").trim();
+    return `${platform}|${lot}|${vin}`;
+  }
+
+  function readAuctionHistory() {
+    try {
+      const raw = localStorage.getItem(HISTORY_KEY);
+      const data = raw ? JSON.parse(raw) : {};
+      return data && typeof data === "object" ? data : {};
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function writeAuctionHistory(data) {
+    try {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(data));
+    } catch (_) {
+      // Brak miejsca / tryb prywatny — historia bieżącej strony nadal działa.
+    }
+  }
+
+  function saveAuctionSnapshot() {
+    const key = historyKey();
+    if (!key || key.endsWith("|")) return;
+
+    const phase = auctionPhase();
+    const bid = getAuctionBid();
+    const snapshot = {
+      at: new Date().toISOString(),
+      phase,
+      status: String(getAuctionStatus() || ""),
+      bid: isEmpty(bid) ? null : Number(bid),
+      auctionStart: getAuctionStart() || null,
+      auctionEnd: getAuctionEnd() || null
+    };
+
+    const data = readAuctionHistory();
+    const list = Array.isArray(data[key]) ? data[key] : [];
+    const previous = list[list.length - 1];
+
+    // Nie zapisujemy identycznych odczytów co 10 sekund.
+    if (
+      previous &&
+      previous.phase === snapshot.phase &&
+      String(previous.status) === String(snapshot.status) &&
+      String(previous.bid) === String(snapshot.bid)
+    ) {
+      return;
+    }
+
+    list.push(snapshot);
+    data[key] = list.slice(-HISTORY_MAX_PER_VIN);
+    writeAuctionHistory(data);
+    renderAuctionHistory();
+  }
+
+  function renderAuctionHistory() {
+    const box = document.getElementById("auctionHistory");
+    if (!box) return;
+
+    const key = historyKey();
+    const data = readAuctionHistory();
+    const list = Array.isArray(data[key]) ? data[key] : [];
+
+    if (!list.length) {
+      box.innerHTML = '<div class="empty" style="padding:20px">Historia zacznie się zapisywać przy kolejnych odczytach aukcji.</div>';
+      return;
+    }
+
+    const rows = list.slice().reverse().slice(0,30).map(item => {
+      const phaseLabel =
+        item.phase === "prebid" ? "Przed licytacją" :
+        item.phase === "live" ? "LIVE" :
+        item.phase === "ended" ? "Zakończona" : "Zaplanowana";
+
+      const bid = item.bid === null || Number.isNaN(Number(item.bid))
+        ? "—"
+        : money(item.bid);
+
+      return `
+        <div class="history-row">
+          <div>
+            <strong>${esc(formatDate(item.at))}</strong>
+            <small>${esc(phaseLabel)}${item.status ? " • " + esc(item.status) : ""}</small>
+          </div>
+          <strong>${esc(bid)}</strong>
+        </div>
+      `;
+    }).join("");
+
+    box.innerHTML = rows;
+  }
+
+  function startAuctionRefresh() {
+    if (auctionRefreshTimer) clearInterval(auctionRefreshTimer);
+    // Podczas oczekiwania i LIVE odświeżamy ofertę co 10 sekund,
+    // dzięki czemu cena/status mogą zmieniać się bez przeładowania strony.
+    auctionRefreshTimer = setInterval(() => {
+      // Nie zatrzymujemy odświeżania tylko dlatego, że poprzedni snapshot
+      // miał status "sold/closed". Jeśli aukcja ma przyszły start albo
+      // właśnie trwa, nowe dane mogą zmienić cenę i status.
+      const startRaw = getAuctionStart();
+      const start = startRaw ? new Date(startRaw).getTime() : NaN;
+      const now = Date.now();
+      const shouldWatch =
+        (Number.isFinite(start) && now <= start + 12 * 60 * 60 * 1000) ||
+        auctionPhase() === "prebid" ||
+        auctionPhase() === "live";
+
+      if (shouldWatch) refreshAuctionData();
+    }, 10000);
+  }
+
+  async function init() {
+    if (!VIN && !LOT) {
+      page.innerHTML = `<div class="error">Brak parametru VIN lub LOT w adresie strony.</div>`;
+      return;
+    }
+
+    page.innerHTML = `
+      <div class="panel empty">
+        <div style="font-size:30px;margin-bottom:10px">⏳</div>
+        Pobieranie danych samochodu...
+      </div>
+    `;
+
+    try {
+      car = await fetchVehicle();
+
+      if (!car) throw new Error("Nie znaleziono samochodu.");
+
+      photos = normalizeMedia(car);
+      buildPage();
+    } catch (error) {
+      console.error("Rex.Bid car error:",error);
+      page.innerHTML = `
+        <div class="error">
+          <strong style="display:block;color:#ff6d6d;font-size:18px;margin-bottom:8px">
+            Nie udało się pobrać samochodu
+          </strong>
+          ${esc(error?.message || "Nieznany błąd")}
+        </div>
+      `;
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
