@@ -888,7 +888,32 @@
 .jump-links a{padding:7px 9px;border:1px solid var(--border);border-radius:7px;background:#f7f8fa;color:#17202a;font-size:9px;font-weight:800}
 .jump-links a:hover{border-color:#efc65a;background:#fffaf0}
 .section{box-shadow:0 2px 10px rgba(20,30,40,.035)}
-.spec{background:#fff}
+
+/* Kompaktowe sekcje informacji — zachowujemy wszystkie dane, ale bez pustej przestrzeni. */
+#damage.section,#title.section,#seller.section{padding:11px 14px;margin-bottom:12px}
+#damage .section-title,#title .section-title,#seller .section-title{margin-bottom:8px}
+#damage .section-title h2,#title .section-title h2,#seller .section-title h2{font-size:14px}
+#damage .damage-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+#damage .damage{padding:9px 10px;min-height:0}
+#damage .damage small{font-size:8px;margin-bottom:3px}
+#damage .damage strong{font-size:11px}
+#damage .damage .spec{padding:9px 10px}
+#title .title-verdict{padding:9px 11px;margin-bottom:7px}
+#title .verdict-label{font-size:11px;margin-bottom:3px}
+#title .verdict-text{font-size:9px;line-height:1.35}
+#title .color-legend{display:flex;flex-wrap:wrap;gap:8px 14px;padding:7px 9px;margin-bottom:7px;font-size:9px;line-height:1.3}
+#title .spec-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+#title .spec{padding:8px 9px}
+#title .spec small{font-size:8px;margin-bottom:3px}
+#title .spec strong{font-size:10px}
+#seller .seller-box{padding:9px 10px}
+#seller .seller-rating{margin-bottom:6px;font-size:11px}
+#seller .seller-box .kv{padding:6px 0;font-size:9px}
+#seller .seller-note{font-size:9px;line-height:1.35;margin-top:5px}
+#seller .color-legend.compact{display:flex;flex-wrap:wrap;gap:7px 12px;padding:6px 8px;margin-top:7px;font-size:8px;line-height:1.25}
+
+.spec-grid.compact-main{grid-template-columns:repeat(4,minmax(0,1fr))}
+
 .auction-history{background:#fff}
 .thumb-wrap{background:#fff}
 .thumbs{background:#fff}
@@ -906,12 +931,18 @@
 .side-section{box-shadow:0 2px 10px rgba(20,30,40,.035)}
 
 @media(max-width:1050px){
+  #damage .damage-grid{grid-template-columns:1fr 1fr}
+  #title .spec-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .spec-grid.compact-main{grid-template-columns:repeat(3,minmax(0,1fr))}
   .detail-layout{grid-template-columns:1fr}
   .vehicle-head{align-items:flex-start;flex-direction:column}
   .vehicle-head-actions{justify-content:flex-start}
   .right-column{grid-template-columns:1fr 1fr}
 }
 @media(max-width:760px){
+  #damage .damage-grid{grid-template-columns:1fr}
+  #title .spec-grid{grid-template-columns:1fr 1fr}
+  .spec-grid.compact-main{grid-template-columns:1fr 1fr}
   .right-column{grid-template-columns:1fr}
   .vehicle-head h1{font-size:23px}
   .vehicle-head-actions{width:100%}
@@ -969,7 +1000,8 @@ body{background:var(--bg);color:var(--text)}
 .auction-state.prebid{color:#c47b00!important}
 .auction-history{max-height:none!important;overflow:hidden!important}
 .history-scroll{max-height:430px;overflow:auto;border:1px solid var(--border);border-radius:9px;background:#fff}
-.history-table{width:100%;border-collapse:collapse;min-width:720px;font-size:10px;background:#fff}
+.history-table{width:100%;border-collapse:collapse;min-width:650px;font-size:10px;background:#fff}
+.history-table.without-platform{min-width:590px}
 .history-table th{position:sticky;top:0;z-index:2;text-align:left;padding:9px 10px;background:#f5f7f9;color:#66727e;border-bottom:1px solid var(--border);font-size:9px;white-space:nowrap}
 .history-table td{padding:9px 10px;border-bottom:1px solid #e3e7eb;color:#17202a;white-space:nowrap;vertical-align:middle}
 .history-table tbody tr:hover{background:#fafbfd}
@@ -2326,7 +2358,6 @@ body{background:var(--bg);color:var(--text)}
         <div class="main-column">
           <section class="panel gallery">
             <div class="main-photo" id="mainPhoto">
-              <div class="media-label">${esc(platformName())}</div>
               <button class="gallery-arrow prev" id="prevPhoto" aria-label="Poprzednie zdjęcie">‹</button>
               <button class="gallery-arrow next" id="nextPhoto" aria-label="Następne zdjęcie">›</button>
               <img id="mainImage" alt="${esc(title)}" />
@@ -2342,7 +2373,7 @@ body{background:var(--bg);color:var(--text)}
 
           <section class="panel section" id="details">
             <div class="section-title"><h2>Dane samochodu</h2><span>${mediaCount} unikalnych zdjęć</span></div>
-            <div class="spec-grid">
+            <div class="spec-grid compact-main">
               ${field("Rok",year)}${field("Marka",make)}${field("Model",model)}
               ${field("Wersja / seria",series)}${field("VIN",vin)}${field("Nadwozie",getDescription(["BodyStyle","BodyStyleName"]))}
               ${field("Typ pojazdu",getDescription(["Vehicle","VehicleClass","InventoryType"]))}${field("Silnik",getDescription(["Engine","EngineSize","EngineInformation"]))}${field("Skrzynia",getDescription(["Transmission","TransmissionDesc"]))}
@@ -2365,12 +2396,12 @@ body{background:var(--bg);color:var(--text)}
           </section>
 
           <section class="panel section" id="title">
-            <div class="section-title"><h2>Dokumenty / TITLE</h2><span>Analiza Rex.Bid</span></div>
+            <div class="section-title"><h2>Dokument / TITLE</h2><span>Analiza Rex.Bid</span></div>
             <div class="title-verdict ${displayTitleKind}"><div class="verdict-label">${esc(titleVerdictLabel(displayTitleKind))}</div><div class="verdict-text">${esc(titleVerdictNote(displayTitleKind))}</div></div>
             <div class="color-legend">
-              <span><i class="legend-dot green"></i><b>Zielony</b> — źródło aukcyjne oznacza sprzedawcę/dokument jako zatwierdzony lub korzystny.</span>
-              <span><i class="legend-dot orange"></i><b>Żółty</b> — wymaga dodatkowej weryfikacji.</span>
-              <span><i class="legend-dot red"></i><b>Czerwony</b> — podwyższone ryzyko dokumentowe.</span>
+              <span><i class="legend-dot green"></i><b>Zielony</b> — korzystny / zaakceptowany</span>
+              <span><i class="legend-dot orange"></i><b>Żółty</b> — wymaga weryfikacji</span>
+              <span><i class="legend-dot red"></i><b>Czerwony</b> — podwyższone ryzyko</span>
             </div>
             <div class="spec-grid">${field("Dokument",titleDoc)}${field("Title brand",titleBrand)}${field("Stan / kod title",titleCode)}${field("Stan title",titleState)}${field("Uwagi do title",titleNotes)}</div>
           </section>
@@ -2379,11 +2410,12 @@ body{background:var(--bg);color:var(--text)}
             <div class="section-title"><h2>Sprzedawca</h2><span>Profil na podstawie danych aukcyjnych</span></div>
             <div class="seller-box">
               <div class="seller-rating"><span class="risk-dot ${sellerInfo.cls}"></span>${esc(sellerInfo.label)}</div>
-              ${seller ? `<div class="kv"><span>Sprzedawca</span><strong>${nice(seller)}</strong></div>` : ""}
-              ${kv("Typ sprzedawcy",valueFrom(["seller_type","sellerType","SellerType","ProviderType"]))}
-              ${kv("Pochodzenie",valueFrom(["Origin"]))}
+              <div class="mini-grid">
+                ${seller ? `<div class="mini-stat"><small>Sprzedawca</small><strong>${nice(seller)}</strong></div>` : ""}
+                ${!isEmpty(valueFrom(["seller_type","sellerType","SellerType","ProviderType"])) ? `<div class="mini-stat"><small>Typ sprzedawcy</small><strong>${nice(valueFrom(["seller_type","sellerType","SellerType","ProviderType"]))}</strong></div>` : ""}
+              </div>
               <div class="seller-note">${esc(sellerInfo.note)}</div>
-              <div class="color-legend compact"><span><i class="legend-dot green"></i><b>Zielony</b> — profil zaufany/zaakceptowany przez źródło.</span><span><i class="legend-dot orange"></i><b>Żółty</b> — dealer, prywatny lub profil wymagający sprawdzenia.</span><span><i class="legend-dot unknown"></i><b>Szary</b> — brak danych do oceny.</span></div>
+              <div class="color-legend compact"><span><i class="legend-dot green"></i><b>Zielony</b> — zaufany</span><span><i class="legend-dot orange"></i><b>Żółty</b> — weryfikacja</span><span><i class="legend-dot unknown"></i><b>Szary</b> — brak danych</span></div>
             </div>
           </section>
 
@@ -2409,7 +2441,7 @@ body{background:var(--bg);color:var(--text)}
 
         <aside class="right-column">
           <section class="info-card">
-            <div class="info-card-head"><h3>Aktualna aukcja</h3>${platformBadgeHtml()}</div>
+            <div class="info-card-head"><h3>Aktualna aukcja</h3></div>
             <div class="info-card-body">
               <div class="primary-auction">
                 <div class="auction-main"><div class="auction-label" id="bidLabel">${auctionPhase() === "prebid" ? "Najwyższa oferta przed licytacją" : "Aktualna oferta"}</div><div class="auction-price" id="currentBidPrice">${money(getAuctionBid())}</div><div class="auction-state ${auctionStatusClass()}" id="auctionStatusText">${esc(auctionStatusLabel())}</div><div class="auction-countdown" id="auctionTimerBox"><span id="countdownLabel">Termin licytacji</span>: <span id="countdown">${formatDate(date)}</span></div></div>
@@ -2429,7 +2461,10 @@ body{background:var(--bg);color:var(--text)}
                 <div class="mini-stat"><small>Miejsce aukcji</small><strong>${nice(location) || "—"}</strong></div>
                 <div class="mini-stat"><small>Wysyłka z</small><strong>${nice(getShippingOrigin()) || "—"}</strong></div>
               </div>
-              <div style="margin-top:9px">${kv("Oddział",getSale(["SellingBranch"]))}${kv("Adres",valueFrom(["Address"]))}${kv("Miasto",valueFrom(["City"]))}${kv("ZIP",valueFrom(["Zip"]))}</div>
+              <div class="mini-grid" style="margin-top:8px">
+                <div class="mini-stat"><small>Oddział</small><strong>${nice(getSale(["SellingBranch"])) || "—"}</strong></div>
+                <div class="mini-stat"><small>Stan</small><strong>${nice(valueFrom(["State","BranchState"])) || "—"}</strong></div>
+              </div>
               <div class="section-title" style="margin:12px 0 5px"><h2 style="font-size:12px">Orientacyjna trasa</h2></div>
               <div class="mini-grid">
                 <div class="mini-stat"><small>USA → port</small><strong>900 USD</strong></div>
@@ -2454,7 +2489,7 @@ body{background:var(--bg);color:var(--text)}
 
           <section class="info-card">
             <div class="info-card-head"><h3>Historia aukcji tego VIN</h3></div>
-            <div class="info-card-body"><div id="auctionHistory" class="auction-history"></div><div class="seller-note" style="margin-top:8px">Historia jest pobierana z archiwum aukcyjnego; dodatkowe snapshoty Rex.Bid są używane jako uzupełnienie.</div></div>
+            <div class="info-card-body"><div id="auctionHistory" class="auction-history"></div><div class="seller-note" style="margin-top:8px">Historia pochodzi bezpośrednio z archiwum aukcyjnego Apibara; snapshoty Rex.Bid nie są mieszane z historią sprzedaży.</div></div>
           </section>
 
           <section class="info-card">
@@ -3077,112 +3112,80 @@ body{background:var(--bg);color:var(--text)}
 
     const platform = first(
       historyField(record,["platform","source","auction_platform"]),
-      historyNested(record,[["auction","platform"]]),
+      historyNested(record,[["vehicle","platform"],["auction","platform"]]),
       platformName()
     );
 
-    // Dla historii najważniejsza jest DATA AUKCJI, a nie data utworzenia/
-    // aktualizacji rekordu. Dzięki temu nie mieszamy dat snapshotów z datami aukcji.
-    const date = first(
-      historyNested(record,[["auction","auction_at"],["auction","auctionAt"],["auction","sale_date"],["auction","saleDate"],["auction","date"]]),
-      historyField(record,["auction_date","auctionDate","auction_at","auctionAt","sale_date","saleDate","auction_date_local","sale_date_local","date","sold_at","soldAt"])
+    // Apibara rozróżnia datę aukcji od daty sprzedaży.
+    // Dla sprzedanych rekordów Bid.Cars pokazuje dzień sprzedaży, więc
+    // najpierw korzystamy z auction.last_sold_day. Dla niesprzedanych
+    // pokazujemy faktyczną datę aukcji (auction.auction_at).
+    const rawStatus = first(
+      historyNested(record,[["auction","last_sold_status"]]),
+      historyField(record,["last_sold_status","lastSoldStatus"]),
+      historyNested(record,[["sale","status"]]),
+      historyField(record,["sale_status","saleStatus","outcome","result","status","auction_status","auctionStatus","state","lot_sub_status","lotSubStatus"]),
+      historyNested(record,[["auction","sale_status"],["auction","saleStatus"],["auction","outcome"],["auction","result"],["auction","status"],["auction","state"],["auction","lot_sub_status"]])
     );
+    const statusText = String(displayValue(rawStatus) || "").toLowerCase();
+    const isSold = /sold on approval|on approval|sale pending approval|\bsold\b|sale complete|completed|won|approved/.test(statusText)
+      && !/not sold|no sale|unsold|failed/.test(statusText);
+
+    const date = isSold
+      ? first(
+          historyNested(record,[["auction","last_sold_day"]]),
+          historyField(record,["last_sold_day","lastSoldDay"]),
+          historyNested(record,[["sale","date"],["sale","sold_at"]]),
+          historyField(record,["sale_date","saleDate","sold_at","soldAt"]),
+          historyNested(record,[["auction","auction_at"],["auction","auctionAt"],["auction","full_date"]]),
+          historyField(record,["auction_date","auctionDate","auction_at","auctionAt","date"])
+        )
+      : first(
+          historyNested(record,[["auction","auction_at"],["auction","auctionAt"],["auction","full_date"]]),
+          historyField(record,["auction_date","auctionDate","auction_at","auctionAt","date","sale_date","saleDate"]),
+          historyNested(record,[["sale","date"]])
+        );
 
     const lot = first(
       historyField(record,["lot_number","lotNumber","lot","stock_number","stockNumber","stock"]),
-      historyNested(record,[["auction","lot_number"],["auction","lotNumber"]]),
+      historyNested(record,[["vehicle","lot_number"],["auction","lot_number"],["auction","lotNumber"]]),
       getLot()
     );
 
-    // Status odczytujemy przed ceną, ponieważ od niego zależy, czy cena
-    // jest rzeczywiście ceną sprzedaży, czy tylko ostatnią ofertą.
-    const status = first(
-      historyNested(record,[["auction","sale_status"],["auction","saleStatus"],["auction","outcome"],["auction","result"],["auction","status"],["auction","state"],["auction","lot_sub_status"]]),
-      historyField(record,["sale_status","saleStatus","outcome","result","status","auction_status","auctionStatus","state","lot_sub_status","lotSubStatus"]),
-      historyNested(record,[["sale","status"],["sale","outcome"]])
-    );
-
-    const statusText = String(displayValue(status) || "").toLowerCase();
-    const soldOutcome = /sold on approval|on approval|sale pending approval|sold|sale complete|completed|won|approved/.test(statusText)
-      && !/not sold|no sale|unsold|failed/.test(statusText);
-
-    // Apibara rozdziela current_bid od sale_price. W historii nie wolno
-    // podstawiać bieżącej oferty jako ceny sprzedaży. Najpierw próbujemy
-    // wartości finalnej/sprzedaży, dopiero przy zakończonej/niesprzedanej
-    // aukcji używamy ostatniej odnotowanej oferty jako "Końcowa oferta".
+    // Cena sprzedaży i bieżąca oferta są osobnymi wartościami.
+    // Nie używamy Buy Now / estimated_cost ani przypadkowego pola price.
     const salePrice = first(
-      historyNested(record,[
-        ["pricing","sale_price_usd"],["pricing","salePriceUsd"],
-        ["pricing","last_sold_price_usd"],["pricing","lastSoldPriceUsd"],
-        ["pricing","final_bid_usd"],["pricing","finalBidUsd"],
-        ["pricing","final_price_usd"],["pricing","finalPriceUsd"],
-        ["pricing","sold_price_usd"],["pricing","soldPriceUsd"],
-        ["pricing","sale_price"],["pricing","salePrice"],
-        ["pricing","final_bid"],["pricing","finalBid"],
-        ["pricing","winning_bid"],["pricing","winningBid"],
-        ["pricing","winning_price"],["pricing","winningPrice"],
-        ["auction","sale_price_usd"],["auction","salePriceUsd"],
-        ["auction","last_sold_price_usd"],["auction","lastSoldPriceUsd"],
-        ["auction","final_bid_usd"],["auction","finalBidUsd"],
-        ["auction","final_price_usd"],["auction","finalPriceUsd"],
-        ["auction","sold_price_usd"],["auction","soldPriceUsd"],
-        ["auction","winning_bid_usd"],["auction","winningBidUsd"]
-      ]),
-      historyField(record,[
-        "sale_price_usd","salePriceUsd","last_sold_price_usd","lastSoldPriceUsd",
-        "final_bid_usd","finalBidUsd","final_price_usd","finalPriceUsd",
-        "sold_price_usd","soldPriceUsd","sale_price","salePrice",
-        "final_bid","finalBid","final_price","finalPrice","sold_price","soldPrice",
-        "winning_bid_usd","winningBidUsd","winning_bid","winningBid",
-        "winning_price_usd","winningPriceUsd","winning_price","winningPrice",
-        "highest_bid_usd","highestBidUsd","highest_bid","highestBid",
-        "amount_usd","amountUsd","amount","price_usd","priceUsd","price"
-      ])
+      historyNested(record,[["pricing","last_sold_price_usd"]]),
+      historyField(record,["last_sold_price_usd","lastSoldPriceUsd","last_sold_price","lastSoldPrice"]),
+      historyNested(record,[["pricing","sale_price_usd"],["pricing","final_bid_usd"],["pricing","final_price_usd"],["pricing","sold_price_usd"]]),
+      historyField(record,["sale_price_usd","salePriceUsd","final_bid_usd","finalBidUsd","final_price_usd","finalPriceUsd","sold_price_usd","soldPriceUsd","sale_price","salePrice","final_bid","finalBid","final_price","finalPrice","sold_price","soldPrice"])
     );
 
     const currentBid = first(
-      historyNested(record,[
-        ["pricing","current_bid_usd"],["pricing","currentBidUsd"],
-        ["pricing","current_bid"],["pricing","currentBid"],
-        ["pricing","bid_usd"],["pricing","bidUsd"],
-        ["auction","current_bid_usd"],["auction","currentBidUsd"],
-        ["auction","current_bid"],["auction","currentBid"]
-      ]),
-      historyField(record,[
-        "current_bid_usd","currentBidUsd","current_bid","currentBid",
-        "bid_usd","bidUsd","bid","Bid","price_usd","priceUsd","price",
-        "last_bid_usd","lastBidUsd","last_bid","lastBid",
-        "highest_bid_usd","highestBidUsd","highest_bid","highestBid"
-      ])
+      historyNested(record,[["pricing","current_bid_usd"],["pricing","currentBidUsd"]]),
+      historyField(record,["current_bid_usd","currentBidUsd","current_bid","currentBid","bid","Bid"]),
+      historyNested(record,[["auction","current_bid_usd"],["auction","currentBidUsd"]])
     );
 
-    let price = salePrice;
-    let priceType = "sale";
-
-    if (isEmpty(price)) {
-      // Dla "Nie sprzedano" Bid.Cars pokazuje ostatnią/końcową ofertę.
-      // To nadal NIE jest cena sprzedaży — dlatego wewnętrznie zachowujemy
-      // typ wartości jako bid.
-      price = currentBid;
-      priceType = "bid";
-    }
+    // Dla sprzedanych pokazujemy cenę sprzedaży. Dla niesprzedanych /
+    // relistów pokazujemy ostatnią ofertę, tak jak w historii Bid.Cars.
+    const price = isSold ? salePrice : first(currentBid, salePrice);
 
     const seller = first(
-      historyNested(record,[["seller","name"],["seller","displayName"],["seller","seller_name"],["seller","sellerName"]]),
-      historyField(record,["seller_name","sellerName","seller","seller_type","sellerType"]),
-      historyNested(record,[["auction","seller_name"],["auction","sellerName"]])
+      historyField(record,["seller_name","sellerName","seller"]),
+      historyNested(record,[["seller","name"],["seller","displayName"]]),
+      historyField(record,["seller_type","sellerType"]),
+      historyNested(record,[["seller","type"]])
     );
 
-    if (isEmpty(date) && isEmpty(price) && isEmpty(status) && isEmpty(lot)) return null;
+    if (isEmpty(date) && isEmpty(price) && isEmpty(rawStatus) && isEmpty(lot)) return null;
 
     return {
       platform: String(displayValue(platform) || platformName()),
       date,
       lot,
       price: isEmpty(price) ? null : price,
-      priceType,
-      soldOutcome,
-      status: String(displayValue(status) || "").trim(),
+      status: String(displayValue(rawStatus) || "").trim(),
       seller: String(displayValue(seller) || "").trim(),
       raw: record
     };
@@ -3192,9 +3195,9 @@ body{background:var(--bg);color:var(--text)}
     const s = String(status || "").toLowerCase().trim();
     if (!s) return "Brak informacji";
     if (/sold on approval|on approval|sale pending approval/.test(s)) return "Sprzedano warunkowo";
-    if (/not sold|no sale|unsold|not_sold|failed|no-sale/.test(s)) return "Nie sprzedano";
-    if (/sold|sale complete|completed|won|approved/.test(s)) return "Sprzedano";
-    if (/live|open|active|running|in progress|started|current/.test(s)) return "W trakcie";
+    if (/sold|sale complete|completed|won|approved/.test(s) && !/not sold|no sale|unsold|failed/.test(s)) return "Sprzedano";
+    if (/not sold|no sale|unsold|not_sold|failed/.test(s)) return "Nie sprzedano";
+    if (/live|open|active|running|in progress/.test(s)) return "W trakcie";
     if (/upcoming|future|scheduled|pre.?bid/.test(s)) return "W przygotowaniu";
     if (/closed|ended|finished|complete/.test(s)) return "Zakończona";
     return displayValue(status) || "Brak informacji";
@@ -3202,7 +3205,7 @@ body{background:var(--bg);color:var(--text)}
 
   function historyStatusClass(status) {
     const label = historyStatusLabel(status).toLowerCase();
-    if (label === "sprzedano" || label.includes("warunkowo")) return "sold";
+    if (label.includes("sprzedano")) return "sold";
     if (label.includes("nie sprzedano")) return "not-sold";
     if (label.includes("trakcie")) return "live";
     if (label.includes("przygotowaniu")) return "upcoming";
@@ -3210,55 +3213,22 @@ body{background:var(--bg);color:var(--text)}
   }
 
   function historyRecordKey(item) {
-    const date = item.date ? new Date(item.date) : null;
-    const day = date && !Number.isNaN(date.getTime())
-      ? date.toISOString().slice(0,10)
-      : String(item.date || "");
-
     return [
       String(item.platform || "").toLowerCase(),
-      String(item.lot || "").trim(),
-      day
+      String(item.date || ""),
+      String(item.lot || ""),
+      String(item.price ?? ""),
+      String(item.status || "").toLowerCase()
     ].join("|");
   }
 
-  function historyRecordScore(item) {
-    const status = historyStatusLabel(item.status).toLowerCase();
-    let score = 0;
-
-    if (status.includes("sprzedano warunkowo")) score += 70;
-    else if (status === "sprzedano") score += 80;
-    else if (status.includes("nie sprzedano")) score += 60;
-    else if (status === "zakończona") score += 50;
-    else if (status.includes("trakcie")) score += 30;
-    else if (status.includes("przygotowaniu")) score += 10;
-
-    if (item.priceType === "sale") score += 20;
-    if (!isEmpty(item.price)) score += 5;
-    if (!isEmpty(item.seller)) score += 2;
-
-    const t = item.date ? new Date(item.date).getTime() : 0;
-    if (Number.isFinite(t)) score += Math.min(3, t / 1e13);
-
-    return score;
-  }
-
   function historyRecordsForRender() {
-    // Tabela historii sprzedaży pokazuje WYŁĄCZNIE rekordy z oficjalnego
-    // endpointu Apibara. Lokalne snapshoty Rex.Bid nie są tu mieszane,
-    // ponieważ są obserwacjami naszej aplikacji, a nie osobnymi aukcjami.
+    const all = [...auctionHistoryRecords];
+
     const map = new Map();
-
-    for (const item of auctionHistoryRecords) {
-      const normalized = item && item.platform !== undefined ? item : normalizeHistoryRecord(item);
-      if (!normalized) continue;
-
-      const key = historyRecordKey(normalized);
-      const previous = map.get(key);
-
-      if (!previous || historyRecordScore(normalized) > historyRecordScore(previous)) {
-        map.set(key, normalized);
-      }
+    for (const item of all) {
+      const key = historyRecordKey(item);
+      if (!map.has(key)) map.set(key,item);
     }
 
     return Array.from(map.values()).sort((a,b) => {
@@ -3279,6 +3249,9 @@ body{background:var(--bg);color:var(--text)}
       return;
     }
 
+    const platforms = [...new Set(list.map(item => String(item.platform || platformName()).toLowerCase()))];
+    const showPlatform = platforms.length > 1;
+
     const rows = list.map(item => {
       const price = item.price === null || isEmpty(item.price) || Number.isNaN(Number(item.price))
         ? "—"
@@ -3289,7 +3262,7 @@ body{background:var(--bg);color:var(--text)}
 
       return `
         <tr>
-          <td><span class="history-platform ${platformCls}">${esc(platform)}</span></td>
+          ${showPlatform ? `<td><span class="history-platform ${platformCls}">${esc(platform)}</span></td>` : ""}
           <td>${esc(formatHistoryDate(item.date))}</td>
           <td>${esc(item.lot || "—")}</td>
           <td class="history-price">${esc(price)}</td>
@@ -3301,10 +3274,10 @@ body{background:var(--bg);color:var(--text)}
 
     box.innerHTML = `
       <div class="history-scroll">
-        <table class="history-table">
+        <table class="history-table ${showPlatform ? "with-platform" : "without-platform"}">
           <thead>
             <tr>
-              <th>Aukcja</th>
+              ${showPlatform ? "<th>Aukcja</th>" : ""}
               <th>Data</th>
               <th>LOT</th>
               <th>Końcowa oferta</th>
@@ -3315,20 +3288,18 @@ body{background:var(--bg);color:var(--text)}
           <tbody>${rows}</tbody>
         </table>
       </div>
-      <div class="history-count">Dostępne rekordy historii: <strong>${list.length}</strong>. Dane pochodzą bezpośrednio z historii aukcyjnej Apibara; snapshoty Rex.Bid nie są mieszane z historią sprzedaży.</div>
+      <div class="history-count">Dostępne rekordy historii: <strong>${list.length}</strong>. Daty i ceny pochodzą z historii aukcyjnej Apibara; snapshoty Rex.Bid nie są mieszane z historią sprzedaży.</div>
     `;
   }
 
   function formatHistoryDate(value) {
     if (isEmpty(value)) return "—";
-
-    // Data aukcji z API jest datą źródłową. Nie przepuszczamy jej przez
-    // konwersję strefy czasowej, bo przy rekordach z godziną UTC może to
-    // przesunąć dzień na ekranie Rex.Bid. Dla daty ISO zachowujemy pierwsze
-    // 10 znaków (YYYY-MM-DD), czyli dokładny dzień aukcji ze źródła.
     const raw = String(value).trim();
-    const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if (iso) return `${iso[3]}.${iso[2]}.${iso[1]}`;
+    // Apibara's last_sold_day is already a calendar date. Do not parse it
+    // through UTC/local timezone conversion, otherwise the displayed day
+    // can shift by one day.
+    const dayOnly = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (dayOnly) return `${dayOnly[3]}.${dayOnly[2]}.${dayOnly[1]}`;
 
     const d = new Date(raw);
     if (Number.isNaN(d.getTime())) return raw;
