@@ -1016,7 +1016,179 @@ body{background:var(--bg);color:var(--text)}
 .history-status.upcoming{background:#fff4d8;color:#8a6500}
 .history-status.unknown{background:#f0f2f4;color:#66727e}
 .history-count{padding:8px 2px 0;color:#66727e;font-size:9px;line-height:1.5}
+.vehicle-actions .action{display:inline-flex;align-items:center;justify-content:center;height:auto;min-height:42px;padding:8px;text-align:center;line-height:1.3}
+.vehicle-actions .local-storage-note{grid-column:1/-1;color:#76828d;font-size:10px;line-height:1.4;padding:0 2px}
 @media(max-width:760px){.history-scroll{max-height:380px}.history-table{min-width:700px}}
+
+/* Rex.Bid Car 2.0 — informacje aukcyjne od razu, pełne szczegóły niżej. */
+main{padding-top:22px}
+.back{margin-bottom:12px;color:#65717c}
+.vehicle-head{
+  align-items:flex-start;
+  padding:20px 22px;
+  margin-bottom:16px;
+  border:1px solid #dce2e8;
+  border-radius:16px;
+  background:linear-gradient(135deg,#fff 0%,#fbfcfd 72%,#fff8e5 100%);
+  box-shadow:0 8px 28px rgba(25,38,50,.055)
+}
+.breadcrumbs{font-size:11px;margin-bottom:10px}
+.vehicle-head h1{font-size:clamp(25px,2.2vw,34px);line-height:1.12;letter-spacing:-1.05px}
+.vehicle-meta{font-size:12px;gap:8px 18px;margin-top:11px}
+.vehicle-meta span{overflow-wrap:anywhere}
+.vehicle-meta b{font-weight:800}
+.vehicle-head-actions{align-self:flex-start}
+.head-chip{font-size:11px;padding:9px 12px;transition:background .18s,border-color .18s,transform .18s}
+.head-chip:hover{transform:translateY(-1px);border-color:#c5cdd5;background:#fff}
+.platform-pill{font-size:10px;letter-spacing:.035em;padding:7px 10px;margin-bottom:10px}
+.vehicle-highlights{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}
+.vehicle-highlight{min-height:44px;display:inline-flex;align-items:center;gap:8px;padding:8px 11px;border:1px solid #e1e6eb;border-radius:9px;background:rgba(255,255,255,.82);font-size:11px}
+.vehicle-highlight small{color:#74808b;font-size:10px}
+.vehicle-highlight b{color:#1d2731;font-size:11px;font-weight:800}
+.vehicle-highlight.status-highlight{font-weight:900;background:#fff7df;border-color:#f0d783;color:#795b00}
+.vehicle-highlight.status-highlight i{width:8px;height:8px;border-radius:50%;background:#d89a12}
+.vehicle-highlight.status-highlight.live{background:#effaf3;border-color:#bde4cc;color:#197347}
+.vehicle-highlight.status-highlight.live i{background:#239457}
+.vehicle-highlight.status-highlight.ended{background:#fff3f3;border-color:#efc8c8;color:#a33a3a}
+.vehicle-highlight.status-highlight.ended i{background:#c04a4a}
+.vehicle-highlight.damage-highlight{max-width:min(100%,460px)}
+.vehicle-highlight.damage-highlight b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.detail-layout{grid-template-columns:minmax(0,1.45fr) minmax(360px,.78fr);gap:18px;margin-top:0}
+.right-column{gap:14px}
+.right-column>.info-card:first-child{position:sticky;top:88px;z-index:4;box-shadow:0 12px 32px rgba(28,38,48,.09)}
+.info-card,.panel{border-radius:14px}
+.info-card{box-shadow:0 5px 18px rgba(25,38,50,.045)}
+.info-card-head{padding:14px 16px}
+.info-card-head h3{font-size:14px;letter-spacing:-.15px}
+.info-card-body{padding:15px 16px}
+.gallery{overflow:hidden}
+.main-photo{height:clamp(380px,48vw,620px);min-height:340px;background:radial-gradient(ellipse at center,#fff 0%,#f3f5f7 76%,#e9edf1 100%)}
+.main-photo img{object-fit:contain;padding:8px}
+.gallery-badges{position:absolute;top:14px;left:14px;display:flex;gap:6px;z-index:4;pointer-events:none}
+.gallery-badge{padding:6px 8px;border:1px solid rgba(210,218,226,.9);border-radius:7px;background:rgba(255,255,255,.93);color:#27323c;font-size:10px;font-weight:900;box-shadow:0 2px 8px rgba(20,30,40,.07)}
+.photo-count{font-weight:800;box-shadow:0 2px 10px rgba(20,30,40,.08)}
+.thumb-wrap{padding:10px 12px}
+.thumbs{grid-template-columns:repeat(8,minmax(64px,1fr));gap:7px;max-height:112px;padding:1px}
+.thumb{border-radius:8px}
+.media-toolbar{padding:12px;gap:9px}
+.media-btn{min-height:42px;padding:10px 14px;border-radius:9px;font-size:11px}
+.media-btn:hover{transform:translateY(-1px)}
+.primary-auction{border:0;background:transparent;overflow:visible}
+.primary-auction .auction-main{padding:19px;border:1px solid #efd881;border-radius:12px;background:linear-gradient(140deg,#fff9e8,#fff 76%)}
+.primary-auction .auction-label{font-size:11px;font-weight:800;letter-spacing:.02em}
+.primary-auction .auction-price{margin-top:5px;font-size:clamp(30px,3vw,38px);letter-spacing:-1.1px}
+.primary-auction .auction-state{display:table;margin-top:12px;padding:6px 9px;border:1px solid #f0dfad;border-radius:999px;background:#fff;font-size:10px;letter-spacing:.025em}
+.primary-auction .auction-state.live{border-color:#b7e3ca;background:#f0fbf4}
+.primary-auction .auction-state.ended{border-color:#f0c6c8;background:#fff5f5}
+.primary-auction .auction-countdown{margin-top:12px;padding-top:10px;border-top:1px solid rgba(130,110,54,.14);font-size:12px}
+.price-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:9px}
+.price-fact{padding:10px 11px;border:1px solid #e1e6eb;border-radius:9px;background:#fff}
+.price-fact small{display:block;margin-bottom:4px;color:#717d88;font-size:10px}
+.price-fact strong{font-size:14px;font-weight:900;color:#26313b}
+.vehicle-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.vehicle-actions .action{min-width:0;min-height:42px;height:auto;padding:9px 8px;color:#26313b;font-size:11px;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center}
+.vehicle-actions .source-action{background:#e9a900;border-color:#e9a900;color:#191919}
+.vehicle-actions .source-action:hover{background:#d89b00}
+.vehicle-actions .upcoming-action{border-style:dashed;background:#fafbfc;color:#7b858f;cursor:not-allowed}
+.vehicle-actions .action:disabled{opacity:.78}
+.vehicle-actions #copyVin,.vehicle-actions #copyLink{background:#f5f7f8}
+.kv{font-size:11px;padding:9px 0}
+.kv span{flex:0 0 40%}
+.kv strong{font-weight:800}
+.right-column .forecast-card .forecast-total{padding:15px}
+.right-column .forecast-card .forecast-total strong{font-size:24px;letter-spacing:-.4px}
+.mini-stat{border-radius:9px}
+.section{padding:18px;margin-bottom:16px;scroll-margin-top:90px}
+.section-title{margin-bottom:15px}
+.section-title h2{font-size:18px;letter-spacing:-.25px}
+.section-title span{font-size:11px}
+.spec-grid.compact-main{grid-template-columns:repeat(4,minmax(0,1fr))}
+.spec{padding:12px}
+.spec small{font-size:10px}
+.spec strong{font-size:12px}
+#damage .damage-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#damage .damage{padding:14px;border-radius:10px;min-height:76px}
+#damage .damage small{font-size:10px}
+#damage .damage strong{font-size:13px;line-height:1.35}
+#title .section-title span{max-width:45%;text-align:right}
+.interpretation-note{margin-top:8px;padding:9px 11px;border-left:3px solid #d4a82c;border-radius:0 7px 7px 0;background:#fff9e9;color:#6f613e;font-size:10px;line-height:1.5}
+#seller .color-legend.compact{display:none}
+.seller-box{border-radius:10px}
+.import-calc{margin-top:0;padding:20px;border-radius:14px}
+.import-calc h2{font-size:20px;letter-spacing:-.35px}
+.calc-field label{font-size:11px}
+.calc-field input{height:44px}
+.calc-note{padding:10px 12px;border-radius:8px;background:#f7f8fa}
+.history-scroll{max-height:520px;border-radius:10px}
+.history-table{font-size:11px;min-width:670px}
+.history-table th{padding:11px 12px;font-size:10px}
+.history-table td{padding:11px 12px;font-size:11px}
+.history-count{font-size:10px}
+.history-status,.history-platform{font-size:10px}
+.source-action:focus-visible,.action:focus-visible,.head-chip:focus-visible,.media-btn:focus-visible,.gallery-arrow:focus-visible,.thumb:focus-visible{outline:3px solid rgba(240,168,0,.55);outline-offset:2px}
+.price-facts[hidden]{display:none!important}
+@media (min-width:761px) and (max-width:1050px){
+  .detail-layout{grid-template-columns:minmax(0,1fr)}
+  .spec-grid.compact-main{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #title .spec-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  main{padding-top:12px}
+  .vehicle-head{padding:15px 14px;border-radius:12px;gap:12px}
+  .vehicle-head h1{font-size:24px}
+  .vehicle-meta{gap:7px 12px;font-size:11px}
+  .vehicle-highlights{gap:6px;margin-top:12px}
+  .vehicle-highlight{min-height:40px;padding:7px 9px;font-size:10px}
+  .vehicle-highlight.damage-highlight{max-width:100%}
+  .vehicle-head-actions{display:none}
+  .detail-layout{gap:12px}
+  .right-column{grid-template-columns:1fr;gap:11px}
+  .right-column>.info-card:first-child{position:static}
+  .main-photo{height:min(68vw,420px);min-height:245px}
+  .main-photo img{padding:4px}
+  .gallery-badges{top:9px;left:9px;gap:5px}
+  .gallery-badge{padding:5px 7px;font-size:9px}
+  .thumb-wrap{padding:8px}
+  .thumbs{grid-template-columns:repeat(5,minmax(54px,1fr));max-height:88px;gap:5px}
+  .media-toolbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:9px}
+  .media-btn{padding:9px 7px;font-size:10px}
+  .media-btn.accent{grid-column:1/-1}
+  .info-card-head{padding:12px 13px}
+  .info-card-body{padding:12px 13px}
+  .primary-auction .auction-main{padding:15px}
+  .primary-auction .auction-price{font-size:32px}
+  .vehicle-actions .action{font-size:10px}
+  .section{padding:14px;margin-bottom:12px}
+  .section-title h2{font-size:16px}
+  .spec-grid.compact-main{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #damage .damage-grid{grid-template-columns:1fr}
+  #title .spec-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #title .section-title span{max-width:42%}
+  .import-calc{padding:15px}
+  .history-scroll{max-height:400px}
+  .history-table{min-width:670px}
+}
+@media(max-width:380px){
+  .vehicle-actions{grid-template-columns:1fr 1fr}
+  .vehicle-highlight{gap:5px;padding:6px 7px}
+  .spec-grid.compact-main{grid-template-columns:1fr 1fr}
+}
+@media (max-width:1050px){
+  .main-column,.right-column{display:contents}
+  .detail-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+  .gallery{order:1}
+  .right-column>.info-card:first-child{order:2;position:static}
+  #details{order:3}
+  #damage{order:4}
+  #title{order:5}
+  #seller{order:6}
+  #shipping{order:7}
+  .forecast-card{order:8}
+  #auctionHistoryPanel{order:9}
+  #importCalculator{order:10}
+  #sourceDocuments{order:11}
+  #details,.section,#importCalculator{width:100%}
+}
 
 </style>
 </head>
@@ -1029,6 +1201,8 @@ body{background:var(--bg);color:var(--text)}
       <a href="/">Samochody</a>
       <a href="/#search">Wyszukiwarka</a>
       <a href="/#results">Aukcje</a>
+      <a href="/ulubione.html">Obserwowane <span data-rexbid-count="favorites">0</span></a>
+      <a href="/compare.html">Porównaj <span data-rexbid-count="compare">0</span></a>
     </nav>
   </div>
 </header>
@@ -1076,6 +1250,7 @@ body{background:var(--bg);color:var(--text)}
   </div>
 </div>
 
+<script src="/rexbid-storage.js"></script>
 <script>
   const API_BASE = "/api";
   const params = new URLSearchParams(location.search);
@@ -1925,6 +2100,28 @@ body{background:var(--bg);color:var(--text)}
     return { value: null, label: "Cena niedostępna" };
   }
 
+  function getAuctionPriceFacts(primaryPrice = getAuctionPriceInfo()) {
+    const ended = auctionPhase() === "ended";
+    const facts = [
+      { label: "Aktualna oferta", value: ended ? null : getCurrentBid() },
+      { label: "Kup teraz", value: ended ? null : getBuyNow() },
+      { label: "Cena sprzedaży", value: first(car.pricing?.sale_price_usd, car.pricing?.final_price_usd, car.sale_price_usd, car.final_price_usd) },
+      { label: "Ostatnia cena sprzedaży", value: first(car.pricing?.last_sold_price_usd, car.pricing?.last_sold_price, car.last_sold_price_usd) }
+    ];
+    const salePrice = facts.find(fact => fact.label === "Cena sprzedaży")?.value;
+    return facts.filter(fact => {
+      if (isEmpty(fact.value)) return false;
+      if (primaryPrice?.label === fact.label ||
+          (fact.label === "Aktualna oferta" && primaryPrice?.label === "Najwyższa oferta przed licytacją")) return false;
+      if (fact.label === "Ostatnia cena sprzedaży" && !isEmpty(salePrice) && String(salePrice) === String(fact.value)) return false;
+      return true;
+    });
+  }
+
+  function renderAuctionPriceFactsHtml(facts) {
+    return facts.map(fact => `<div class="price-fact"><small>${esc(fact.label)}</small><strong>${money(fact.value)}</strong></div>`).join("");
+  }
+
   function getBuyNow() {
     return first(
       car.pricing?.buy_now_usd,
@@ -2346,9 +2543,13 @@ body{background:var(--bg);color:var(--text)}
 
     const image360 = findMediaUrl("vr360");
     const video = findMediaUrl("video");
+    const hasHdPhotos = photos.some(photo => photo.large && photo.thumb && photo.large !== photo.thumb);
 
     const date = getAuctionStart();
     const auctionPrice = getAuctionPriceInfo();
+    const auctionState = auctionStatusLabel();
+    const sourceAuctionUrl = originalAuctionUrl();
+    const priceFacts = getAuctionPriceFacts(auctionPrice);
 
     const location = getLocation();
 
@@ -2394,6 +2595,12 @@ body{background:var(--bg);color:var(--text)}
             ${!isEmpty(location) ? `<span>Lokalizacja: <b>${esc(location)}</b></span>` : ""}
             ${!isEmpty(date) ? `<span>Aukcja: <b>${esc(formatDate(date))}</b></span>` : ""}
           </div>
+          <div class="vehicle-highlights" aria-label="Najważniejsze informacje o pojeździe">
+            <span class="vehicle-highlight status-highlight ${auctionStatusClass()}" id="auctionStatusHeadline"><i></i>${esc(auctionState)}</span>
+            ${!isEmpty(odometer) ? `<span class="vehicle-highlight"><small>Przebieg</small><b>${nice(odometer)}</b></span>` : ""}
+            ${!isEmpty(primaryDamage) ? `<span class="vehicle-highlight damage-highlight"><small>Główne uszkodzenie</small><b>${nice(primaryDamage)}</b></span>` : ""}
+            ${!isEmpty(date) ? `<span class="vehicle-highlight"><small>Termin aukcji</small><b>${esc(formatDate(date))}</b></span>` : ""}
+          </div>
         </div>
         <div class="vehicle-head-actions">
           <a class="head-chip" href="#details">Dane samochodu</a>
@@ -2409,11 +2616,16 @@ body{background:var(--bg);color:var(--text)}
               <button class="gallery-arrow prev" id="prevPhoto" aria-label="Poprzednie zdjęcie">‹</button>
               <button class="gallery-arrow next" id="nextPhoto" aria-label="Następne zdjęcie">›</button>
               <img id="mainImage" alt="${esc(title)}" />
+              <div class="gallery-badges" aria-label="Dostępne materiały">
+                ${hasHdPhotos ? `<span class="gallery-badge">HD</span>` : ""}
+                ${image360 ? `<span class="gallery-badge">360°</span>` : ""}
+                ${video ? `<span class="gallery-badge">Wideo</span>` : ""}
+              </div>
               <div class="photo-count" id="photoCount"></div>
             </div>
             <div class="thumb-wrap"><div class="thumbs" id="thumbs"></div></div>
             <div class="media-toolbar">
-              <button class="media-btn accent" id="openHd">HD / Pełne zdjęcie / Powiększ</button>
+              <button class="media-btn accent" id="openHd">${hasHdPhotos ? "HD / Pełne zdjęcie / Powiększ" : "Powiększ zdjęcie"}</button>
               ${video ? `<button class="media-btn" id="openVideo">▶ Wideo</button>` : ""}
               ${image360 ? `<button class="media-btn" id="open360">↻ Widok 360°</button>` : ""}
             </div>
@@ -2444,8 +2656,9 @@ body{background:var(--bg);color:var(--text)}
           </section>
 
           <section class="panel section" id="title">
-            <div class="section-title"><h2>Dokument / TITLE</h2><span>Analiza Rex.Bid</span></div>
+            <div class="section-title"><h2>Dokument / TITLE</h2><span>Wskazówka na podstawie dostępnych danych</span></div>
             <div class="title-verdict ${displayTitleKind}"><div class="verdict-label">${esc(titleVerdictLabel(displayTitleKind))}</div><div class="verdict-text">${esc(titleVerdictNote(displayTitleKind))}</div></div>
+            <div class="interpretation-note">To automatyczna wskazówka, nie ocena prawna. Zweryfikuj oryginalny dokument i wymagania rejestracyjne przed zakupem.</div>
             <div class="color-legend">
               <span><i class="legend-dot green"></i><b>Zielony</b> — korzystny / zaakceptowany</span>
               <span><i class="legend-dot orange"></i><b>Żółty</b> — wymaga weryfikacji</span>
@@ -2455,7 +2668,7 @@ body{background:var(--bg);color:var(--text)}
           </section>
 
           <section class="panel section" id="seller">
-            <div class="section-title"><h2>Sprzedawca</h2><span>Profil na podstawie danych aukcyjnych</span></div>
+            <div class="section-title"><h2>Sprzedawca</h2><span>Informacje przekazane przez aukcję</span></div>
             <div class="seller-box">
               <div class="seller-rating"><span class="risk-dot ${sellerInfo.cls}"></span>${esc(sellerInfo.label)}</div>
               <div class="mini-grid">
@@ -2463,15 +2676,16 @@ body{background:var(--bg);color:var(--text)}
                 ${!isEmpty(valueFrom(["seller_type","sellerType","SellerType","ProviderType"])) ? `<div class="mini-stat"><small>Typ sprzedawcy</small><strong>${nice(valueFrom(["seller_type","sellerType","SellerType","ProviderType"]))}</strong></div>` : ""}
               </div>
               <div class="seller-note">${esc(sellerInfo.note)}</div>
+              <div class="interpretation-note">Opis profilu jest automatyczną klasyfikacją nazwy/typu sprzedawcy. Nie stanowi weryfikacji firmy ani gwarancji stanu pojazdu.</div>
               <div class="color-legend compact"><span><i class="legend-dot green"></i><b>Zielony</b> — zaufany</span><span><i class="legend-dot orange"></i><b>Żółty</b> — weryfikacja</span><span><i class="legend-dot unknown"></i><b>Szary</b> — brak danych</span></div>
             </div>
           </section>
 
           <section class="panel import-calc" id="importCalculator">
-            <h2>Prognozowany koszt sprowadzenia do Polski</h2>
+            <h2>Szacunkowy koszt importu</h2>
             <div class="calc-sub">Wartości są edytowalne. Kalkulator pokazuje orientacyjny koszt od zakupu na aukcji do Polski; nie zastępuje odprawy celnej ani wyceny firmy transportowej.</div>
             <div class="calc-grid">
-              <div class="calc-field"><label>Cena auta / aktualna oferta (USD)</label><input id="calcBid" type="number" min="0" step="1"></div>
+              <div class="calc-field"><label>Kwota bazowa auta do kalkulacji (USD)</label><input id="calcBid" type="number" min="0" step="1"></div>
               <div class="calc-field"><label>Kurs USD → PLN</label><input id="calcRate" type="number" min="0" step="0.0001" value="3.65"></div>
               <div class="calc-field"><label>Prowizja aukcyjna (USD)</label><input id="calcAuctionFee" type="number" min="0" step="1" value="0"></div>
               <div class="calc-field"><label>Transport do portu USA (USD)</label><input id="calcUsPort" type="number" min="0" step="1" value="900"></div>
@@ -2483,7 +2697,7 @@ body{background:var(--bg);color:var(--text)}
               <div class="calc-field"><label>Broker / dokumenty / inne (USD)</label><input id="calcOther" type="number" min="0" step="1" value="300"></div>
             </div>
             <div class="calc-result" id="calcResult"></div><div class="calc-warning" id="calcWarning"></div>
-            <div class="calc-note">Domyślne stawki: cło 10% i VAT 23%. Akcyza jest dobierana orientacyjnie na podstawie danych silnika/napędu i może być ręcznie zmieniona. Podstawa podatków może obejmować koszty transportu i inne elementy, dlatego wynik należy traktować jako prognozę.</div>
+            <div class="calc-note">Wynik jest szacunkiem. Wartości domyślne są założeniami kalkulatora, a nie potwierdzeniem aktualnych stawek urzędowych. Rzeczywiste opłaty, kursy, podstawa podatków i koszty transportu mogą się różnić; zweryfikuj je przed zakupem.</div>
           </section>
         </div>
 
@@ -2493,9 +2707,18 @@ body{background:var(--bg);color:var(--text)}
             <div class="info-card-body">
               <div class="primary-auction">
                 <div class="auction-main"><div class="auction-label" id="bidLabel">${esc(auctionPrice.label)}</div><div class="auction-price" id="currentBidPrice">${money(auctionPrice.value)}</div><div class="auction-state ${auctionStatusClass()}" id="auctionStatusText">${esc(auctionStatusLabel())}</div><div class="auction-countdown" id="auctionTimerBox"><span id="countdownLabel">Termin licytacji</span>: <span id="countdown">${formatDate(date)}</span></div></div>
+                <div class="price-facts" id="priceFacts" aria-label="Pozostałe dostępne ceny"${priceFacts.length ? "" : " hidden"}>${renderAuctionPriceFactsHtml(priceFacts)}</div>
                 <div class="info-card-body" style="padding-top:10px">
-                  ${kv("Numer LOT",lot)}${kv("Data aukcji",formatDate(date))}${kv("Lokalizacja",location)}
-                  <div class="action-row" style="margin-top:9px"><button class="action secondary" id="copyVin">Kopiuj VIN</button><button class="action primary" id="watchBtn">Obserwuj auto</button></div>
+                  ${kv("Platforma",platformName())}${kv("Numer LOT",lot)}${kv("VIN",vin)}${kv("Data aukcji",formatDate(date))}${kv("Lokalizacja",location)}${kv("Główne uszkodzenie",primaryDamage)}${kv("Przebieg",odometer)}${kv("Sprzedający",seller)}
+                  <div class="action-row vehicle-actions" style="margin-top:12px">
+                    <button class="action secondary" id="copyVin" ${isEmpty(vin) ? "disabled" : ""}>Kopiuj VIN</button>
+                    <button class="action secondary" id="copyLink">Kopiuj link</button>
+                    ${sourceAuctionUrl ? `<a class="action primary source-action" href="${esc(sourceAuctionUrl)}" target="_blank" rel="noopener noreferrer">Otwórz aukcję ↗</a>` : `<button class="action secondary" type="button" disabled title="Brak bezpośredniego linku źródłowego">Link do aukcji niedostępny</button>`}
+                    <button class="action secondary" type="button" id="toggleFavorite" aria-pressed="false">♡ Obserwuj auto</button>
+                    <button class="action secondary" type="button" id="toggleCompare" aria-pressed="false">⇄ Dodaj do porównania</button>
+                    <a class="action secondary" href="/compare.html">Otwórz porównanie <span data-rexbid-count="compare">0</span></a>
+                    <div class="local-storage-note">Ulubione zapisane na tym urządzeniu.</div>
+                  </div>
 
                 </div>
               </div>
@@ -2535,12 +2758,12 @@ body{background:var(--bg);color:var(--text)}
             </div>
           </section>
 
-          <section class="info-card">
+          <section class="info-card" id="auctionHistoryPanel">
             <div class="info-card-head"><h3>Historia aukcji tego VIN</h3></div>
             <div class="info-card-body"><div id="auctionHistory" class="auction-history"></div><div class="seller-note" style="margin-top:8px">Historia pochodzi bezpośrednio z archiwum aukcyjnego Apibara; snapshoty Rex.Bid nie są mieszane z historią sprzedaży.</div></div>
           </section>
 
-          <section class="info-card">
+          <section class="info-card" id="sourceDocuments">
             <div class="info-card-head"><h3>Dokument / tytuł</h3></div>
             <div class="info-card-body">${kv("Title",titleDoc)}${kv("Brand",titleBrand)}${kv("State",titleState)}${kv("Code",titleCode)}${kv("VIN",vin)}</div>
           </section>
@@ -2578,7 +2801,7 @@ body{background:var(--bg);color:var(--text)}
     count.textContent = `${photoIndex + 1} / ${photos.length} • pełna rozdzielczość`;
 
     thumbs.innerHTML = photos.map((photo,i) => `
-      <button class="thumb ${i === photoIndex ? "active" : ""} hd" data-i="${i}" title="Zdjęcie ${i+1} HD">
+      <button class="thumb ${i === photoIndex ? "active" : ""} ${p.large && p.thumb && p.large !== p.thumb ? "hd" : ""}" data-i="${i}" title="Zdjęcie ${i+1}${p.large && p.thumb && p.large !== p.thumb ? " HD" : ""}">
         <img src="${esc(photo.thumb || photo.large)}" loading="lazy" alt="Miniatura ${i+1}" />
       </button>
     `).join("");
@@ -2592,6 +2815,35 @@ body{background:var(--bg);color:var(--text)}
   }
 
   function bindPageEvents(video,image360) {
+    const favoriteButton = document.getElementById("toggleFavorite");
+    const compareButton = document.getElementById("toggleCompare");
+    const syncLocalActionButtons = () => {
+      if (!window.RexBidStorage || !car) return;
+      const favorite = window.RexBidStorage.isFavorite(car);
+      const compared = window.RexBidStorage.isCompared(car);
+      if (favoriteButton) {
+        favoriteButton.textContent = favorite ? "♥ Usuń z obserwowanych" : "♡ Obserwuj auto";
+        favoriteButton.setAttribute("aria-pressed", String(favorite));
+      }
+      if (compareButton) {
+        compareButton.textContent = compared ? "✓ Usuń z porównania" : "⇄ Dodaj do porównania";
+        compareButton.setAttribute("aria-pressed", String(compared));
+      }
+      window.RexBidStorage.refreshCounts();
+    };
+    favoriteButton?.addEventListener("click", () => {
+      if (!window.RexBidStorage || !car) return;
+      window.RexBidStorage.toggleFavorite(car);
+      syncLocalActionButtons();
+    });
+    compareButton?.addEventListener("click", () => {
+      if (!window.RexBidStorage || !car) return;
+      const result = window.RexBidStorage.toggleCompare(car);
+      if (!result.ok && result.reason === "limit") window.alert("Możesz porównać maksymalnie 3 samochody. Usuń jeden z porównania, aby dodać kolejny.");
+      syncLocalActionButtons();
+    });
+    syncLocalActionButtons();
+
     document.getElementById("prevPhoto")?.addEventListener("click",() => {
       if (!photos.length) return;
       photoIndex = (photoIndex - 1 + photos.length) % photos.length;
@@ -2615,7 +2867,7 @@ body{background:var(--bg);color:var(--text)}
       const b = document.getElementById("copyVin");
       if (b) {
         b.textContent = "Skopiowano";
-        setTimeout(() => b.textContent = "Kopiuj",1200);
+        setTimeout(() => b.textContent = "Kopiuj VIN",1200);
       }
     });
 
@@ -3036,11 +3288,22 @@ body{background:var(--bg);color:var(--text)}
       statusNode.textContent = auctionStatusLabel();
       statusNode.className = `auction-state ${auctionStatusClass()}`;
     }
+    const headlineStatus = document.getElementById("auctionStatusHeadline");
+    if (headlineStatus) {
+      headlineStatus.className = `vehicle-highlight status-highlight ${auctionStatusClass()}`;
+      headlineStatus.innerHTML = `<i></i>${esc(auctionStatusLabel())}`;
+    }
     const priceInfo = getAuctionPriceInfo();
     if (bidNode) bidNode.textContent = money(priceInfo.value);
     if (bidLabel) bidLabel.textContent = phase === "live" && priceInfo.label === "Aktualna oferta"
       ? "Aktualna oferta — LIVE"
       : priceInfo.label;
+    const priceFactsNode = document.getElementById("priceFacts");
+    if (priceFactsNode) {
+      const facts = getAuctionPriceFacts(priceInfo);
+      priceFactsNode.innerHTML = renderAuctionPriceFactsHtml(facts);
+      priceFactsNode.hidden = !facts.length;
+    }
 
     startCountdown();
   }
@@ -3250,24 +3513,27 @@ body{background:var(--bg);color:var(--text)}
 
     const list = historyRecordsForRender();
     if (!list.length) {
-      box.innerHTML = '<div class="empty" style="padding:20px">Brak dostępnej historii aukcji dla tego VIN-u.</div>';
+      box.innerHTML = '<div class="empty" style="padding:20px">Brak dostępnej historii aukcji dla tego pojazdu.</div>';
       return;
     }
 
     const platforms = [...new Set(list.map(item => String(item.platform || platformName()).toLowerCase()))];
-    const showPlatform = platforms.length > 1;
+    const showPlatform = true;
     const rows = list.map(item => {
-      const amount = item.final_price ?? item.current_bid ?? item.buy_now;
-      const amountLabel = item.final_price !== null ? "Cena końcowa"
-        : item.current_bid !== null ? "Aktualna oferta"
-        : item.buy_now !== null ? "Kup teraz" : "";
+      const hasFinalPrice = item.final_price !== null && item.final_price !== undefined && item.final_price !== "";
+      const hasCurrentBid = item.current_bid !== null && item.current_bid !== undefined && item.current_bid !== "";
+      const hasBuyNow = item.buy_now !== null && item.buy_now !== undefined && item.buy_now !== "";
+      const amount = hasFinalPrice ? item.final_price : hasCurrentBid ? item.current_bid : hasBuyNow ? item.buy_now : null;
+      const amountLabel = hasFinalPrice ? "Cena końcowa"
+        : hasCurrentBid ? "Aktualna oferta"
+        : hasBuyNow ? "Kup teraz" : "";
       const price = amount === null || amount === undefined || Number.isNaN(Number(amount)) ? "—" : money(amount);
       const status = historyStatusLabel(item.status);
       const platform = String(item.platform || platformName()).toUpperCase();
       const platformCls = platform.toLowerCase().includes("iaai") || platform === "IAA" ? "iaai" : "copart";
       return `
         <tr>
-          ${showPlatform ? `<td><span class="history-platform ${platformCls}">${esc(platform)}</span></td>` : ""}
+          <td><span class="history-platform ${platformCls}">${esc(platform)}</span></td>
           <td>${esc(formatHistoryDate(item.sale_date || item.auction_date || item.date))}</td>
           <td>${esc(item.lot || "—")}</td>
           <td class="history-price">${esc(price)}${amountLabel ? `<small style="display:block;font-size:10px;font-weight:600;opacity:.75">${esc(amountLabel)}</small>` : ""}</td>
@@ -3281,13 +3547,12 @@ body{background:var(--bg);color:var(--text)}
       <div class="history-scroll">
         <table class="history-table ${showPlatform ? "with-platform" : "without-platform"}">
           <thead><tr>
-            ${showPlatform ? "<th>Aukcja</th>" : ""}
-            <th>Data</th><th>LOT</th><th>Cena / oferta</th><th>Status</th><th>Sprzedający</th>
+            <th>Aukcja</th><th>Data wydarzenia</th><th>LOT</th><th>Cena / oferta</th><th>Status</th><th>Sprzedający</th>
           </tr></thead>
           <tbody>${rows}</tbody>
         </table>
       </div>
-      <div class="history-count">Dostępne rekordy historii: <strong>${list.length}</strong>. Daty i ceny pochodzą z historii aukcyjnej Apibara; snapshoty Rex.Bid nie są mieszane z historią sprzedaży.</div>
+      <div class="history-count">${list.length > 1 ? `Znaleziono <strong>${list.length} oddzielne wydarzenia aukcyjne</strong> dla tego pojazdu. Najnowsze wydarzenia są wyświetlane jako pierwsze. ` : ""}Dostępne rekordy historii: <strong>${list.length}</strong>. Daty i ceny pochodzą z historii aukcyjnej Apibara; snapshoty Rex.Bid nie są mieszane z historią aukcji.</div>
     `;
   }
 

@@ -725,7 +725,7 @@ test('index list pagination appends by cursor, resets filters, deduplicates by V
   };
   vm.createContext(context);
 
-  const script = scripts[0][2].replace(/\n\s*loadCars\(\);\s*$/, '\n  globalThis.initialLoad = loadCars();');
+  const script = scripts[0][2].replace(/\n\s*loadCars\((?:\{\s*updateUrl:\s*false\s*\})?\);\s*$/, '\n  globalThis.initialLoad = loadCars();');
   assert.notEqual(script, scripts[0][2], 'initial list load can be awaited by the test');
   vm.runInContext(`${script}\nglobalThis.testLoadCars = loadCars;`, context);
 
@@ -748,7 +748,7 @@ test('index list pagination appends by cursor, resets filters, deduplicates by V
   await deferredPage;
   assert.equal((element('cars').innerHTML.match(/<article class="car-card">/g) || []).length, 4);
   assert.match(element('cars').innerHTML, /car\.html\?vin=VIN-C/);
-  assert.match(element('cars').innerHTML, /car\.html\?vin=LOT-D/);
+  assert.match(element('cars').innerHTML, /car\.html\?lot=LOT-D/);
   assert.equal(loadMore.hidden, true, 'no next cursor hides the button');
   assert.equal(loadMore.disabled, false);
 
@@ -774,6 +774,112 @@ test('index list pagination appends by cursor, resets filters, deduplicates by V
     'previously loaded cards remain after a later page fails');
   assert.equal(loadMore.disabled, false, 'load more can be retried after failure');
   assert.equal(loadMore.hidden, false, 'failed cursor remains available for retry');
+});
+
+test('index exposes only Worker-supported advanced filters and restores shareable filter URL state', async () => {
+  const scripts = [...indexSource.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)]
+    .filter(match => !/\bsrc\s*=/.test(match[1]));
+  const elements = new Map();
+  const element = id => {
+    if (!elements.has(id)) {
+      elements.set(id, {
+        id, value: '', innerHTML: '', textContent: '', hidden: false, disabled: false,
+        style: {}, listeners: {}, addEventListener(name, callback) { this.listeners[name] = callback; },
+        scrollIntoView() {}
+      });
+    }
+    return elements.get(id);
+  };
+
+  const location = { href: 'https://rex.bid/', pathname: '/', search: '', hash: '' };
+  const historyCalls = [];
+  const window = {
+    location,
+    history: {
+      pushState(_state, _title, nextUrl) {
+        historyCalls.push(nextUrl);
+        const parsed = new URL(nextUrl, location.href);
+        Object.assign(location, { href: parsed.href, pathname: parsed.pathname, search: parsed.search, hash: parsed.hash });
+      }
+    },
+    listeners: {},
+    addEventListener(name, callback) { this.listeners[name] = callback; }
+  };
+  const requests = [];
+  let nextFetch;
+  const context = {
+    document: { getElementById: element },
+    URL, URLSearchParams, Response, window,
+    fetch(url) {
+      requests.push(new URL(url, 'https://rex.bid'));
+      return new Promise((resolve, reject) => { nextFetch = { resolve, reject }; });
+    },
+    console: { error() {}, warn() {}, log() {} }
+  };
+  vm.createContext(context);
+  const script = scripts[0][2].replace(/\n\s*loadCars\((?:\{\s*updateUrl:\s*false\s*\})?\);\s*$/, '\n  globalThis.initialLoad = loadCars();');
+  assert.notEqual(script, scripts[0][2]);
+  vm.runInContext(`${script}\nglobalThis.testLoadCars = loadCars;`, context);
+
+  const response = (data, nextCursor) => new Response(JSON.stringify({
+    ok: true, data, meta: { next_cursor: nextCursor }
+  }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  nextFetch.resolve(response([{ vin: 'VIN-FILTER', lot_number: 'LOT-FILTER' }], 'cursor-filtered'));
+  await context.initialLoad;
+
+  const selected = {
+    searchInput: 'Toyota', platform: 'copart', make: 'Toyota', model: 'Camry', yearFrom: '2018', yearTo: '2024',
+    lotStatus: 'Buy Now', lotSubStatus: 'Open', upcoming: 'only', priceMin: '1000', priceMax: '15000',
+    odometerFrom: '0', odometerTo: '120000', fuelType: 'Gasoline', transmission: 'Automatic',
+    driveType: 'AWD', runCond: 'RUNS AND DRIVES'
+  };
+  for (const [id, value] of Object.entries(selected)) {
+    const control = element(id);
+    control.value = value;
+    control.listeners.input?.();
+  }
+  assert.equal(element('advancedFilterCount').textContent, '11');
+  assert.match(element('activeFilterChips').innerHTML, /Przebieg od/);
+
+  const filteredLoad = element('advancedFilterButton').listeners.click();
+  const expected = {
+    s: 'Toyota', platform: 'copart', make: 'Toyota', model: 'Camry', year_from: '2018', year_to: '2024',
+    lot_status: 'Buy Now', lot_sub_status: 'Open', upcoming: 'only', price_min: '1000', price_max: '15000',
+    odometer_from: '0', odometer_to: '120000', fuel_type: 'Gasoline', transmission: 'Automatic',
+    drive_type: 'AWD', run_cond: 'RUNS AND DRIVES'
+  };
+  for (const [name, value] of Object.entries(expected)) assert.equal(requests[1].searchParams.get(name), value, name);
+  assert.equal(requests[1].searchParams.has('cursor'), false, 'filter apply starts at page one');
+  const shareUrl = new URL(location.href);
+  for (const [name, value] of Object.entries(expected)) assert.equal(shareUrl.searchParams.get(name), value, `URL ${name}`);
+  assert.equal(historyCalls.length, 1);
+  nextFetch.resolve(response([{ vin: 'VIN-FILTER', lot_number: 'LOT-FILTER' }], 'cursor-filtered'));
+  await filteredLoad;
+
+  const nextPage = element('loadMoreButton').listeners.click();
+  assert.equal(requests[2].searchParams.get('cursor'), 'cursor-filtered');
+  assert.equal(requests[2].searchParams.get('price_min'), '1000', 'active filters carry to the next cursor page');
+  nextFetch.resolve(response([{ vin: 'VIN-FILTER', lot_number: 'LOT-FILTER' }, { vin: 'VIN-NEXT', lot_number: 'LOT-NEXT' }], null));
+  await nextPage;
+  assert.equal((element('cars').innerHTML.match(/<article class="car-card">/g) || []).length, 2);
+
+  const reset = element('clearFiltersButton').listeners.click();
+  assert.equal(requests[3].searchParams.has('cursor'), false);
+  for (const name of Object.keys(expected)) assert.equal(requests[3].searchParams.has(name), false, `cleared ${name}`);
+  assert.equal(location.search, '');
+  assert.equal(element('advancedFilterCount').textContent, '0');
+  nextFetch.resolve(response([], null));
+  await reset;
+
+  Object.assign(location, { href: 'https://rex.bid/?platform=iaai&fuel_type=Electric', search: '?platform=iaai&fuel_type=Electric' });
+  window.listeners.popstate();
+  assert.equal(element('platform').value, 'iaai', 'back/forward restores the platform filter');
+  assert.equal(element('fuelType').value, 'Electric', 'back/forward restores advanced filters');
+  assert.equal(requests[4].searchParams.get('platform'), 'iaai');
+  assert.equal(requests[4].searchParams.get('fuel_type'), 'Electric');
+  assert.equal(requests[4].searchParams.has('cursor'), false, 'restoring URL state starts at page one');
+  nextFetch.resolve(response([], null));
+  await new Promise(resolve => setImmediate(resolve));
 });
 
 test('listing and detail price labels preserve price meaning and finished overrides a future auction date', () => {
@@ -813,4 +919,83 @@ test('listing and detail price labels preserve price meaning and finished overri
   assert.deepEqual(JSON.parse(JSON.stringify(detailContext.priceInfo())), { value: 2025, label: 'Cena sprzedaży' });
   detailContext.car = { pricing: { last_sold_price_usd: 12500 } };
   assert.deepEqual(JSON.parse(JSON.stringify(detailContext.priceInfo())), { value: 12500, label: 'Ostatnia cena sprzedaży' });
+});
+
+test('Car 2.0 keeps vehicle actions and media controls explicit without implying unavailable features work', () => {
+  for (const id of ['mainPhoto', 'mainImage', 'thumbs', 'photoCount', 'prevPhoto', 'nextPhoto', 'openHd', 'openVideo', 'open360', 'lightbox', 'viewerModal', 'auctionHistory', 'importCalculator', 'copyVin', 'copyLink']) {
+    assert.match(carSource, new RegExp(`id="${id}"`), `preserved detail-page control ${id}`);
+  }
+  for (const fn of ['fetchVehicle', 'getVin', 'getLot', 'originalAuctionUrl', 'renderPhotos', 'openLightbox', 'setZoom', 'openViewer', 'startCountdown', 'initImportCalculator', 'fetchAuctionHistoryPages', 'updateAuctionUi']) {
+    assert.match(carSource, new RegExp(`function ${fn}\\(`), `preserved detail-page function ${fn}`);
+  }
+  assert.match(carSource, /Otwórz aukcję/);
+  assert.match(carSource, /id="toggleFavorite"/);
+  assert.match(carSource, /id="toggleCompare"/);
+  assert.match(carSource, /Ulubione zapisane na tym urządzeniu/);
+  assert.match(carSource, /klasyfikacją nazwy\/typu sprzedawcy/);
+  assert.match(carSource, /nie ocena prawna/);
+  assert.match(carSource, /\.main-column,\.right-column\{display:contents\}/);
+  assert.match(carSource, /#auctionHistoryPanel\{order:9\}/);
+});
+
+test('car detail keeps exact VIN and LOT selection and never falls back to the first list item', () => {
+  const exactMatchBlock = extractFunctionBlock(carSource, 'normalizeIdentifier', 'fetchVehicle');
+  const context = {
+    VIN: 'VIN-TARGET', LOT: '',
+    collectObjects: data => Array.isArray(data) ? data : [data]
+  };
+  vm.createContext(context);
+  vm.runInContext(`${exactMatchBlock}\nglobalThis.unwrap = unwrapResult;`, context);
+  const results = [{ vin: 'VIN-OTHER', lot_number: 'LOT-1' }, { vin: 'VIN-TARGET', lot_number: 'LOT-2' }];
+  assert.equal(context.unwrap({ data: results }).vin, 'VIN-TARGET');
+  assert.equal(context.unwrap({ data: [{ vin: 'VIN-OTHER' }] }), null, 'does not use the first result if no exact VIN exists');
+
+  context.VIN = '';
+  context.LOT = 'LOT-TARGET';
+  assert.equal(context.unwrap({ data: [{ lot_number: 'LOT-OTHER' }, { lot_number: 'LOT-TARGET', vin: 'VIN-2' }] }).vin, 'VIN-2');
+  assert.equal(context.unwrap({ data: [{ lot_number: 'LOT-OTHER' }] }), null, 'does not use the first result if no exact LOT exists');
+});
+
+test('detail price facts stay distinct and updateable, and missing final price labels history bid correctly', () => {
+  const priceBlock = extractFunctionBlock(carSource, 'getAuctionPriceFacts', 'getBuyNow');
+  let phase = 'live';
+  const priceContext = {
+    car: { pricing: { current_bid_usd: 1700, buy_now_usd: 2900, sale_price_usd: 2025, last_sold_price_usd: 2025 } },
+    auctionPhase: () => phase,
+    getCurrentBid: () => 1700,
+    getBuyNow: () => 2900,
+    getAuctionPriceInfo: () => ({ value: 1700 }),
+    first: (...values) => values.find(value => value !== null && value !== undefined && value !== ''),
+    isEmpty: value => value === null || value === undefined || value === '',
+    esc: value => String(value),
+    money: value => `$${value}`
+  };
+  vm.createContext(priceContext);
+  vm.runInContext(`${priceBlock}\nglobalThis.priceFacts = getAuctionPriceFacts; globalThis.priceFactsHtml = renderAuctionPriceFactsHtml;`, priceContext);
+  assert.deepEqual(JSON.parse(JSON.stringify(priceContext.priceFacts({ value: 1700, label: 'Aktualna oferta' }))), [{ label: 'Kup teraz', value: 2900 }, { label: 'Cena sprzedaży', value: 2025 }]);
+  phase = 'ended';
+  assert.deepEqual(JSON.parse(JSON.stringify(priceContext.priceFacts({ value: 2025, label: 'Cena sprzedaży' }))), []);
+
+  const historyBlock = extractFunctionBlock(carSource, 'renderAuctionHistory', 'formatHistoryDate');
+  const historyBox = { innerHTML: '' };
+  const historyContext = {
+    document: { getElementById: () => historyBox },
+    historyRecordsForRender: () => [{ final_price: undefined, current_bid: 700, buy_now: null, sale_date: '2026-09-20', lot: 'LOT-7', platform: 'copart', status: 'live', seller: 'Example Seller' }],
+    isEmpty: value => value === null || value === undefined || value === '',
+    money: value => `$${value}`,
+    historyStatusLabel: () => 'W trakcie',
+    historyStatusClass: () => 'live',
+    platformName: () => 'COPART',
+    formatHistoryDate: value => value,
+    esc: value => String(value)
+  };
+  vm.createContext(historyContext);
+  vm.runInContext(`${historyBlock}\nglobalThis.render = renderAuctionHistory;`, historyContext);
+  historyContext.render();
+  assert.match(historyBox.innerHTML, /Aktualna oferta/);
+  assert.doesNotMatch(historyBox.innerHTML, /Cena końcowa/);
+  assert.match(historyBox.innerHTML, /Example Seller/);
+  assert.match(historyBox.innerHTML, /<th>Aukcja<\/th>/, 'platform is explicit even for a single-platform history');
+  assert.match(historyBox.innerHTML, /snapshoty Rex\.Bid nie są mieszane z historią aukcji/);
+  assert.match(carSource, /oddzielne wydarzenia aukcyjne/);
 });

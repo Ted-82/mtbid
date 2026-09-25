@@ -476,6 +476,254 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* Rex.Bid 2.0 — listing experience */
+    :root {
+      --bg: #f3f5f7;
+      --panel: #ffffff;
+      --panel2: #f7f8fa;
+      --border: #e0e5ea;
+      --text: #172432;
+      --muted: #647381;
+      --accent: #f2ad24;
+      --accent2: #ffc64c;
+      --green: #13845b;
+      --navy: #102234;
+      --navy-soft: #19344c;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .container { width: min(1320px, calc(100% - 48px)); }
+
+    header {
+      background: rgba(15, 32, 48, 0.97);
+      border-bottom: 1px solid rgba(255,255,255,.09);
+      box-shadow: 0 8px 28px rgba(8, 24, 39, .13);
+    }
+
+    .header-inner { min-height: 76px; gap: 32px; }
+    .logo { color: #fff; font-size: 26px; letter-spacing: -1.4px; }
+    .logo span { color: var(--accent); }
+    .brand-note {
+      margin-left: -22px;
+      color: rgba(255,255,255,.52);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+    .nav { align-items: center; gap: clamp(16px, 2.2vw, 32px); color: rgba(255,255,255,.72); font-size: 13px; font-weight: 650; }
+    .nav a { transition: color .18s ease; }
+    .nav a:hover, .nav a:focus-visible { color: #fff; }
+    .nav .nav-account { color: #fff; padding: 10px 15px; border: 1px solid rgba(255,255,255,.24); border-radius: 9px; }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 68px 0 48px;
+      color: #fff;
+      text-align: left;
+      background:
+        radial-gradient(ellipse at 84% 4%, rgba(60, 106, 139, .36), transparent 35%),
+        linear-gradient(122deg, #102234 0%, #17334b 62%, #1b3b54 100%);
+    }
+    .hero::after {
+      position: absolute;
+      right: -100px;
+      bottom: -240px;
+      width: 590px;
+      height: 590px;
+      content: "";
+      border: 1px solid rgba(255,255,255,.075);
+      border-radius: 50%;
+      box-shadow: 0 0 0 42px rgba(255,255,255,.025), 0 0 0 90px rgba(255,255,255,.02);
+      pointer-events: none;
+    }
+    .hero-inner { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(380px, .92fr); align-items: center; gap: 58px; }
+    .hero-copy { max-width: 620px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 19px; color: #f7c557; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    .eyebrow::before { width: 22px; height: 2px; content: ""; background: currentColor; }
+    .hero h1 { max-width: 610px; margin: 0; color: #fff; font-size: clamp(40px, 5vw, 66px); font-weight: 780; line-height: 1.02; letter-spacing: -.055em; }
+    .hero h1 span { color: #f7ba3e; }
+    .hero p { max-width: 540px; margin: 20px 0 0; color: rgba(239,245,249,.73); font-size: 16px; line-height: 1.7; }
+    .hero-points { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-top: 26px; color: rgba(255,255,255,.78); font-size: 12px; font-weight: 650; }
+    .hero-points span { display: inline-flex; align-items: center; gap: 8px; }
+    .hero-points span::before { width: 6px; height: 6px; content: ""; border-radius: 50%; background: var(--accent); }
+    .search-panel { padding: 24px; border: 1px solid rgba(255,255,255,.13); border-radius: 17px; background: rgba(255,255,255,.08); box-shadow: 0 22px 60px rgba(3,14,25,.22); backdrop-filter: blur(12px); }
+    .search-panel h2 { margin: 0 0 6px; color: #fff; font-size: 17px; letter-spacing: -.02em; }
+    .search-panel > p { margin: 0 0 18px; color: rgba(255,255,255,.62); font-size: 12px; line-height: 1.5; }
+    .search-box { max-width: none; margin: 0; gap: 9px; }
+    .search-box input { height: 56px; padding: 0 16px; border: 1px solid rgba(18,37,54,.12); border-radius: 10px; background: #fff; color: #182837; font-size: 14px; }
+    .search-box input:focus { border-color: #f3b630; box-shadow: 0 0 0 3px rgba(243,182,48,.19); }
+    .btn { border-radius: 10px; transition: transform .18s ease, background .18s ease, box-shadow .18s ease; }
+    .btn-primary { background: var(--accent); color: #172432; box-shadow: 0 7px 18px rgba(242,173,36,.17); }
+    .btn-primary:hover { background: var(--accent2); box-shadow: 0 10px 22px rgba(242,173,36,.24); }
+    .search-hint { display: flex; justify-content: space-between; gap: 12px; margin-top: 13px; color: rgba(255,255,255,.54); font-size: 11px; }
+
+    .listing-section { padding-top: 34px; }
+    .filters { margin: 0 0 30px; padding: 21px 22px 22px; border: 1px solid #e3e8ed; border-radius: 14px; background: #fff; box-shadow: 0 8px 28px rgba(20,39,56,.045); }
+    .filters-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 15px; }
+    .filters-heading h2 { margin: 0; color: #1c2c3b; font-size: 14px; font-weight: 800; }
+    .filters-heading p { margin: 0; color: #84909b; font-size: 11px; }
+    .filters-grid { grid-template-columns: 1.18fr 1.15fr 1.15fr .8fr .8fr auto; gap: 9px; }
+    .advanced-filters { margin-top: 15px; border-top: 1px solid #edf0f2; }
+    .advanced-filters summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 1px 3px; color: #304455; cursor: pointer; font-size: 12px; font-weight: 750; list-style: none; }
+    .advanced-filters summary::-webkit-details-marker { display: none; }
+    .advanced-filters summary::after { content: "+"; color: #956109; font-size: 18px; font-weight: 500; }
+    .advanced-filters[open] summary::after { content: "−"; }
+    .advanced-count { display: inline-grid; place-items: center; min-width: 19px; height: 19px; margin-left: 7px; padding: 0 5px; border-radius: 20px; background: #fff1d1; color: #805300; font-size: 10px; }
+    .advanced-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 13px 11px; padding: 17px 0 4px; }
+    .filter-field { display: grid; align-content: start; gap: 6px; min-width: 0; }
+    .filter-field label { color: #647381; font-size: 10px; font-weight: 750; letter-spacing: .035em; }
+    .filter-field input, .filter-field select { width: 100%; height: 40px; padding: 0 10px; border: 1px solid #dfe5ea; border-radius: 8px; background: #fafbfc; color: #233443; font: inherit; font-size: 12px; }
+    .filter-range { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 7px; }
+    .advanced-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 13px; }
+    .filter-note { color: #8a959e; font-size: 10px; line-height: 1.5; }
+    .advanced-actions .btn { height: 40px; padding: 0 17px; font-size: 11px; }
+    .active-filters { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin: -13px 0 24px; }
+    .active-filters[hidden] { display: none; }
+    .active-filter-list { display: grid; gap: 7px; min-width: 0; }
+    .active-filter-summary { color: #758391; font-size: 10px; font-weight: 700; }
+    .active-filter-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .filter-chip { display: inline-flex; align-items: center; gap: 7px; padding: 6px 9px; border: 1px solid #ead7ad; border-radius: 20px; background: #fffaf0; color: #6e531b; font-size: 10px; }
+    .filter-chip strong { font-weight: 800; }
+    .filter-chip button { display: inline-grid; place-items: center; width: 16px; height: 16px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #7b642d; cursor: pointer; font-size: 14px; line-height: 1; }
+    .filter-chip button:hover { background: #f2e5c8; }
+    .clear-filters { flex: 0 0 auto; padding: 5px 0; border: 0; background: none; color: #788592; cursor: pointer; font-size: 10px; font-weight: 700; }
+    .clear-filters:hover:not(:disabled) { color: #a05d00; }
+    .clear-filters:disabled { cursor: default; opacity: .45; }
+    .filters input, .filters select { height: 45px; padding: 0 12px; border-color: #dfe5ea; border-radius: 9px; background: #fafbfc; color: #233443; font-size: 13px; }
+    .filters input:focus, .filters select:focus { border-color: #dfa42f; outline: 3px solid rgba(242,173,36,.14); }
+    .filters button { height: 45px; padding: 0 19px; font-size: 12px; }
+    .results-header { align-items: end; margin-bottom: 17px; }
+    .results-heading { display: flex; flex-direction: column; gap: 5px; }
+    .results-kicker { color: #a06a06; font-size: 10px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+    .results-header h2 { color: #1a2b3b; font-size: 25px; letter-spacing: -.035em; }
+    .status { color: #758391; font-size: 12px; }
+    .cars { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+    .car-card { border-color: #e0e6eb; border-radius: 13px; box-shadow: 0 4px 16px rgba(20,39,56,.055); transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+    .car-card:hover { border-color: #cad4dd; box-shadow: 0 14px 30px rgba(20,39,56,.12); transform: translateY(-4px); }
+    .car-card > a { display: block; height: 100%; }
+    .car-image { height: 218px; background: linear-gradient(135deg,#e5eaf0,#f4f6f8); }
+    .car-image img { transition: transform .45s ease; }
+    .car-card:hover .car-image img { transform: scale(1.035); }
+    .platform { top: 13px; left: 13px; padding: 7px 10px; border: 1px solid rgba(255,255,255,.16); border-radius: 6px; background: rgba(16,34,52,.88); color: #fff; font-size: 9px; letter-spacing: .08em; }
+    .status-badge { top: 13px; right: 13px; padding: 7px 9px; border: 1px solid rgba(255,255,255,.2); border-radius: 6px; background: rgba(19,132,91,.94); color: #fff; font-size: 9px; letter-spacing: .04em; }
+    .status-badge.status-finished { background: rgba(49,66,82,.94); }
+    .status-badge.status-upcoming { background: rgba(177,119,20,.96); }
+    .car-content { padding: 17px 17px 16px; }
+    .car-title { min-height: 42px; margin-bottom: 8px; color: #1b2c3b; font-size: 16px; line-height: 1.32; letter-spacing: -.025em; }
+    .car-vin { overflow: hidden; color: #798693; font-size: 10px; letter-spacing: .035em; text-overflow: ellipsis; white-space: nowrap; }
+    .auction-date-row { display: flex; align-items: center; gap: 7px; margin-top: 10px; color: #566879; font-size: 11px; }
+    .auction-date-row strong { color: #293b4a; font-weight: 750; }
+    .auction-date-icon { color: #a36b08; font-size: 13px; }
+    .car-grid { gap: 13px 10px; margin: 17px 0; }
+    .spec small { margin-bottom: 4px; color: #8b96a0; font-size: 9px; font-weight: 750; letter-spacing: .075em; text-transform: uppercase; }
+    .spec strong { display: block; overflow: hidden; color: #293b4a; font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    .car-bottom { min-height: 58px; padding-top: 13px; border-top-color: #e8ecef; }
+    .price { color: #172b3d; font-size: 21px; letter-spacing: -.04em; }
+    .price-label { color: #81909d; font-size: 9px; letter-spacing: .04em; text-transform: uppercase; }
+    .details-btn { padding: 10px 12px; border-radius: 8px; background: #142c41; color: #fff; font-size: 11px; transition: background .18s ease; }
+    .car-card:hover .details-btn { background: #234762; }
+    .card-local-actions { display:flex; gap:8px; padding:0 14px 14px; }
+    .card-local-actions button { flex:1; min-height:36px; border:1px solid #dbe2e8; border-radius:7px; background:#fff; color:#405261; font:700 11px Arial,sans-serif; cursor:pointer; }
+    .card-local-actions button:hover,.card-local-actions button[aria-pressed="true"] { border-color:#d7a43d; background:#fff9eb; color:#77520c; }
+    .local-nav-link { display:inline-flex; align-items:center; gap:5px; }
+    .message { min-height: 190px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px dashed #cbd5de; border-radius: 13px; background: rgba(255,255,255,.72); color: #6f7e8b; font-size: 13px; line-height: 1.6; }
+    .message strong { margin-bottom: 5px; color: #263847; font-size: 16px; }
+    .spinner { border-color: #e4e9ee; border-top-color: #d99b18; }
+    #loadMoreButton { display: flex; align-items: center; justify-content: center; min-width: 190px; margin: 30px auto 0 !important; padding: 0 23px; font-size: 13px; }
+    #loadMoreButton:disabled { cursor: wait; opacity: .7; }
+    footer { margin-top: 68px; padding: 27px 0; border-top-color: #dfe5ea; background: #edf1f4; color: #72808c; text-align: left; font-size: 11px; }
+    footer .container { display: flex; justify-content: space-between; gap: 18px; }
+
+    @media (max-width: 1000px) {
+      .hero-inner { grid-template-columns: minmax(0,1fr) minmax(330px,.9fr); gap: 30px; }
+      .hero { padding: 54px 0 42px; }
+      .filters-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+      .advanced-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+      .cars { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .brand-note { display: none; }
+    }
+    @media (max-width: 850px) {
+      .hero-inner { grid-template-columns: 1fr; gap: 24px; }
+      .hero-copy { max-width: 720px; }
+      .search-panel { max-width: 720px; }
+    }
+    @media (max-width: 700px) {
+      .container { width: min(100% - 28px, 1320px); }
+      .header-inner { min-height: 62px; gap: 12px; }
+      .logo { font-size: 23px; }
+      .nav { display: flex; gap: 15px; overflow-x: auto; font-size: 11px; white-space: nowrap; }
+      .nav { max-width: 58vw; }
+      .nav a:nth-child(2), .nav a:nth-child(3) { display: none; }
+      .nav .nav-account { padding: 8px 10px; }
+      .hero { padding: 39px 0 30px; }
+      .hero-inner { grid-template-columns: 1fr; gap: 23px; }
+      .hero h1 { max-width: 520px; font-size: clamp(38px, 10vw, 53px); letter-spacing: -.055em; }
+      .hero p { margin-top: 13px; font-size: 14px; }
+      .hero-points { margin-top: 17px; gap: 8px 14px; font-size: 10px; }
+      .search-panel { padding: 17px; border-radius: 12px; }
+      .search-box { flex-direction: row; }
+      .search-box input { height: 50px; font-size: 13px; }
+      .search-box .btn { height: 50px; padding: 0 15px; font-size: 12px; }
+      .search-hint { font-size: 10px; }
+      .listing-section { padding-top: 22px; }
+      .filters { margin-bottom: 24px; padding: 17px; }
+      .filters-heading { align-items: flex-start; flex-direction: column; gap: 4px; }
+      .filters-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .filters-grid #filterButton { grid-column: 1/-1; }
+      .advanced-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .advanced-actions { align-items: stretch; flex-direction: column; }
+      .advanced-actions .btn { align-self: flex-end; }
+      .active-filters { flex-direction: column; gap: 8px; }
+      .results-header { align-items: flex-start; flex-direction: column; gap: 8px; }
+      .results-header h2 { font-size: 22px; }
+      .cars { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+      .car-image { height: clamp(140px, 32vw, 205px); }
+      .platform, .status-badge { top: 8px; padding: 6px 7px; font-size: 8px; }
+      .platform { left: 8px; }
+      .status-badge { right: 8px; }
+      .car-content { padding: 12px; }
+      .car-title { min-height: 38px; font-size: 13px; }
+      .car-vin { font-size: 8px; }
+      .car-grid { gap: 10px 7px; margin: 12px 0; }
+      .spec small { font-size: 8px; }
+      .spec strong { font-size: 10px; }
+      .car-bottom { align-items: flex-start; flex-direction: column; gap: 10px; }
+      .price { font-size: 19px; }
+      .details-btn { display: inline-flex; }
+      footer { margin-top: 42px; }
+      footer .container { flex-direction: column; gap: 6px; }
+    }
+    @media (max-width: 430px) {
+      .container { width: min(100% - 22px, 1320px); }
+      .nav { gap: 9px; }
+      .nav .nav-account { font-size: 10px; }
+      .hero-points { flex-direction: column; }
+      .search-box { flex-direction: column; }
+      .search-box .btn { width: 100%; }
+      .filters-grid { grid-template-columns: 1fr 1fr; }
+      .advanced-grid { grid-template-columns: 1fr 1fr; }
+      .cars { grid-template-columns: 1fr; }
+      .car-image { height: 220px; }
+      .car-content { padding: 15px; }
+      .car-title { min-height: 0; font-size: 16px; }
+      .car-vin { font-size: 10px; }
+      .car-grid { gap: 12px; margin: 15px 0; }
+      .spec small { font-size: 9px; }
+      .spec strong { font-size: 12px; }
+      .car-bottom { align-items: center; flex-direction: row; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
   </style>
 </head>
 
@@ -484,14 +732,20 @@
 <header>
   <div class="container header-inner">
 
-    <a href="/" class="logo">
+    <a href="/" class="logo" aria-label="Rex.Bid — strona główna">
       Rex<span>.Bid</span>
     </a>
 
-    <nav class="nav">
-      <a href="/">Samochody</a>
-      <a href="#search">Wyszukiwarka</a>
-      <a href="#results">Aukcje</a>
+    <span class="brand-note">Rynek aukcyjny USA</span>
+
+    <nav class="nav" aria-label="Nawigacja główna">
+      <a href="/" aria-current="page">Samochody</a>
+      <a href="#search">Szukaj</a>
+      <a href="#results">Oferty</a>
+      <a href="/jak-to-dziala.html">Jak to działa</a>
+      <a class="local-nav-link" href="/ulubione.html">Obserwowane <span data-rexbid-count="favorites">0</span></a>
+      <a class="local-nav-link" href="/compare.html">Porównaj <span data-rexbid-count="compare">0</span></a>
+      <a class="nav-account" href="/konto.html">Moje konto</a>
     </nav>
 
   </div>
@@ -502,25 +756,38 @@
 
   <section class="hero" id="search">
 
-    <div class="container">
+    <div class="container hero-inner">
 
-      <h1>
-        Znajdź swój<br />
-        <span>samochód.</span>
-      </h1>
+      <div class="hero-copy">
+        <div class="eyebrow">Copart · IAAI · Rex.Bid</div>
+        <h1>
+          Znajdź samochód.<br />
+          <span>Sprawdź każdą ofertę.</span>
+        </h1>
 
-      <p>
-        Samochody z aukcji Copart i IAAI.
-        Wyszukuj po VIN, numerze lotu, marce,
-        modelu i parametrach pojazdu.
-      </p>
+        <p>
+          Przeglądaj aukcje samochodowe z USA w jednym miejscu.
+          Wyszukaj konkretny VIN lub numer lotu albo zawęź wyniki
+          według marki, modelu i rocznika.
+        </p>
 
-      <form class="search-box" id="searchForm">
+        <div class="hero-points" aria-label="Dostępne źródła i sposoby wyszukiwania">
+          <span>Aukcje Copart i IAAI</span>
+          <span>Szukaj po VIN lub LOT</span>
+          <span>Zdjęcia i dane pojazdu</span>
+        </div>
+      </div>
+
+      <div class="search-panel">
+        <h2>Znajdź ofertę</h2>
+        <p>Wpisz VIN, numer LOT albo nazwę marki lub modelu.</p>
+        <form class="search-box" id="searchForm">
 
         <input
           id="searchInput"
           type="text"
           autocomplete="off"
+          aria-label="Szukaj po VIN, LOT, marce lub modelu"
           placeholder="VIN, numer lotu, marka lub model..."
         />
 
@@ -528,23 +795,30 @@
           class="btn btn-primary"
           type="submit"
         >
-          Szukaj
+          Szukaj ofert
         </button>
 
-      </form>
+        </form>
+        <div class="search-hint"><span>Dokładne VIN / LOT</span><span>Wyniki z aukcji USA</span></div>
+      </div>
 
     </div>
 
   </section>
 
 
-  <section class="container">
+  <section class="container listing-section" aria-label="Wyszukiwarka i lista samochodów">
 
     <div class="filters">
 
+      <div class="filters-heading">
+        <h2>Dopasuj wyniki</h2>
+        <p>Wybierz platformę, markę, model lub zakres roczników</p>
+      </div>
+
       <div class="filters-grid">
 
-        <select id="platform">
+        <select id="platform" aria-label="Platforma aukcyjna">
           <option value="">Wszystkie aukcje</option>
           <option value="iaai">IAAI</option>
           <option value="copart">COPART</option>
@@ -553,24 +827,28 @@
         <input
           id="make"
           type="text"
+          aria-label="Marka"
           placeholder="Marka"
         />
 
         <input
           id="model"
           type="text"
+          aria-label="Model"
           placeholder="Model"
         />
 
         <input
           id="yearFrom"
           type="number"
+          aria-label="Rok od"
           placeholder="Rok od"
         />
 
         <input
           id="yearTo"
           type="number"
+          aria-label="Rok do"
           placeholder="Rok do"
         />
 
@@ -584,18 +862,120 @@
 
       </div>
 
+      <details class="advanced-filters" id="advancedFilters">
+        <summary>
+          <span>Więcej filtrów <span class="advanced-count" id="advancedFilterCount">0</span></span>
+        </summary>
+        <div class="advanced-grid">
+          <div class="filter-field">
+            <label for="lotStatus">Rodzaj oferty</label>
+            <select id="lotStatus">
+              <option value="">Wszystkie rodzaje</option>
+              <option value="Timed">Aukcja czasowa</option>
+              <option value="Buy Now">Kup teraz</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label for="lotSubStatus">Status aukcji</label>
+            <select id="lotSubStatus">
+              <option value="">Otwarte (domyślnie)</option>
+              <option value="Open">Otwarte</option>
+              <option value="Live">Na żywo</option>
+              <option value="Ended">Zakończone</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label for="upcoming">Termin aukcji</label>
+            <select id="upcoming">
+              <option value="">Dowolny termin</option>
+              <option value="only">Tylko nadchodzące</option>
+              <option value="without">Bez nadchodzących</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label>Cena w USD</label>
+            <div class="filter-range">
+              <input id="priceMin" type="number" min="0" step="100" aria-label="Cena minimalna w USD" placeholder="Od" />
+              <input id="priceMax" type="number" min="0" step="100" aria-label="Cena maksymalna w USD" placeholder="Do" />
+            </div>
+          </div>
+          <div class="filter-field">
+            <label>Przebieg w milach</label>
+            <div class="filter-range">
+              <input id="odometerFrom" type="number" min="0" step="1000" aria-label="Przebieg od w milach" placeholder="Od" />
+              <input id="odometerTo" type="number" min="0" step="1000" aria-label="Przebieg do w milach" placeholder="Do" />
+            </div>
+          </div>
+          <div class="filter-field">
+            <label for="fuelType">Paliwo</label>
+            <select id="fuelType">
+              <option value="">Dowolne</option>
+              <option value="Gasoline">Benzyna</option>
+              <option value="Diesel">Diesel</option>
+              <option value="Hybrid">Hybryda</option>
+              <option value="Electric">Elektryczny</option>
+              <option value="Flexible">Flex fuel</option>
+              <option value="All others">Inne</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label for="transmission">Skrzynia biegów</label>
+            <select id="transmission">
+              <option value="">Dowolna</option>
+              <option value="Automatic">Automatyczna</option>
+              <option value="Manual">Manualna</option>
+              <option value="Unknown">Nieznana</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label for="driveType">Napęd</label>
+            <select id="driveType">
+              <option value="">Dowolny</option>
+              <option value="AWD">AWD / 4×4</option>
+              <option value="FWD">Na przód</option>
+              <option value="RWD">Na tył</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label for="runCond">Stan pracy</label>
+            <select id="runCond">
+              <option value="">Dowolny</option>
+              <option value="RUNS AND DRIVES">Uruchamia się i jeździ</option>
+              <option value="ENGINE START PROGRAM">Program uruchomienia silnika</option>
+              <option value="STATIONARY">Nie jeździ</option>
+              <option value="NO INFORMATION">Brak informacji</option>
+            </select>
+          </div>
+        </div>
+        <div class="advanced-actions">
+          <span class="filter-note">Kwoty są w USD, przebieg w milach. Filtr ceny nie oznacza pełnego kosztu importu.</span>
+          <button class="btn btn-primary" id="advancedFilterButton" type="button">Zastosuj filtry</button>
+        </div>
+      </details>
+
+    </div>
+
+    <div class="active-filters" id="activeFilters" hidden>
+      <div class="active-filter-list">
+        <span class="active-filter-summary" id="activeFilterSummary" aria-live="polite"></span>
+        <div class="active-filter-chips" id="activeFilterChips" aria-label="Aktywne filtry"></div>
+      </div>
+      <button class="clear-filters" id="clearFiltersButton" type="button">Wyczyść filtry</button>
     </div>
 
 
     <div class="results-header" id="results">
 
-      <h2>
-        Oferty samochodów
-      </h2>
+      <div class="results-heading">
+        <span class="results-kicker">Katalog aukcyjny</span>
+        <h2>Oferty samochodów</h2>
+      </div>
 
       <div
         id="resultStatus"
         class="status"
+        role="status"
+        aria-live="polite"
       >
         Ładowanie...
       </div>
@@ -630,6 +1010,7 @@
 </footer>
 
 
+<script src="/rexbid-storage.js"></script>
 <script>
   const API_BASE = "/api";
 
@@ -660,17 +1041,59 @@
   const yearTo =
     document.getElementById("yearTo");
 
+  const lotStatus = document.getElementById("lotStatus");
+  const lotSubStatus = document.getElementById("lotSubStatus");
+  const upcoming = document.getElementById("upcoming");
+  const priceMin = document.getElementById("priceMin");
+  const priceMax = document.getElementById("priceMax");
+  const odometerFrom = document.getElementById("odometerFrom");
+  const odometerTo = document.getElementById("odometerTo");
+  const fuelType = document.getElementById("fuelType");
+  const transmission = document.getElementById("transmission");
+  const driveType = document.getElementById("driveType");
+  const runCond = document.getElementById("runCond");
+
   const filterButton =
     document.getElementById("filterButton");
 
+  const advancedFilterButton = document.getElementById("advancedFilterButton");
+  const activeFiltersElement = document.getElementById("activeFilters");
+  const activeFilterChips = document.getElementById("activeFilterChips");
+  const activeFilterSummary = document.getElementById("activeFilterSummary");
+  const advancedFilterCount = document.getElementById("advancedFilterCount");
+  const clearFiltersButton = document.getElementById("clearFiltersButton");
+  const advancedFiltersElement = document.getElementById("advancedFilters");
+
   const loadMoreButton =
     document.getElementById("loadMoreButton");
+
+  const localStorageApi = typeof window !== "undefined" ? window.RexBidStorage : null;
 
   let listCursor = null;
   let listedCars = [];
   let activeListQuery = null;
   let listRequestId = 0;
   let loadingMore = false;
+
+  const filterDefinitions = [
+    { id: "searchInput", element: searchInput, param: "s", label: "Szukaj", advanced: false },
+    { id: "platform", element: platform, param: "platform", label: "Platforma", advanced: false },
+    { id: "make", element: make, param: "make", label: "Marka", advanced: false },
+    { id: "model", element: model, param: "model", label: "Model", advanced: false },
+    { id: "yearFrom", element: yearFrom, param: "year_from", label: "Rok od", advanced: false },
+    { id: "yearTo", element: yearTo, param: "year_to", label: "Rok do", advanced: false },
+    { id: "lotStatus", element: lotStatus, param: "lot_status", label: "Rodzaj", advanced: true },
+    { id: "lotSubStatus", element: lotSubStatus, param: "lot_sub_status", label: "Status", advanced: true },
+    { id: "upcoming", element: upcoming, param: "upcoming", label: "Termin", advanced: true },
+    { id: "priceMin", element: priceMin, param: "price_min", label: "Cena od", advanced: true },
+    { id: "priceMax", element: priceMax, param: "price_max", label: "Cena do", advanced: true },
+    { id: "odometerFrom", element: odometerFrom, param: "odometer_from", label: "Przebieg od", advanced: true },
+    { id: "odometerTo", element: odometerTo, param: "odometer_to", label: "Przebieg do", advanced: true },
+    { id: "fuelType", element: fuelType, param: "fuel_type", label: "Paliwo", advanced: true },
+    { id: "transmission", element: transmission, param: "transmission", label: "Skrzynia", advanced: true },
+    { id: "driveType", element: driveType, param: "drive_type", label: "Napęd", advanced: true },
+    { id: "runCond", element: runCond, param: "run_cond", label: "Stan pracy", advanced: true }
+  ];
 
 
   /*
@@ -693,6 +1116,75 @@
       .replaceAll(">", "&gt;")
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#039;");
+  }
+
+
+  function getFilterValue(definition) {
+    return String(definition.element.value || "").trim();
+  }
+
+
+  function updateFilterIndicators() {
+    const active = filterDefinitions.filter(definition => getFilterValue(definition));
+    const advancedCount = active.filter(definition => definition.advanced).length;
+    const countLabel = active.length === 1 ? "aktywny filtr" : (active.length > 1 && active.length < 5 ? "aktywne filtry" : "aktywnych filtrów");
+
+    advancedFilterCount.textContent = String(advancedCount);
+    activeFilterSummary.textContent = `${active.length} ${countLabel}`;
+    activeFiltersElement.hidden = active.length === 0;
+    clearFiltersButton.disabled = active.length === 0;
+    activeFilterChips.innerHTML = active.map(definition => {
+      const value = getFilterValue(definition);
+      const optionLabel = definition.element.selectedOptions?.[0]?.textContent;
+      const label = optionLabel && definition.element.tagName === "SELECT" ? optionLabel : value;
+      return `
+        <span class="filter-chip">
+          <span>${escapeHtml(definition.label)}: <strong>${escapeHtml(label)}</strong></span>
+          <button type="button" data-filter-id="${definition.id}" aria-label="Usuń filtr: ${escapeHtml(definition.label)}">×</button>
+        </span>
+      `;
+    }).join("");
+  }
+
+
+  function restoreFiltersFromUrl() {
+    if (typeof window === "undefined" || !window.location) return;
+    const params = new URLSearchParams(window.location.search);
+    let advancedActive = false;
+
+    for (const definition of filterDefinitions) {
+      const value = params.get(definition.param) || "";
+      definition.element.value = value;
+      if (definition.advanced && value) advancedActive = true;
+    }
+
+    advancedFiltersElement.open = advancedActive;
+    updateFilterIndicators();
+  }
+
+
+  function updateListUrl(params) {
+    if (typeof window === "undefined" || !window.location || !window.history) return;
+
+    const url = new URL(window.location.href);
+    for (const definition of filterDefinitions) url.searchParams.delete(definition.param);
+    for (const [name, value] of params.entries()) {
+      if (filterDefinitions.some(definition => definition.param === name) && value) {
+        url.searchParams.set(name, value);
+      }
+    }
+
+    const nextUrl = `${url.pathname}${url.search}${url.hash}`;
+    const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    if (nextUrl !== currentUrl) window.history.pushState({ rexBidList: true }, "", nextUrl);
+  }
+
+
+  function clearAllFilters() {
+    for (const definition of filterDefinitions) definition.element.value = "";
+    advancedFiltersElement.open = false;
+    updateFilterIndicators();
+    loadCars();
   }
 
 
@@ -1429,6 +1921,31 @@
   }
 
 
+  function getAuctionDate(car) {
+    const auction = car && car.auction && typeof car.auction === "object"
+      ? car.auction
+      : {};
+    const value =
+      auction.formatted ||
+      auction.full_date ||
+      auction.auction_at ||
+      auction.auctionAt ||
+      car?.auction_at ||
+      car?.auctionAt ||
+      car?.auction_date ||
+      "";
+
+    if (!value || typeof value !== "string") return "";
+
+    const raw = value.trim();
+    const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/);
+    if (!match) return raw;
+
+    const date = `${match[3]}.${match[2]}.${match[1]}`;
+    return match[4] ? `${date}, ${match[4]}:${match[5]}` : date;
+  }
+
+
   /*
    * ==========================================================
    * RENDEROWANIE SAMOCHODÓW
@@ -1447,7 +1964,8 @@
           class="message"
           style="grid-column:1/-1"
         >
-          Nie znaleziono samochodów.
+          <strong>Nie ma ofert dla tych kryteriów</strong>
+          <span>Zmień zapytanie lub wybierz inną platformę aukcyjną.</span>
         </div>
       `;
 
@@ -1495,6 +2013,9 @@
         const status =
           getStatus(car);
 
+        const auctionDate =
+          getAuctionDate(car);
+
         const identifier =
           vin ||
           lot ||
@@ -1505,11 +2026,13 @@
          * ZDJĘCIE
          */
 
+        const safeImage = localStorageApi?.safeImageUrl(image) || "";
+        const cardIndex = cars.indexOf(car);
         const imageHtml =
-          image
+          safeImage
             ? `
               <img
-                src="${escapeHtml(image)}"
+                src="${escapeHtml(safeImage)}"
                 alt="${escapeHtml(title)}"
                 loading="lazy"
                 onerror="
@@ -1565,13 +2088,22 @@
 
           if (
             normalizedStatus === "open" ||
-            normalizedStatus === "active"
+            normalizedStatus === "active" ||
+            normalizedStatus === "live"
           ) {
             statusText = "AKTYWNA";
+          } else if (["finished", "sold", "closed", "ended"].includes(normalizedStatus)) {
+            statusText = "ZAKOŃCZONA";
+          } else if (["upcoming", "future", "scheduled"].includes(normalizedStatus)) {
+            statusText = "ZAPLANOWANA";
           }
 
+          const statusClass = ["finished", "sold", "closed", "ended"].includes(normalizedStatus)
+            ? "status-finished"
+            : (["upcoming", "future", "scheduled"].includes(normalizedStatus) ? "status-upcoming" : "status-active");
+
           statusHtml = `
-            <div class="status-badge">
+            <div class="status-badge ${statusClass}">
               ${escapeHtml(statusText)}
             </div>
           `;
@@ -1583,9 +2115,8 @@
          */
 
         const detailUrl =
-          identifier
-            ? `/car.html?vin=${encodeURIComponent(identifier)}`
-            : "#";
+          vin ? `/car.html?vin=${encodeURIComponent(vin)}`
+            : lot ? `/car.html?lot=${encodeURIComponent(lot)}` : "#";
 
 
         return `
@@ -1619,6 +2150,14 @@
                   VIN:
                   ${escapeHtml(vin || "—")}
                 </div>
+
+                ${auctionDate ? `
+                  <div class="auction-date-row">
+                    <span class="auction-date-icon" aria-hidden="true">◷</span>
+                    <span>Aukcja:</span>
+                    <strong>${escapeHtml(auctionDate)}</strong>
+                  </div>
+                ` : ""}
 
 
                 <div class="car-grid">
@@ -1723,6 +2262,10 @@
               </div>
 
             </a>
+            <div class="card-local-actions" aria-label="Akcje lokalne">
+              <button type="button" data-local-action="favorite" data-car-index="${cardIndex}" aria-pressed="${localStorageApi?.isFavorite(car) ? "true" : "false"}">${localStorageApi?.isFavorite(car) ? "♥ Obserwujesz" : "♡ Obserwuj"}</button>
+              <button type="button" data-local-action="compare" data-car-index="${cardIndex}" aria-pressed="${localStorageApi?.isCompared(car) ? "true" : "false"}">${localStorageApi?.isCompared(car) ? "✓ W porównaniu" : "⇄ Porównaj"}</button>
+            </div>
 
           </article>
         `;
@@ -1826,7 +2369,7 @@
    * ==========================================================
    */
 
-  async function loadCars({ append = false } = {}) {
+  async function loadCars({ append = false, updateUrl = true } = {}) {
     if (append && (!listCursor || loadingMore)) return;
 
     const requestId = append ? listRequestId : ++listRequestId;
@@ -1909,6 +2452,26 @@
       );
     }
 
+    const supportedFilters = [
+      ["lot_status", lotStatus],
+      ["lot_sub_status", lotSubStatus],
+      ["upcoming", upcoming],
+      ["price_min", priceMin],
+      ["price_max", priceMax],
+      ["odometer_from", odometerFrom],
+      ["odometer_to", odometerTo],
+      ["fuel_type", fuelType],
+      ["transmission", transmission],
+      ["drive_type", driveType],
+      ["run_cond", runCond]
+    ];
+
+    for (const [name, element] of supportedFilters) {
+      if (String(element.value || "").trim()) {
+        params.set(name, String(element.value).trim());
+      }
+    }
+
 
     params.set(
       "per_page",
@@ -1916,6 +2479,8 @@
     );
 
     const queryKey = params.toString();
+
+    if (!append && updateUrl) updateListUrl(params);
 
     if (append && queryKey !== activeListQuery) {
       return loadCars();
@@ -2113,18 +2678,62 @@
     loadCars
   );
 
+  advancedFilterButton.addEventListener("click", () => loadCars());
+
+  for (const definition of filterDefinitions) {
+    definition.element.addEventListener("input", updateFilterIndicators);
+    definition.element.addEventListener("change", updateFilterIndicators);
+  }
+
   platform.addEventListener("change", () => loadCars());
 
+  activeFilterChips.addEventListener("click", event => {
+    const button = event.target.closest("button[data-filter-id]");
+    if (!button) return;
+    const definition = filterDefinitions.find(item => item.id === button.dataset.filterId);
+    if (!definition) return;
+    definition.element.value = "";
+    updateFilterIndicators();
+    loadCars();
+  });
+
+  clearFiltersButton.addEventListener("click", clearAllFilters);
+
+  if (typeof window !== "undefined") {
+    window.addEventListener("popstate", () => {
+      restoreFiltersFromUrl();
+      loadCars({ updateUrl: false });
+    });
+  }
+
   loadMoreButton.addEventListener("click", () => loadCars({ append: true }));
+
+  carsContainer.addEventListener("click", event => {
+    const button = event.target.closest("button[data-local-action]");
+    if (!button || !localStorageApi) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const selectedCar = listedCars[Number(button.dataset.carIndex)];
+    if (!selectedCar) return;
+    if (button.dataset.localAction === "favorite") {
+      localStorageApi.toggleFavorite(selectedCar);
+    } else {
+      const result = localStorageApi.toggleCompare(selectedCar);
+      if (!result.ok && result.reason === "limit") window.alert("Możesz porównać maksymalnie 3 samochody. Usuń jeden z porównania, aby dodać kolejny.");
+    }
+    renderCars(listedCars);
+    localStorageApi.refreshCounts();
+  });
 
 
   /*
    * ==========================================================
-   * START
-   * ==========================================================
-   */
+  * START
+  * ==========================================================
+  */
 
-  loadCars();
+  restoreFiltersFromUrl();
+  loadCars({ updateUrl: false });
 
 </script>
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ulubione | MTBID</title>
+  <title>Obserwowane | Rex.Bid</title>
 
   <style>
     * {
@@ -337,6 +337,8 @@
         height: 230px;
       }
     }
+  .device-note{margin-top:8px!important;font-size:12px!important;color:#7b8791!important}.saved-car-link{display:block;text-decoration:none;color:inherit}.no-image{height:100%;display:grid;place-items:center;color:#6b7280}.saved-actions{display:flex;gap:8px;padding:0 18px 18px}.saved-actions .btn{flex:1;text-align:center}.price small{font-size:11px;color:#6b7280}@media(max-width:620px){.saved-actions{flex-direction:column}}
+  .favorites-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.favorites-links a{font-size:12px;font-weight:800;color:#805b11;text-decoration:none}
   </style>
 </head>
 
@@ -345,16 +347,17 @@
 <header>
   <div class="header-inner">
 
-    <a href="index.html" class="logo">
-      MT<span>BID</span>
+    <a href="/" class="logo">
+      Rex<span>.Bid</span>
     </a>
 
     <nav>
-      <a href="index.html">Aukcje</a>
+      <a href="/">Aukcje</a>
       <a href="jak-to-dziala.html">Jak to działa</a>
       <a href="o-nas.html">O nas</a>
       <a href="kontakt.html">Kontakt</a>
-      <a href="ulubione.html">♡ Ulubione</a>
+      <a href="/ulubione.html">♡ Obserwowane <span data-rexbid-count="favorites">0</span></a>
+      <a href="/compare.html">Porównanie <span data-rexbid-count="compare">0</span></a>
     </nav>
 
     <div class="auth">
@@ -369,7 +372,8 @@
 
   <div class="top">
     <h1>Ulubione samochody</h1>
-    <p>Samochody, które zapisujesz podczas przeglądania aukcji.</p>
+    <p>Samochody zapisane lokalnie na tym urządzeniu.</p><p class="device-note">Ulubione zapisane na tym urządzeniu.</p>
+    <div class="favorites-links"><a href="/">‹ Przeglądaj samochody</a><a href="/compare.html">Otwórz porównanie <span data-rexbid-count="compare">0</span></a></div>
 
     <div class="counter" id="counter">
       0 zapisanych samochodów
@@ -383,8 +387,8 @@
 <footer>
   <div class="footer-inner">
     <div>
-      <div class="footer-logo">MTBID</div>
-      <div style="margin-top:8px;">Platforma aukcji samochodów z USA</div>
+      <div class="footer-logo">Rex.Bid</div>
+      <div style="margin-top:8px;">Aukcje samochodów z USA</div>
     </div>
 
     <div>
@@ -393,268 +397,57 @@
   </div>
 </footer>
 
+<script src="/rexbid-storage.js"></script>
 <script>
-
-const demoCars = [
-
-  {
-    vin: "1FMCU9GDXMUA10001",
-    platform: "COPART",
-    title: "2021 Ford Escape SE",
-    year: 2021,
-    mileage: "52 341 km",
-    damage: "Front End",
-    location: "Chicago, IL",
-    price: "$7,250",
-    image: "https://images.unsplash.com/photo-1551830820-330a71b99659?auto=format&fit=crop&w=1000&q=80"
-  },
-
-  {
-    vin: "1C4RJFBG8LC200002",
-    platform: "IAAI",
-    title: "2020 Jeep Grand Cherokee",
-    year: 2020,
-    mileage: "67 420 km",
-    damage: "Side",
-    location: "Dallas, TX",
-    price: "$9,800",
-    image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1000&q=80"
-  },
-
-  {
-    vin: "1HGCV1F34LA300003",
-    platform: "COPART",
-    title: "2020 Honda Accord Sport",
-    year: 2020,
-    mileage: "61 200 km",
-    damage: "Rear End",
-    location: "Miami, FL",
-    price: "$8,400",
-    image: "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=1000&q=80"
-  },
-
-  {
-    vin: "5YFB4MDE2LP400004",
-    platform: "IAAI",
-    title: "2020 Toyota Corolla SE",
-    year: 2020,
-    mileage: "49 870 km",
-    damage: "Hail",
-    location: "Houston, TX",
-    price: "$7,900",
-    image: "https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=1000&q=80"
-  },
-
-  {
-    vin: "1G1ZD5ST5LF500005",
-    platform: "COPART",
-    title: "2020 Chevrolet Malibu LT",
-    year: 2020,
-    mileage: "72 115 km",
-    damage: "Front End",
-    location: "Atlanta, GA",
-    price: "$6,950",
-    image: "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=1000&q=80"
-  },
-
-  {
-    vin: "WBA5R1C04LF600006",
-    platform: "IAAI",
-    title: "2020 BMW 330I",
-    year: 2020,
-    mileage: "58 920 km",
-    damage: "Rear End",
-    location: "Los Angeles, CA",
-    price: "$11,500",
-    image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1000&q=80"
-  }
-
-];
-
-function getFavorites() {
-  try {
-    return JSON.parse(localStorage.getItem("mtbid_favorites") || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function removeFavorite(vin) {
-
-  let favorites = getFavorites();
-
-  favorites = favorites.filter(item => {
-
-    if (typeof item === "string") {
-      return item !== vin;
-    }
-
-    return item.vin !== vin;
-  });
-
-  localStorage.setItem(
-    "mtbid_favorites",
-    JSON.stringify(favorites)
-  );
-
-  render();
-}
-
-function getSavedCars() {
-
-  const favorites = getFavorites();
-
-  return favorites.map(item => {
-
-    if (typeof item === "object" && item !== null) {
-      return item;
-    }
-
-    return demoCars.find(car => car.vin === item);
-
-  }).filter(Boolean);
-}
-
-function render() {
-
+(() => {
+  const storage = window.RexBidStorage;
   const content = document.getElementById("content");
   const counter = document.getElementById("counter");
-
-  const cars = getSavedCars();
-
-  counter.textContent =
-    cars.length === 1
-      ? "1 zapisany samochód"
-      : `${cars.length} zapisanych samochodów`;
-
-  if (!cars.length) {
-
-    content.innerHTML = `
-      <div class="empty">
-
-        <div class="empty-icon">♡</div>
-
-        <h2>Nie masz jeszcze ulubionych</h2>
-
-        <p>
-          Kliknij serduszko przy samochodzie na stronie aukcji,
-          aby dodać go tutaj.
-        </p>
-
-        <a href="index.html" class="btn btn-red">
-          Przeglądaj aukcje
-        </a>
-
-      </div>
-    `;
-
-    return;
+  const esc = storage.escapeHtml;
+  const money = value => value === null || value === undefined || !Number.isFinite(Number(value)) ? "" : new Intl.NumberFormat("en-US", {style:"currency",currency:"USD",maximumFractionDigits:0}).format(Number(value));
+  const statusLabel = value => ({finished:"Zakończona",sold:"Sprzedano",closed:"Zakończona",ended:"Zakończona",open:"Aktywna",active:"Aktywna",live:"W trakcie",upcoming:"Zaplanowana",scheduled:"Zaplanowana",not_sold:"Nie sprzedano"})[String(value || "").toLowerCase()] || value || "—";
+  function priceInfo(car) {
+    const pricing = car.pricing || {};
+    const state = String(car.auction?.state || "").toLowerCase();
+    const finished = ["finished","sold","closed","ended","not_sold","no_sale"].includes(state);
+    if (finished && pricing.sale_price_usd !== null && pricing.sale_price_usd !== undefined) return ["Cena sprzedaży", pricing.sale_price_usd];
+    if (finished && pricing.final_price_usd !== null && pricing.final_price_usd !== undefined) return ["Cena sprzedaży", pricing.final_price_usd];
+    if (finished && pricing.last_sold_price_usd !== null && pricing.last_sold_price_usd !== undefined) return ["Ostatnia cena sprzedaży", pricing.last_sold_price_usd];
+    if (pricing.current_bid_usd !== null && pricing.current_bid_usd !== undefined) return ["Aktualna oferta", pricing.current_bid_usd];
+    if (pricing.buy_now_usd !== null && pricing.buy_now_usd !== undefined) return ["Kup teraz", pricing.buy_now_usd];
+    return ["Cena aukcji", null];
   }
-
-  content.innerHTML = `
-    <div class="grid">
-
-      ${cars.map(car => `
-
-        <article class="card">
-
-          <div class="image-wrap">
-
-            <img
-              src="${car.image || car.media?.[0]?.url || 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1000&q=80'}"
-              alt="${car.title || 'Samochód'}"
-            >
-
-            <div class="demo">
-              ${car.is_demo ? "DEMO" : car.platform || "AUKCJA"}
-            </div>
-
-            <button
-              class="remove"
-              onclick="removeFavorite('${car.vin}')"
-              title="Usuń z ulubionych"
-            >
-              ♥
-            </button>
-
-          </div>
-
-          <div class="body">
-
-            <div class="platform">
-              ${car.platform || "AUKCJA"}
-            </div>
-
-            <div class="title">
-              ${car.title || `${car.year || ""} ${car.make || ""} ${car.model || ""}`}
-            </div>
-
-            <div class="info">
-
-              <div class="info-item">
-                <span class="label">Rok</span>
-                <span class="value">
-                  ${car.year || "-"}
-                </span>
-              </div>
-
-              <div class="info-item">
-                <span class="label">Przebieg</span>
-                <span class="value">
-                  ${car.mileage || car.odometer?.formatted || car.odometer?.value || "-"}
-                </span>
-              </div>
-
-              <div class="info-item">
-                <span class="label">Uszkodzenie</span>
-                <span class="value">
-                  ${car.damage || car.condition?.damage || "-"}
-                </span>
-              </div>
-
-              <div class="info-item">
-                <span class="label">Lokalizacja</span>
-                <span class="value">
-                  ${car.location || "-"}
-                </span>
-              </div>
-
-            </div>
-
-            <div class="price">
-              ${car.price || car.pricing?.current_bid || car.pricing?.estimated_retail || "Cena aukcji"}
-            </div>
-
-            <div class="actions">
-
-              <a
-                href="car.html?vin=${encodeURIComponent(car.vin)}"
-                class="btn btn-red"
-              >
-                Zobacz auto
-              </a>
-
-              <button
-                class="btn btn-outline"
-                onclick="removeFavorite('${car.vin}')"
-              >
-                Usuń
-              </button>
-
-            </div>
-
-          </div>
-
-        </article>
-
-      `).join("")}
-
-    </div>
-  `;
-}
-
-render();
-
+  function render() {
+    const cars = storage.getFavorites();
+    counter.textContent = cars.length === 1 ? "1 obserwowany samochód" : `${cars.length} obserwowanych samochodów`;
+    storage.refreshCounts();
+    if (!cars.length) {
+      content.innerHTML = '<div class="empty"><div class="empty-icon">♡</div><h2>Nie masz jeszcze obserwowanych aut</h2><p>Dodaj samochód z listy lub jego karty. Zapis pozostaje na tym urządzeniu.</p><a href="/" class="btn btn-red">Przeglądaj aukcje</a></div>';
+      return;
+    }
+    content.innerHTML = `<div class="grid">${cars.map((car, index) => {
+      const image = storage.safeImageUrl(car.image);
+      const title = car.title || [car.year, car.make, car.model, car.series].filter(Boolean).join(" ") || "Samochód";
+      const p = priceInfo(car);
+      const href = storage.detailHref(car);
+      return `<article class="card"><a class="saved-car-link" href="${esc(href)}"><div class="image-wrap">${image ? `<img src="${esc(image)}" alt="${esc(title)}" loading="lazy">` : '<div class="no-image">Brak zdjęcia</div>'}<div class="demo">${esc(car.platform || "AUKCJA")}</div></div><div class="body"><div class="platform">${esc(car.platform || "AUKCJA")}</div><div class="title">${esc(title)}</div><div class="info"><div class="info-item"><span class="label">VIN</span><span class="value">${esc(car.vin || "—")}</span></div><div class="info-item"><span class="label">LOT</span><span class="value">${esc(car.lot || "—")}</span></div><div class="info-item"><span class="label">Przebieg</span><span class="value">${esc(car.odometer || "—")}</span></div><div class="info-item"><span class="label">Lokalizacja</span><span class="value">${esc(car.location || "—")}</span></div><div class="info-item"><span class="label">Status</span><span class="value">${esc(statusLabel(car.auction?.state))}</span></div><div class="info-item"><span class="label">Aukcja</span><span class="value">${esc(car.auction?.date || "—")}</span></div><div class="info-item"><span class="label">Sprzedający</span><span class="value">${esc(car.seller || "—")}</span></div></div><div class="price"><small>${esc(p[0])}</small><br>${p[1] === null ? "—" : esc(money(p[1]))}</div></div></a><div class="saved-actions"><button class="btn btn-outline" type="button" data-action="compare" data-index="${index}">${storage.isCompared(car) ? "✓ W porównaniu" : "⇄ Porównaj"}</button><button class="btn btn-outline" type="button" data-action="remove" data-index="${index}">Usuń z obserwowanych</button></div></article>`;
+    }).join("")}</div>`;
+  }
+  content.addEventListener("click", event => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+    event.preventDefault();
+    const car = storage.getFavorites()[Number(button.dataset.index)];
+    if (!car) return;
+    if (button.dataset.action === "remove") storage.removeFavorite(car.id);
+    else {
+      const result = storage.toggleCompare(car);
+      if (!result.ok && result.reason === "limit") window.alert("Możesz porównać maksymalnie 3 samochody.");
+    }
+    render();
+  });
+  render();
+})();
 </script>
 
 </body>
