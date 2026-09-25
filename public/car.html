@@ -1849,13 +1849,30 @@ body{background:var(--bg);color:var(--text)}
 
   function getFinalBid() {
     return first(
+      car.pricing?.sale_price_usd,
+      car.pricing?.final_price_usd,
       car.pricing?.last_sold_price_usd,
       car.pricing?.final_bid_usd,
+      car.sale_price_usd,
+      car.final_price_usd,
       car.auction?.last_sold_price_usd,
       car.auction?.final_bid_usd,
       car.final_bid,
       car.final_price,
       valueFrom(["FinalBid","FinalBidAmount","lastSoldPriceUsd","LastSoldPriceUSD","SalePrice"])
+    );
+  }
+
+  function getCurrentBid() {
+    return first(
+      car.pricing?.current_bid_usd,
+      car.pricing?.current_bid,
+      car.pricing?.current_bid2_usd,
+      car.pricing?.bid_usd,
+      car.current_bid,
+      car.auction?.current_bid_usd,
+      car.auction?.current_bid,
+      valueFrom(["currentBid","CurrentBid","bid","Bid"])
     );
   }
 
@@ -1871,14 +1888,41 @@ body{background:var(--bg);color:var(--text)}
       if (!isEmpty(historyBid)) return historyBid;
     }
 
-    return first(
-      car.pricing?.current_bid_usd,
-      car.pricing?.current_bid2_usd,
-      car.current_bid,
-      car.price,
-      car.auction?.current_bid,
-      valueFrom(["currentBid","CurrentBid","bid","Bid","MinimumBidAmount"])
-    );
+    return getCurrentBid();
+  }
+
+  function getAuctionPriceInfo() {
+    const phase = auctionPhase();
+    const currentBid = getCurrentBid();
+    const buyNow = getBuyNow();
+
+    if (phase === "ended") {
+      const salePrice = first(
+        car.pricing?.sale_price_usd,
+        car.pricing?.final_price_usd,
+        car.sale_price_usd,
+        car.final_price_usd
+      );
+      if (!isEmpty(salePrice)) return { value: salePrice, label: "Cena sprzedaży" };
+
+      const lastSoldPrice = first(
+        car.pricing?.last_sold_price_usd,
+        car.pricing?.last_sold_price,
+        car.last_sold_price_usd
+      );
+      if (!isEmpty(lastSoldPrice)) return { value: lastSoldPrice, label: "Ostatnia cena sprzedaży" };
+
+      return { value: null, label: "Cena sprzedaży niedostępna" };
+    }
+
+    if (!isEmpty(currentBid)) {
+      return {
+        value: currentBid,
+        label: phase === "prebid" ? "Najwyższa oferta przed licytacją" : "Aktualna oferta"
+      };
+    }
+    if (!isEmpty(buyNow)) return { value: buyNow, label: "Kup teraz" };
+    return { value: null, label: "Cena niedostępna" };
   }
 
   function getBuyNow() {
@@ -2201,6 +2245,9 @@ body{background:var(--bg);color:var(--text)}
     const explicitlyCancelled =
       /cancel|cancelled|canceled|withdrawn/.test(state);
 
+    // Explicit terminal source status wins over a stale/future auction_at.
+    if (state === "finished") return "ended";
+
     // Najważniejsze: jeżeli aukcja ma przyszły czas rozpoczęcia,
     // nie wolno uznać jej za zakończoną tylko dlatego, że API
     // przekazało stary/statusowy "sold/closed".
@@ -2301,6 +2348,7 @@ body{background:var(--bg);color:var(--text)}
     const video = findMediaUrl("video");
 
     const date = getAuctionStart();
+    const auctionPrice = getAuctionPriceInfo();
 
     const location = getLocation();
 
@@ -2444,7 +2492,7 @@ body{background:var(--bg);color:var(--text)}
             <div class="info-card-head"><h3>Aktualna aukcja</h3></div>
             <div class="info-card-body">
               <div class="primary-auction">
-                <div class="auction-main"><div class="auction-label" id="bidLabel">${auctionPhase() === "prebid" ? "Najwyższa oferta przed licytacją" : "Aktualna oferta"}</div><div class="auction-price" id="currentBidPrice">${money(getAuctionBid())}</div><div class="auction-state ${auctionStatusClass()}" id="auctionStatusText">${esc(auctionStatusLabel())}</div><div class="auction-countdown" id="auctionTimerBox"><span id="countdownLabel">Termin licytacji</span>: <span id="countdown">${formatDate(date)}</span></div></div>
+                <div class="auction-main"><div class="auction-label" id="bidLabel">${esc(auctionPrice.label)}</div><div class="auction-price" id="currentBidPrice">${money(auctionPrice.value)}</div><div class="auction-state ${auctionStatusClass()}" id="auctionStatusText">${esc(auctionStatusLabel())}</div><div class="auction-countdown" id="auctionTimerBox"><span id="countdownLabel">Termin licytacji</span>: <span id="countdown">${formatDate(date)}</span></div></div>
                 <div class="info-card-body" style="padding-top:10px">
                   ${kv("Numer LOT",lot)}${kv("Data aukcji",formatDate(date))}${kv("Lokalizacja",location)}
                   <div class="action-row" style="margin-top:9px"><button class="action secondary" id="copyVin">Kopiuj VIN</button><button class="action primary" id="watchBtn">Obserwuj auto</button></div>
@@ -2988,12 +3036,11 @@ body{background:var(--bg);color:var(--text)}
       statusNode.textContent = auctionStatusLabel();
       statusNode.className = `auction-state ${auctionStatusClass()}`;
     }
-    if (bidNode) bidNode.textContent = money(getAuctionBid());
-    if (bidLabel) bidLabel.textContent = phase === "prebid"
-      ? "Najwyższa oferta przed licytacją"
-      : phase === "live"
-        ? "Aktualna oferta — LIVE"
-        : "Aktualna oferta";
+    const priceInfo = getAuctionPriceInfo();
+    if (bidNode) bidNode.textContent = money(priceInfo.value);
+    if (bidLabel) bidLabel.textContent = phase === "live" && priceInfo.label === "Aktualna oferta"
+      ? "Aktualna oferta — LIVE"
+      : priceInfo.label;
 
     startCountdown();
   }
@@ -3110,84 +3157,42 @@ body{background:var(--bg);color:var(--text)}
   function normalizeHistoryRecord(record) {
     if (!record || typeof record !== "object") return null;
 
-    const platform = first(
-      historyField(record,["platform","source","auction_platform"]),
-      historyNested(record,[["vehicle","platform"],["auction","platform"]]),
-      platformName()
-    );
+    const first = (...values) => values.find(value => value !== null && value !== undefined && value !== "");
+    const numberOrNull = value => {
+      if (value === null || value === undefined || value === "") return null;
+      const number = Number(value);
+      return Number.isFinite(number) ? number : null;
+    };
+    const rawValue = record.raw_json ?? record.raw ?? record;
+    const platform = first(record.platform, historyField(record,["source","auction_platform"]), historyNested(record,[["vehicle","platform"]]), platformName());
+    const auctionDate = first(record.auction_date, record.date, historyField(record,["auctionDate","auction_at","auctionAt"]), historyNested(record,[["auction","auction_at"],["auction","auctionAt"],["auction","full_date"]]));
+    const saleDate = first(record.sale_date, historyField(record,["saleDate","sold_date","sold_at","soldAt","last_sold_day","lastSoldDay"]), historyNested(record,[["auction","last_sold_day"],["sale","date"],["sale","sold_at"]]));
+    const status = first(record.status, historyField(record,["sale_status","saleStatus","auction_status","auctionStatus","state"]), historyNested(record,[["auction","last_sold_status"],["auction","status"],["sale","status"]]));
+    const lot = first(record.lot, historyField(record,["lot_number","lotNumber","stock_number","stockNumber","stock"]), historyNested(record,[["vehicle","lot_number"],["auction","lot_number"]]), getLot());
+    const seller = first(record.seller, historyField(record,["seller_name","sellerName","seller_type","sellerType"]), historyNested(record,[["seller","name"],["seller","displayName"],["seller","type"]]));
+    const currentBid = numberOrNull(first(record.current_bid, historyField(record,["current_bid_usd","currentBidUsd","currentBid","bid"]), historyNested(record,[["pricing","current_bid_usd"],["pricing","current_bid"],["auction","current_bid_usd"]])));
+    const finalPrice = numberOrNull(first(record.final_price, historyField(record,["sale_price_usd","sale_price","final_price_usd","finalPriceUsd","final_bid_usd","sold_price_usd"]), historyNested(record,[["pricing","sale_price_usd"],["pricing","final_price_usd"],["pricing","final_bid_usd"],["pricing","sold_price_usd"]])));
+    const buyNow = numberOrNull(first(record.buy_now, historyField(record,["buy_now_usd","buyNowUsd","buyNow"]), historyNested(record,[["pricing","buy_now_usd"],["pricing","buy_now"]])));
+    const sourcePrice = numberOrNull(first(record.source_price, record.price, historyField(record,["price_usd"]), historyNested(record,[["pricing","price"],["pricing","price_usd"]])));
+    const date = saleDate || auctionDate || null;
 
-    // Apibara rozróżnia datę aukcji od daty sprzedaży.
-    // Dla sprzedanych rekordów Bid.Cars pokazuje dzień sprzedaży, więc
-    // najpierw korzystamy z auction.last_sold_day. Dla niesprzedanych
-    // pokazujemy faktyczną datę aukcji (auction.auction_at).
-    const rawStatus = first(
-      historyNested(record,[["auction","last_sold_status"]]),
-      historyField(record,["last_sold_status","lastSoldStatus"]),
-      historyNested(record,[["sale","status"]]),
-      historyField(record,["sale_status","saleStatus","outcome","result","status","auction_status","auctionStatus","state","lot_sub_status","lotSubStatus"]),
-      historyNested(record,[["auction","sale_status"],["auction","saleStatus"],["auction","outcome"],["auction","result"],["auction","status"],["auction","state"],["auction","lot_sub_status"]])
-    );
-    const statusText = String(displayValue(rawStatus) || "").toLowerCase();
-    const isSold = /sold on approval|on approval|sale pending approval|\bsold\b|sale complete|completed|won|approved/.test(statusText)
-      && !/not sold|no sale|unsold|failed/.test(statusText);
-
-    const date = isSold
-      ? first(
-          historyNested(record,[["auction","last_sold_day"]]),
-          historyField(record,["last_sold_day","lastSoldDay"]),
-          historyNested(record,[["sale","date"],["sale","sold_at"]]),
-          historyField(record,["sale_date","saleDate","sold_at","soldAt"]),
-          historyNested(record,[["auction","auction_at"],["auction","auctionAt"],["auction","full_date"]]),
-          historyField(record,["auction_date","auctionDate","auction_at","auctionAt","date"])
-        )
-      : first(
-          historyNested(record,[["auction","auction_at"],["auction","auctionAt"],["auction","full_date"]]),
-          historyField(record,["auction_date","auctionDate","auction_at","auctionAt","date","sale_date","saleDate"]),
-          historyNested(record,[["sale","date"]])
-        );
-
-    const lot = first(
-      historyField(record,["lot_number","lotNumber","lot","stock_number","stockNumber","stock"]),
-      historyNested(record,[["vehicle","lot_number"],["auction","lot_number"],["auction","lotNumber"]]),
-      getLot()
-    );
-
-    // Cena sprzedaży i bieżąca oferta są osobnymi wartościami.
-    // Nie używamy Buy Now / estimated_cost ani przypadkowego pola price.
-    const salePrice = first(
-      historyNested(record,[["pricing","last_sold_price_usd"]]),
-      historyField(record,["last_sold_price_usd","lastSoldPriceUsd","last_sold_price","lastSoldPrice"]),
-      historyNested(record,[["pricing","sale_price_usd"],["pricing","final_bid_usd"],["pricing","final_price_usd"],["pricing","sold_price_usd"]]),
-      historyField(record,["sale_price_usd","salePriceUsd","final_bid_usd","finalBidUsd","final_price_usd","finalPriceUsd","sold_price_usd","soldPriceUsd","sale_price","salePrice","final_bid","finalBid","final_price","finalPrice","sold_price","soldPrice"])
-    );
-
-    const currentBid = first(
-      historyNested(record,[["pricing","current_bid_usd"],["pricing","currentBidUsd"]]),
-      historyField(record,["current_bid_usd","currentBidUsd","current_bid","currentBid","bid","Bid"]),
-      historyNested(record,[["auction","current_bid_usd"],["auction","currentBidUsd"]])
-    );
-
-    // Dla sprzedanych pokazujemy cenę sprzedaży. Dla niesprzedanych /
-    // relistów pokazujemy ostatnią ofertę, tak jak w historii Bid.Cars.
-    const price = isSold ? salePrice : first(currentBid, salePrice);
-
-    const seller = first(
-      historyField(record,["seller_name","sellerName","seller"]),
-      historyNested(record,[["seller","name"],["seller","displayName"]]),
-      historyField(record,["seller_type","sellerType"]),
-      historyNested(record,[["seller","type"]])
-    );
-
-    if (isEmpty(date) && isEmpty(price) && isEmpty(rawStatus) && isEmpty(lot)) return null;
-
+    if (!date && !lot && !status && currentBid === null && finalPrice === null && buyNow === null && sourcePrice === null) return null;
     return {
-      platform: String(displayValue(platform) || platformName()),
+      event_key: record.event_key || null,
+      source_event_id: record.source_event_id || null,
+      vin: record.vin || null,
+      platform: String(displayValue(platform) || platformName()).toLowerCase(),
+      lot: String(displayValue(lot) || "").trim(),
+      auction_date: auctionDate || null,
+      sale_date: saleDate || null,
       date,
-      lot,
-      price: isEmpty(price) ? null : price,
-      status: String(displayValue(rawStatus) || "").trim(),
+      current_bid: currentBid,
+      final_price: finalPrice,
+      buy_now: buyNow,
+      source_price: sourcePrice,
+      status: String(displayValue(status) || "").trim(),
       seller: String(displayValue(seller) || "").trim(),
-      raw: record
+      raw_json: rawValue
     };
   }
 
@@ -3213,28 +3218,29 @@ body{background:var(--bg);color:var(--text)}
   }
 
   function historyRecordKey(item) {
-    return [
-      String(item.platform || "").toLowerCase(),
-      String(item.date || ""),
-      String(item.lot || ""),
-      String(item.price ?? ""),
-      String(item.status || "").toLowerCase()
-    ].join("|");
+    const platform = String(item.platform || "").toLowerCase();
+    if (item.event_key) return `event:${item.event_key}`;
+    if (item.source_event_id) return `source:${platform}:${item.source_event_id}`;
+    const identity = item.lot ? `lot:${String(item.lot).trim().toUpperCase()}`
+      : item.vin ? `vin:${String(item.vin).trim().toUpperCase()}` : "";
+    const date = String(item.auction_date || item.sale_date || item.date || "").match(/^\d{4}-\d{2}-\d{2}/)?.[0] || String(item.auction_date || item.sale_date || item.date || "");
+    return identity && date ? `fallback:${platform}:${identity}:${date}` : null;
   }
 
-  function historyRecordsForRender() {
-    const all = [...auctionHistoryRecords];
-
+  function historyRecordsForRender(records = auctionHistoryRecords) {
     const map = new Map();
-    for (const item of all) {
-      const key = historyRecordKey(item);
-      if (!map.has(key)) map.set(key,item);
+    let anonymous = 0;
+    const completeness = item => [item.event_key,item.source_event_id,item.vin,item.platform,item.lot,item.auction_date,item.sale_date,item.current_bid,item.final_price,item.buy_now,item.status,item.seller].filter(value => value !== null && value !== undefined && value !== "").length;
+
+    for (const item of records) {
+      const key = historyRecordKey(item) || `anonymous:${anonymous++}`;
+      const existing = map.get(key);
+      if (!existing || completeness(item) >= completeness(existing)) map.set(key,item);
     }
 
     return Array.from(map.values()).sort((a,b) => {
-      const da = new Date(a.date || 0).getTime();
-      const db = new Date(b.date || 0).getTime();
-      return db - da;
+      const dateKey = item => String(item.sale_date || item.auction_date || item.date || "").match(/^\d{4}-\d{2}-\d{2}/)?.[0] || "";
+      return dateKey(b).localeCompare(dateKey(a));
     });
   }
 
@@ -3243,7 +3249,6 @@ body{background:var(--bg);color:var(--text)}
     if (!box) return;
 
     const list = historyRecordsForRender();
-
     if (!list.length) {
       box.innerHTML = '<div class="empty" style="padding:20px">Brak dostępnej historii aukcji dla tego VIN-u.</div>';
       return;
@@ -3251,21 +3256,21 @@ body{background:var(--bg);color:var(--text)}
 
     const platforms = [...new Set(list.map(item => String(item.platform || platformName()).toLowerCase()))];
     const showPlatform = platforms.length > 1;
-
     const rows = list.map(item => {
-      const price = item.price === null || isEmpty(item.price) || Number.isNaN(Number(item.price))
-        ? "—"
-        : money(item.price);
+      const amount = item.final_price ?? item.current_bid ?? item.buy_now;
+      const amountLabel = item.final_price !== null ? "Cena końcowa"
+        : item.current_bid !== null ? "Aktualna oferta"
+        : item.buy_now !== null ? "Kup teraz" : "";
+      const price = amount === null || amount === undefined || Number.isNaN(Number(amount)) ? "—" : money(amount);
       const status = historyStatusLabel(item.status);
       const platform = String(item.platform || platformName()).toUpperCase();
       const platformCls = platform.toLowerCase().includes("iaai") || platform === "IAA" ? "iaai" : "copart";
-
       return `
         <tr>
           ${showPlatform ? `<td><span class="history-platform ${platformCls}">${esc(platform)}</span></td>` : ""}
-          <td>${esc(formatHistoryDate(item.date))}</td>
+          <td>${esc(formatHistoryDate(item.sale_date || item.auction_date || item.date))}</td>
           <td>${esc(item.lot || "—")}</td>
-          <td class="history-price">${esc(price)}</td>
+          <td class="history-price">${esc(price)}${amountLabel ? `<small style="display:block;font-size:10px;font-weight:600;opacity:.75">${esc(amountLabel)}</small>` : ""}</td>
           <td><span class="history-status ${historyStatusClass(item.status)}">${esc(status)}</span></td>
           <td>${esc(item.seller || "—")}</td>
         </tr>
@@ -3275,16 +3280,10 @@ body{background:var(--bg);color:var(--text)}
     box.innerHTML = `
       <div class="history-scroll">
         <table class="history-table ${showPlatform ? "with-platform" : "without-platform"}">
-          <thead>
-            <tr>
-              ${showPlatform ? "<th>Aukcja</th>" : ""}
-              <th>Data</th>
-              <th>LOT</th>
-              <th>Końcowa oferta</th>
-              <th>Status</th>
-              <th>Sprzedający</th>
-            </tr>
-          </thead>
+          <thead><tr>
+            ${showPlatform ? "<th>Aukcja</th>" : ""}
+            <th>Data</th><th>LOT</th><th>Cena / oferta</th><th>Status</th><th>Sprzedający</th>
+          </tr></thead>
           <tbody>${rows}</tbody>
         </table>
       </div>
@@ -3295,90 +3294,86 @@ body{background:var(--bg);color:var(--text)}
   function formatHistoryDate(value) {
     if (isEmpty(value)) return "—";
     const raw = String(value).trim();
-    // Apibara's last_sold_day is already a calendar date. Do not parse it
-    // through UTC/local timezone conversion, otherwise the displayed day
-    // can shift by one day.
-    const dayOnly = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    if (dayOnly) return `${dayOnly[3]}.${dayOnly[2]}.${dayOnly[1]}`;
-
+    const datePrefix = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (datePrefix) return `${datePrefix[1]}-${datePrefix[2]}-${datePrefix[3]}`;
     const d = new Date(raw);
     if (Number.isNaN(d.getTime())) return raw;
-    return d.toLocaleDateString("pl-PL", {year:"numeric",month:"2-digit",day:"2-digit"});
+    return d.toISOString().slice(0,10).split("-").reverse().join(".");
   }
 
   function getCurrentAuctionHistoryFinalBid() {
     const currentLot = String(getLot() || "").trim();
     const currentDate = getAuctionStart();
     const currentTime = currentDate ? new Date(currentDate).getTime() : NaN;
-
     const candidates = auctionHistoryRecords.filter(item => {
       const lotMatch = !currentLot || String(item.lot || "").trim() === currentLot;
       if (!lotMatch) return false;
-      const t = item.date ? new Date(item.date).getTime() : NaN;
-      if (!Number.isFinite(currentTime) || !Number.isFinite(t)) return true;
-      return Math.abs(currentTime - t) <= 48 * 60 * 60 * 1000;
+      const eventDate = item.sale_date || item.auction_date || item.date;
+      const eventTime = eventDate && /^\d{4}-\d{2}-\d{2}$/.test(eventDate)
+        ? Date.parse(`${eventDate}T00:00:00Z`) : Date.parse(eventDate);
+      if (!Number.isFinite(currentTime) || !Number.isFinite(eventTime)) return true;
+      return Math.abs(currentTime - eventTime) <= 48 * 60 * 60 * 1000;
     });
 
     for (const item of candidates) {
       if (historyStatusLabel(item.status) === "Sprzedano" || historyStatusLabel(item.status) === "Sprzedano warunkowo") {
-        if (!isEmpty(item.price)) return item.price;
+        if (item.final_price !== null && item.final_price !== undefined) return item.final_price;
       }
     }
-
     return null;
+  }
+
+  async function fetchAuctionHistoryPages(identifier, onPage = () => {}, fetchImpl = fetch) {
+    let cursor = null;
+    const collected = [];
+    const seenCursors = new Set();
+    const maxPages = 20;
+
+    for (let pageNo = 0; pageNo < maxPages; pageNo++) {
+      const query = new URLSearchParams({per_page:"20"});
+      if (cursor !== null) query.set("cursor", String(cursor));
+      const response = await fetchImpl(`${API_BASE}/car/${encodeURIComponent(identifier)}/history?${query.toString()}`, {
+        headers: {"Accept":"application/json"},
+        cache: "no-store"
+      });
+      if (!response.ok) throw new Error(`Historia HTTP ${response.status}`);
+      const json = await response.json();
+      const rawRecords = Array.isArray(json?.history) ? json.history
+        : Array.isArray(json?.data?.history) ? json.data.history
+        : Array.isArray(json?.data) ? json.data : [];
+      for (const record of rawRecords) {
+        const normalized = normalizeHistoryRecord(record);
+        if (normalized) collected.push(normalized);
+      }
+      onPage(historyRecordsForRender(collected));
+      const next = json?.meta?.next_cursor ?? json?.data?.meta?.next_cursor ?? null;
+      if (next === null || next === undefined || next === "") break;
+      if (seenCursors.has(next)) break;
+      seenCursors.add(next);
+      cursor = next;
+    }
+    return historyRecordsForRender(collected);
   }
 
   async function fetchAuctionHistory() {
     const box = document.getElementById("auctionHistory");
     if (!box) return;
-
     const identifier = getVin() || getLot();
     if (!identifier) return;
 
     try {
-      let cursor = null;
-      const collected = [];
-      const seenCursors = new Set();
-      const maxPages = 20;
-
-      for (let pageNo = 0; pageNo < maxPages; pageNo++) {
-        const query = new URLSearchParams({per_page:"20"});
-        if (cursor) query.set("cursor",cursor);
-
-        const response = await fetch(`${API_BASE}/car/${encodeURIComponent(identifier)}/history?${query.toString()}`, {
-          headers: {"Accept":"application/json"},
-          cache: "no-store"
-        });
-
-        if (!response.ok) throw new Error(`Historia HTTP ${response.status}`);
-        const json = await response.json();
-        const data = json?.data;
-        const rawRecords = Array.isArray(data?.history)
-          ? data.history
-          : Array.isArray(data) ? data : [];
-
-        rawRecords.forEach(record => {
-          const normalized = normalizeHistoryRecord(record);
-          if (normalized) collected.push(normalized);
-        });
-
-        const next = json?.meta?.next_cursor || data?.meta?.next_cursor || null;
-        if (!next || seenCursors.has(next)) break;
-        seenCursors.add(next);
-        cursor = next;
-      }
-
-      auctionHistoryRecords = collected;
+      auctionHistoryRecords = await fetchAuctionHistoryPages(identifier, page => {
+        auctionHistoryRecords = page;
+        renderAuctionHistory();
+      });
       renderAuctionHistory();
       updateAuctionUi();
       updateForecastFromCalculator();
     } catch (error) {
       console.warn("Rex.Bid auction history:", error);
-      // Jeżeli historia źródłowa jest niedostępna, zostawiamy lokalne snapshoty.
       renderAuctionHistory();
     }
   }
-
   function startAuctionRefresh() {
     if (auctionRefreshTimer) clearInterval(auctionRefreshTimer);
     // Podczas oczekiwania i LIVE odświeżamy ofertę co 10 sekund,

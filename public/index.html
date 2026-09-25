@@ -335,6 +335,15 @@
       font-weight: 900;
     }
 
+    .price-label {
+      display: block;
+      margin-bottom: 3px;
+      color: #68717b;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
     .details-btn {
       padding: 10px 14px;
       border-radius: 9px;
@@ -599,6 +608,16 @@
       class="cars"
     ></div>
 
+    <button
+      id="loadMoreButton"
+      class="btn btn-primary"
+      type="button"
+      hidden
+      style="display:none;margin:24px auto 0"
+    >
+      Załaduj więcej
+    </button>
+
   </section>
 
 </main>
@@ -643,6 +662,15 @@
 
   const filterButton =
     document.getElementById("filterButton");
+
+  const loadMoreButton =
+    document.getElementById("loadMoreButton");
+
+  let listCursor = null;
+  let listedCars = [];
+  let activeListQuery = null;
+  let listRequestId = 0;
+  let loadingMore = false;
 
 
   /*
@@ -1138,51 +1166,34 @@
    * ==========================================================
    */
 
-  function getPrice(car) {
+  function getPriceInfo(car) {
+    if (!car) return { value: null, label: "Cena niedostępna" };
 
-    if (!car) {
-      return null;
-    }
-
-
-    if (
-      car.pricing &&
-      typeof car.pricing === "object"
-    ) {
-
-      if (
-        car.pricing.current_bid_usd !== undefined
-      ) {
-        return car.pricing.current_bid_usd;
-      }
-
-      if (
-        car.pricing.current_bid !== undefined
-      ) {
-        return car.pricing.current_bid;
-      }
-
-      if (
-        car.pricing.bid !== undefined
-      ) {
-        return car.pricing.bid;
-      }
-
-      if (
-        car.pricing.price !== undefined
-      ) {
-        return car.pricing.price;
-      }
-    }
-
-
-    return (
-      car.price ??
-      car.current_bid ??
-      car.bid ??
-      car.high_bid ??
-      null
+    const pricing = car.pricing && typeof car.pricing === "object" ? car.pricing : {};
+    const firstAvailable = (...values) => values.find(value =>
+      value !== null && value !== undefined && value !== "" &&
+      !(typeof value === "number" && !Number.isFinite(value))
     );
+
+    const salePrice = firstAvailable(
+      pricing.sale_price_usd, pricing.final_price_usd,
+      car.sale_price_usd, car.final_price_usd
+    );
+    if (salePrice !== undefined) return { value: salePrice, label: "Cena sprzedaży" };
+
+    const currentBid = firstAvailable(
+      pricing.current_bid_usd, pricing.current_bid, pricing.current_bid2_usd,
+      pricing.bid_usd, pricing.bid, car.current_bid
+    );
+    if (currentBid !== undefined) return { value: currentBid, label: "Aktualna oferta" };
+
+    const buyNow = firstAvailable(pricing.buy_now_usd, pricing.buy_now, car.buy_now);
+    if (buyNow !== undefined) return { value: buyNow, label: "Kup teraz" };
+
+    const lastSoldPrice = firstAvailable(pricing.last_sold_price_usd, car.last_sold_price_usd);
+    if (lastSoldPrice !== undefined) return { value: lastSoldPrice, label: "Ostatnia cena sprzedaży" };
+
+    return { value: null, label: "Cena niedostępna" };
   }
 
 
@@ -1467,7 +1478,7 @@
           getLot(car);
 
         const price =
-          getPrice(car);
+          getPriceInfo(car);
 
         const mileage =
           getMileage(car);
@@ -1699,7 +1710,8 @@
                 <div class="car-bottom">
 
                   <div class="price">
-                    ${formatMoney(price)}
+                    <small class="price-label">${escapeHtml(price.label)}</small>
+                    ${formatMoney(price.value)}
                   </div>
 
                   <span class="details-btn">
@@ -1782,15 +1794,58 @@
   }
 
 
+  function mergeCarsWithoutDuplicates(existingCars, newCars) {
+    const merged = [...existingCars];
+    const seen = new Set();
+
+    for (const car of existingCars) {
+      for (const key of carIdentityKeys(car)) seen.add(key);
+    }
+
+    for (const car of newCars) {
+      const keys = carIdentityKeys(car);
+      if (keys.some(key => seen.has(key))) continue;
+      merged.push(car);
+      for (const key of keys) seen.add(key);
+    }
+
+    return merged;
+  }
+
+
+  function carIdentityKeys(car) {
+    const vin = String(getVin(car) || "").trim().toUpperCase();
+    const lot = String(getLot(car) || "").trim().toUpperCase();
+    return [vin && `vin:${vin}`, lot && `lot:${lot}`].filter(Boolean);
+  }
+
+
   /*
    * ==========================================================
    * WCZYTYWANIE OFERT
    * ==========================================================
    */
 
-  async function loadCars() {
+  async function loadCars({ append = false } = {}) {
+    if (append && (!listCursor || loadingMore)) return;
 
-    showLoading();
+    const requestId = append ? listRequestId : ++listRequestId;
+
+    if (!append) {
+      listCursor = null;
+      listedCars = [];
+      activeListQuery = null;
+      loadingMore = false;
+      loadMoreButton.hidden = true;
+      loadMoreButton.style.display = "none";
+      loadMoreButton.disabled = false;
+      loadMoreButton.textContent = "Załaduj więcej";
+      showLoading();
+    } else {
+      loadingMore = true;
+      loadMoreButton.disabled = true;
+      loadMoreButton.textContent = "Ładowanie...";
+    }
 
 
     const params =
@@ -1860,6 +1915,16 @@
       "20"
     );
 
+    const queryKey = params.toString();
+
+    if (append && queryKey !== activeListQuery) {
+      return loadCars();
+    }
+
+    if (append) {
+      params.set("cursor", listCursor);
+    }
+
 
     try {
 
@@ -1875,6 +1940,8 @@
             }
           }
         );
+
+      if (requestId !== listRequestId) return;
 
 
       const contentType =
@@ -1966,11 +2033,21 @@
         cars = result.items;
       }
 
+      const nextCursor = result.meta?.next_cursor ?? result.data?.meta?.next_cursor ?? null;
+      activeListQuery = queryKey;
+      listedCars = append
+        ? mergeCarsWithoutDuplicates(listedCars, cars)
+        : mergeCarsWithoutDuplicates([], cars);
+      listCursor = nextCursor === "" ? null : nextCursor;
 
-      renderCars(cars);
+      renderCars(listedCars);
+      loadMoreButton.hidden = !listCursor;
+      loadMoreButton.style.display = listCursor ? "block" : "none";
 
 
     } catch (error) {
+
+      if (requestId !== listRequestId) return;
 
       console.error(
         "Rex.Bid API error:",
@@ -1978,12 +2055,24 @@
       );
 
 
-      showError(
-        error &&
-        error.message
-          ? error.message
-          : "Nieznany błąd"
-      );
+      if (append) {
+        resultStatus.textContent = `${listedCars.length} ofert — nie udało się pobrać kolejnej strony`;
+      } else {
+        showError(
+          error &&
+          error.message
+            ? error.message
+            : "Nieznany błąd"
+        );
+      }
+    } finally {
+      if (append && requestId === listRequestId) {
+        loadingMore = false;
+        loadMoreButton.disabled = false;
+        loadMoreButton.textContent = "Załaduj więcej";
+        loadMoreButton.hidden = !listCursor;
+        loadMoreButton.style.display = listCursor ? "block" : "none";
+      }
     }
   }
 
@@ -2023,6 +2112,10 @@
     "click",
     loadCars
   );
+
+  platform.addEventListener("change", () => loadCars());
+
+  loadMoreButton.addEventListener("click", () => loadCars({ append: true }));
 
 
   /*

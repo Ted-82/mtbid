@@ -1,0 +1,7 @@
+.env
+node_modules
+.wrangler/
+.codex/
+mtbid-zip.zip
+public-github-backup/
+index-z-zip.html

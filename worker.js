@@ -3,6 +3,8 @@ const APIBARA_BASE =
 
 const CACHE_TTL_SECONDS = 60;
 const HISTORY_CACHE_TTL_SECONDS = 300;
+const MAX_SYNC_HISTORY_PAGES = 100;
+const MAX_SYNC_VEHICLE_PAGES = 100;
 
 /*
  * ============================================================
@@ -14,6 +16,7 @@ const HISTORY_CACHE_TTL_SECONDS = 300;
  *   /api/car/VIN
  *   /api/car/VIN/history
  *   /api/database
+ *   POST /api/sync/vehicle/VIN (requires REXBID_SYNC_TOKEN)
  *
  * D1:
  *   REXBID_DB
@@ -320,58 +323,258 @@ function vehicleMatchesIdentifier(
  * ============================================================
  */
 
-async function fetchApibara(
-  endpoint,
-  env
-) {
-  const apiKey =
-    env.APIBARA_API_KEY ||
-    env.APIBARA_KEY;
+const APIBARA_TIMEOUT_MS = 10000;
+const APIBARA_MAX_PER_PAGE = 20;
 
-  if (!apiKey) {
-    throw new Error(
-      "Brak APIBARA_API_KEY / APIBARA_KEY w Cloudflare."
-    );
+const APIBARA_LIST_PARAMS = new Set([
+  "s", "platform", "auction_type", "lot_status", "lot_sub_status", "upcoming",
+  "make", "model", "type", "year_from", "year_to", "price_min", "price_max",
+  "odometer_from", "odometer_to", "fuel_type", "transmission", "drive_type",
+  "run_cond", "color", "per_page", "cursor", "updated_within_minutes"
+]);
+
+class ApibaraRequestError extends Error {
+  constructor(code, status = null, retryAfter = null) {
+    const message = ({
+      CONFIGURATION: "Usługa danych pojazdów jest niedostępna.",
+      INVALID_REQUEST: "Nieprawidłowe parametry zapytania.",
+      TIMEOUT: "Usługa danych pojazdów nie odpowiedziała na czas.",
+      RATE_LIMITED: "Usługa danych pojazdów chwilowo ogranicza zapytania.",
+      NOT_FOUND: "Nie znaleziono danych pojazdu.",
+      AUTH: "Usługa danych pojazdów jest niedostępna.",
+      UPSTREAM: "Usługa danych pojazdów zwróciła błąd.",
+      INVALID_RESPONSE: "Usługa danych pojazdów zwróciła nieprawidłową odpowiedź."
+    })[code] || "Nie udało się pobrać danych pojazdu.";
+    super(message);
+    this.name = "ApibaraRequestError";
+    this.code = code;
+    this.status = status;
+    this.retryAfter = retryAfter;
+  }
+}
+
+function apibaraPerPage(value, defaultValue = 20) {
+  if (value === null || value === undefined || value === "") return defaultValue;
+  if (!/^\d+$/.test(String(value))) throw new ApibaraRequestError("INVALID_REQUEST", 400);
+  return Math.min(APIBARA_MAX_PER_PAGE, Math.max(1, Number(value)));
+}
+
+function buildApibaraUrl(requestSpec) {
+  if (!requestSpec || typeof requestSpec !== "object") {
+    throw new ApibaraRequestError("INVALID_REQUEST", 400);
   }
 
-  const url =
-    APIBARA_BASE +
-    endpoint;
+  let pathname;
+  const params = new URLSearchParams();
+  const identifier = cleanString(requestSpec.identifier).trim();
 
-  const response =
-    await fetch(
-      url,
-      {
-        method: "GET",
-        headers: {
-          "Accept": "application/json",
-          "X-API-Key": apiKey
-        }
+  switch (requestSpec.operation) {
+    case "vehicleByIdentifier":
+      if (!identifier) throw new ApibaraRequestError("INVALID_REQUEST", 400);
+      pathname = `/vehicles/${encodeURIComponent(identifier)}`;
+      break;
+
+    case "searchVehicles":
+      pathname = "/vehicles";
+      if (!cleanString(requestSpec.search).trim()) throw new ApibaraRequestError("INVALID_REQUEST", 400);
+      params.set("s", cleanString(requestSpec.search).trim());
+      params.set("per_page", String(apibaraPerPage(requestSpec.per_page, 20)));
+      break;
+
+    case "listVehicles": {
+      pathname = "/vehicles";
+      const input = requestSpec.params && typeof requestSpec.params === "object" ? requestSpec.params : {};
+      for (const [name, value] of Object.entries(input)) {
+        if (!APIBARA_LIST_PARAMS.has(name) || value === null || value === undefined || value === "") continue;
+        if (name === "per_page") params.set(name, String(apibaraPerPage(value, 20)));
+        else params.set(name, String(value));
       }
-    );
+      if (!params.has("per_page")) params.set("per_page", "20");
+      break;
+    }
 
-  const text =
-    await response.text();
+    case "vehicleHistory": {
+      if (!identifier) throw new ApibaraRequestError("INVALID_REQUEST", 400);
+      pathname = `/vehicles/${encodeURIComponent(identifier)}/history`;
+      params.set("per_page", String(apibaraPerPage(requestSpec.per_page, 20)));
+      // Cursor is opaque: only URL-encode it, never parse, trim, or derive it.
+      if (requestSpec.cursor !== null && requestSpec.cursor !== undefined && requestSpec.cursor !== "") {
+        params.set("cursor", String(requestSpec.cursor));
+      }
+      break;
+    }
 
-  let result;
+    default:
+      throw new ApibaraRequestError("INVALID_REQUEST", 400);
+  }
+
+  const base = new URL(`${APIBARA_BASE.replace(/\/+$/, "")}/`);
+  const url = new URL(pathname.replace(/^\/+/, ""), base);
+  if (url.origin !== base.origin || !url.pathname.startsWith(base.pathname)) {
+    throw new ApibaraRequestError("INVALID_REQUEST", 400);
+  }
+  url.search = params.toString();
+  return url;
+}
+
+function safeApibaraDiagnosticText(value, apiKey) {
+  if (value === null || value === undefined) return null;
+  let text = String(value);
+  if (apiKey) text = text.split(String(apiKey)).join("[REDACTED]");
+  text = text.replace(/(x-api-key|authorization)\s*[:=]\s*[^\s,;]+/gi, "$1=[REDACTED]");
+  return text.slice(0, 500);
+}
+
+function safeApibaraCauseDescription(cause, apiKey, depth = 0) {
+  if (cause === null || cause === undefined) return null;
+  if (typeof cause !== "object") return safeApibaraDiagnosticText(cause, apiKey);
+
+  const description = {};
+  for (const field of ["name", "code", "errno", "syscall", "hostname", "message"]) {
+    const value = cause[field];
+    if (["string", "number", "boolean"].includes(typeof value)) {
+      description[field] = safeApibaraDiagnosticText(value, apiKey);
+    }
+  }
+  if (depth < 1 && cause.cause !== undefined) {
+    description.cause = safeApibaraCauseDescription(cause.cause, apiKey, depth + 1);
+  }
+  return Object.keys(description).length ? description : { type: "object" };
+}
+
+function logApibaraRequestDiagnostic(error, stage, apiKey, requestSpec) {
+  const cause = error?.cause;
+  console.error("Apibara request diagnostic", JSON.stringify({
+    operation: requestSpec?.operation || null,
+    stage,
+    errorName: safeApibaraDiagnosticText(error?.name || "UnknownError", apiKey),
+    errorMessage: safeApibaraDiagnosticText(error?.message || "", apiKey),
+    causeType: typeof cause,
+    cause: safeApibaraCauseDescription(cause, apiKey)
+  }));
+}
+
+async function requestApibara(env, requestSpec) {
+  const apiKey = env?.APIBARA_API_KEY;
+  if (!apiKey) throw new ApibaraRequestError("CONFIGURATION", 500);
+
+  let url;
+  try {
+    url = buildApibaraUrl(requestSpec);
+  } catch (error) {
+    logApibaraRequestDiagnostic(error, "URL", apiKey, requestSpec);
+    throw error;
+  }
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), APIBARA_TIMEOUT_MS);
 
   try {
-    result = JSON.parse(text);
-  } catch {
-    throw new Error(
-      `Apibara zwróciła nie-JSON. HTTP ${response.status}. Odpowiedź: ${text.substring(0, 500)}`
-    );
-  }
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      // Workers fetch supports "manual" but not "error". Never follow upstream
+      // redirects so the API key cannot be sent to a different host.
+      redirect: "manual",
+      headers: { "Accept": "application/json", "X-API-Key": apiKey },
+      signal: controller.signal
+    });
 
-  if (!response.ok) {
-    throw new Error(
-      result.message ||
-      result.error ||
-      `Apibara HTTP ${response.status}`
-    );
-  }
+    if (!response.ok) {
+      const code = response.status === 404 ? "NOT_FOUND"
+        : response.status === 401 || response.status === 403 ? "AUTH"
+        : response.status === 429 ? "RATE_LIMITED" : "UPSTREAM";
+      const retryAfterHeader = response.headers.get("Retry-After");
+      const retryAfter = retryAfterHeader && /^\d+$/.test(retryAfterHeader) ? Number(retryAfterHeader) : null;
+      console.warn("Apibara HTTP response error", JSON.stringify({
+        operation: requestSpec.operation,
+        stage: "fetch",
+        status: response.status,
+        code,
+        contentType: response.headers.get("Content-Type") || null
+      }));
+      // Consume but never include upstream error bodies in exceptions or logs.
+      try { await response.body?.cancel(); } catch {}
+      throw new ApibaraRequestError(code, response.status, retryAfter);
+    }
 
-  return result;
+    try {
+      return await response.json();
+    } catch {
+      throw new ApibaraRequestError("INVALID_RESPONSE", response.status);
+    }
+  } catch (error) {
+    if (error instanceof ApibaraRequestError) throw error;
+    logApibaraRequestDiagnostic(error, "fetch", apiKey, requestSpec);
+    if (controller.signal.aborted || error?.name === "AbortError") {
+      throw new ApibaraRequestError("TIMEOUT", 504);
+    }
+    throw new ApibaraRequestError("UPSTREAM", null);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/* ============================================================
+ * APiBARA READ LAYER
+ * ============================================================
+ * These helpers perform upstream reads only. They never access D1;
+ * endpoint handlers decide separately whether to persist the result.
+ */
+
+async function fetchApibaraVehicle(env, identifier) {
+  return requestApibara(env, {
+    operation: "vehicleByIdentifier",
+    identifier
+  });
+}
+
+async function searchApibaraVehicles(env, search, perPage = 20) {
+  return requestApibara(env, {
+    operation: "searchVehicles",
+    search,
+    per_page: perPage
+  });
+}
+
+async function fetchApibaraHistory(env, identifier, { per_page = 20, cursor = null } = {}) {
+  const response = await requestApibara(env, {
+    operation: "vehicleHistory",
+    identifier,
+    per_page,
+    cursor
+  });
+  return {
+    response,
+    records: getApibaraHistoryRecords(response),
+    nextCursor: response?.meta?.next_cursor ?? response?.data?.meta?.next_cursor ?? null
+  };
+}
+
+async function fetchApibaraVehicles(env, params = {}) {
+  return requestApibara(env, {
+    operation: "listVehicles",
+    params
+  });
+}
+
+function normalizeApibaraVehicleList(result) {
+  if (!Array.isArray(result?.data)) return [];
+  return result.data
+    .map(raw => ({ raw, normalized: normalizeVehicle(raw) }))
+    .filter(item => item.normalized);
+}
+
+function apibaraErrorResponse(error) {
+  if (!(error instanceof ApibaraRequestError)) return errorJson("Nie udało się pobrać danych.", 502);
+  const status = error.code === "INVALID_REQUEST" ? 400
+    : error.code === "NOT_FOUND" ? 404
+    : error.code === "RATE_LIMITED" ? 429
+    : error.code === "TIMEOUT" ? 504
+    : error.code === "CONFIGURATION" ? 500 : 502;
+  const response = errorJson(error.message, status);
+  if (error.code === "RATE_LIMITED" && error.retryAfter !== null) {
+    response.headers.set("Retry-After", String(error.retryAfter));
+  }
+  return response;
 }
 
 
@@ -966,9 +1169,18 @@ async function ensureDatabase(env) {
 
       vehicle_key TEXT NOT NULL,
 
+      event_key TEXT,
+      source_event_id TEXT,
+      vin TEXT,
       platform TEXT,
+      lot TEXT,
       auction_date TEXT,
+      sale_date TEXT,
+      current_bid REAL,
+      final_price REAL,
+      buy_now REAL,
       price REAL,
+      seller TEXT,
       status TEXT,
 
       event_hash TEXT NOT NULL,
@@ -1362,6 +1574,171 @@ async function saveApiVehicle(
 }
 
 
+/*
+ * Explicit synchronization operations. Triggers (manual, scheduled, or queue)
+ * can call these later; GET handlers must never call them.
+ */
+async function syncVehicle(env, identifier, options = {}) {
+  const maxPages = Math.min(
+    MAX_SYNC_HISTORY_PAGES,
+    Math.max(1, Number.isInteger(options.maxPages) ? options.maxPages : 100)
+  );
+  const perPage = apibaraPerPage(options.per_page, 20);
+  let rawVehicle = null;
+
+  try {
+    const direct = await fetchApibaraVehicle(env, identifier);
+    if (direct?.data && vehicleMatchesIdentifier(direct.data, identifier)) {
+      rawVehicle = direct.data;
+    } else if (direct?.data) {
+      const search = await searchApibaraVehicles(env, identifier, 20);
+      rawVehicle = Array.isArray(search?.data)
+        ? search.data.find(item => vehicleMatchesIdentifier(item, identifier)) || null
+        : null;
+    }
+  } catch (error) {
+    if (error?.code !== "NOT_FOUND") {
+      return { ok: false, completed: false, phase: "vehicle", error: error?.code || "UPSTREAM" };
+    }
+  }
+
+  if (!rawVehicle) {
+    try {
+      const search = await searchApibaraVehicles(env, identifier, 20);
+      rawVehicle = Array.isArray(search?.data)
+        ? search.data.find(item => vehicleMatchesIdentifier(item, identifier)) || null
+        : null;
+    } catch (error) {
+      return { ok: false, completed: false, phase: "vehicle", error: error?.code || "UPSTREAM" };
+    }
+  }
+
+  const normalizedVehicle = normalizeVehicle(rawVehicle);
+  if (!normalizedVehicle) {
+    return { ok: false, completed: false, phase: "vehicle", error: "NOT_FOUND" };
+  }
+
+  const includeHistory = options.includeHistory !== false;
+  const historyRecords = [];
+  let pagesFetched = 0;
+
+  if (includeHistory) {
+    const seenCursors = new Set();
+    let cursor = null;
+    let historyComplete = false;
+
+    for (let page = 0; page < maxPages; page++) {
+      let fetched;
+      try {
+        fetched = await fetchApibaraHistory(env, identifier, { per_page: perPage, cursor });
+      } catch (error) {
+        return { ok: false, completed: false, phase: "history", error: error?.code || "UPSTREAM", pagesFetched };
+      }
+
+      pagesFetched++;
+      historyRecords.push(...normalizeApibaraHistory(fetched.response, {
+        vin: normalizedVehicle.vin,
+        platform: normalizedVehicle.platform,
+        lot: normalizedVehicle.lot
+      }));
+
+      const nextCursor = fetched.nextCursor;
+      if (nextCursor === null || nextCursor === undefined || nextCursor === "") {
+        historyComplete = true;
+        break;
+      }
+      if (seenCursors.has(String(nextCursor))) {
+        return { ok: false, completed: false, phase: "history", error: "REPEATED_CURSOR", pagesFetched };
+      }
+      seenCursors.add(String(nextCursor));
+      cursor = nextCursor;
+    }
+
+    if (!historyComplete) {
+      return { ok: false, completed: false, phase: "history", error: "PAGE_LIMIT", pagesFetched };
+    }
+  }
+
+  if (!env.REXBID_DB) {
+    return { ok: false, completed: false, phase: "persistence", error: "D1_UNAVAILABLE", pagesFetched };
+  }
+
+  try {
+    // Schema preparation belongs to this explicit operation, never to GET.
+    await ensureDatabase(env);
+    const vehicleResult = await saveVehicle(env, normalizedVehicle, rawVehicle);
+    const historyResult = includeHistory
+      ? await saveOfficialHistory(env, normalizedVehicle.vehicleKey, historyRecords)
+      : [];
+    return {
+      ok: true,
+      completed: true,
+      vehicleKey: normalizedVehicle.vehicleKey,
+      vehicleChanged: vehicleResult.changed,
+      historyPages: pagesFetched,
+      historyRecords: historyResult.length
+    };
+  } catch (error) {
+    console.error("Rex.Bid sync persistence error", error?.name || "Error");
+    return { ok: false, completed: false, phase: "persistence", error: "D1_WRITE_FAILED", pagesFetched };
+  }
+}
+
+async function syncVehicleList(env, params = {}, options = {}) {
+  const maxPages = Math.min(
+    MAX_SYNC_VEHICLE_PAGES,
+    Math.max(1, Number.isInteger(options.maxPages) ? options.maxPages : 100)
+  );
+  const pages = [];
+  const seenCursors = new Set();
+  let cursor = params.cursor ?? null;
+  let complete = false;
+
+  for (let page = 0; page < maxPages; page++) {
+    let response;
+    try {
+      response = await fetchApibaraVehicles(env, { ...params, ...(cursor ? { cursor } : {}) });
+    } catch (error) {
+      return { ok: false, completed: false, error: error?.code || "UPSTREAM", pagesFetched: pages.length };
+    }
+    pages.push(response);
+    const nextCursor = response?.meta?.next_cursor ?? response?.data?.meta?.next_cursor ?? null;
+    if (nextCursor === null || nextCursor === undefined || nextCursor === "") {
+      complete = true;
+      break;
+    }
+    if (seenCursors.has(String(nextCursor))) {
+      return { ok: false, completed: false, error: "REPEATED_CURSOR", pagesFetched: pages.length };
+    }
+    seenCursors.add(String(nextCursor));
+    cursor = nextCursor;
+  }
+
+  if (!complete) {
+    return { ok: false, completed: false, error: "PAGE_LIMIT", pagesFetched: pages.length };
+  }
+  if (!env.REXBID_DB) {
+    return { ok: false, completed: false, error: "D1_UNAVAILABLE", pagesFetched: pages.length };
+  }
+
+  const byKey = new Map();
+  for (const response of pages) {
+    for (const item of normalizeApibaraVehicleList(response)) {
+      byKey.set(item.normalized.vehicleKey, item);
+    }
+  }
+
+  try {
+    await ensureDatabase(env);
+    const result = await saveApiVehicle(env, { data: [...byKey.values()].map(item => item.raw) });
+    return { ok: true, completed: true, pagesFetched: pages.length, vehicles: result.count };
+  } catch (error) {
+    console.error("Rex.Bid list sync persistence error", error?.name || "Error");
+    return { ok: false, completed: false, error: "D1_WRITE_FAILED", pagesFetched: pages.length };
+  }
+}
+
+
 /* ============================================================
  * FIND LOCAL VEHICLE
  * ============================================================
@@ -1504,6 +1881,42 @@ function getApibaraHistoryRecords(
   return [];
 }
 
+function normalizeApibaraHistory(result, vehicleContext = {}) {
+  return getApibaraHistoryRecords(result)
+    .map(record => normalizeHistoryRecord(record, vehicleContext))
+    .filter(Boolean);
+}
+
+
+function historyDate(value) {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  // Keep date-only values as calendar dates. Do not round-trip them through
+  // Date, which would interpret YYYY-MM-DD as UTC and can shift the day.
+  if (typeof value === "string") {
+    const raw = value.trim();
+    const match = raw.match(/^(\d{4}-\d{2}-\d{2})(?:[Tt ].*)?$/);
+    if (match) return raw;
+  }
+
+  return String(value).trim();
+}
+
+
+function historyIdentityPart(value) {
+  return cleanString(value).trim().toUpperCase();
+}
+
+
+function rawJsonValueCount(value) {
+  if (value === null || value === undefined || value === "") return 0;
+  if (Array.isArray(value)) return value.reduce((count, item) => count + rawJsonValueCount(item), 0);
+  if (typeof value === "object") return Object.values(value).reduce((count, item) => count + rawJsonValueCount(item), 0);
+  return 1;
+}
+
 
 /* ============================================================
  * NORMALIZE ONE HISTORY RECORD
@@ -1511,7 +1924,8 @@ function getApibaraHistoryRecords(
  */
 
 function normalizeHistoryRecord(
-  record
+  record,
+  vehicleContext = {}
 ) {
   if (
     !record ||
@@ -1521,66 +1935,94 @@ function normalizeHistoryRecord(
   }
 
 
-  const platform =
-    cleanString(
-      firstValue(record, [
-        "platform",
-        "source"
-      ])
-    ).toLowerCase();
+  const vehicle = record.vehicle && typeof record.vehicle === "object" ? record.vehicle : {};
+  const platform = cleanString(firstValue(record, ["platform", "source"]) || firstValue(vehicle, ["platform", "source"]) || vehicleContext.platform).toLowerCase();
+  const vin = cleanString(firstValue(record, ["vin", "VIN"]) || firstValue(vehicle, ["vin", "VIN"]) || vehicleContext.vin).toUpperCase();
+  const lot = cleanString(firstValue(record, ["lot_number", "lotNumber", "lot", "stock_number", "stockNumber"])
+    || firstValue(vehicle, ["lot_number", "lotNumber", "lot", "stock_number", "stockNumber"]) || vehicleContext.lot);
+  const seller = cleanString(firstValue(record, ["seller_name", "sellerName"])
+    || getNested(record, [["seller", "name"], ["seller", "displayName"]])
+    || (typeof record.seller === "string" ? record.seller : null)
+    || firstValue(record, ["seller_type", "sellerType"])
+    || getNested(record, [["seller", "type"]]));
 
+  // Only semantically explicit event identifiers are accepted. A generic `id`
+  // may identify the vehicle/listing rather than this historical auction.
+  // The current public Apibara schema does not name a stable event-ID field.
+  // Accept only an explicitly named source_event_id if a response supplies it;
+  // do not guess that generic `id` or undocumented aliases identify an event.
+  const sourceEventId = cleanString(firstValue(record, ["source_event_id"])
+    || getNested(record, [["auction", "source_event_id"]]));
+  const explicitEventKey = cleanString(firstValue(record, ["event_key"])
+    || getNested(record, [["auction", "event_key"]]));
 
-  const date =
-    cleanString(
-      firstValue(record, [
-        "date",
-        "sale_date",
-        "auction_date",
-        "sold_date",
-        "sold_at",
-        "auction_at",
-        "full_date"
-      ])
-    );
+  const status = cleanString(firstValue(record, ["status", "sale_status", "saleStatus", "auction_status", "auctionStatus", "lot_sub_status", "state"])
+    || getNested(record, [["auction", "last_sold_status"], ["auction", "status"], ["auction", "lot_sub_status"], ["sale", "status"], ["vehicle", "auction", "status"], ["vehicle", "auction", "lot_sub_status"]]));
+  const statusLower = status.toLowerCase();
+  const isUnsold = /not sold|no sale|unsold|failed/.test(statusLower);
+  const isSold = /sold|sale complete|completed|won|approved/.test(statusLower) && !isUnsold;
 
+  const auctionDateRaw = firstValue(record, ["auction_date", "auctionDate", "auction_at", "auctionAt", "full_date"])
+    || getNested(record, [["auction", "auction_at"], ["auction", "auctionAt"], ["auction", "full_date"], ["vehicle", "auction", "auction_at"]]);
+  const saleDateRaw = firstValue(record, ["sale_date", "saleDate", "sold_date", "sold_at", "soldAt", "last_sold_day", "lastSoldDay"])
+    || getNested(record, [["auction", "last_sold_day"], ["sale", "date"], ["sale", "sold_at"], ["vehicle", "auction", "last_sold_day"]]);
+  const genericDate = firstValue(record, ["date"]);
+  const auctionDate = historyDate(auctionDateRaw || (!isSold ? genericDate : null));
+  const saleDate = historyDate(saleDateRaw || (isSold ? genericDate : null));
 
-  const price =
-    numberOrNull(
-      firstValue(record, [
-        "price",
-        "sold_price",
-        "sale_price",
-        "price_usd",
-        "sold_price_usd"
-      ])
-    );
+  const pricing = record.pricing && typeof record.pricing === "object" ? record.pricing
+    : vehicle.pricing && typeof vehicle.pricing === "object" ? vehicle.pricing : {};
+  const auction = record.auction && typeof record.auction === "object" ? record.auction
+    : vehicle.auction && typeof vehicle.auction === "object" ? vehicle.auction : {};
+  const currentBid = numberOrNull(firstValue(pricing, ["current_bid_usd", "current_bid", "currentBidUsd", "currentBid"])
+    ?? firstValue(record, ["current_bid_usd", "current_bid", "currentBidUsd", "currentBid", "bid"])
+    ?? firstValue(auction, ["current_bid_usd", "current_bid"]));
+  const buyNow = numberOrNull(firstValue(pricing, ["buy_now_usd", "buy_now", "buyNowUsd", "buyNow"])
+    ?? firstValue(record, ["buy_now_usd", "buy_now", "buyNowUsd", "buyNow"]));
 
+  // A generic `price` remains source_price. Only explicitly named sale/final
+  // fields can populate final_price, and a not-sold status always clears it.
+  const explicitFinalPrice = firstValue(pricing, ["sale_price_usd", "final_price_usd", "final_bid_usd", "sold_price_usd"])
+    ?? firstValue(record, ["sale_price_usd", "sale_price", "final_price_usd", "final_price", "final_bid_usd", "final_bid", "sold_price_usd", "sold_price"]);
+  const finalPrice = isUnsold ? null : numberOrNull(explicitFinalPrice);
+  const sourcePrice = numberOrNull(firstValue(record, ["price", "price_usd"])
+    ?? firstValue(pricing, ["price", "price_usd"]));
 
-  const status =
-    cleanString(
-      firstValue(record, [
-        "status",
-        "sale_status",
-        "auction_status"
-      ])
-    );
+  let eventKey = "";
+  if (sourceEventId) {
+    eventKey = `source:${platform || "unknown"}:${sourceEventId}`;
+  } else if (explicitEventKey) {
+    eventKey = /^(source|fallback):/.test(explicitEventKey)
+      ? explicitEventKey
+      : `source:${platform || "unknown"}:${explicitEventKey}`;
+  } else {
+    const identityDate = auctionDate || saleDate;
+    const identity = lot ? `lot:${historyIdentityPart(lot)}` : vin ? `vin:${historyIdentityPart(vin)}` : "";
+    const identityDay = String(identityDate || "").match(/^(\d{4}-\d{2}-\d{2})/)?.[1] || identityDate;
+    if (identity && identityDay) {
+      eventKey = `fallback:${platform || "unknown"}:${identity}:date:${identityDay}`;
+    }
+  }
 
-
-  if (
-    !date &&
-    price === null &&
-    !status
-  ) {
+  if (!platform && !vin && !lot && !auctionDate && !saleDate && !status && currentBid === null && finalPrice === null && buyNow === null && sourcePrice === null) {
     return null;
   }
 
-
   return {
-    platform,
-    date,
-    price,
-    status,
-    raw: record
+    event_key: eventKey || null,
+    source_event_id: sourceEventId || null,
+    vin: vin || null,
+    platform: platform || null,
+    lot: lot || null,
+    auction_date: auctionDate,
+    sale_date: saleDate,
+    current_bid: currentBid,
+    final_price: finalPrice,
+    buy_now: buyNow,
+    source_price: sourcePrice,
+    seller: seller || null,
+    status: status || null,
+    raw_json: record
   };
 }
 
@@ -1593,17 +2035,9 @@ function normalizeHistoryRecord(
 function historyEventHash(
   record
 ) {
-  return simpleHash(
-    JSON.stringify({
-      platform: record.platform || "",
-      date: record.date || "",
-      price:
-        record.price === null
-          ? null
-          : record.price,
-      status: record.status || ""
-    })
-  );
+  // event_hash is retained for compatibility with the existing schema. Its
+  // input is now the stable event key, never mutable price/status fields.
+  return simpleHash(record.event_key || safeJson(record.raw_json));
 }
 
 
@@ -1615,108 +2049,123 @@ function historyEventHash(
 async function saveOfficialHistory(
   env,
   vehicleKey,
-  historyResult
+  normalizedRecords
 ) {
   if (
     !env.REXBID_DB ||
     !vehicleKey ||
-    !historyResult
+    !Array.isArray(normalizedRecords)
   ) {
     return [];
   }
 
 
-  await ensureDatabase(env);
+  const persistedRecords = [];
 
-
-  const sourceRecords =
-    getApibaraHistoryRecords(
-      historyResult
-    );
-
-
-  const normalizedRecords = [];
-
-
-  for (
-    const sourceRecord of sourceRecords
-  ) {
-    const normalized =
-      normalizeHistoryRecord(
-        sourceRecord
-      );
-
-
-    if (!normalized) {
+  for (const normalized of normalizedRecords) {
+    if (!normalized || typeof normalized !== "object") {
       continue;
     }
-
-
-    const eventHash =
-      historyEventHash(
-        normalized
-      );
 
 
     const now =
       new Date().toISOString();
 
+    const eventHash = historyEventHash(normalized);
+    const existingRows = await env.REXBID_DB.prepare(`
+      SELECT id, event_key, source_event_id, vin, platform, lot, auction_date, sale_date,
+             current_bid, final_price, buy_now, price, status, event_hash, captured_at, raw_json
+      FROM auction_history
+      WHERE vehicle_key = ?
+    `).bind(vehicleKey).all();
 
-    await env.REXBID_DB
-      .prepare(`
-        INSERT INTO auction_history (
-          vehicle_key,
-          platform,
-          auction_date,
-          price,
-          status,
-          event_hash,
-          captured_at,
-          raw_json
-        )
-
-        SELECT
-          ?, ?, ?, ?, ?, ?, ?, ?
-        WHERE NOT EXISTS (
-          SELECT 1
-          FROM auction_history
-          WHERE vehicle_key = ?
-          AND event_hash = ?
-        )
-      `)
-      .bind(
-        vehicleKey,
-        normalized.platform,
-        normalized.date,
-        normalized.price,
-        normalized.status,
-        eventHash,
-        now,
-        safeJson(normalized.raw),
-
-        vehicleKey,
-        eventHash
-      )
-      .run();
-
-
-    normalizedRecords.push({
-      platform:
-        normalized.platform,
-
-      date:
-        normalized.date,
-
-      price:
-        normalized.price,
-
-      status:
-        normalized.status
+    const matches = (existingRows.results || []).filter(row => {
+      if (normalized.event_key && row.event_key === normalized.event_key) return true;
+      // Stable identifiers are authoritative: different IDs always mean
+      // different events, even when LOT and date happen to match.
+      if (normalized.event_key && row.event_key) return false;
+      if (!normalized.event_key) return row.event_hash === eventHash;
+      let existing = null;
+      try {
+        const oldRaw = JSON.parse(row.raw_json || "null");
+        existing = normalizeHistoryRecord(oldRaw, { vin: row.vin, platform: row.platform, lot: row.lot });
+      } catch {
+        existing = null;
+      }
+      if (normalized.event_key && existing?.event_key) return existing.event_key === normalized.event_key;
+      const oldPlatform = row.platform || existing?.platform;
+      const oldLot = row.lot || existing?.lot;
+      if (oldPlatform !== normalized.platform || oldLot !== normalized.lot) return false;
+      const rowDate = row.auction_date || row.sale_date || existing?.auction_date || existing?.sale_date;
+      const normalizedDate = normalized.auction_date || normalized.sale_date;
+      if (rowDate && normalizedDate && rowDate === normalizedDate) return true;
+      return Boolean(existing && existing.event_key === normalized.event_key);
     });
+
+    // Ambiguous legacy rows are kept untouched. Do not silently merge or
+    // delete history; a later data audit can resolve the collision explicitly.
+    if (matches.length > 1) {
+      console.warn("Rex.Bid ambiguous legacy auction history match", vehicleKey, normalized.event_key);
+      persistedRecords.push(normalized);
+      continue;
+    }
+
+    if (matches.length === 1) {
+      const row = matches[0];
+      let rawJson = safeJson(normalized.raw_json);
+      try {
+        const previousRaw = JSON.parse(row.raw_json || "null");
+        if (rawJsonValueCount(normalized.raw_json) < rawJsonValueCount(previousRaw)) {
+          rawJson = row.raw_json;
+        }
+      } catch {
+        // Keep the latest valid source record when the old JSON cannot be read.
+      }
+      const explicitlyUnsold = /not sold|no sale|unsold|failed/i.test(normalized.status || "");
+      await env.REXBID_DB.prepare(`
+        UPDATE auction_history SET
+          event_key = COALESCE(?, event_key),
+          source_event_id = COALESCE(?, source_event_id),
+          vin = COALESCE(?, vin),
+          platform = COALESCE(?, platform),
+          lot = COALESCE(?, lot),
+          auction_date = COALESCE(?, auction_date),
+          sale_date = COALESCE(?, sale_date),
+          current_bid = COALESCE(?, current_bid),
+          final_price = CASE WHEN ? = 1 THEN NULL ELSE COALESCE(?, final_price) END,
+          buy_now = COALESCE(?, buy_now),
+          price = COALESCE(?, price),
+          seller = COALESCE(?, seller),
+          status = COALESCE(?, status),
+          event_hash = ?,
+          captured_at = ?,
+          raw_json = ?
+        WHERE id = ? AND vehicle_key = ?
+      `).bind(
+        normalized.event_key, normalized.source_event_id, normalized.vin, normalized.platform,
+        normalized.lot, normalized.auction_date, normalized.sale_date, normalized.current_bid,
+        explicitlyUnsold ? 1 : 0, normalized.final_price, normalized.buy_now, normalized.source_price, normalized.seller, normalized.status,
+        eventHash, now, rawJson, row.id, vehicleKey
+      ).run();
+    } else {
+      await env.REXBID_DB.prepare(`
+        INSERT INTO auction_history (
+          vehicle_key, event_key, source_event_id, vin, platform, lot, auction_date, sale_date,
+          current_bid, final_price, buy_now, price, seller, status, event_hash, captured_at, raw_json
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).bind(
+        vehicleKey, normalized.event_key, normalized.source_event_id, normalized.vin,
+        normalized.platform, normalized.lot, normalized.auction_date,
+        normalized.sale_date, normalized.current_bid, normalized.final_price, normalized.buy_now,
+        normalized.source_price, normalized.seller, normalized.status, eventHash, now, safeJson(normalized.raw_json)
+      ).run();
+    }
+
+    persistedRecords.push(normalized);
   }
 
 
-  return normalizedRecords;
+  return persistedRecords;
 }
 
 
@@ -1737,31 +2186,55 @@ async function getSavedAuctionHistory(
   }
 
 
+  let rows = null;
   try {
-    const result =
-      await env.REXBID_DB
-        .prepare(`
-          SELECT
-            platform,
-            auction_date AS date,
-            price,
-            status,
-            captured_at
-          FROM auction_history
-          WHERE vehicle_key = ?
-          ORDER BY
-            auction_date DESC,
-            captured_at DESC
-        `)
-        .bind(vehicleKey)
-        .all();
-
-
-    return result.results || [];
-
+    const result = await env.REXBID_DB.prepare(`
+      SELECT id, event_key, source_event_id, vin, platform, lot, auction_date, sale_date,
+             current_bid, final_price, buy_now, price, seller, status, captured_at, raw_json
+      FROM auction_history
+      WHERE vehicle_key = ?
+      ORDER BY auction_date DESC, captured_at DESC
+    `).bind(vehicleKey).all();
+    rows = result.results || [];
   } catch {
-    return [];
+    // Read-only compatibility with the pre-0001 D1 schema. Never run DDL here.
+    try {
+      const legacy = await env.REXBID_DB.prepare(`
+        SELECT id, platform, auction_date, price, status, captured_at, raw_json
+        FROM auction_history
+        WHERE vehicle_key = ?
+        ORDER BY auction_date DESC, captured_at DESC
+      `).bind(vehicleKey).all();
+      rows = legacy.results || [];
+    } catch {
+      return [];
+    }
   }
+
+  return rows.map(row => {
+      let source = null;
+      try { source = JSON.parse(row.raw_json || "null"); } catch { source = null; }
+      const normalized = normalizeHistoryRecord(source || row, { vin: row.vin, platform: row.platform, lot: row.lot }) || {};
+      return {
+        ...normalized,
+        event_key: row.event_key || normalized.event_key || null,
+        source_event_id: row.source_event_id || normalized.source_event_id || null,
+        vin: row.vin || normalized.vin || null,
+        platform: row.platform || normalized.platform || null,
+        lot: row.lot || normalized.lot || null,
+        auction_date: row.auction_date || normalized.auction_date || null,
+        sale_date: row.sale_date || normalized.sale_date || null,
+        current_bid: row.current_bid ?? normalized.current_bid ?? null,
+        final_price: row.final_price ?? normalized.final_price ?? null,
+        buy_now: row.buy_now ?? normalized.buy_now ?? null,
+        // Legacy `price` is source data only; never reinterpret it as final_price.
+        source_price: row.price ?? normalized.source_price ?? null,
+        seller: row.seller || normalized.seller || null,
+        status: row.status || normalized.status || null,
+        raw_json: source,
+        captured_at: row.captured_at || null
+      };
+    });
 }
 
 
@@ -1778,16 +2251,13 @@ async function getCar(
   const encoded =
     encodeURIComponent(identifier);
 
+  let upstreamFailure = null;
+  let shouldSearch = false;
 
   /* DIRECT APiBARA */
 
   try {
-    const result =
-      await fetchApibara(
-        "/vehicles/" +
-        encoded,
-        env
-      );
+    const result = await fetchApibaraVehicle(env, identifier);
 
 
     if (
@@ -1806,22 +2276,6 @@ async function getCar(
           identifier
         )
       ) {
-        if (normalized) {
-          try {
-            await saveVehicle(
-              env,
-              normalized,
-              result.data
-            );
-          } catch (dbError) {
-            console.error(
-              "Rex.Bid D1 save error:",
-              dbError
-            );
-          }
-        }
-
-
         return json(
           {
             ok:
@@ -1858,25 +2312,19 @@ async function getCar(
     }
 
   } catch (error) {
-    console.warn(
-      "Apibara direct lookup failed:",
-      error.message
-    );
+    if (error?.code === "NOT_FOUND") {
+      shouldSearch = true;
+    } else {
+      upstreamFailure = error;
+      console.warn("Apibara direct lookup failed", error?.code || "UNKNOWN", error?.status || "");
+    }
   }
 
 
   /* FALLBACK SEARCH */
 
-  try {
-    const searchResult =
-      await fetchApibara(
-        "/vehicles?" +
-        new URLSearchParams({
-          s: identifier,
-          per_page: "20"
-        }).toString(),
-        env
-      );
+  if (shouldSearch || !upstreamFailure) try {
+    const searchResult = await searchApibaraVehicles(env, identifier, 20);
 
 
     if (
@@ -1896,22 +2344,6 @@ async function getCar(
       if (exact) {
         const normalized =
           normalizeVehicle(exact);
-
-
-        if (normalized) {
-          try {
-            await saveVehicle(
-              env,
-              normalized,
-              exact
-            );
-          } catch (dbError) {
-            console.error(
-              "Rex.Bid D1 fallback save error:",
-              dbError
-            );
-          }
-        }
 
 
         return json(
@@ -1943,10 +2375,8 @@ async function getCar(
     }
 
   } catch (error) {
-    console.warn(
-      "Apibara VIN fallback failed:",
-      error.message
-    );
+    if (error?.code !== "NOT_FOUND") upstreamFailure = error;
+    console.warn("Apibara fallback failed", error?.code || "UNKNOWN", error?.status || "");
   }
 
 
@@ -1954,9 +2384,6 @@ async function getCar(
 
   if (env.REXBID_DB) {
     try {
-      await ensureDatabase(env);
-
-
       const local =
         await findLocalVehicle(
           env,
@@ -2032,6 +2459,8 @@ async function getCar(
   }
 
 
+  if (upstreamFailure) throw upstreamFailure;
+
   return errorJson(
     `Nie znaleziono dokładnego pojazdu ${identifier}.`,
     404
@@ -2049,7 +2478,25 @@ async function getHistory(
   env,
   identifier
 ) {
+  const incoming = new URL(request.url);
+  const rawPerPage = incoming.searchParams.get("per_page");
+  let perPage = 20;
+
+  if (rawPerPage !== null) {
+    if (!/^\d+$/.test(rawPerPage)) {
+      return errorJson("Nieprawidłowy parametr per_page.", 400);
+    }
+    perPage = Math.min(20, Math.max(1, Number(rawPerPage)));
+  }
+
+  // Keep this token opaque. URLSearchParams handles only URL encoding while
+  // forwarding it; Rex.Bid does not decode or derive cursor contents.
+  const cursor = incoming.searchParams.has("cursor")
+    ? incoming.searchParams.get("cursor")
+    : null;
+
   let apibaraHistory = null;
+  let apibaraNextCursor = null;
 
   let apibaraError = null;
 
@@ -2063,16 +2510,12 @@ async function getHistory(
    */
 
   try {
-    apibaraHistory =
-      await fetchApibara(
-        "/vehicles/" +
-        encodeURIComponent(identifier) +
-        "/history?" +
-        new URLSearchParams({
-          per_page: "20"
-        }).toString(),
-        env
-      );
+    const historyPage = await fetchApibaraHistory(env, identifier, {
+      per_page: perPage,
+      cursor
+    });
+    apibaraHistory = historyPage.response;
+    apibaraNextCursor = historyPage.nextCursor;
 
   } catch (error) {
     apibaraError =
@@ -2085,113 +2528,34 @@ async function getHistory(
   }
 
 
-  /*
-   * Zapisujemy oficjalną historię Apibara
-   * do naszej bazy.
-   */
-
-  let officialHistory = [];
-
-
+  /* GET performs D1 SELECTs only for the existing history/snapshot fallback. */
   let localVehicle = null;
-
-
   if (env.REXBID_DB) {
     try {
-      await ensureDatabase(env);
+      localVehicle = await findLocalVehicle(env, identifier);
 
-
-      localVehicle =
-        await findLocalVehicle(
-          env,
-          identifier
-        );
-
-
-      /*
-       * Jeżeli nie mamy pojazdu w D1,
-       * spróbujmy wyciągnąć identyfikator
-       * z odpowiedzi Apibara.
-       */
-
-      if (
-        !localVehicle &&
-        apibaraHistory &&
-        apibaraHistory.data &&
-        apibaraHistory.data.vehicle
-      ) {
-        const historyVehicle =
-          apibaraHistory.data.vehicle;
-
-
-        const normalized =
-          normalizeVehicle(
-            historyVehicle
+      if (!localVehicle && apibaraHistory?.data?.vehicle) {
+        const vehicle = normalizeVehicle(apibaraHistory.data.vehicle);
+        if (vehicle) {
+          localVehicle = await findLocalVehicle(
+            env,
+            vehicle.vin || vehicle.lot || vehicle.slugVin
           );
-
-
-        if (normalized) {
-          localVehicle =
-            await findLocalVehicle(
-              env,
-              normalized.vin ||
-              normalized.lot ||
-              normalized.slugVin
-            );
         }
       }
-
-
-      if (localVehicle) {
-        officialHistory =
-          await saveOfficialHistory(
-            env,
-            localVehicle.vehicle_key,
-            apibaraHistory
-          );
-      }
-
     } catch (dbError) {
-      console.error(
-        "Rex.Bid official history save error:",
-        dbError
-      );
+      console.error("Rex.Bid official history lookup error:", dbError);
     }
   }
 
-
-  /*
-   * Jeżeli nie zapisaliśmy jej do D1,
-   * nadal zwracamy historię bezpośrednio.
-   */
-
-  if (
-    officialHistory.length === 0 &&
-    apibaraHistory
-  ) {
-    officialHistory =
-      getApibaraHistoryRecords(
-        apibaraHistory
-      )
-      .map(
-        normalizeHistoryRecord
-      )
-      .filter(Boolean)
-      .map(record => ({
-        platform:
-          record.platform,
-
-        date:
-          record.date,
-
-        price:
-          record.price,
-
-        status:
-          record.status
-      }));
-  }
-
+  const vehicleContext = {
+    vin: localVehicle?.vin || apibaraHistory?.data?.vehicle?.vin,
+    platform: localVehicle?.platform || apibaraHistory?.data?.vehicle?.platform,
+    lot: localVehicle?.lot || apibaraHistory?.data?.vehicle?.lot_number
+  };
+  let officialHistory = apibaraHistory
+    ? normalizeApibaraHistory(apibaraHistory, vehicleContext)
+    : [];
 
   /*
    * Odczyt historii już zapisanej.
@@ -2220,10 +2584,8 @@ async function getHistory(
    * a historia sprzedaży to prawdziwe aukcje.
    */
 
-  const finalHistory =
-    officialHistory.length > 0
-      ? officialHistory
-      : savedHistory;
+  const finalHistory = apibaraHistory ? officialHistory : savedHistory;
+  const nextCursor = apibaraHistory ? apibaraNextCursor : null;
 
 
   /*
@@ -2243,10 +2605,11 @@ async function getHistory(
           ? apibaraHistory.data || null
           : null,
 
-      meta:
-        apibaraHistory
-          ? apibaraHistory.meta || null
-          : null,
+      meta: {
+        per_page: perPage,
+        next_cursor: nextCursor,
+        has_more: Boolean(nextCursor)
+      },
 
       history:
         finalHistory,
@@ -2269,7 +2632,7 @@ async function getHistory(
 
       source:
         apibaraHistory
-          ? "apibara+d1"
+          ? "apibara"
           : "d1",
 
       error:
@@ -2279,7 +2642,7 @@ async function getHistory(
     },
     200,
     "HISTORY",
-    HISTORY_CACHE_TTL_SECONDS
+    0
   );
 }
 
@@ -2452,30 +2815,7 @@ async function getCars(
    * APiBARA
    */
 
-  const result =
-    await fetchApibara(
-      "/vehicles?" +
-      params.toString(),
-      env
-    );
-
-
-  /*
-   * D1
-   */
-
-  try {
-    await saveApiVehicle(
-      env,
-      result
-    );
-
-  } catch (dbError) {
-    console.error(
-      "Rex.Bid D1 list save error:",
-      dbError
-    );
-  }
+  const result = await fetchApibaraVehicles(env, Object.fromEntries(params.entries()));
 
 
   const response =
@@ -2540,9 +2880,6 @@ async function getDatabaseStatus(
 
 
   try {
-    await ensureDatabase(env);
-
-
     const vehicles =
       await env.REXBID_DB
         .prepare(`
@@ -2613,6 +2950,8 @@ export default {
     env
   ) {
 
+    const url = new URL(request.url);
+
     /*
      * CORS
      */
@@ -2642,6 +2981,57 @@ export default {
 
 
     /*
+     * JAWNA, CHRONIONA SYNCHRONIZACJA PERSISTENCE
+     *
+     * Operacja ręczna dla operatora. GET-y pozostają wyłącznie odczytowe.
+     * Token REXBID_SYNC_TOKEN należy skonfigurować jako osobny sekret.
+     */
+
+    const syncPrefix = "/api/sync/vehicle/";
+    if (url.pathname.startsWith(syncPrefix)) {
+      if (request.method !== "POST") {
+        return errorJson("Metoda niedozwolona.", 405);
+      }
+
+      const configuredToken = env?.REXBID_SYNC_TOKEN;
+      if (!configuredToken || String(configuredToken).length < 32) {
+        return errorJson("Synchronizacja nie jest skonfigurowana.", 503);
+      }
+
+      const authorization = request.headers.get("Authorization") || "";
+      const suppliedToken = authorization.startsWith("Bearer ")
+        ? authorization.slice(7)
+        : "";
+      if (!constantTimeTokenEqual(suppliedToken, configuredToken)) {
+        return errorJson("Brak autoryzacji.", 401);
+      }
+
+      let identifier;
+      try {
+        identifier = decodeURIComponent(url.pathname.slice(syncPrefix.length));
+      } catch {
+        return errorJson("Nieprawidłowy identyfikator samochodu.", 400);
+      }
+      if (!identifier || identifier.length > 100 || /[\\/?#]/.test(identifier)) {
+        return errorJson("Nieprawidłowy identyfikator samochodu.", 400);
+      }
+
+      const result = await syncVehicle(env, identifier);
+      const status = result.completed ? 200
+        : result.error === "NOT_FOUND" ? 404
+        : result.error === "D1_UNAVAILABLE" ? 503
+        : result.error === "D1_WRITE_FAILED" ? 500 : 502;
+      return new Response(JSON.stringify(result), {
+        status,
+        headers: {
+          "Content-Type": "application/json; charset=UTF-8",
+          "Cache-Control": "no-store"
+        }
+      });
+    }
+
+
+    /*
      * TYLKO GET
      */
 
@@ -2654,10 +3044,6 @@ export default {
         405
       );
     }
-
-
-    const url =
-      new URL(request.url);
 
 
     /*
@@ -2820,3 +3206,14 @@ export default {
     );
   }
 };
+
+function constantTimeTokenEqual(left, right) {
+  const a = String(left || "");
+  const b = String(right || "");
+  let difference = a.length ^ b.length;
+  const length = Math.max(a.length, b.length);
+  for (let i = 0; i < length; i++) {
+    difference |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
+  }
+  return difference === 0 && a.length > 0;
+}

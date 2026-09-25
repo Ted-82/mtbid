@@ -1,0 +1,61 @@
+{
+  "vehicle": {"vin": "1HGCM82633A123456", "platform": "copart"},
+  "single": {
+    "platform": "copart",
+    "vin": "1HGCM82633A123456",
+    "lot_number": "LOT-123",
+    "auction": {"auction_at": "2025-01-10T14:30:00-05:00", "status": "sold"},
+    "seller": {"name": "Copart Direct"},
+    "pricing": {"current_bid_usd": 500, "sale_price_usd": 5200, "buy_now_usd": 7000},
+    "price": 5200,
+    "status": "sold"
+  },
+  "genericPriceOnly": {
+    "platform": "copart",
+    "lot_number": "LOT-124",
+    "date": "2025-01-11",
+    "status": "sold",
+    "price": 5200
+  },
+  "notSold": {
+    "platform": "iaai",
+    "vin": "1HGCM82633A123456",
+    "lot_number": "LOT-125",
+    "auction_date": "2025-02-15",
+    "status": "not sold",
+    "current_bid": 1800
+  },
+  "eventFirst": {
+    "platform": "copart",
+    "seller": {"name": "Copart Direct"},
+    "source_event_id": "ABC",
+    "vin": "1HGCM82633A123456",
+    "lot_number": "LOT-123",
+    "auction_date": "2025-01-10",
+    "status": "pre-bid",
+    "pricing": {"current_bid_usd": 500}
+  },
+  "eventUpdated": {
+    "platform": "copart",
+    "source_event_id": "ABC",
+    "vin": "1HGCM82633A123456",
+    "lot_number": "LOT-123",
+    "auction_date": "2025-01-10",
+    "status": "sold",
+    "pricing": {"current_bid_usd": 500, "sale_price_usd": 5200}
+  },
+  "eventOther": {
+    "platform": "copart",
+    "source_event_id": "DEF",
+    "vin": "1HGCM82633A123456",
+    "lot_number": "LOT-123",
+    "auction_date": "2025-01-10",
+    "status": "not sold",
+    "pricing": {"current_bid_usd": 900}
+  },
+  "pages": [
+    {"data": [{"platform":"copart","source_event_id":"E1","lot_number":"L1","auction_date":"2025-01-01","status":"sold","pricing":{"sale_price_usd":100}}], "meta":{"next_cursor":"CURSOR-A"}},
+    {"data": [{"platform":"copart","source_event_id":"E2","lot_number":"L2","auction_date":"2025-01-02","status":"sold","pricing":{"sale_price_usd":200}}], "meta":{"next_cursor":"CURSOR-B"}},
+    {"data": [{"platform":"iaai","source_event_id":"E3","lot_number":"L3","auction_date":"2025-01-03","status":"not sold","pricing":{"current_bid_usd":300}}], "meta":{"next_cursor":null}}
+  ]
+}

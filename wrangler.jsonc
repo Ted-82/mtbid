@@ -7,6 +7,15 @@
 
   "compatibility_date": "2026-09-19",
 
+  "d1_databases": [
+    {
+      "binding": "REXBID_DB",
+      "database_name": "rexbid-db",
+      "database_id": "971879fe-04ed-4e8c-9dc6-5306980bb872",
+      "migrations_dir": "migrations"
+    }
+  ],
+
   "assets": {
     "directory": "./public",
     "binding": "ASSETS"
