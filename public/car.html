@@ -1012,6 +1012,7 @@ body{background:var(--bg);color:var(--text)}
 .history-status{display:inline-flex;padding:5px 8px;border-radius:6px;font-size:9px;font-weight:800}
 .history-status.sold{background:#e8f7ef;color:#187a47}
 .history-status.not-sold{background:#fdeced;color:#b43b3b}
+.history-status.pending{background:#fff4d8;color:#8a6500}
 .history-status.live{background:#e9f3ff;color:#1769b0}
 .history-status.upcoming{background:#fff4d8;color:#8a6500}
 .history-status.unknown{background:#f0f2f4;color:#66727e}
@@ -1053,6 +1054,8 @@ main{padding-top:22px}
 .vehicle-highlight.status-highlight.ended i{background:#c04a4a}
 .vehicle-highlight.damage-highlight{max-width:min(100%,460px)}
 .vehicle-highlight.damage-highlight b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vehicle-highlight.condition-chip{min-height:32px;padding:5px 9px;gap:5px;background:#f2f7f8;border-color:#d7e5e7}
+.vehicle-highlight.condition-chip b{font-size:10px}
 .detail-layout{grid-template-columns:minmax(0,1.45fr) minmax(360px,.78fr);gap:18px;margin-top:0}
 .right-column{gap:14px}
 .right-column>.info-card:first-child{position:sticky;top:88px;z-index:4;box-shadow:0 12px 32px rgba(28,38,48,.09)}
@@ -1230,7 +1233,7 @@ main{padding-top:22px}
 
 .condition-summary{padding:12px 14px!important}
 .condition-summary-grid{display:grid;gap:0}
-.condition-summary-row{display:grid;grid-template-columns:26px minmax(0,1fr);align-items:start;gap:9px;padding:10px 0;border-bottom:1px solid #edf0f2;color:#485562;font-size:12px;line-height:1.45}
+.condition-summary-row{display:grid;grid-template-columns:26px minmax(0,1fr);align-items:start;gap:9px;padding:7px 0;border-bottom:1px solid #edf0f2;color:#485562;font-size:12px;line-height:1.4}
 .condition-summary-row:last-child{border-bottom:0}
 .condition-summary-row>div{min-width:0}
 .condition-summary-row strong{display:block;margin-bottom:2px;color:#263747;font-size:11px;font-weight:800}
@@ -2004,6 +2007,10 @@ main{padding-top:22px}
 
   function sellerName() {
     const candidates = [
+      car.details?.attributes?.ProviderName,
+      car.details?.sale_information?.Seller,
+      car.details?.vehicle_information?.Seller,
+      car.sale_information?.Seller,
       car.seller?.name,
       car.seller?.displayName,
       car.seller?.display,
@@ -2017,9 +2024,9 @@ main{padding-top:22px}
       car.sale_information?.Seller?.seller_name,
       car.sale_information?.Seller?.companyName,
       car.details?.sale_information?.Seller?.name,
-      valueFrom(["seller_display_name","sellerDisplayName","provider_name","providerName","company_name","companyName","sellerName","SellerName","seller_name"]),
+      valueFrom(["ProviderName","provider_name","providerName","seller_display_name","sellerDisplayName","company_name","companyName","sellerName","SellerName","seller_name"]),
       valueFrom(["Seller"])
-    ].map(value => String(displayValue(value) || "").trim()).filter(value => value && !/^(?:\*{2,}|#{2,}|•{2,}|unknown|n\/?a|not available|null)$/i.test(value));
+    ].map(value => String(displayValue(value) || "").trim()).filter(value => value && !/^(?:[*#•\s]+|unknown(?: seller)?|seller unknown|n\/?a|not available|name unavailable|nazwa niedostępna|brak danych|unavailable|null|none|masked|[-—])$/i.test(value));
     return candidates[0] || "";
   }
 
@@ -2295,11 +2302,26 @@ main{padding-top:22px}
 
   function sellerProfile(name) {
     const raw = String(displayValue(name) || '').trim();
-    const masked = /[*#•]{3,}/.test(raw);
-    const type = displayValue(first(valueFrom(['seller_type','sellerType','SellerType','ProviderType']), valueFrom(['Origin'])));
+    const masked = /[*#•]{2,}/.test(raw) || /^(?:unknown(?: seller)?|seller unknown|n\/?a|not available|name unavailable|nazwa niedostępna|brak danych|unavailable|null|none|masked|[-—])$/i.test(raw);
+    const typeRaw = [car.details?.attributes?.ProviderType,car.details?.attributes?.ProviderTypeTimedAuction,car.details?.sale_information?.SellerType,car.seller?.type,valueFrom(['seller_type','sellerType','SellerType','ProviderType']),valueFrom(['Origin'])]
+      .map(value => String(displayValue(value) || '').trim())
+      .find(value => value && !/^(?:unknown|n\/?a|not available|unavailable|null|none|-)$/i.test(value)) || '';
+    const type = /^(?:ins|insurance|insurance company)$/i.test(typeRaw) ? 'Insurance'
+      : /^(?:nins|non[_ -]?insurance|non insurance company)$/i.test(typeRaw) ? 'Non-insurance'
+      : /^(?:unknown|n\/?a|null|-)$/i.test(typeRaw) ? '' : typeRaw;
     if (masked) return { label: 'Dane ukryte przez źródło', cls: 'unknown', name: '', type, note: 'Źródło aukcyjne maskuje nazwę sprzedawcy.' };
     if (!raw && !type) return { label: 'Brak danych o sprzedawcy', cls: 'unknown', name: '', type: '', note: 'Aukcja nie przekazała danych sprzedawcy.' };
     return { label: raw ? 'Dane sprzedawcy z aukcji' : 'Typ sprzedawcy z aukcji', cls: 'unknown', name: raw, type, note: 'To wyłącznie informacja przekazana przez platformę; nie jest oceną wiarygodności sprzedawcy.' };
+  }
+
+  function runConditionLabel(value) {
+    const raw = String(displayValue(value) || '').trim();
+    if (!raw || /^(?:false|null|unknown|n\/?a|-)$/i.test(raw)) return '';
+    if (/runs?\s*(?:and|&)\s*drives?|run\s*&\s*drive/i.test(raw)) return 'RUN & DRIVE';
+    if (/^starts?(?:\s|$)/i.test(raw)) return 'STARTS';
+    if (/stationary|not running|does not run|non[- ]?runner/i.test(raw)) return 'STATIONARY';
+    if (/^(?:true|1)$/i.test(raw)) return 'RUN & DRIVE';
+    return '';
   }
 
 
@@ -2309,22 +2331,28 @@ main{padding-top:22px}
       car.sale_document?.name, car.sale_document?.type, car.sale_document?.status,
       car.sale_document?.code].filter(Boolean).map(value => String(displayValue(value) || '').toLowerCase());
     const text = values.join(' ');
-    const sourceRegistration = car.sale_document?.registration;
+    const flag = value => typeof value === 'boolean' ? value
+      : /^(?:true|yes|1)$/i.test(String(value ?? '').trim()) ? true
+      : /^(?:false|no|0)$/i.test(String(value ?? '').trim()) ? false : null;
+    const sourceRegistration = flag(car.sale_document?.registration ?? car.sale_document?.registration_allowed ?? car.sale_document?.can_register);
+    const sourceExport = flag(car.sale_document?.export ?? car.sale_document?.export_allowed);
     if (/certificate of destruction|non[- ]repairable|parts[- ]only|\bjunk\b|\bscrap\b/.test(text)) return 'bad';
-    if (/\bsalvage\b|rebuildable|rebuilt|flood|bill of sale|dealer only|pending|\btbo\b/.test(text) || sourceRegistration === false) return 'warn';
-    if (/\bclean\b|\bclear\b/.test(text) && sourceRegistration === true) return 'good';
+    if (sourceRegistration === false || sourceExport === false) return 'bad';
+    if (flag(car.sale_document?.is_pending ?? car.sale_document?.pending) === true) return 'warn';
+    if (sourceRegistration === true && sourceExport === true) return 'good';
+    if (/\bsalvage\b|rebuildable|rebuilt|reconstructed|flood|fire|bill of sale|dealer only|pending|\btbo\b|\bclean\b|\bclear\b/.test(text)) return 'warn';
     return 'unknown';
   }
 
   function titleVerdictLabel(kind) {
     if (kind === 'good') return 'Rejestracja w PL: prawdopodobnie możliwa';
-    if (kind === 'bad') return 'Dokument problematyczny — wymaga weryfikacji';
+    if (kind === 'bad') return 'Poważne ograniczenie w danych źródła';
     return 'Wymaga weryfikacji';
   }
 
   function titleVerdictNote(kind) {
-    if (kind === 'good') return 'Źródło przekazało dokument Clean/Clear i oznaczyło go jako rejestracyjny. To nie przesądza o spełnieniu polskich wymagań ani o decyzji urzędu.';
-    if (kind === 'bad') return 'Źródło wskazuje dokument typu destruction, non-repairable, parts-only, junk lub scrap. Sprawdź oryginał i skutki dla konkretnego pojazdu przed zakupem.';
+    if (kind === 'good') return 'Źródło oznacza dokument jako możliwy do rejestracji i eksportu. Nie przesądza to o spełnieniu polskich wymagań ani decyzji urzędu.';
+    if (kind === 'bad') return 'Źródło wskazuje ograniczenie rejestracji/eksportu albo dokument z grupy destruction, non-repairable, parts-only, junk lub scrap. Zweryfikuj oryginał i skutki przed zakupem.';
     return 'Dostępne dane nie wystarczają do oceny dokumentu. Zweryfikuj oryginalny title i wymagania dla konkretnego pojazdu.';
   }
 
@@ -2524,20 +2552,31 @@ main{padding-top:22px}
     );
 
     const runDrive = first(
+      car.condition?.run_condition?.value,
       car.condition?.run_and_drive,
       getInfo(["StartCode"]),
-      valueFrom(["RunAndDrive","StartsDesc","StartsCode"])
+      valueFrom(["RunAndDrive","StartsDesc","StartsCode"]),
+      car.details?.attributes?.RunAndDrive
     );
 
     const keys = first(
+      car.condition?.has_key === true ? "Present" : car.condition?.has_key === false ? "Missing" : null,
       getInfo(["KeySlashFob"]),
-      valueFrom(["Keys","KeyFOB"])
+      valueFrom(["Keys","KeyFOB"]),
+      car.details?.attributes?.KeyFob
     );
 
     const airbags = first(
+      car.vehicle_specs?.airbags,
       getInfo(["Airbags"]),
-      valueFrom(["AirbagState","DriverPassengerAirbag"])
+      valueFrom(["AirbagState","DriverPassengerAirbag"]),
+      car.details?.attributes?.AirbagState
     );
+
+    const runDriveLabel = runConditionLabel(runDrive);
+    const keysLabel = /^(?:true|1|present|yes)$/i.test(String(displayValue(keys) || '').trim()) ? 'Present'
+      : /^(?:false|0|missing|no)$/i.test(String(displayValue(keys) || '').trim()) ? 'Missing'
+      : (!isEmpty(keys) ? displayValue(keys) : '');
 
     const mediaCount = photos.length;
 
@@ -2562,6 +2601,9 @@ main{padding-top:22px}
             <span class="vehicle-highlight status-highlight ${auctionStatusClass()}" id="auctionStatusHeadline"><i></i>${esc(auctionState)}</span>
             ${!isEmpty(odometer) ? `<span class="vehicle-highlight"><small>Przebieg</small><b>${nice(odometer)}</b></span>` : ""}
             ${!isEmpty(primaryDamage) ? `<span class="vehicle-highlight damage-highlight"><small>Główne uszkodzenie</small><b>${nice(primaryDamage)}</b></span>` : ""}
+            ${runDriveLabel ? `<span class="vehicle-highlight condition-chip"><b>${esc(runDriveLabel)}</b></span>` : ""}
+            ${!isEmpty(keysLabel) ? `<span class="vehicle-highlight condition-chip"><small>Kluczyki</small><b>${esc(keysLabel)}</b></span>` : ""}
+            ${!isEmpty(airbags) ? `<span class="vehicle-highlight condition-chip"><small>Airbags</small><b>${nice(airbags)}</b></span>` : ""}
           </div>
         </div>
         <div class="vehicle-head-actions">
@@ -2603,20 +2645,19 @@ main{padding-top:22px}
             </div>
             <details class="spec-more"><summary>Pokaż więcej danych</summary><div class="spec-grid">
               ${field("Typ pojazdu",getDescription(["Vehicle","VehicleClass","InventoryType"]))}${field("Paliwo",getDescription(["FuelType","FuelTypeDesc"]))}${field("Cylindry",getDescription(["Cylinders","CylindersDesc"]))}
-              ${field("Status przebiegu",valueFrom(["ODOBrand"]))}${field("Kolor wnętrza",valueFrom(["InteriorColor"]))}${field("Kluczyki",keys)}
-              ${field("Run & Drive",runDrive)}${field("Airbagi",airbags)}${field("Typ straty",getInfo(["Loss"]))}
+              ${field("Status przebiegu",valueFrom(["ODOBrand"]))}${field("Kolor wnętrza",valueFrom(["InteriorColor"]))}
+              ${field("Typ straty",getInfo(["Loss"]))}
               ${field("ACV",getSale(["ActualCashValue"]))}${field("Szac. naprawa",getSale(["EstimatedRepairCost"]))}${field("Minimalna oferta",valueFrom(["MinimumBidAmount"]))}${field("Kto może kupić",valueFrom(["WhoCanBuy","whoCanBuy","WhoCanBid","whoCanBid"]))}
             </div></details>
             <div class="jump-links"><a href="#damage">Uszkodzenia</a><a href="#title">TITLE</a><a href="#seller">Sprzedawca</a><a href="#shipping">Wysyłka i lokalizacja</a></div>
           </section>
 
-          ${!isEmpty(primaryDamage) || !isEmpty(secondaryDamage) || !isEmpty(getInfo(["Loss"])) || sellerInfo.name || sellerInfo.type || !isEmpty(titleDoc) || !isEmpty(titleBrand) || !isEmpty(titleState) || !isEmpty(titleCode) || !isEmpty(runDrive) || !isEmpty(airbags) || !isEmpty(keys) ? `<section class="panel section condition-summary" id="conditionSummary">
+          ${!isEmpty(primaryDamage) || !isEmpty(secondaryDamage) || !isEmpty(getInfo(["Loss"])) || sellerInfo.name || sellerInfo.type || !isEmpty(titleDoc) || !isEmpty(titleBrand) || !isEmpty(titleState) || !isEmpty(titleCode) ? `<section class="panel section condition-summary" id="conditionSummary">
             <div class="section-title"><h2>Stan pojazdu</h2><span>Informacje ze źródła aukcyjnego</span></div>
             <div class="condition-summary-grid">
               ${!isEmpty(primaryDamage) || !isEmpty(secondaryDamage) || !isEmpty(getInfo(["Loss"])) ? `<div class="condition-summary-row" id="damage"><span class="condition-summary-icon" aria-hidden="true">!</span><div><strong>Uszkodzenia</strong><div>${!isEmpty(primaryDamage) ? `Główne: ${nice(primaryDamage)}` : "Brak danych o głównym uszkodzeniu"}${!isEmpty(secondaryDamage) ? ` · Dodatkowe: ${nice(secondaryDamage)}` : ""}${!isEmpty(getInfo(["Loss"])) ? ` · Rodzaj straty: ${nice(getInfo(["Loss"]))}` : ""}</div></div></div>` : ""}
-              ${!isEmpty(titleDoc) || !isEmpty(titleBrand) || !isEmpty(titleState) || !isEmpty(titleCode) ? `<div class="condition-summary-row" id="title"><span class="condition-summary-icon" aria-hidden="true">▤</span><div><strong>Dokument</strong><div>${!isEmpty(titleDoc) ? nice(titleDoc) : "Nazwa dokumentu niedostępna"}${!isEmpty(titleBrand) ? ` · ${nice(titleBrand)}` : ""}</div><span class="condition-title-badge ${esc(displayTitleKind)}">${esc(titleVerdictLabel(displayTitleKind))}</span><small class="condition-disclaimer">${esc(titleVerdictNote(displayTitleKind))} To wskazówka informacyjna, nie ocena prawna ani gwarancja rejestracji.</small></div></div>` : ""}
-              ${sellerInfo.name || sellerInfo.type ? `<div class="condition-summary-row" id="seller"><span class="condition-summary-icon" aria-hidden="true">↗</span><div><strong>Sprzedający</strong><div>${sellerInfo.name ? nice(sellerInfo.name) : "Nazwa niedostępna"}${sellerInfo.type ? ` · Typ: ${nice(sellerInfo.type)}` : ""}</div><small class="condition-disclaimer">Dane przekazane przez źródło aukcyjne; nie stanowią oceny wiarygodności.</small></div></div>` : ""}
-              ${!isEmpty(runDrive) || !isEmpty(airbags) || !isEmpty(keys) ? `<div class="condition-summary-row"><span class="condition-summary-icon" aria-hidden="true">✓</span><div><strong>Stan eksploatacyjny</strong><div>${!isEmpty(runDrive) ? `Uruchomienie: ${nice(runDrive)}` : ""}${!isEmpty(keys) ? `${!isEmpty(runDrive) ? " · " : ""}Kluczyki: ${nice(keys)}` : ""}${!isEmpty(airbags) ? `${!isEmpty(runDrive) || !isEmpty(keys) ? " · " : ""}Airbagi: ${nice(airbags)}` : ""}</div></div></div>` : ""}
+              ${!isEmpty(titleDoc) || !isEmpty(titleBrand) || !isEmpty(titleState) || !isEmpty(titleCode) ? `<div class="condition-summary-row" id="title"><span class="condition-summary-icon" aria-hidden="true">▤</span><div><strong>Dokument</strong><div>${!isEmpty(titleDoc) ? nice(titleDoc) : "Nazwa dokumentu niedostępna"}${!isEmpty(titleBrand) ? ` · ${nice(titleBrand)}` : ""}</div><span class="condition-title-badge ${esc(displayTitleKind)}">${esc(titleVerdictLabel(displayTitleKind))}</span><details class="condition-more"><summary>Jak czytać tę informację</summary><small class="condition-disclaimer">${esc(titleVerdictNote(displayTitleKind))} To wskazówka informacyjna, nie ocena prawna ani gwarancja rejestracji.</small><div class="spec-grid">${field("Rejestracja wg źródła",car.sale_document?.registration === true ? "Tak" : car.sale_document?.registration === false ? "Nie" : null)}${field("Eksport wg źródła",car.sale_document?.export === true ? "Tak" : car.sale_document?.export === false ? "Nie" : null)}${field("Stan / kod title",titleCode)}${field("Uwagi do title",titleNotes)}${field("Stan title",titleState)}</div></details></div></div>` : ""}
+              ${sellerInfo.name || sellerInfo.type ? `<div class="condition-summary-row" id="seller"><span class="condition-summary-icon" aria-hidden="true">↗</span><div><strong>Sprzedający</strong><div>${sellerInfo.name ? nice(sellerInfo.name) : "Nazwa niedostępna"}${sellerInfo.type ? ` · ${esc(sellerInfo.type)}` : ""}</div><details class="condition-more"><summary>Informacja ze źródła</summary><small class="condition-disclaimer">Dane przekazane przez platformę aukcyjną; nie stanowią oceny wiarygodności.</small></details></div></div>` : ""}
               ${!isEmpty(titleNotes) || !isEmpty(titleCode) ? `<details class="condition-more"><summary>Szczegóły dokumentu</summary><div class="spec-grid">${field("Stan / kod title",titleCode)}${field("Uwagi do title",titleNotes)}${field("Stan title",titleState)}</div></details>` : ""}
             </div>
           </section>` : ""}
@@ -3372,7 +3413,9 @@ main{padding-top:22px}
     const sellerTypeText = String(displayValue(sellerTypeRaw) || "").trim();
     const sellerType = /^(?:unknown|n\/?a|not available|null)$/i.test(sellerTypeText) ? "" : sellerTypeText;
     const currentBid = numberOrNull(first(record.current_bid, historyField(record,["current_bid_usd","currentBidUsd","currentBid","bid"]), historyNested(record,[["pricing","current_bid_usd"],["pricing","current_bid"],["auction","current_bid_usd"]])));
-    const finalPrice = numberOrNull(first(record.final_price, historyField(record,["sale_price_usd","sale_price","final_price_usd","finalPriceUsd","final_bid_usd","sold_price_usd"]), historyNested(record,[["pricing","sale_price_usd"],["pricing","final_price_usd"],["pricing","final_bid_usd"],["pricing","sold_price_usd"]])));
+    const sourceStatus = String(displayValue(status) || "").trim();
+    const unconfirmedSale = /sold\s+on\s+approval|on\s+approval|sale\s+pending\s+approval|pending\s+approval/i.test(sourceStatus);
+    const finalPrice = unconfirmedSale ? null : numberOrNull(first(record.final_price, historyField(record,["sale_price_usd","sale_price","final_price_usd","finalPriceUsd","final_bid_usd","sold_price_usd"]), historyNested(record,[["pricing","sale_price_usd"],["pricing","final_price_usd"],["pricing","final_bid_usd"],["pricing","sold_price_usd"]])));
     const buyNow = numberOrNull(first(record.buy_now, historyField(record,["buy_now_usd","buyNowUsd","buyNow"]), historyNested(record,[["pricing","buy_now_usd"],["pricing","buy_now"]])));
     const sourcePrice = numberOrNull(first(record.source_price, record.price, historyField(record,["price_usd"]), historyNested(record,[["pricing","price"],["pricing","price_usd"]])));
     const date = saleDate || auctionDate || null;
@@ -3401,9 +3444,10 @@ main{padding-top:22px}
   function historyStatusLabel(status) {
     const s = String(status || "").toLowerCase().trim();
     if (!s) return "Brak informacji";
-    if (/sold on approval|on approval|sale pending approval/.test(s)) return "Sprzedano warunkowo";
-    if (/sold|sale complete|completed|won|approved/.test(s) && !/not sold|no sale|unsold|failed/.test(s)) return "Sprzedano";
+    if (/sold on approval|on approval|sale pending approval|pending approval/.test(s)) return "Oczekuje na zatwierdzenie";
     if (/not sold|no sale|unsold|not_sold|failed/.test(s)) return "Nie sprzedano";
+    if (/^(?:pending|pending sale|awaiting confirmation|sale pending)$/.test(s)) return "Oczekuje na potwierdzenie";
+    if (/sold|sale complete|completed|won|approved/.test(s)) return "Sprzedano";
     if (/live|open|active|running|in progress/.test(s)) return "W trakcie";
     if (/upcoming|future|scheduled|pre.?bid/.test(s)) return "W przygotowaniu";
     if (/closed|ended|finished|complete/.test(s)) return "Zakończona";
@@ -3412,11 +3456,19 @@ main{padding-top:22px}
 
   function historyStatusClass(status) {
     const label = historyStatusLabel(status).toLowerCase();
-    if (label.includes("sprzedano")) return "sold";
     if (label.includes("nie sprzedano")) return "not-sold";
+    if (label === "sprzedano") return "sold";
+    if (label.includes("zatwierdzenie") || label.includes("potwierdzenie")) return "pending";
     if (label.includes("trakcie")) return "live";
     if (label.includes("przygotowaniu")) return "upcoming";
     return "unknown";
+  }
+
+  function historySellerTypeLabel(type) {
+    const value = String(type || '').trim().toLowerCase().replace(/[ _-]+/g, ' ');
+    if (value === 'ins' || value === 'insurance') return 'Insurance';
+    if (value === 'nins' || value === 'non insurance') return 'Non-insurance';
+    return displayValue(type) || '';
   }
 
   function historyRecordKey(item) {
@@ -3468,7 +3520,7 @@ main{padding-top:22px}
         : hasBuyNow ? "Kup teraz" : !isEmpty(item.source_price) ? "Kwota z rekordu · typ nieokreślony" : "";
       const displayAmount = amount === null || amount === undefined ? item.source_price : amount;
       const price = displayAmount === null || displayAmount === undefined || Number.isNaN(Number(displayAmount)) ? "—" : money(displayAmount);
-      const sellerLabel = item.seller ? esc(item.seller) : item.seller_type ? `Typ: ${esc(item.seller_type)}` : "—";
+      const sellerLabel = item.seller ? esc(item.seller) : item.seller_type ? `Typ: ${esc(historySellerTypeLabel(item.seller_type))}` : "—";
       const status = historyStatusLabel(item.status);
       const platform = String(item.platform || platformName()).toUpperCase();
       const platformCls = platform.toLowerCase().includes("iaai") || platform === "IAA" ? "iaai" : "copart";

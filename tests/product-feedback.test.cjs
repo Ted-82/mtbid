@@ -6,6 +6,7 @@ const vm = require('node:vm');
 
 const root = path.resolve(__dirname, '..');
 const samples = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/apibara-live-observations.json'), 'utf8'));
+const ownerCases = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/owner-data-cases.json'), 'utf8'));
 const workerSource = fs.readFileSync(path.join(root, 'worker.js'), 'utf8').replace('export default {', 'globalThis.__worker = {');
 const indexSource = fs.readFileSync(path.join(root, 'public/index.html'), 'utf8');
 const carSource = fs.readFileSync(path.join(root, 'public/car.html'), 'utf8');
@@ -87,14 +88,14 @@ test('seller extraction retains full sourced names and drops masked placeholders
   assert.equal(named.sellerName, 'Progressive Casualty Insurance');
   const masked = helpers.normalizeVehicle({ vin: 'TESTVIN', lot_number: '1', platform: 'iaai', seller: samples.seller_samples.masked_iaai });
   assert.equal(masked.sellerName, '');
-  assert.equal(masked.sellerType, 'unknown');
+  assert.equal(masked.sellerType, '');
   const historyMasked = helpers.normalizeHistoryRecord({ platform: 'iaai', lot_number: '1', status: 'Not Sold', seller: { name: '******', type: 'unknown' } });
   assert.equal(historyMasked.seller, null);
 });
 
 test('history table shows untyped source price honestly and never renders masked seller as a name', () => {
   assert.match(carSource, /Kwota z rekordu · typ nieokreślony/);
-  assert.match(carSource, /item\.seller_type \? `Typ: \$\{esc\(item\.seller_type\)\}`/);
+  assert.match(carSource, /historySellerTypeLabel\(item\.seller_type\)/);
   const blocks = [
     extractFunctionBlock(carSource, 'historyField', 'historyNested'),
     extractFunctionBlock(carSource, 'historyNested', 'normalizeHistoryRecord'),
@@ -163,22 +164,149 @@ test('all public product pages use the shared REX.Bid brand and mobile navigatio
   assert.match(brand, /@media \(max-width: 1000px\)/);
 });
 
+test('IAAI/Copart seller extraction prefers the full source name, maps INS, and ignores masked placeholders', () => {
+  const helpers = workerHelpers();
+  const vehicle = helpers.normalizeVehicle({ vin: 'TESTVIN', lot_number: 'LOT-1', platform: 'iaai', ...ownerCases.detail_iaai_seller });
+  assert.equal(vehicle.sellerName, 'Progressive Casualty Insurance');
+  assert.equal(vehicle.sellerType, 'insurance');
+  assert.equal(vehicle.runCondition, 'RUNS AND DRIVES');
+  assert.equal(vehicle.hasKey, true);
+
+  const copart = helpers.normalizeVehicle({ vin: 'TESTVIN2', lot_number: 'LOT-2', platform: 'copart', ...ownerCases.detail_copart_seller });
+  assert.equal(copart.sellerName, 'Non-insurance Company');
+  const maskedThenFull = helpers.normalizeVehicle({ vin: 'TESTVIN4', lot_number: 'LOT-4', platform: 'iaai', ...ownerCases.detail_masked_then_full_seller });
+  assert.equal(maskedThenFull.sellerName, 'Verified Source Seller');
+  assert.equal(maskedThenFull.sellerType, 'insurance');
+  const laterSource = helpers.normalizeVehicle({ vin: 'TESTVIN5', lot_number: 'LOT-5', platform: 'iaai', ...ownerCases.detail_unknown_attribute_full_sale_seller });
+  assert.equal(laterSource.sellerName, 'Source Sale Seller');
+  assert.equal(laterSource.sellerType, 'insurance');
+  const masked = helpers.normalizeVehicle({ vin: 'TESTVIN3', lot_number: 'LOT-3', platform: 'iaai', ...ownerCases.detail_masked_seller });
+  assert.equal(masked.sellerName, '');
+  assert.equal(masked.sellerType, 'insurance');
+
+  const uiBlocks = [extractFunctionBlock(carSource, 'sellerName', 'platformName'), extractFunctionBlock(carSource, 'sellerProfile', 'titleSourceStatus')].join('\n');
+  const uiContext = { car: ownerCases.detail_iaai_seller, first: (...values) => values.find(value => value !== null && value !== undefined && value !== ''), valueFrom: () => null, displayValue: value => value };
+  vm.createContext(uiContext);
+  vm.runInContext(`${uiBlocks}\nglobalThis.seller = {name:sellerName(),profile:sellerProfile(sellerName())};`, uiContext);
+  assert.equal(uiContext.seller.name, 'Progressive Casualty Insurance');
+  assert.equal(uiContext.seller.profile.type, 'Insurance');
+});
+
+test('title hints combine exact document names with source registration/export flags', () => {
+  const block = extractFunctionBlock(carSource, 'titleSourceStatus', 'titleVerdictLabel');
+  const context = { car: { sale_document: {} }, displayValue: value => value };
+  vm.createContext(context);
+  vm.runInContext(`${block}\nglobalThis.classify = titleSourceStatus;`, context);
+  for (const doc of ownerCases.documents) {
+    context.car.sale_document = { name: doc.name, registration: doc.registration, export: doc.export, is_pending: doc.is_pending };
+    assert.equal(context.classify(doc.name, null, null, null, null), doc.expected, doc.name);
+  }
+  assert.match(carSource, /not a legal|ocena prawna|gwarancja rejestracji/i);
+});
+
+test('top vehicle highlights distinguish run state, keys and airbags without inventing missing values', () => {
+  assert.match(carSource, /car\.condition\?\.run_condition\?\.value/);
+  assert.match(carSource, /car\.condition\?\.has_key === true \? "Present"/);
+  assert.match(carSource, /car\.vehicle_specs\?\.airbags/);
+  assert.match(carSource, /vehicle-highlight condition-chip/);
+  assert.match(carSource, /runDriveLabel \? `/);
+  assert.match(carSource, /!isEmpty\(keysLabel\)/);
+  assert.match(carSource, /!isEmpty\(airbags\)/);
+  const block = extractFunctionBlock(carSource, 'runConditionLabel', 'titleSourceStatus');
+  const context = { displayValue: value => value };
+  vm.createContext(context);
+  vm.runInContext(`${block}\nglobalThis.label = runConditionLabel;`, context);
+  assert.equal(context.label('RUNS AND DRIVES'), 'RUN & DRIVE');
+  assert.equal(context.label('Starts'), 'STARTS');
+  assert.equal(context.label('Stationary'), 'STATIONARY');
+  assert.equal(context.label(null), '');
+  assert.equal(context.label('Enhanced vehicles'), '', 'non-operational labels do not become positive run states');
+});
+
+test('Sold on Approval remains approval-pending, distinct from Not Sold, and never becomes a final sale', () => {
+  const helpers = workerHelpers();
+  const approval = helpers.normalizeApibaraHistory({ data: { history: [ownerCases.history.approval] } })[0];
+  assert.equal(approval.status, 'Sold on Approval');
+  assert.equal(approval.source_price, 9225);
+  assert.equal(approval.final_price, null);
+  assert.equal(approval.seller, null, 'history has no seller; current vehicle seller must not be copied into this event');
+
+  const sold = helpers.normalizeApibaraHistory({ data: { history: [ownerCases.history.sold] } })[0];
+  assert.equal(sold.final_price, 12500);
+  const pending = helpers.normalizeApibaraHistory({ data: { history: [ownerCases.history.pending] } })[0];
+  assert.equal(pending.final_price, null);
+
+  const blocks = [
+    extractFunctionBlock(carSource, 'historyField', 'historyNested'),
+    extractFunctionBlock(carSource, 'historyNested', 'normalizeHistoryRecord'),
+    extractFunctionBlock(carSource, 'normalizeHistoryRecord', 'historyStatusLabel'),
+    extractFunctionBlock(carSource, 'historyStatusLabel', 'historyStatusClass'),
+    extractFunctionBlock(carSource, 'historyStatusClass', 'historySellerTypeLabel')
+  ].join('\n');
+  const context = { displayValue: value => value, platformName: () => 'IAAI', getLot: () => '', isEmpty: value => value === null || value === undefined || value === '' };
+  vm.createContext(context);
+  vm.runInContext(`${blocks}\nglobalThis.map = {normalizeHistoryRecord,historyStatusLabel,historyStatusClass};`, context);
+  const uiApproval = context.map.normalizeHistoryRecord({ ...ownerCases.history.approval, final_price: 9225 });
+  assert.equal(uiApproval.final_price, null);
+  assert.equal(context.map.historyStatusLabel('Sold on Approval'), 'Oczekuje na zatwierdzenie');
+  assert.equal(context.map.historyStatusClass('Sold on Approval'), 'pending');
+  assert.equal(context.map.historyStatusLabel('Not Sold'), 'Nie sprzedano');
+  assert.equal(context.map.historyStatusClass('Sold'), 'sold');
+  assert.equal(context.map.historyStatusLabel('Pending'), 'Oczekuje na potwierdzenie');
+});
+
 test('Buy Now market aisle shows the confirmed Buy Now price and keeps current bid separate', () => {
   const source = extractFunctionBlock(indexSource, 'marketAislePriceInfo', 'renderMarketAisleCard');
   const context = { getPriceInfo: car => ({ value: car.pricing.current_bid_usd, label: 'Aktualna oferta' }), formatMoney: value => '$' + Number(value).toLocaleString('en-US') };
   vm.createContext(context);
   vm.runInContext(source + '\nglobalThis.marketPrice = marketAislePriceInfo;', context);
-  const info = context.marketPrice(samples.buy_now_listing_sample, true);
+  const info = context.marketPrice(samples.buy_now_listing_sample, 'buy-now');
   assert.deepEqual(JSON.parse(JSON.stringify(info)), { value: 1000, label: 'Kup teraz', secondary: 'Aktualna oferta · $150' });
-  assert.deepEqual(JSON.parse(JSON.stringify(context.marketPrice(samples.buy_now_listing_sample))), { value: 150, label: 'Aktualna oferta' });
+  assert.deepEqual(JSON.parse(JSON.stringify(context.marketPrice(samples.buy_now_listing_sample))), { value: 150, label: 'Aktualna oferta', secondary: '' });
+  assert.deepEqual(JSON.parse(JSON.stringify(context.marketPrice({ pricing: { buy_now_usd: 0 } }, 'buy-now'))), { value: null, label: 'Kup teraz', secondary: '' });
+  assert.deepEqual(JSON.parse(JSON.stringify(context.marketPrice({ pricing: { current_bid_usd: 850, sale_price_usd: 2200 } }, 'timed'))), { value: 850, label: 'Aktualna oferta', secondary: '' });
+  assert.deepEqual(JSON.parse(JSON.stringify(context.marketPrice({ pricing: { sale_price_usd: 2200 } }, 'upcoming'))), { value: null, label: 'Cena niedostępna', secondary: '' });
 });
 test('home catalog uses four bounded sections backed only by supported Worker filters', () => {
-  const sections = [...indexSource.matchAll(/<section class="market-aisle" data-market-aisle data-query="([^"]+)"/g)];
+  const sections = [...indexSource.matchAll(/<section class="market-aisle" data-market-aisle data-kind="([^"]+)" data-query="([^"]+)"/g)];
   assert.equal(sections.length, 4);
-  assert.deepEqual(sections.map(match => match[1]), [
+  assert.deepEqual(sections.map(match => match[1]), ['current', 'buy-now', 'timed', 'upcoming']);
+  assert.deepEqual(sections.map(match => match[2]), [
     'lot_sub_status=Open', 'lot_status=Buy%20Now', 'platform=iaai&amp;lot_status=Timed', 'upcoming=only'
   ]);
   assert.match(indexSource, /params\.set\("per_page", "4"\)/);
+  assert.match(indexSource, /marketAisleCars\(payload\)\.slice\(0, 4\)/);
   assert.match(indexSource, /href="\$\{escapeHtml\(href\)\}"/);
+  assert.equal((indexSource.match(/class="aisle-more" href="\/?\?catalog=1/g) || []).length, 4);
   assert.doesNotMatch(indexSource, /Superauta|Premium|Wyróżnione/);
+  assert.match(indexSource, /id="catalogResults"[^>]*hidden/);
+  assert.match(indexSource, /params\.get\("catalog"\) === "1" \|\| filterDefinitions\.some/);
+  assert.match(indexSource, /if \(catalogMode\) loadCars\(\{ updateUrl: false \}\);\s*else initMarketAisles\(\);/);
+  assert.doesNotMatch(indexSource, /<h2>Wszystkie aukcje<\/h2>/);
+  assert.match(indexSource, /id="loadMoreButton"[\s\S]*?Załaduj więcej/);
+  assert.match(indexSource, /vin \? `\/car\.html\?vin=/);
+  assert.match(indexSource, /`\/car\.html\?lot=/);
+});
+
+test('upcoming aisle only shows source-confirmed future date and never substitutes historical prices', () => {
+  const block = extractFunctionBlock(indexSource, 'getConfirmedUpcomingDate', 'marketAisleCars');
+  const context = { Date, DateParse: Date.parse };
+  vm.createContext(context);
+  vm.runInContext(`${block}\nglobalThis.date = getConfirmedUpcomingDate;`, context);
+  assert.equal(context.date({ auction: { state: 'upcoming', formatted: '2026-10-01', sale_price_usd: 9000 } }), '', 'display text alone is not treated as a confirmed date');
+  assert.match(context.date({ auction: { auction_at: '2099-05-06T12:30:00Z' } }), /06\.05\.2099/);
+  assert.equal(context.date({ auction: { auction_at: '2000-01-01T00:00:00Z' } }), '');
+});
+
+test('home puts search and aligned primary filters before the four discovery sections, with separated REX.Bid lockup', () => {
+  const filterAt = indexSource.indexOf('class="container filter-section"');
+  const aislesAt = indexSource.indexOf('id="marketSections"');
+  const catalogAt = indexSource.indexOf('id="catalogResults"');
+  assert.ok(filterAt > 0 && filterAt < aislesAt && aislesAt < catalogAt);
+  assert.match(indexSource.slice(filterAt, aislesAt), /id="searchForm"/);
+  for (const label of ['Platforma', 'Marka', 'Model', 'Rok od', 'Rok do']) assert.ok(indexSource.slice(filterAt, aislesAt).includes(`>${label}</label>`));
+  assert.match(indexSource.slice(filterAt, aislesAt), /id="filterButton"/);
+  assert.match(indexSource, /<div class="brand-lockup">[\s\S]*class="logo"[\s\S]*class="brand-note"/);
+  assert.match(indexSource, /\.brand-lockup\s*\{[^}]*display:grid/);
+  assert.match(indexSource, /\.brand-note\s*\{[^}]*white-space:nowrap/);
 });

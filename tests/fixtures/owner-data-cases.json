@@ -1,0 +1,48 @@
+{
+  "source": "Anonymized shapes observed through read-only production Rex.Bid Worker responses",
+  "detail_iaai_seller": {
+    "seller": { "name": "******", "type": "INS" },
+    "details": {
+      "attributes": { "ProviderName": "Progressive Casualty Insurance", "ProviderType": "INS" },
+      "vehicle_information": { "TitleSaleDoc": "SALVAGE (Tennessee)", "StartCode": "Run & Drive", "KeySlashFob": "Present", "Airbags": "Intact" },
+      "sale_information": { "Seller": "Progressive Casualty Insurance", "SellerType": "Insurance", "TitleSaleDoc": "SALVAGE (Tennessee)" }
+    },
+    "condition": { "run_condition": { "value": "RUNS AND DRIVES" }, "has_key": true },
+    "vehicle_specs": { "airbags": "Intact" },
+    "sale_document": { "name": "SALVAGE", "export": true, "registration": true }
+  },
+  "detail_masked_seller": {
+    "seller": { "name": "***", "type": "unknown" },
+    "details": { "attributes": { "ProviderName": "Unknown", "ProviderType": "INS" } }
+  },
+  "detail_masked_then_full_seller": {
+    "seller": { "name": "******", "displayName": "Nazwa niedostępna", "companyName": "Verified Source Seller", "type": "unknown", "normalized_type": "INS" }
+  },
+  "detail_unknown_attribute_full_sale_seller": {
+    "seller": { "name": "***", "type": "unknown" },
+    "details": { "attributes": { "ProviderName": "Unknown", "ProviderType": "unknown" }, "sale_information": { "Seller": "Source Sale Seller", "SellerType": "INS" } }
+  },
+  "detail_copart_seller": {
+    "seller": { "name": "Non-insurance Company", "type": "non_insurance" }
+  },
+  "documents": [
+    { "name": "CLEAN TITLE", "registration": true, "export": true, "expected": "good" },
+    { "name": "SALVAGE (Tennessee)", "registration": true, "export": true, "expected": "good" },
+    { "name": "SALVAGE", "registration": true, "export": true, "is_pending": true, "expected": "warn" },
+    { "name": "SALVAGE", "registration": null, "export": null, "expected": "warn" },
+    { "name": "REBUILT / RECONSTRUCTED", "registration": null, "export": null, "expected": "warn" },
+    { "name": "BILL OF SALE", "registration": null, "export": null, "expected": "warn" },
+    { "name": "FLOOD / FIRE", "registration": null, "export": null, "expected": "warn" },
+    { "name": "CERTIFICATE OF DESTRUCTION", "registration": true, "export": true, "expected": "bad" },
+    { "name": "NON-REPAIRABLE", "registration": null, "export": null, "expected": "bad" },
+    { "name": "JUNK / PARTS ONLY", "registration": null, "export": null, "expected": "bad" },
+    { "name": "SALVAGE", "registration": false, "export": true, "expected": "bad" },
+    { "name": "CERTIFICATE OF TITLE", "registration": null, "export": null, "expected": "unknown" }
+  ],
+  "history": {
+    "approval": { "platform": "iaai", "lot_number": "LOT-EXAMPLE", "date": "2026-09-21", "price": 9225, "status": "Sold on Approval" },
+    "not_sold": { "platform": "copart", "lot_number": "LOT-EXAMPLE-2", "date": "2026-09-18", "price": 5200, "status": "Not Sold" },
+    "sold": { "platform": "iaai", "lot_number": "LOT-EXAMPLE-3", "date": "2026-08-30", "price": 12500, "status": "Sold" },
+    "pending": { "platform": "copart", "lot_number": "LOT-EXAMPLE-4", "date": "2026-08-18", "price": 7000, "status": "Pending" }
+  }
+}

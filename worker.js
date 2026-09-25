@@ -814,20 +814,19 @@ function normalizeVehicle(vehicle) {
     );
 
 
-  const runCondition =
-    cleanString(
-      firstValue(condition, [
-        "run_condition",
-        "runCondition"
-      ])
-    );
+  const runConditionValue = firstValue(condition, ["run_condition", "runCondition"]);
+  const runCondition = cleanString(
+    runConditionValue && typeof runConditionValue === "object"
+      ? firstValue(runConditionValue, ["value", "label", "name"])
+      : runConditionValue
+  ) || cleanString(getNested(vehicle, [["details", "vehicle_information", "StartCode"], ["details", "attributes", "RunAndDrive"]]));
 
 
   const hasKey =
     firstValue(condition, [
       "has_key",
       "hasKey"
-    ]);
+    ]) ?? getNested(vehicle, [["details", "vehicle_information", "KeySlashFob"], ["details", "attributes", "KeyFob"]]);
 
 
   /* ODOMETER */
@@ -858,22 +857,30 @@ function normalizeVehicle(vehicle) {
 
 
   const sellerNameCandidates = [
-    firstValue(seller, ["displayName", "name", "seller_name", "sellerName", "companyName", "company_name", "providerName", "provider_name", "display"]),
-    getNested(vehicle, [["sale_information", "Seller", "displayName"], ["sale_information", "Seller", "name"], ["sale_information", "Seller", "seller_name"], ["details", "sale_information", "Seller", "name"]]),
-    firstValue(vehicle, ["seller_display_name", "sellerDisplayName", "provider_name", "providerName", "company_name", "companyName"])
-  ].map(cleanString).filter(value => value && !/^(?:\*{2,}|#{2,}|•{2,}|unknown|n\/?a|not available|null)$/i.test(value));
+    getNested(vehicle, [["details", "attributes", "ProviderName"]]),
+    getNested(vehicle, [["details", "attributes", "provider_name"]]),
+    getNested(vehicle, [["details", "sale_information", "Seller"]]),
+    getNested(vehicle, [["details", "sale_information", "seller"]]),
+    getNested(vehicle, [["details", "vehicle_information", "Seller"]]),
+    getNested(vehicle, [["sale_information", "Seller", "displayName"], ["sale_information", "Seller", "name"], ["sale_information", "Seller", "seller_name"], ["sale_information", "Seller"], ["details", "sale_information", "Seller", "name"]]),
+    ...["displayName", "name", "seller_name", "sellerName", "companyName", "company_name", "providerName", "provider_name", "display"].map(key => seller[key]),
+    ...["seller_display_name", "sellerDisplayName", "provider_name", "providerName", "company_name", "companyName"].map(key => vehicle[key])
+  ].map(value => typeof value === "string" || typeof value === "number" ? cleanString(value) : "").filter(value => value && !/^(?:[*#•\s]+|unknown(?: seller)?|seller unknown|n\/?a|not available|name unavailable|nazwa niedostępna|brak danych|unavailable|null|none|masked|[-—])$/i.test(value));
   const sellerName = sellerNameCandidates[0] || "";
 
 
-  const sellerType =
-    cleanString(
-      firstValue(seller, [
-        "type",
-        "normalized_type",
-        "seller_type",
-        "sellerType"
-      ])
-    );
+  const sellerTypeCandidates = [
+    vehicle.details?.attributes?.ProviderType,
+    vehicle.details?.attributes?.ProviderTypeTimedAuction,
+    getNested(vehicle, [["details", "sale_information", "SellerType"]]),
+    getNested(vehicle, [["details", "sale_information", "seller_type"]]),
+    getNested(vehicle, [["sale_information", "SellerType"]]),
+    ...["type", "normalized_type", "seller_type", "sellerType"].map(key => seller[key])
+  ].map(cleanString).filter(value => value && !/^(?:unknown|n\/?a|not available|unavailable|null|none|-)$/i.test(value));
+  const sellerType = sellerTypeCandidates[0] || "";
+
+  const sellerTypeNormalized = /^(?:ins|insurance)$/i.test(sellerType) ? "insurance"
+    : /^(?:nins|non[_ -]?insurance)$/i.test(sellerType) ? "non_insurance" : sellerType;
 
 
   /* SALE DOCUMENT */
@@ -1000,7 +1007,7 @@ function normalizeVehicle(vehicle) {
     secondaryDamage,
     mileage,
     sellerName,
-    sellerType,
+    sellerType: sellerTypeNormalized,
     documentName,
     documentType
   };
@@ -1044,7 +1051,7 @@ function normalizeVehicle(vehicle) {
     mileage,
 
     sellerName,
-    sellerType,
+    sellerType: sellerTypeNormalized,
 
     documentName,
     documentType,
@@ -1958,14 +1965,27 @@ function normalizeHistoryRecord(
   const lot = cleanString(firstValue(record, ["lot_number", "lotNumber", "lot", "stock_number", "stockNumber"])
     || firstValue(vehicle, ["lot_number", "lotNumber", "lot", "stock_number", "stockNumber"]) || vehicleContext.lot);
   const sellerCandidates = [
-    firstValue(record, ["seller_name", "sellerName", "seller_display_name", "provider_name", "providerName", "company_name", "companyName"]),
-    getNested(record, [["seller", "displayName"], ["seller", "name"], ["seller", "companyName"], ["seller", "company_name"], ["seller", "providerName"], ["seller", "provider_name"], ["seller", "display"], ["seller", "provider"]]),
-    getNested(record, [["sale_information", "Seller", "displayName"], ["sale_information", "Seller", "name"], ["sale_information", "Seller", "seller_name"], ["details", "sale_information", "Seller", "name"]]),
+    getNested(record, [["details", "attributes", "ProviderName"]]),
+    getNested(record, [["details", "attributes", "provider_name"]]),
+    getNested(record, [["details", "sale_information", "Seller"]]),
+    getNested(record, [["details", "sale_information", "seller"]]),
+    getNested(record, [["details", "vehicle_information", "Seller"]]),
+    getNested(record, [["sale_information", "Seller", "displayName"], ["sale_information", "Seller", "name"], ["sale_information", "Seller", "seller_name"], ["sale_information", "Seller"], ["details", "sale_information", "Seller", "name"]]),
+    ...["displayName", "name", "companyName", "company_name", "providerName", "provider_name", "display", "provider"].map(key => record.seller && typeof record.seller === "object" ? record.seller[key] : null),
+    ...["seller_name", "sellerName", "seller_display_name", "provider_name", "providerName", "company_name", "companyName"].map(key => record[key]),
     typeof record.seller === "string" ? record.seller : null
-  ].map(cleanString).filter(value => value && !/^(?:\*{2,}|#{2,}|•{2,}|unknown|n\/?a|not available|null)$/i.test(value));
+  ].map(value => typeof value === "string" || typeof value === "number" ? cleanString(value) : "").filter(value => value && !/^(?:[*#•\s]+|unknown(?: seller)?|seller unknown|n\/?a|not available|name unavailable|nazwa niedostępna|brak danych|unavailable|null|none|masked|[-—])$/i.test(value));
   const seller = sellerCandidates[0] || "";
-  const sellerType = cleanString(firstValue(record, ["seller_type", "sellerType"])
-    || getNested(record, [["seller", "type"], ["sale_information", "Seller", "type"]]));
+  const sellerTypeRaw = [
+    getNested(record, [["details", "attributes", "ProviderType"]]),
+    getNested(record, [["details", "attributes", "ProviderTypeTimedAuction"]]),
+    getNested(record, [["details", "sale_information", "SellerType"]]),
+    getNested(record, [["sale_information", "Seller", "type"]]),
+    ...["seller_type", "sellerType"].map(key => record[key]),
+    ...["type", "normalized_type", "seller_type", "sellerType"].map(key => record.seller && typeof record.seller === "object" ? record.seller[key] : null)
+  ].map(cleanString).find(value => value && !/^(?:unknown|n\/?a|not available|unavailable|null|none|-)$/i.test(value)) || "";
+  const sellerType = /^(?:ins|insurance)$/i.test(sellerTypeRaw) ? "insurance"
+    : /^(?:nins|non[_ -]?insurance)$/i.test(sellerTypeRaw) ? "non_insurance" : sellerTypeRaw;
 
   // Only semantically explicit event identifiers are accepted. A generic `id`
   // may identify the vehicle/listing rather than this historical auction.
@@ -1980,8 +2000,8 @@ function normalizeHistoryRecord(
   const status = cleanString(firstValue(record, ["status", "sale_status", "saleStatus", "auction_status", "auctionStatus", "lot_sub_status", "state"])
     || getNested(record, [["auction", "last_sold_status"], ["auction", "status"], ["auction", "lot_sub_status"], ["sale", "status"], ["vehicle", "auction", "status"], ["vehicle", "auction", "lot_sub_status"]]));
   const statusLower = status.toLowerCase();
-  const isUnsold = /not sold|no sale|unsold|failed/.test(statusLower);
-  const isSold = /sold|sale complete|completed|won|approved/.test(statusLower) && !isUnsold;
+  const isConditional = /sold\s+on\s+approval|on\s+approval|sale\s+pending\s+approval|pending\s+approval/.test(statusLower);
+  const isUnsold = isConditional || /not sold|no sale|unsold|failed/.test(statusLower);
 
   const auctionDateRaw = firstValue(record, ["auction_date", "auctionDate", "auction_at", "auctionAt", "full_date"])
     || getNested(record, [["auction", "auction_at"], ["auction", "auctionAt"], ["auction", "full_date"], ["vehicle", "auction", "auction_at"]]);
@@ -2153,7 +2173,7 @@ async function saveOfficialHistory(
       } catch {
         // Keep the latest valid source record when the old JSON cannot be read.
       }
-      const explicitlyUnsold = /not sold|no sale|unsold|failed/i.test(normalized.status || "");
+      const explicitlyUnsold = /sold\s+on\s+approval|on\s+approval|sale\s+pending\s+approval|pending\s+approval|not sold|no sale|unsold|failed/i.test(normalized.status || "");
       await env.REXBID_DB.prepare(`
         UPDATE auction_history SET
           event_key = COALESCE(?, event_key),

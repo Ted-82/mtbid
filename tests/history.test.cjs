@@ -575,6 +575,23 @@ test('same event ID updates one D1 record when status and price change', async (
   assert.equal(db.rows[1].source_event_id, 'DEF', 'different IDs with the same LOT and date remain separate');
 });
 
+test('Sold on Approval clears a previously persisted final price without assigning the event seller', async () => {
+  const context = loadWorker();
+  const db = new MemoryD1();
+  const env = { REXBID_DB: db };
+  db.rows.push({
+    id: 88, vehicle_key: 'iaai:VIN-88', event_key: 'fallback:iaai:lot:L88:date:2026-09-21',
+    source_event_id: null, vin: 'VIN-88', platform: 'iaai', lot: 'L88', auction_date: '2026-09-21',
+    sale_date: null, current_bid: null, final_price: 9000, buy_now: null, price: 9000, seller: null,
+    status: 'Sold', event_hash: 'old', captured_at: 'old', raw_json: JSON.stringify({ date: '2026-09-21', status: 'Sold', price: 9000 })
+  });
+  const record = context.__history.normalizeApibaraHistory({ data: { history: [{ platform: 'iaai', lot_number: 'L88', date: '2026-09-21', price: 9225, status: 'Sold on Approval' }] } }, { vin: 'VIN-88' });
+  await context.__history.saveOfficialHistory(env, 'iaai:VIN-88', record);
+  assert.equal(db.rows.length, 1);
+  assert.equal(db.rows[0].final_price, null);
+  assert.equal(db.rows[0].seller, null);
+});
+
 test('legacy D1 rows remain readable and generic price is not backfilled as final price', async () => {
   const { __history } = loadWorker();
   const legacyRaw = fixtures.genericPriceOnly;
@@ -755,7 +772,7 @@ test('index list pagination appends by cursor, resets filters, deduplicates by V
   vm.createContext(context);
 
   const script = scripts[0][2].replace(
-    /restoreFiltersFromUrl\(\);\s*(?:initMarketAisles\(\);\s*)?loadFilterMetadata\(model\.value\)[\s\S]*?\.catch\(error => console\.warn\("Metadane filtrów są chwilowo niedostępne\.", error\)\);\s*loadCars\(\{ updateUrl: false \}\);/,
+    /restoreFiltersFromUrl\(\);\s*const catalogMode = shouldShowCatalog\(\);\s*setCatalogView\(catalogMode\);\s*loadFilterMetadata\(model\.value\)[\s\S]*?\.catch\(error => console\.warn\("Metadane filtrów są chwilowo niedostępne\.", error\)\);\s*if \(catalogMode\) loadCars\(\{ updateUrl: false \}\);\s*else initMarketAisles\(\);/,
     '\n  restoreFiltersFromUrl(); globalThis.initialLoad = loadCars({ updateUrl: false });'
   );
   assert.notEqual(script, scripts[0][2], 'initial list load can be awaited by the test');
@@ -850,7 +867,7 @@ test('index exposes only Worker-supported advanced filters and restores shareabl
   };
   vm.createContext(context);
   const script = scripts[0][2].replace(
-    /restoreFiltersFromUrl\(\);\s*(?:initMarketAisles\(\);\s*)?loadFilterMetadata\(model\.value\)[\s\S]*?\.catch\(error => console\.warn\("Metadane filtrów są chwilowo niedostępne\.", error\)\);\s*loadCars\(\{ updateUrl: false \}\);/,
+    /restoreFiltersFromUrl\(\);\s*const catalogMode = shouldShowCatalog\(\);\s*setCatalogView\(catalogMode\);\s*loadFilterMetadata\(model\.value\)[\s\S]*?\.catch\(error => console\.warn\("Metadane filtrów są chwilowo niedostępne\.", error\)\);\s*if \(catalogMode\) loadCars\(\{ updateUrl: false \}\);\s*else initMarketAisles\(\);/,
     '\n  restoreFiltersFromUrl(); globalThis.initialLoad = loadCars({ updateUrl: false });'
   );
   assert.notEqual(script, scripts[0][2]);
@@ -901,12 +918,12 @@ test('index exposes only Worker-supported advanced filters and restores shareabl
   const reset = element('clearFiltersButton').listeners.click();
   assert.equal(requests[3].searchParams.has('cursor'), false);
   for (const name of Object.keys(expected)) assert.equal(requests[3].searchParams.has(name), false, `cleared ${name}`);
-  assert.equal(location.search, '');
+  assert.equal(location.search, '?catalog=1');
   assert.equal(element('advancedFilterCount').textContent, '0');
   nextFetch.resolve(response([], null));
   await reset;
 
-  Object.assign(location, { href: 'https://rex.bid/?platform=iaai&fuel_type=Electric', search: '?platform=iaai&fuel_type=Electric' });
+  Object.assign(location, { href: 'https://rex.bid/?catalog=1&platform=iaai&fuel_type=Electric', search: '?catalog=1&platform=iaai&fuel_type=Electric' });
   const restoreState = window.listeners.popstate();
   assert.equal(element('platform').value, 'iaai', 'back/forward restores the platform filter');
   assert.equal(element('fuelType').value, 'Electric', 'back/forward restores advanced filters');
@@ -933,7 +950,7 @@ test('market category shortcuts use only supported list filters and always start
     fetch(url) { requests.push(new URL(url, 'https://rex.bid')); return Promise.resolve(new Response(JSON.stringify({ ok:true, data:[], meta:{ next_cursor:null } }), { status:200 })); },
     console: { error(){}, warn(){}, log(){} } };
   vm.createContext(context);
-  const script = scripts[0][2].replace(/restoreFiltersFromUrl\(\);\s*(?:initMarketAisles\(\);\s*)?loadFilterMetadata\(model\.value\)[\s\S]*?\.catch\(error => console\.warn\("Metadane filtrów są chwilowo niedostępne\.", error\)\);\s*loadCars\(\{ updateUrl: false \}\);/, '\n  restoreFiltersFromUrl();');
+  const script = scripts[0][2].replace(/restoreFiltersFromUrl\(\);\s*const catalogMode = shouldShowCatalog\(\);\s*setCatalogView\(catalogMode\);\s*loadFilterMetadata\(model\.value\)[\s\S]*?\.catch\(error => console\.warn\("Metadane filtrów są chwilowo niedostępne\.", error\)\);\s*if \(catalogMode\) loadCars\(\{ updateUrl: false \}\);\s*else initMarketAisles\(\);/, '\n  restoreFiltersFromUrl();');
   vm.runInContext(`${script}\nglobalThis.quickFilter = applyMarketShortcut;`, context);
   for (const [shortcut, param, value] of [['open','lot_sub_status','Open'],['timed','lot_status','Timed'],['buy-now','lot_status','Buy Now'],['upcoming','upcoming','only']]) {
     await context.quickFilter(shortcut);
@@ -1054,13 +1071,16 @@ test('Car 2.0 keeps vehicle actions and media controls explicit without implying
   assert.match(carSource, /#auctionHistoryPanel\{order:9\}/);
 });
 
-test('title document guidance uses only explicit document terms and source registration flag', () => {
+test('title document guidance uses explicit registration and export flags with conservative term mapping', () => {
   const block = extractFunctionBlock(carSource, 'titleSourceStatus', 'titleVerdictLabel');
-  const context = { car: { sale_document: { registration: true } }, displayValue: value => value };
+  const context = { car: { sale_document: { registration: true, export: true } }, displayValue: value => value };
   vm.createContext(context);
   vm.runInContext(`${block}\nglobalThis.classify = titleSourceStatus;`, context);
   assert.equal(context.classify('Clean Title', '', '', '', ''), 'good');
+  context.car.sale_document.export = undefined;
+  assert.equal(context.classify('Salvage', '', '', '', ''), 'warn', 'one positive source flag alone is insufficient');
   context.car.sale_document.registration = undefined;
+  context.car.sale_document.export = undefined;
   assert.equal(context.classify('Salvage', '', '', '', ''), 'warn');
   assert.equal(context.classify('Certificate of Destruction', '', '', '', ''), 'bad');
   assert.equal(context.classify('Title Pending', '', '', '', ''), 'warn');

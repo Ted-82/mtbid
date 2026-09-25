@@ -507,15 +507,16 @@
     }
 
     .header-inner { min-height: 76px; gap: 32px; }
+    .brand-lockup { display:grid; flex:0 0 auto; justify-items:start; gap:2px; }
     .logo { color: #fff; font-size: 26px; letter-spacing: -1.4px; }
     .logo span { color: var(--accent); }
     .brand-note {
-      margin-left: -22px;
       color: rgba(255,255,255,.52);
-      font-size: 10px;
+      font-size: 8px;
       font-weight: 700;
-      letter-spacing: .15em;
+      letter-spacing: .12em;
       text-transform: uppercase;
+      white-space:nowrap;
     }
     .nav { align-items: center; gap: clamp(16px, 2.2vw, 32px); color: rgba(255,255,255,.72); font-size: 13px; font-weight: 650; }
     .nav a { transition: color .18s ease; }
@@ -525,7 +526,7 @@
     .hero {
       position: relative;
       overflow: hidden;
-      padding: 68px 0 48px;
+      padding: 28px 0 20px;
       color: #fff;
       text-align: left;
       background:
@@ -544,33 +545,37 @@
       box-shadow: 0 0 0 42px rgba(255,255,255,.025), 0 0 0 90px rgba(255,255,255,.02);
       pointer-events: none;
     }
-    .hero-inner { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(380px, .92fr); align-items: center; gap: 58px; }
-    .hero-copy { max-width: 620px; }
-    .eyebrow { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 19px; color: #f7c557; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    .hero-inner { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr; align-items: center; gap: 0; }
+    .hero-copy { max-width: 900px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 8px; color: #f7c557; font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
     .eyebrow::before { width: 22px; height: 2px; content: ""; background: currentColor; }
-    .hero h1 { max-width: 610px; margin: 0; color: #fff; font-size: clamp(40px, 5vw, 66px); font-weight: 780; line-height: 1.02; letter-spacing: -.055em; }
+    .hero h1 { max-width: 900px; margin: 0; color: #fff; font-size: clamp(26px, 3vw, 38px); font-weight: 780; line-height: 1.08; letter-spacing: -.04em; }
     .hero h1 span { color: #f7ba3e; }
-    .hero p { max-width: 540px; margin: 20px 0 0; color: rgba(239,245,249,.73); font-size: 16px; line-height: 1.7; }
-    .hero-points { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-top: 26px; color: rgba(255,255,255,.78); font-size: 12px; font-weight: 650; }
+    .hero p { max-width: 700px; margin: 8px 0 0; color: rgba(239,245,249,.73); font-size: 13px; line-height: 1.5; }
+    .hero-points { display: none; }
     .hero-points span { display: inline-flex; align-items: center; gap: 8px; }
     .hero-points span::before { width: 6px; height: 6px; content: ""; border-radius: 50%; background: var(--accent); }
-    .search-panel { padding: 24px; border: 1px solid rgba(255,255,255,.13); border-radius: 17px; background: rgba(255,255,255,.08); box-shadow: 0 22px 60px rgba(3,14,25,.22); backdrop-filter: blur(12px); }
-    .search-panel h2 { margin: 0 0 6px; color: #fff; font-size: 17px; letter-spacing: -.02em; }
-    .search-panel > p { margin: 0 0 18px; color: rgba(255,255,255,.62); font-size: 12px; line-height: 1.5; }
+    .search-panel { padding: 14px 0 17px; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+    .search-panel h2 { margin: 0 0 4px; color: #1c2c3b; font-size: 13px; letter-spacing: -.02em; }
+    .search-panel > p { margin: 0 0 9px; color: #84909b; font-size: 11px; line-height: 1.45; }
     .search-box { max-width: none; margin: 0; gap: 9px; }
-    .search-box input { height: 56px; padding: 0 16px; border: 1px solid rgba(18,37,54,.12); border-radius: 10px; background: #fff; color: #182837; font-size: 14px; }
+    .search-box input { height: 45px; padding: 0 12px; border: 1px solid #dfe5ea; border-radius: 9px; background: #fafbfc; color: #182837; font-size: 13px; }
     .search-box input:focus { border-color: #f3b630; box-shadow: 0 0 0 3px rgba(243,182,48,.19); }
     .btn { border-radius: 10px; transition: transform .18s ease, background .18s ease, box-shadow .18s ease; }
     .btn-primary { background: var(--accent); color: #172432; box-shadow: 0 7px 18px rgba(242,173,36,.17); }
     .btn-primary:hover { background: var(--accent2); box-shadow: 0 10px 22px rgba(242,173,36,.24); }
-    .search-hint { display: flex; justify-content: space-between; gap: 12px; margin-top: 13px; color: rgba(255,255,255,.54); font-size: 11px; }
+    .search-hint { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; color: #84909b; font-size: 10px; }
 
-    .listing-section { padding-top: 34px; }
+    .filter-section { padding-top: 16px; }
+    .filter-section .filters { margin-bottom:0; }
+    .filter-submit-field .btn { width:100%; height:45px; }
+    .listing-section { padding-top: 28px; }
+    .catalog-results[hidden], #marketSections[hidden] { display:none !important; }
     .filters { margin: 0 0 30px; padding: 21px 22px 22px; border: 1px solid #e3e8ed; border-radius: 14px; background: #fff; box-shadow: 0 8px 28px rgba(20,39,56,.045); }
     .filters-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 15px; }
     .filters-heading h2 { margin: 0; color: #1c2c3b; font-size: 14px; font-weight: 800; }
     .filters-heading p { margin: 0; color: #84909b; font-size: 11px; }
-    .filters-grid { grid-template-columns: 1.18fr 1.15fr 1.15fr .8fr .8fr auto; gap: 9px; }
+    .filters-grid { grid-template-columns: 1fr 1.15fr 1.15fr .72fr .72fr auto; gap: 9px; align-items:end; }
     .advanced-filters { margin-top: 15px; border-top: 1px solid #edf0f2; }
     .advanced-filters summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 1px 3px; color: #304455; cursor: pointer; font-size: 12px; font-weight: 750; list-style: none; }
     .advanced-filters summary::-webkit-details-marker { display: none; }
@@ -662,38 +667,38 @@
     footer .container { display: flex; justify-content: space-between; gap: 18px; }
 
     @media (max-width: 1000px) {
-      .hero-inner { grid-template-columns: minmax(0,1fr) minmax(330px,.9fr); gap: 30px; }
-      .hero { padding: 54px 0 42px; }
+      .hero-inner { grid-template-columns: 1fr; gap: 0; }
+      .hero { padding: 28px 0 20px; }
       .filters-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
       .advanced-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
       .cars { grid-template-columns: repeat(2,minmax(0,1fr)); }
-      .brand-note { display: none; }
+      .brand-note { display: block; font-size: 7px; letter-spacing:.08em; }
     }
     @media (max-width: 850px) {
-      .hero-inner { grid-template-columns: 1fr; gap: 24px; }
+      .hero-inner { grid-template-columns: 1fr; gap: 0; }
       .hero-copy { max-width: 720px; }
       .search-panel { max-width: 720px; }
     }
     @media (max-width: 700px) {
       .container { width: min(100% - 28px, 1320px); }
-      .header-inner { min-height: 62px; gap: 12px; }
-      .logo { font-size: 23px; }
+      .header-inner { min-height: 62px; gap: 10px; }
+      .logo { font-size: 23px; line-height:1; }
       .nav { display: flex; gap: 15px; overflow-x: auto; font-size: 11px; white-space: nowrap; }
       .nav { max-width: 58vw; }
       .nav a:nth-child(2), .nav a:nth-child(3) { display: none; }
       .nav .nav-account { padding: 8px 10px; }
-      .hero { padding: 39px 0 30px; }
-      .hero-inner { grid-template-columns: 1fr; gap: 23px; }
-      .hero h1 { max-width: 520px; font-size: clamp(38px, 10vw, 53px); letter-spacing: -.055em; }
-      .hero p { margin-top: 13px; font-size: 14px; }
-      .hero-points { margin-top: 17px; gap: 8px 14px; font-size: 10px; }
-      .search-panel { padding: 17px; border-radius: 12px; }
+      .hero { padding: 22px 0 12px; }
+      .hero-inner { grid-template-columns: 1fr; gap: 0; }
+      .hero h1 { max-width: 520px; font-size: clamp(25px, 7vw, 34px); letter-spacing: -.045em; }
+      .hero p { margin-top: 7px; font-size: 12px; }
+      .search-panel { padding: 13px 0 15px; border-radius: 0; }
       .search-box { flex-direction: row; }
-      .search-box input { height: 50px; font-size: 13px; }
-      .search-box .btn { height: 50px; padding: 0 15px; font-size: 12px; }
+      .search-box input { height: 45px; font-size: 13px; }
+      .search-box .btn { height: 45px; padding: 0 15px; font-size: 12px; }
       .search-hint { font-size: 10px; }
+      .filter-section { padding-top: 8px; }
       .listing-section { padding-top: 22px; }
-      .filters { margin-bottom: 24px; padding: 17px; }
+      .filters { margin-bottom: 14px; padding: 15px; }
       .filters-heading { align-items: flex-start; flex-direction: column; gap: 4px; }
       .filters-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
       .filters-grid #filterButton { grid-column: 1/-1; }
@@ -783,16 +788,15 @@
 <header>
   <div class="container header-inner">
 
-    <a href="/" class="logo" aria-label="REX.Bid — strona główna">
-      REX<span>.Bid</span>
-    </a>
-
-    <span class="brand-note">Rynek aukcyjny USA</span>
+    <div class="brand-lockup">
+      <a href="/" class="logo" aria-label="REX.Bid — strona główna">REX<span>.Bid</span></a>
+      <span class="brand-note">RYNEK AUKCYJNY USA</span>
+    </div>
 
     <nav class="nav" aria-label="Nawigacja główna">
       <a href="/" aria-current="page">Samochody</a>
-      <a href="#search">Szukaj</a>
-      <a href="#results">Oferty</a>
+      <a href="#searchForm">Szukaj</a>
+      <a href="/?catalog=1#results">Katalog</a>
       <a href="/jak-to-dziala.html">Jak to działa</a>
       <a class="local-nav-link" href="/ulubione.html">Obserwowane <span data-rexbid-count="favorites">0</span></a>
       <a class="nav-account" href="/konto.html">Moje konto</a>
@@ -805,213 +809,85 @@
 <main>
 
   <section class="hero" id="search">
-
     <div class="container hero-inner">
-
       <div class="hero-copy">
         <div class="eyebrow">Copart · IAAI · REX.Bid</div>
-        <h1>
-          Znajdź samochód.<br />
-          <span>Sprawdź każdą ofertę.</span>
-        </h1>
-
-        <p>
-          Przeglądaj aukcje samochodowe z USA w jednym miejscu.
-          Wyszukaj konkretny VIN lub numer lotu albo zawęź wyniki
-          według marki, modelu i rocznika.
-        </p>
-
-        <div class="hero-points" aria-label="Dostępne źródła i sposoby wyszukiwania">
-          <span>Aukcje Copart i IAAI</span>
-          <span>Szukaj po VIN lub LOT</span>
-          <span>Zdjęcia i dane pojazdu</span>
-        </div>
+        <h1>Znajdź samochód. <span>Sprawdź każdą ofertę.</span></h1>
+        <p>Odkrywaj aukcje samochodowe z USA według marki, modelu, rocznika, VIN lub LOT.</p>
       </div>
-
-      <div class="search-panel">
-        <h2>Znajdź ofertę</h2>
-        <p>Wpisz VIN, numer LOT albo nazwę marki lub modelu.</p>
-        <form class="search-box" id="searchForm">
-
-        <input
-          id="searchInput"
-          type="text"
-          autocomplete="off"
-          aria-label="Szukaj po VIN, LOT, marce lub modelu"
-          placeholder="VIN, numer lotu, marka lub model..."
-        />
-
-        <button
-          class="btn btn-primary"
-          type="submit"
-        >
-          Szukaj ofert
-        </button>
-
-        </form>
-        <div class="search-hint"><span>Dokładne VIN / LOT</span><span>Wyniki z aukcji USA</span></div>
-      </div>
-
     </div>
-
   </section>
 
-
-  <section class="marketplace-aisles container" id="marketSections" aria-label="Kategorie aukcji">
-    <section class="market-aisle" data-market-aisle data-query="lot_sub_status=Open" data-title="Aktualne aukcje" data-href="lot_sub_status=Open">
-      <div class="market-aisle-heading"><div><span class="results-kicker">Katalog Rex.Bid</span><h2>Aktualne aukcje</h2></div><a class="aisle-more" href="/?lot_sub_status=Open">Zobacz wszystkie <span aria-hidden="true">→</span></a></div>
-      <div class="market-aisle-grid" data-aisle-results><div class="aisle-message">Ładowanie ofert…</div></div>
-    </section>
-    <section class="market-aisle" data-market-aisle data-query="lot_status=Buy%20Now" data-title="Kup teraz" data-href="lot_status=Buy%20Now">
-      <div class="market-aisle-heading"><div><span class="results-kicker">Oferta bez licytacji</span><h2>Kup teraz</h2></div><a class="aisle-more" href="/?lot_status=Buy%20Now">Zobacz wszystkie <span aria-hidden="true">→</span></a></div>
-      <div class="market-aisle-grid" data-aisle-results><div class="aisle-message">Ładowanie ofert…</div></div>
-    </section>
-    <section class="market-aisle" data-market-aisle data-query="platform=iaai&amp;lot_status=Timed" data-title="Timed Auctions" data-href="platform=iaai&amp;lot_status=Timed">
-      <div class="market-aisle-heading"><div><span class="results-kicker">IAAI</span><h2>Timed Auctions</h2></div><a class="aisle-more" href="/?platform=iaai&amp;lot_status=Timed">Zobacz wszystkie <span aria-hidden="true">→</span></a></div>
-      <div class="market-aisle-grid" data-aisle-results><div class="aisle-message">Ładowanie ofert…</div></div>
-    </section>
-    <section class="market-aisle" data-market-aisle data-query="upcoming=only" data-title="Nadchodzące aukcje" data-href="upcoming=only">
-      <div class="market-aisle-heading"><div><span class="results-kicker">Z potwierdzonym terminem</span><h2>Nadchodzące aukcje</h2></div><a class="aisle-more" href="/?upcoming=only">Zobacz wszystkie <span aria-hidden="true">→</span></a></div>
-      <div class="market-aisle-grid" data-aisle-results><div class="aisle-message">Ładowanie ofert…</div></div>
-    </section>
-  </section>
-
-
-  <section class="container listing-section" aria-label="Wyszukiwarka i lista samochodów">
-
+  <section class="container filter-section" aria-label="Wyszukiwarka i filtry aukcji">
     <div class="filters">
-
       <div class="filters-heading">
         <h2>Dopasuj wyniki</h2>
         <p>Wybierz platformę, markę, model lub zakres roczników</p>
       </div>
-
-      <div class="filters-grid">
-
-        <select id="platform" aria-label="Platforma aukcyjna">
-          <option value="">Wszystkie aukcje</option>
-          <option value="iaai">IAAI</option>
-          <option value="copart">COPART</option>
-        </select>
-
-        <div class="filter-field"><label for="make">Marka</label><input id="make" type="text" list="makeOptions" autocomplete="off" placeholder="Wszystkie marki" aria-label="Marka — wybierz lub wpisz" /><datalist id="makeOptions"></datalist></div>
-
-        <div class="filter-field"><label for="model">Model</label><input id="model" type="text" list="modelOptions" autocomplete="off" placeholder="Wpisz lub wybierz model" aria-label="Model — wybierz lub wpisz" /><datalist id="modelOptions"></datalist></div>
-
-        <input
-          id="yearFrom"
-          type="number"
-          aria-label="Rok od"
-          placeholder="Rok od"
-        />
-
-        <input
-          id="yearTo"
-          type="number"
-          aria-label="Rok do"
-          placeholder="Rok do"
-        />
-
-        <button
-          id="filterButton"
-          class="btn btn-primary"
-          type="button"
-        >
-          Filtruj
-        </button>
-
+      <div class="search-panel">
+        <h2>Szukaj po VIN, LOT, marce lub modelu</h2>
+        <form class="search-box" id="searchForm">
+          <input id="searchInput" type="text" autocomplete="off" aria-label="Szukaj po VIN, LOT, marce lub modelu" placeholder="VIN, numer LOT, marka lub model..." />
+          <button class="btn btn-primary" type="submit">Szukaj ofert</button>
+        </form>
+        <div class="search-hint"><span>Dokładne VIN / LOT</span><span>Wyniki z aukcji USA</span></div>
       </div>
-
+      <div class="filters-grid">
+        <div class="filter-field"><label for="platform">Platforma</label><select id="platform" aria-label="Platforma aukcyjna"><option value="">Wszystkie aukcje</option><option value="iaai">IAAI</option><option value="copart">COPART</option></select></div>
+        <div class="filter-field"><label for="make">Marka</label><input id="make" type="text" list="makeOptions" autocomplete="off" placeholder="Wszystkie marki" aria-label="Marka — wybierz lub wpisz" /><datalist id="makeOptions"></datalist></div>
+        <div class="filter-field"><label for="model">Model</label><input id="model" type="text" list="modelOptions" autocomplete="off" placeholder="Wpisz lub wybierz model" aria-label="Model — wybierz lub wpisz" /><datalist id="modelOptions"></datalist></div>
+        <div class="filter-field"><label for="yearFrom">Rok od</label><input id="yearFrom" type="number" aria-label="Rok od" placeholder="Od" /></div>
+        <div class="filter-field"><label for="yearTo">Rok do</label><input id="yearTo" type="number" aria-label="Rok do" placeholder="Do" /></div>
+        <div class="filter-field filter-submit-field"><label for="filterButton">&nbsp;</label><button id="filterButton" class="btn btn-primary" type="button">Filtruj</button></div>
+      </div>
       <details class="advanced-filters" id="advancedFilters">
-        <summary>
-          <span>Więcej filtrów <span class="advanced-count" id="advancedFilterCount">0</span></span>
-        </summary>
+        <summary><span>Więcej filtrów <span class="advanced-count" id="advancedFilterCount">0</span></span></summary>
         <div class="advanced-grid">
-          <div class="filter-field">
-            <label for="lotStatus">Rodzaj oferty</label>
-            <select id="lotStatus">
-              <option value="">Wszystkie rodzaje</option>
-              <option value="Timed">Aukcja czasowa</option>
-              <option value="Buy Now">Kup teraz</option>
-            </select>
-          </div>
-          <div class="filter-field">
-            <label for="lotSubStatus">Status aukcji</label>
-            <select id="lotSubStatus">
-              <option value="">Otwarte (domyślnie)</option>
-              <option value="Open">Otwarte</option>
-              <option value="Live">Na żywo</option>
-              <option value="Ended">Zakończone</option>
-            </select>
-          </div>
-          <div class="filter-field">
-            <label for="upcoming">Termin aukcji</label>
-            <select id="upcoming">
-              <option value="">Dowolny termin</option>
-              <option value="only">Tylko nadchodzące</option>
-              <option value="without">Bez nadchodzących</option>
-            </select>
-          </div>
-          <div class="filter-field">
-            <label>Cena w USD</label>
-            <div class="filter-range">
-              <input id="priceMin" type="number" min="0" step="100" aria-label="Cena minimalna w USD" placeholder="Od" />
-              <input id="priceMax" type="number" min="0" step="100" aria-label="Cena maksymalna w USD" placeholder="Do" />
-            </div>
-          </div>
-          <div class="filter-field">
-            <label>Przebieg w milach</label>
-            <div class="filter-range">
-              <input id="odometerFrom" type="number" min="0" step="1000" aria-label="Przebieg od w milach" placeholder="Od" />
-              <input id="odometerTo" type="number" min="0" step="1000" aria-label="Przebieg do w milach" placeholder="Do" />
-            </div>
-          </div>
-          <div class="filter-field">
-            <label for="fuelType">Paliwo</label>
-            <select id="fuelType">
-              <option value="">Dowolne</option>
-            </select>
-          </div>
-          <div class="filter-field">
-            <label for="transmission">Skrzynia biegów</label>
-            <select id="transmission">
-              <option value="">Dowolna</option>
-            </select>
-          </div>
-          <div class="filter-field">
-            <label for="driveType">Napęd</label>
-            <select id="driveType">
-              <option value="">Dowolny</option>
-            </select>
-          </div>
-          <div class="filter-field">
-            <label for="runCond">Stan pracy</label>
-            <select id="runCond">
-              <option value="">Dowolny</option>
-            </select>
-          </div>
+          <div class="filter-field"><label for="lotStatus">Rodzaj oferty</label><select id="lotStatus"><option value="">Wszystkie rodzaje</option><option value="Timed">Aukcja czasowa</option><option value="Buy Now">Kup teraz</option></select></div>
+          <div class="filter-field"><label for="lotSubStatus">Status aukcji</label><select id="lotSubStatus"><option value="">Otwarte (domyślnie)</option><option value="Open">Otwarte</option><option value="Live">Na żywo</option><option value="Ended">Zakończone</option></select></div>
+          <div class="filter-field"><label for="upcoming">Termin aukcji</label><select id="upcoming"><option value="">Dowolny termin</option><option value="only">Tylko nadchodzące</option><option value="without">Bez nadchodzących</option></select></div>
+          <div class="filter-field"><label>Cena w USD</label><div class="filter-range"><input id="priceMin" type="number" min="0" step="100" aria-label="Cena minimalna w USD" placeholder="Od" /><input id="priceMax" type="number" min="0" step="100" aria-label="Cena maksymalna w USD" placeholder="Do" /></div></div>
+          <div class="filter-field"><label>Przebieg w milach</label><div class="filter-range"><input id="odometerFrom" type="number" min="0" step="1000" aria-label="Przebieg od w milach" placeholder="Od" /><input id="odometerTo" type="number" min="0" step="1000" aria-label="Przebieg do w milach" placeholder="Do" /></div></div>
+          <div class="filter-field"><label for="fuelType">Paliwo</label><select id="fuelType"><option value="">Dowolne</option></select></div>
+          <div class="filter-field"><label for="transmission">Skrzynia biegów</label><select id="transmission"><option value="">Dowolna</option></select></div>
+          <div class="filter-field"><label for="driveType">Napęd</label><select id="driveType"><option value="">Dowolny</option></select></div>
+          <div class="filter-field"><label for="runCond">Stan pracy</label><select id="runCond"><option value="">Dowolny</option></select></div>
           <div class="filter-field"><label for="vehicleType">Rodzaj pojazdu</label><select id="vehicleType"><option value="">Dowolny</option></select></div>
           <div class="filter-field"><label for="damage">Uszkodzenie</label><select id="damage"><option value="">Dowolne</option></select></div>
           <div class="filter-field"><label for="sellerType">Typ sprzedawcy</label><select id="sellerType"><option value="">Dowolny</option></select></div>
           <div class="filter-field"><label for="saleDocument">Dokument sprzedaży</label><select id="saleDocument"><option value="">Dowolny</option></select></div>
           <div class="filter-field"><label for="locationState">Stan / lokalizacja</label><select id="locationState"><option value="">Dowolna</option></select></div>
         </div>
-        <div class="advanced-actions">
-          <span class="filter-note">Kwoty są w USD, przebieg w milach. Filtr ceny nie oznacza pełnego kosztu importu.</span>
-          <button class="btn btn-primary" id="advancedFilterButton" type="button">Zastosuj filtry</button>
-        </div>
+        <div class="advanced-actions"><span class="filter-note">Kwoty są w USD, przebieg w milach. Filtr ceny nie oznacza pełnego kosztu importu.</span><button class="btn btn-primary" id="advancedFilterButton" type="button">Zastosuj filtry</button></div>
       </details>
-
     </div>
-
     <div class="active-filters" id="activeFilters" hidden>
-      <div class="active-filter-list">
-        <span class="active-filter-summary" id="activeFilterSummary" aria-live="polite"></span>
-        <div class="active-filter-chips" id="activeFilterChips" aria-label="Aktywne filtry"></div>
-      </div>
+      <div class="active-filter-list"><span class="active-filter-summary" id="activeFilterSummary" aria-live="polite"></span><div class="active-filter-chips" id="activeFilterChips" aria-label="Aktywne filtry"></div></div>
       <button class="clear-filters" id="clearFiltersButton" type="button">Wyczyść filtry</button>
     </div>
+  </section>
 
+  <section class="marketplace-aisles container" id="marketSections" aria-label="Kategorie aukcji">
+    <section class="market-aisle" data-market-aisle data-kind="current" data-query="lot_sub_status=Open" data-title="Aktualne aukcje" data-href="lot_sub_status=Open">
+      <div class="market-aisle-heading"><div><span class="results-kicker">Katalog Rex.Bid</span><h2>Aktualne aukcje</h2></div><a class="aisle-more" href="/?catalog=1&amp;lot_sub_status=Open">Zobacz wszystkie <span aria-hidden="true">→</span></a></div>
+      <div class="market-aisle-grid" data-aisle-results><div class="aisle-message">Ładowanie ofert…</div></div>
+    </section>
+    <section class="market-aisle" data-market-aisle data-kind="buy-now" data-query="lot_status=Buy%20Now" data-title="Kup teraz" data-href="lot_status=Buy%20Now">
+      <div class="market-aisle-heading"><div><span class="results-kicker">Oferta bez licytacji</span><h2>Kup teraz</h2></div><a class="aisle-more" href="/?catalog=1&amp;lot_status=Buy%20Now">Zobacz wszystkie <span aria-hidden="true">→</span></a></div>
+      <div class="market-aisle-grid" data-aisle-results><div class="aisle-message">Ładowanie ofert…</div></div>
+    </section>
+    <section class="market-aisle" data-market-aisle data-kind="timed" data-query="platform=iaai&amp;lot_status=Timed" data-title="Timed Auction" data-href="platform=iaai&amp;lot_status=Timed">
+      <div class="market-aisle-heading"><div><span class="results-kicker">IAAI</span><h2>Timed Auction</h2></div><a class="aisle-more" href="/?catalog=1&amp;platform=iaai&amp;lot_status=Timed">Zobacz wszystkie <span aria-hidden="true">→</span></a></div>
+      <div class="market-aisle-grid" data-aisle-results><div class="aisle-message">Ładowanie ofert…</div></div>
+    </section>
+    <section class="market-aisle" data-market-aisle data-kind="upcoming" data-query="upcoming=only" data-title="Nadchodzące" data-href="upcoming=only">
+      <div class="market-aisle-heading"><div><span class="results-kicker">Z potwierdzonym terminem</span><h2>Nadchodzące</h2></div><a class="aisle-more" href="/?catalog=1&amp;upcoming=only">Zobacz wszystkie <span aria-hidden="true">→</span></a></div>
+      <div class="market-aisle-grid" data-aisle-results><div class="aisle-message">Ładowanie ofert…</div></div>
+    </section>
+  </section>
+
+
+  <section class="container listing-section catalog-results" id="catalogResults" aria-label="Pełny katalog samochodów" hidden>
 
     <div class="results-header" id="results">
 
@@ -1129,6 +1005,8 @@
   const loadMoreButton =
     document.getElementById("loadMoreButton");
   const marketShortcuts = document.getElementById("marketShortcuts");
+  const catalogResults = document.getElementById("catalogResults");
+  const marketSections = document.getElementById("marketSections");
 
   const localStorageApi = typeof window !== "undefined" ? window.RexBidStorage : null;
 
@@ -1402,6 +1280,7 @@
     if (typeof window === "undefined" || !window.location || !window.history) return;
 
     const url = new URL(window.location.href);
+    url.searchParams.set("catalog", "1");
     for (const definition of filterDefinitions) url.searchParams.delete(definition.param);
     for (const [name, value] of params.entries()) {
       if (filterDefinitions.some(definition => definition.param === name) && value) {
@@ -1412,6 +1291,17 @@
     const nextUrl = `${url.pathname}${url.search}${url.hash}`;
     const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
     if (nextUrl !== currentUrl) window.history.pushState({ rexBidList: true }, "", nextUrl);
+  }
+
+  function setCatalogView(enabled) {
+    if (catalogResults) catalogResults.hidden = !enabled;
+    if (marketSections) marketSections.hidden = enabled;
+  }
+
+  function shouldShowCatalog() {
+    if (typeof window === "undefined" || !window.location) return false;
+    const params = new URLSearchParams(window.location.search);
+    return params.get("catalog") === "1" || filterDefinitions.some(definition => params.has(definition.param) && params.get(definition.param) !== "");
   }
 
 
@@ -1425,27 +1315,41 @@
     loadCars();
   }
 
-  function marketAislePriceInfo(car, buyNowSection = false) {
-    if (!buyNowSection) return getPriceInfo(car);
+  function marketAislePriceInfo(car, kind = "current") {
     const pricing = car?.pricing && typeof car.pricing === "object" ? car.pricing : {};
-    const buyNow = [pricing.buy_now_usd, car?.buy_now_usd].find(value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)) && Number(value) > 0);
-    if (buyNow === undefined) return getPriceInfo(car);
-    const currentBid = [pricing.current_bid_usd, pricing.current_bid2_usd].find(value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)) && Number(value) > 0);
-    return { value: Number(buyNow), label: "Kup teraz", secondary: currentBid === undefined ? "" : `Aktualna oferta · ${formatMoney(currentBid)}` };
+    const positive = (...values) => values.find(value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)) && Number(value) > 0);
+    const currentBid = positive(pricing.current_bid_usd, pricing.current_bid2_usd, car?.current_bid_usd, car?.current_bid2_usd);
+    if (kind === "buy-now") {
+      const buyNow = positive(pricing.buy_now_usd, car?.buy_now_usd);
+      return { value: buyNow === undefined ? null : Number(buyNow), label: "Kup teraz", secondary: currentBid === undefined ? "" : `Aktualna oferta · ${formatMoney(currentBid)}` };
+    }
+    if (kind === "timed") return { value: currentBid === undefined ? null : Number(currentBid), label: "Aktualna oferta", secondary: "" };
+    if (kind === "upcoming") return { value: currentBid === undefined ? null : Number(currentBid), label: currentBid === undefined ? "Cena niedostępna" : "Aktualna oferta", secondary: "" };
+    return { value: currentBid === undefined ? null : Number(currentBid), label: currentBid === undefined ? "Cena niedostępna" : "Aktualna oferta", secondary: "" };
   }
 
-  function renderMarketAisleCard(car, buyNowSection = false) {
+  function renderMarketAisleCard(car, kind = "current") {
     const vin = getVin(car);
     const lot = getLot(car);
     const identifier = vin || (lot && lot !== "—" ? lot : "");
     if (!identifier) return "";
     const href = vin ? `/car.html?vin=${encodeURIComponent(vin)}` : `/car.html?lot=${encodeURIComponent(lot)}`;
     const image = localStorageApi?.safeImageUrl(getCarImage(car)) || "";
-    const price = marketAislePriceInfo(car, buyNowSection);
+    const price = marketAislePriceInfo(car, kind);
     const status = getAuctionStatusLabel(car);
     const statusHtml = status && status !== "Status niedostępny" ? `<span class="aisle-status">${escapeHtml(status)}</span>` : "";
-    const date = getAuctionDate(car);
+    const date = kind === "upcoming" ? getConfirmedUpcomingDate(car) : getAuctionDate(car);
     return `<article class="market-aisle-card"><a href="${escapeHtml(href)}"><div class="aisle-photo">${image ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(getTitle(car))}" loading="lazy">` : ""}<span class="aisle-platform">${escapeHtml(getPlatform(car))}</span>${statusHtml}</div><div class="aisle-card-body"><h3 class="aisle-title">${escapeHtml(getTitle(car))}</h3><div class="aisle-identity">LOT ${escapeHtml(lot || "—")} · VIN ${escapeHtml(vin || "—")}</div><div class="aisle-price"><small>${escapeHtml(price.label)}</small>${price.value === null ? "—" : escapeHtml(formatMoney(price.value))}</div>${price.secondary ? `<div class="aisle-secondary-price">${escapeHtml(price.secondary)}</div>` : ""}${date ? `<div class="aisle-date">${car.auction?.is_timed === true && car.auction?.timed_end_at ? "Koniec aukcji czasowej" : "Termin aukcji"}: ${escapeHtml(date)}</div>` : ""}</div></a></article>`;
+  }
+
+  function getConfirmedUpcomingDate(car) {
+    const auction = car?.auction && typeof car.auction === "object" ? car.auction : {};
+    const raw = auction.auction_at || auction.full_date || car?.auction_at || car?.auction_date || "";
+    if (typeof raw !== "string" || !raw.trim() || !Number.isFinite(Date.parse(raw)) || Date.parse(raw) <= Date.now()) return "";
+    const match = raw.trim().match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/);
+    if (!match) return "";
+    const date = `${match[3]}.${match[2]}.${match[1]}`;
+    return match[4] ? `${date}, ${match[4]}:${match[5]}` : date;
   }
 
   function marketAisleCars(payload) {
@@ -1465,8 +1369,7 @@
       const response = await fetch(`${API_BASE}/cars?${params.toString()}`, { headers: { Accept: "application/json" } });
       const payload = await response.json();
       if (!response.ok || payload?.ok === false) throw new Error(`HTTP ${response.status}`);
-      const buyNowSection = params.get("lot_status") === "Buy Now";
-      const cards = marketAisleCars(payload).slice(0, 4).map(car => renderMarketAisleCard(car, buyNowSection)).filter(Boolean);
+      const cards = marketAisleCars(payload).slice(0, 4).map(car => renderMarketAisleCard(car, section.dataset.kind || "current")).filter(Boolean);
       target.innerHTML = cards.length ? cards.join("") : '<div class="aisle-message">Brak ofert w tej kategorii.</div>';
       section.dataset.loaded = "true";
     } catch (error) {
@@ -2689,6 +2592,7 @@
 
   async function loadCars({ append = false, updateUrl = true } = {}) {
     if (append && (!listCursor || loadingMore)) return;
+    if (!append) setCatalogView(true);
 
     const requestId = append ? listRequestId : ++listRequestId;
 
@@ -3032,7 +2936,10 @@
     window.addEventListener("popstate", async () => {
       restoreFiltersFromUrl();
       try { await loadFilterMetadata(model.value); } catch (error) { console.warn("Nie udało się odtworzyć metadanych filtrów.", error); }
-      loadCars({ updateUrl: false });
+      const catalogMode = shouldShowCatalog();
+      setCatalogView(catalogMode);
+      if (catalogMode) loadCars({ updateUrl: false });
+      else initMarketAisles();
     });
   }
 
@@ -3062,10 +2969,12 @@
   */
 
   restoreFiltersFromUrl();
-  initMarketAisles();
+  const catalogMode = shouldShowCatalog();
+  setCatalogView(catalogMode);
   loadFilterMetadata(model.value)
     .catch(error => console.warn("Metadane filtrów są chwilowo niedostępne.", error));
-  loadCars({ updateUrl: false });
+  if (catalogMode) loadCars({ updateUrl: false });
+  else initMarketAisles();
 
 </script>
 
