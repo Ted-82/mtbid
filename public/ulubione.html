@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Obserwowane | Rex.Bid</title>
+  <title>Obserwowane | REX.Bid</title>
 
   <style>
     * {
@@ -348,7 +348,7 @@
   <div class="header-inner">
 
     <a href="/" class="logo">
-      Rex<span>.Bid</span>
+      REX<span>.Bid</span>
     </a>
 
     <nav>
@@ -357,7 +357,6 @@
       <a href="o-nas.html">O nas</a>
       <a href="kontakt.html">Kontakt</a>
       <a href="/ulubione.html">♡ Obserwowane <span data-rexbid-count="favorites">0</span></a>
-      <a href="/compare.html">Porównanie <span data-rexbid-count="compare">0</span></a>
     </nav>
 
     <div class="auth">
@@ -373,7 +372,7 @@
   <div class="top">
     <h1>Ulubione samochody</h1>
     <p>Samochody zapisane lokalnie na tym urządzeniu.</p><p class="device-note">Ulubione zapisane na tym urządzeniu.</p>
-    <div class="favorites-links"><a href="/">‹ Przeglądaj samochody</a><a href="/compare.html">Otwórz porównanie <span data-rexbid-count="compare">0</span></a></div>
+    <div class="favorites-links"><a href="/">‹ Przeglądaj samochody</a></div>
 
     <div class="counter" id="counter">
       0 zapisanych samochodów
@@ -387,12 +386,12 @@
 <footer>
   <div class="footer-inner">
     <div>
-      <div class="footer-logo">Rex.Bid</div>
+      <div class="footer-logo">REX<span>.Bid</span></div>
       <div style="margin-top:8px;">Aukcje samochodów z USA</div>
     </div>
 
     <div>
-      © 2026 MTBID
+      © 2026 REX.Bid
     </div>
   </div>
 </footer>
@@ -405,16 +404,27 @@
   const counter = document.getElementById("counter");
   const esc = storage.escapeHtml;
   const money = value => value === null || value === undefined || !Number.isFinite(Number(value)) ? "" : new Intl.NumberFormat("en-US", {style:"currency",currency:"USD",maximumFractionDigits:0}).format(Number(value));
-  const statusLabel = value => ({finished:"Zakończona",sold:"Sprzedano",closed:"Zakończona",ended:"Zakończona",open:"Aktywna",active:"Aktywna",live:"W trakcie",upcoming:"Zaplanowana",scheduled:"Zaplanowana",not_sold:"Nie sprzedano"})[String(value || "").toLowerCase()] || value || "—";
+  const statusLabel = auction => {
+    const state = String(auction?.state || "").toLowerCase();
+    const outcome = String(auction?.outcome_status || "").toLowerCase();
+    if (/not.?sold|no.?sale|unsold/.test(outcome) || ["not_sold", "no_sale"].includes(state)) return "Niesprzedana";
+    if (/sold|approval/.test(outcome) || state === "sold" || auction?.sold_timed) return "Sprzedana";
+    if (["finished", "closed", "ended"].includes(state)) return "Zakończona";
+    if (auction?.is_timed || String(auction?.lot_status || "").toLowerCase() === "timed") return "Timed Auction";
+    if (["open", "active"].includes(state)) return "Przed licytacją";
+    return "Nadchodząca · termin nieustalony";
+  };
   function priceInfo(car) {
     const pricing = car.pricing || {};
     const state = String(car.auction?.state || "").toLowerCase();
     const finished = ["finished","sold","closed","ended","not_sold","no_sale"].includes(state);
-    if (finished && pricing.sale_price_usd !== null && pricing.sale_price_usd !== undefined) return ["Cena sprzedaży", pricing.sale_price_usd];
-    if (finished && pricing.final_price_usd !== null && pricing.final_price_usd !== undefined) return ["Cena sprzedaży", pricing.final_price_usd];
-    if (finished && pricing.last_sold_price_usd !== null && pricing.last_sold_price_usd !== undefined) return ["Ostatnia cena sprzedaży", pricing.last_sold_price_usd];
-    if (pricing.current_bid_usd !== null && pricing.current_bid_usd !== undefined) return ["Aktualna oferta", pricing.current_bid_usd];
-    if (pricing.buy_now_usd !== null && pricing.buy_now_usd !== undefined) return ["Kup teraz", pricing.buy_now_usd];
+    const positive = value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)) && Number(value) > 0;
+    if (finished && positive(pricing.sale_price_usd)) return ["Cena sprzedaży", pricing.sale_price_usd];
+    if (finished && positive(pricing.final_price_usd)) return ["Cena sprzedaży", pricing.final_price_usd];
+    if (finished && positive(pricing.last_sold_price_usd)) return ["Ostatnia cena sprzedaży", pricing.last_sold_price_usd];
+    if (!finished && positive(pricing.current_bid_usd)) return [car.auction?.is_timed ? "Aktualna oferta · Timed Auction" : "Aktualna oferta", pricing.current_bid_usd];
+    if (!finished && positive(pricing.current_bid2_usd)) return [car.auction?.is_timed ? "Aktualna oferta · Timed Auction" : "Aktualna oferta", pricing.current_bid2_usd];
+    if (!finished && positive(pricing.buy_now_usd)) return ["Kup teraz", pricing.buy_now_usd];
     return ["Cena aukcji", null];
   }
   function render() {
@@ -430,7 +440,7 @@
       const title = car.title || [car.year, car.make, car.model, car.series].filter(Boolean).join(" ") || "Samochód";
       const p = priceInfo(car);
       const href = storage.detailHref(car);
-      return `<article class="card"><a class="saved-car-link" href="${esc(href)}"><div class="image-wrap">${image ? `<img src="${esc(image)}" alt="${esc(title)}" loading="lazy">` : '<div class="no-image">Brak zdjęcia</div>'}<div class="demo">${esc(car.platform || "AUKCJA")}</div></div><div class="body"><div class="platform">${esc(car.platform || "AUKCJA")}</div><div class="title">${esc(title)}</div><div class="info"><div class="info-item"><span class="label">VIN</span><span class="value">${esc(car.vin || "—")}</span></div><div class="info-item"><span class="label">LOT</span><span class="value">${esc(car.lot || "—")}</span></div><div class="info-item"><span class="label">Przebieg</span><span class="value">${esc(car.odometer || "—")}</span></div><div class="info-item"><span class="label">Lokalizacja</span><span class="value">${esc(car.location || "—")}</span></div><div class="info-item"><span class="label">Status</span><span class="value">${esc(statusLabel(car.auction?.state))}</span></div><div class="info-item"><span class="label">Aukcja</span><span class="value">${esc(car.auction?.date || "—")}</span></div><div class="info-item"><span class="label">Sprzedający</span><span class="value">${esc(car.seller || "—")}</span></div></div><div class="price"><small>${esc(p[0])}</small><br>${p[1] === null ? "—" : esc(money(p[1]))}</div></div></a><div class="saved-actions"><button class="btn btn-outline" type="button" data-action="compare" data-index="${index}">${storage.isCompared(car) ? "✓ W porównaniu" : "⇄ Porównaj"}</button><button class="btn btn-outline" type="button" data-action="remove" data-index="${index}">Usuń z obserwowanych</button></div></article>`;
+      return `<article class="card"><a class="saved-car-link" href="${esc(href)}"><div class="image-wrap">${image ? `<img src="${esc(image)}" alt="${esc(title)}" loading="lazy">` : '<div class="no-image">Brak zdjęcia</div>'}<div class="demo">${esc(car.platform || "AUKCJA")}</div></div><div class="body"><div class="platform">${esc(car.platform || "AUKCJA")}</div><div class="title">${esc(title)}</div><div class="info"><div class="info-item"><span class="label">VIN</span><span class="value">${esc(car.vin || "—")}</span></div><div class="info-item"><span class="label">LOT</span><span class="value">${esc(car.lot || "—")}</span></div><div class="info-item"><span class="label">Przebieg</span><span class="value">${esc(car.odometer || "—")}</span></div><div class="info-item"><span class="label">Lokalizacja</span><span class="value">${esc(car.location || "—")}</span></div><div class="info-item"><span class="label">Status</span><span class="value">${esc(statusLabel(car.auction))}</span></div><div class="info-item"><span class="label">Aukcja</span><span class="value">${esc(car.auction?.date || "—")}</span></div><div class="info-item"><span class="label">Sprzedający</span><span class="value">${esc(car.seller || "—")}</span></div></div><div class="price"><small>${esc(p[0])}</small><br>${p[1] === null ? "—" : esc(money(p[1]))}</div></div></a><div class="saved-actions"><button class="btn btn-outline" type="button" data-action="remove" data-index="${index}">Usuń z obserwowanych</button></div></article>`;
     }).join("")}</div>`;
   }
   content.addEventListener("click", event => {
@@ -440,10 +450,6 @@
     const car = storage.getFavorites()[Number(button.dataset.index)];
     if (!car) return;
     if (button.dataset.action === "remove") storage.removeFavorite(car.id);
-    else {
-      const result = storage.toggleCompare(car);
-      if (!result.ok && result.reason === "limit") window.alert("Możesz porównać maksymalnie 3 samochody.");
-    }
     render();
   });
   render();

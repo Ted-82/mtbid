@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Rex.Bid — Aukcje samochodów USA</title>
+  <title>REX.Bid — Aukcje samochodów USA</title>
 
   <meta
     name="description"
-    content="Rex.Bid — wyszukiwarka samochodów z aukcji Copart i IAAI."
+    content="REX.Bid — wyszukiwarka samochodów z aukcji Copart i IAAI."
   />
 
   <style>
@@ -477,7 +477,7 @@
       }
     }
 
-    /* Rex.Bid 2.0 — listing experience */
+    /* REX.Bid 2.0 — listing experience */
     :root {
       --bg: #f3f5f7;
       --panel: #ffffff;
@@ -597,6 +597,25 @@
     .clear-filters { flex: 0 0 auto; padding: 5px 0; border: 0; background: none; color: #788592; cursor: pointer; font-size: 10px; font-weight: 700; }
     .clear-filters:hover:not(:disabled) { color: #a05d00; }
     .clear-filters:disabled { cursor: default; opacity: .45; }
+    .market-shortcuts { display:flex; align-items:center; gap:8px; overflow-x:auto; padding:0 0 12px; margin-top:-3px; scrollbar-width:thin; }
+    .market-shortcuts button { flex:0 0 auto; padding:8px 12px; border:1px solid #dbe2e8; border-radius:999px; background:#fff; color:#435566; font-size:11px; font-weight:750; cursor:pointer; }
+    .market-shortcuts button[aria-pressed="true"] { border-color:#dba12c; background:#fff7e5; color:#674806; }
+    .cars { grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
+    .car-card { border-radius:11px; }
+    .car-image { height:190px; }
+    .platform,.status-badge { top:9px; padding:5px 7px; font-size:8px; letter-spacing:.025em; }
+    .platform { left:9px; }
+    .status-badge { right:9px; max-width:62%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .car-content { padding:13px 13px 12px; }
+    .car-title { min-height:39px; font-size:14px; }
+    .car-vin { font-size:9px; }
+    .auction-date-row { flex-wrap:wrap; gap:5px; font-size:10px; }
+    .car-grid { gap:9px 8px; margin:12px 0; }
+    .spec small { font-size:8px; }
+    .spec strong { font-size:11px; }
+    .car-bottom { min-height:49px; padding-top:10px; }
+    .price { font-size:18px; }
+    .details-btn { padding:8px 9px; font-size:10px; }
     .filters input, .filters select { height: 45px; padding: 0 12px; border-color: #dfe5ea; border-radius: 9px; background: #fafbfc; color: #233443; font-size: 13px; }
     .filters input:focus, .filters select:focus { border-color: #dfa42f; outline: 3px solid rgba(242,173,36,.14); }
     .filters button { height: 45px; padding: 0 19px; font-size: 12px; }
@@ -724,6 +743,9 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
     }
+    @media (max-width: 1100px) { .cars { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+    @media (max-width: 700px) { .cars { grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; } .car-image{height:clamp(135px,30vw,190px)} }
+    @media (max-width: 430px) { .cars { grid-template-columns:1fr; } .car-image{height:210px} }
   </style>
 </head>
 
@@ -732,8 +754,8 @@
 <header>
   <div class="container header-inner">
 
-    <a href="/" class="logo" aria-label="Rex.Bid — strona główna">
-      Rex<span>.Bid</span>
+    <a href="/" class="logo" aria-label="REX.Bid — strona główna">
+      REX<span>.Bid</span>
     </a>
 
     <span class="brand-note">Rynek aukcyjny USA</span>
@@ -744,7 +766,6 @@
       <a href="#results">Oferty</a>
       <a href="/jak-to-dziala.html">Jak to działa</a>
       <a class="local-nav-link" href="/ulubione.html">Obserwowane <span data-rexbid-count="favorites">0</span></a>
-      <a class="local-nav-link" href="/compare.html">Porównaj <span data-rexbid-count="compare">0</span></a>
       <a class="nav-account" href="/konto.html">Moje konto</a>
     </nav>
 
@@ -759,7 +780,7 @@
     <div class="container hero-inner">
 
       <div class="hero-copy">
-        <div class="eyebrow">Copart · IAAI · Rex.Bid</div>
+        <div class="eyebrow">Copart · IAAI · REX.Bid</div>
         <h1>
           Znajdź samochód.<br />
           <span>Sprawdź każdą ofertę.</span>
@@ -824,19 +845,9 @@
           <option value="copart">COPART</option>
         </select>
 
-        <input
-          id="make"
-          type="text"
-          aria-label="Marka"
-          placeholder="Marka"
-        />
+        <select id="make" aria-label="Marka"><option value="">Wszystkie marki</option></select>
 
-        <input
-          id="model"
-          type="text"
-          aria-label="Model"
-          placeholder="Model"
-        />
+        <select id="model" aria-label="Model" disabled><option value="">Najpierw wybierz markę</option></select>
 
         <input
           id="yearFrom"
@@ -910,42 +921,31 @@
             <label for="fuelType">Paliwo</label>
             <select id="fuelType">
               <option value="">Dowolne</option>
-              <option value="Gasoline">Benzyna</option>
-              <option value="Diesel">Diesel</option>
-              <option value="Hybrid">Hybryda</option>
-              <option value="Electric">Elektryczny</option>
-              <option value="Flexible">Flex fuel</option>
-              <option value="All others">Inne</option>
             </select>
           </div>
           <div class="filter-field">
             <label for="transmission">Skrzynia biegów</label>
             <select id="transmission">
               <option value="">Dowolna</option>
-              <option value="Automatic">Automatyczna</option>
-              <option value="Manual">Manualna</option>
-              <option value="Unknown">Nieznana</option>
             </select>
           </div>
           <div class="filter-field">
             <label for="driveType">Napęd</label>
             <select id="driveType">
               <option value="">Dowolny</option>
-              <option value="AWD">AWD / 4×4</option>
-              <option value="FWD">Na przód</option>
-              <option value="RWD">Na tył</option>
             </select>
           </div>
           <div class="filter-field">
             <label for="runCond">Stan pracy</label>
             <select id="runCond">
               <option value="">Dowolny</option>
-              <option value="RUNS AND DRIVES">Uruchamia się i jeździ</option>
-              <option value="ENGINE START PROGRAM">Program uruchomienia silnika</option>
-              <option value="STATIONARY">Nie jeździ</option>
-              <option value="NO INFORMATION">Brak informacji</option>
             </select>
           </div>
+          <div class="filter-field"><label for="vehicleType">Rodzaj pojazdu</label><select id="vehicleType"><option value="">Dowolny</option></select></div>
+          <div class="filter-field"><label for="damage">Uszkodzenie</label><select id="damage"><option value="">Dowolne</option></select></div>
+          <div class="filter-field"><label for="sellerType">Typ sprzedawcy</label><select id="sellerType"><option value="">Dowolny</option></select></div>
+          <div class="filter-field"><label for="saleDocument">Dokument sprzedaży</label><select id="saleDocument"><option value="">Dowolny</option></select></div>
+          <div class="filter-field"><label for="locationState">Stan / lokalizacja</label><select id="locationState"><option value="">Dowolna</option></select></div>
         </div>
         <div class="advanced-actions">
           <span class="filter-note">Kwoty są w USD, przebieg w milach. Filtr ceny nie oznacza pełnego kosztu importu.</span>
@@ -983,6 +983,14 @@
     </div>
 
 
+    <div class="market-shortcuts" id="marketShortcuts" role="group" aria-label="Skróty kategorii aukcji">
+      <button type="button" data-market-filter="all" aria-pressed="true">Wszystkie aukcje</button>
+      <button type="button" data-market-filter="open" aria-pressed="false">Aktualne</button>
+      <button type="button" data-market-filter="timed" aria-pressed="false">Timed Auction</button>
+      <button type="button" data-market-filter="buy-now" aria-pressed="false">Kup teraz</button>
+      <button type="button" data-market-filter="upcoming" aria-pressed="false">Nadchodzące</button>
+    </div>
+
     <div
       id="cars"
       class="cars"
@@ -1005,7 +1013,7 @@
 
 <footer>
   <div class="container">
-    Rex.Bid — Vehicle Auction Marketplace
+    <span>REX<span style="color:#f0a800">.Bid</span> — Vehicle Auction Marketplace</span>
   </div>
 </footer>
 
@@ -1052,6 +1060,11 @@
   const transmission = document.getElementById("transmission");
   const driveType = document.getElementById("driveType");
   const runCond = document.getElementById("runCond");
+  const vehicleType = document.getElementById("vehicleType");
+  const damage = document.getElementById("damage");
+  const sellerType = document.getElementById("sellerType");
+  const saleDocument = document.getElementById("saleDocument");
+  const locationState = document.getElementById("locationState");
 
   const filterButton =
     document.getElementById("filterButton");
@@ -1066,6 +1079,7 @@
 
   const loadMoreButton =
     document.getElementById("loadMoreButton");
+  const marketShortcuts = document.getElementById("marketShortcuts");
 
   const localStorageApi = typeof window !== "undefined" ? window.RexBidStorage : null;
 
@@ -1092,8 +1106,134 @@
     { id: "fuelType", element: fuelType, param: "fuel_type", label: "Paliwo", advanced: true },
     { id: "transmission", element: transmission, param: "transmission", label: "Skrzynia", advanced: true },
     { id: "driveType", element: driveType, param: "drive_type", label: "Napęd", advanced: true },
-    { id: "runCond", element: runCond, param: "run_cond", label: "Stan pracy", advanced: true }
+    { id: "runCond", element: runCond, param: "run_cond", label: "Stan pracy", advanced: true },
+    { id: "vehicleType", element: vehicleType, param: "type", label: "Rodzaj pojazdu", advanced: true },
+    { id: "damage", element: damage, param: "damage", label: "Uszkodzenie", advanced: true },
+    { id: "sellerType", element: sellerType, param: "seller_type", label: "Typ sprzedawcy", advanced: true },
+    { id: "saleDocument", element: saleDocument, param: "sale_document_type", label: "Dokument sprzedaży", advanced: true },
+    { id: "locationState", element: locationState, param: "loc_state", label: "Stan / lokalizacja", advanced: true }
   ];
+
+  function metadataRoot(payload) {
+    const data = payload && payload.data && typeof payload.data === "object" ? payload.data : payload;
+    return data && data.filters && typeof data.filters === "object" ? data.filters : data || {};
+  }
+
+  function metadataOption(item) {
+    if (typeof item === "string" || typeof item === "number") return { value: String(item), label: String(item) };
+    if (!item || typeof item !== "object") return null;
+    const value = item.value ?? item.id ?? item.code ?? item.name ?? item.label ?? item.make ?? item.model ?? item.type ?? item.state ?? item.fuel_type ?? item.transmission ?? item.drive_type ?? item.body_style ?? item.damage ?? item.seller_type ?? item.sale_document_type ?? item.year;
+    const label = item.label ?? item.name ?? item.display ?? item.value ?? item.model ?? item.make ?? value;
+    return value === null || value === undefined ? null : { value: String(value), label: String(label) };
+  }
+
+  function metadataOptions(root, keys) {
+    for (const key of keys) {
+      const source = root && root[key];
+      if (Array.isArray(source)) return source.map(metadataOption).filter(Boolean);
+      if (source && typeof source === "object") {
+        const values = Object.entries(source).flatMap(([name, value]) => {
+          if (Array.isArray(value)) return value.map(metadataOption).filter(Boolean);
+          if (value && typeof value === "object") {
+            const option = metadataOption({ value: name, ...value });
+            return option ? [option] : [];
+          }
+          return metadataOption({ value: name, label: value }) ? [metadataOption({ value: name, label: value })] : [];
+        });
+        if (values.length) return values;
+      }
+    }
+    return [];
+  }
+
+  function setMetadataOptions(element, options, placeholder, selectedValue = "") {
+    if (!element) return;
+    const unique = new Map();
+    for (const item of options) if (item.value.trim()) unique.set(item.value, item.label);
+    element.innerHTML = `<option value="">${escapeHtml(placeholder)}</option>` +
+      [...unique].map(([value, label]) => `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`).join("");
+    if (selectedValue && unique.has(selectedValue)) element.value = selectedValue;
+  }
+
+  function modelOptionsFor(root, selectedMake) {
+    const models = root.models_by_make || root.models || root.model_options || [];
+    if (Array.isArray(models)) {
+      const group = models.find(item => item && typeof item === "object" && String(item.make ?? item.make_name ?? "").toLowerCase() === String(selectedMake || "").toLowerCase());
+      if (group) return metadataOptions({ models: group.models || group.options || group.values || [] }, ["models"]);
+      return models.map(metadataOption).filter(Boolean);
+    }
+    if (models && typeof models === "object") {
+      const key = Object.keys(models).find(name => name.toLowerCase() === String(selectedMake || "").toLowerCase());
+      if (key) return metadataOptions({ models: models[key] }, ["models"]);
+    }
+    return [];
+  }
+
+  function metadataRange(root, keys) {
+    for (const key of keys) {
+      const source = root && root[key];
+      const entries = Array.isArray(source) ? source : source && typeof source === "object" ? [source] : [];
+      const bounds = entries.flatMap(entry => {
+        if (typeof entry === "number") return [entry];
+        if (typeof entry === "string") return [...entry.matchAll(/\d+/g)].map(match => Number(match[0]));
+        if (!entry || typeof entry !== "object") return [];
+        return [entry.min, entry.max, entry.from, entry.to, entry.start, entry.end, entry.min_value, entry.max_value, entry.min_price, entry.max_price, entry.min_odometer, entry.max_odometer].map(Number).filter(Number.isFinite);
+      }).filter(value => Number.isFinite(value) && value >= 0);
+      if (bounds.length) return { min: Math.min(...bounds), max: Math.max(...bounds) };
+    }
+    return null;
+  }
+
+  async function loadFilterMetadata(selectedModel = "") {
+    const params = new URLSearchParams();
+    if (make.value) params.set("make", make.value);
+    const response = await fetch(`${API_BASE}/filters?${params.toString()}`, { headers: { Accept: "application/json" } });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const root = metadataRoot(await response.json());
+    if (!make.dataset.ready) {
+      setMetadataOptions(make, metadataOptions(root, ["makes", "make"]), "Wszystkie marki", make.value);
+      make.dataset.ready = "true";
+    }
+    const models = modelOptionsFor(root, make.value);
+    setMetadataOptions(model, models, make.value ? "Wszystkie modele" : "Najpierw wybierz markę", selectedModel || model.value);
+    model.disabled = !make.value || models.length === 0;
+    for (const [element, keys, placeholder] of [
+      [fuelType, ["fuel", "fuel_types", "fuels"], "Dowolne"],
+      [transmission, ["transmission", "transmissions"], "Dowolna"],
+      [driveType, ["drive", "drive_types", "drivetrains"], "Dowolny"],
+      [runCond, ["run_condition", "run_conditions", "run_cond"], "Dowolny"],
+      [vehicleType, ["vehicle_types", "types", "body_styles"], "Dowolny"],
+      [damage, ["damage_groups", "damages", "damage"], "Dowolne"],
+      [sellerType, ["seller_type", "seller_types"], "Dowolny"],
+      [saleDocument, ["sale_document", "sale_documents", "sale_document_types"], "Dowolny"],
+      [locationState, ["locations", "location_states", "states"], "Dowolna"]
+    ]) {
+      const selected = element.value;
+      const options = metadataOptions(root, keys);
+      if (options.length) setMetadataOptions(element, options, placeholder, selected);
+    }
+    const years = metadataOptions(root, ["years", "year_ranges", "year_range"]);
+    const yearNumbers = years.flatMap(item => [Number(item.value), Number(item.label)]).filter(value => Number.isInteger(value) && value >= 1886 && value <= new Date().getFullYear() + 2);
+    const bounds = root.year_ranges && !Array.isArray(root.year_ranges) ? root.year_ranges : root.years_range;
+    if (bounds && typeof bounds === "object") {
+      yearNumbers.push(Number(bounds.min ?? bounds.from ?? bounds.start), Number(bounds.max ?? bounds.to ?? bounds.end));
+    }
+    const yearRange = metadataRange(root, ["year_ranges", "year_range", "years"]);
+    if (yearRange) yearNumbers.push(yearRange.min, yearRange.max);
+    const validYears = yearNumbers.filter(value => Number.isInteger(value) && value >= 1886 && value <= new Date().getFullYear() + 2);
+    if (validYears.length) {
+      yearFrom.min = String(Math.min(...validYears)); yearTo.min = yearFrom.min;
+      yearFrom.max = String(Math.max(...validYears)); yearTo.max = yearFrom.max;
+    }
+    for (const [minInput, maxInput, keys] of [
+      [priceMin, priceMax, ["price_ranges", "price_range"]],
+      [odometerFrom, odometerTo, ["odometer_ranges", "odometer_range"]]
+    ]) {
+      const range = metadataRange(root, keys);
+      if (range) { minInput.min = String(range.min); minInput.max = String(range.max); maxInput.min = String(range.min); maxInput.max = String(range.max); }
+    }
+    updateFilterIndicators();
+  }
 
 
   /*
@@ -1133,6 +1273,15 @@
     activeFilterSummary.textContent = `${active.length} ${countLabel}`;
     activeFiltersElement.hidden = active.length === 0;
     clearFiltersButton.disabled = active.length === 0;
+    if (marketShortcuts) {
+      const chosen = lotStatus.value === "Buy Now" ? "buy-now"
+        : lotStatus.value === "Timed" ? "timed"
+        : upcoming.value === "only" ? "upcoming"
+        : lotSubStatus.value === "Open" ? "open" : "all";
+      marketShortcuts.querySelectorAll("[data-market-filter]").forEach(button => {
+        button.setAttribute("aria-pressed", String(button.dataset.marketFilter === chosen));
+      });
+    }
     activeFilterChips.innerHTML = active.map(definition => {
       const value = getFilterValue(definition);
       const optionLabel = definition.element.selectedOptions?.[0]?.textContent;
@@ -1183,6 +1332,17 @@
   function clearAllFilters() {
     for (const definition of filterDefinitions) definition.element.value = "";
     advancedFiltersElement.open = false;
+    updateFilterIndicators();
+    model.disabled = true;
+    // Opcje zależne od marki są odświeżane przy następnym wyborze marki.
+    // Czyszczenie filtrów nie potrzebuje osobnego requestu metadata.
+    loadCars();
+  }
+
+  function applyMarketShortcut(value) {
+    lotStatus.value = value === "buy-now" ? "Buy Now" : value === "timed" ? "Timed" : "";
+    lotSubStatus.value = value === "open" ? "Open" : "";
+    upcoming.value = value === "upcoming" ? "only" : "";
     updateFilterIndicators();
     loadCars();
   }
@@ -1662,30 +1822,47 @@
     if (!car) return { value: null, label: "Cena niedostępna" };
 
     const pricing = car.pricing && typeof car.pricing === "object" ? car.pricing : {};
-    const firstAvailable = (...values) => values.find(value =>
-      value !== null && value !== undefined && value !== "" &&
-      !(typeof value === "number" && !Number.isFinite(value))
-    );
+    const positive = (...values) => values.find(value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)) && Number(value) > 0);
+    const auction = car.auction && typeof car.auction === "object" ? car.auction : {};
+    const state = String(auction.state || car.status || "").toLowerCase();
+    const outcome = String(auction.outcome_status || "").toLowerCase();
+    const terminal = ["finished", "sold", "closed", "ended", "not_sold", "no_sale"].includes(state) || Boolean(auction.auction_ended_at) || auction.sold_timed === true;
+    const sold = /sold|approval/.test(outcome) || ["sold"].includes(state) || ((state === "finished" || Boolean(auction.auction_ended_at)) && positive(pricing.sale_price_usd));
+    const unsold = /not.?sold|no.?sale|unsold/.test(outcome) || ["not_sold", "no_sale"].includes(state);
+    if (terminal && sold) {
+      const salePrice = positive(pricing.sale_price_usd, pricing.final_price_usd, car.sale_price_usd, car.final_price_usd);
+      if (salePrice !== undefined) return { value: salePrice, label: "Cena sprzedaży" };
+    }
+    if (terminal && !unsold) {
+      const lastSoldPrice = positive(pricing.last_sold_price_usd, car.last_sold_price_usd);
+      if (lastSoldPrice !== undefined) return { value: lastSoldPrice, label: "Ostatnia cena sprzedaży" };
+    }
 
-    const salePrice = firstAvailable(
-      pricing.sale_price_usd, pricing.final_price_usd,
-      car.sale_price_usd, car.final_price_usd
-    );
-    if (salePrice !== undefined) return { value: salePrice, label: "Cena sprzedaży" };
-
-    const currentBid = firstAvailable(
-      pricing.current_bid_usd, pricing.current_bid, pricing.current_bid2_usd,
-      pricing.bid_usd, pricing.bid, car.current_bid
-    );
-    if (currentBid !== undefined) return { value: currentBid, label: "Aktualna oferta" };
-
-    const buyNow = firstAvailable(pricing.buy_now_usd, pricing.buy_now, car.buy_now);
-    if (buyNow !== undefined) return { value: buyNow, label: "Kup teraz" };
-
-    const lastSoldPrice = firstAvailable(pricing.last_sold_price_usd, car.last_sold_price_usd);
-    if (lastSoldPrice !== undefined) return { value: lastSoldPrice, label: "Ostatnia cena sprzedaży" };
+    if (!terminal) {
+      const currentBid = positive(pricing.current_bid_usd, pricing.current_bid2_usd);
+      if (currentBid !== undefined) return { value: currentBid, label: auction.is_timed ? "Aktualna oferta · Timed Auction" : "Aktualna oferta" };
+      const buyNow = positive(pricing.buy_now_usd);
+      if (buyNow !== undefined) return { value: buyNow, label: "Kup teraz" };
+    }
 
     return { value: null, label: "Cena niedostępna" };
+  }
+
+  function getAuctionStatusLabel(car) {
+    const auction = car?.auction && typeof car.auction === "object" ? car.auction : {};
+    const state = String(auction.state || car?.status || "").toLowerCase();
+    const outcome = String(auction.outcome_status || "").toLowerCase();
+    if (/not.?sold|no.?sale|unsold/.test(outcome) || ["not_sold", "no_sale"].includes(state)) return "Niesprzedana";
+    if (/sold|approval/.test(outcome) || state === "sold" || auction.sold_timed === true) return "Sprzedana";
+    if (["finished", "closed", "ended"].includes(state) || auction.auction_ended_at) return "Zakończona";
+    if (auction.is_buy_now === true || String(auction.lot_status || "").toLowerCase() === "buy now") return "Kup teraz";
+    if (auction.is_timed === true || String(auction.lot_status || "").toLowerCase() === "timed") return "Timed Auction";
+    if (/live|running|in progress/.test(state) || String(auction.lot_sub_status || "").toLowerCase() === "live") return "Live";
+    if (state === "upcoming" || state === "scheduled" || state === "future" || auction.upcoming === true) {
+      return getAuctionDate(car) ? "Nadchodząca" : "Nadchodząca · termin nieustalony";
+    }
+    if (["open", "active", "prebid", "pre-bid", "pending"].includes(state)) return "Przed licytacją";
+    return "Status niedostępny";
   }
 
 
@@ -1925,10 +2102,12 @@
     const auction = car && car.auction && typeof car.auction === "object"
       ? car.auction
       : {};
+    const timedEnd = auction.is_timed === true && auction.timed_end_at ? auction.timed_end_at : "";
     const value =
-      auction.formatted ||
-      auction.full_date ||
+      timedEnd ||
       auction.auction_at ||
+      auction.full_date ||
+      auction.formatted ||
       auction.auctionAt ||
       car?.auction_at ||
       car?.auctionAt ||
@@ -1938,6 +2117,7 @@
     if (!value || typeof value !== "string") return "";
 
     const raw = value.trim();
+    if (!Number.isFinite(Date.parse(raw))) return "";
     const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/);
     if (!match) return raw;
 
@@ -2010,8 +2190,7 @@
         const platformName =
           getPlatform(car);
 
-        const status =
-          getStatus(car);
+        const status = getAuctionStatusLabel(car);
 
         const auctionDate =
           getAuctionDate(car);
@@ -2078,33 +2257,12 @@
 
         let statusHtml = "";
 
-        if (status) {
-
-          const normalizedStatus =
-            String(status).toLowerCase();
-
-          let statusText =
-            String(status).toUpperCase();
-
-          if (
-            normalizedStatus === "open" ||
-            normalizedStatus === "active" ||
-            normalizedStatus === "live"
-          ) {
-            statusText = "AKTYWNA";
-          } else if (["finished", "sold", "closed", "ended"].includes(normalizedStatus)) {
-            statusText = "ZAKOŃCZONA";
-          } else if (["upcoming", "future", "scheduled"].includes(normalizedStatus)) {
-            statusText = "ZAPLANOWANA";
-          }
-
-          const statusClass = ["finished", "sold", "closed", "ended"].includes(normalizedStatus)
-            ? "status-finished"
-            : (["upcoming", "future", "scheduled"].includes(normalizedStatus) ? "status-upcoming" : "status-active");
-
+        if (status && status !== "Status niedostępny") {
+          const statusClass = /Sprzedana|Niesprzedana|Zakończona/.test(status) ? "status-finished"
+            : (/termin nieustalony|Nadchodząca/.test(status) ? "status-upcoming" : "status-active");
           statusHtml = `
             <div class="status-badge ${statusClass}">
-              ${escapeHtml(statusText)}
+              ${escapeHtml(status)}
             </div>
           `;
         }
@@ -2154,7 +2312,7 @@
                 ${auctionDate ? `
                   <div class="auction-date-row">
                     <span class="auction-date-icon" aria-hidden="true">◷</span>
-                    <span>Aukcja:</span>
+                    <span>${car.auction?.is_timed === true && car.auction?.timed_end_at ? "Koniec aukcji:" : "Aukcja:"}</span>
                     <strong>${escapeHtml(auctionDate)}</strong>
                   </div>
                 ` : ""}
@@ -2264,7 +2422,6 @@
             </a>
             <div class="card-local-actions" aria-label="Akcje lokalne">
               <button type="button" data-local-action="favorite" data-car-index="${cardIndex}" aria-pressed="${localStorageApi?.isFavorite(car) ? "true" : "false"}">${localStorageApi?.isFavorite(car) ? "♥ Obserwujesz" : "♡ Obserwuj"}</button>
-              <button type="button" data-local-action="compare" data-car-index="${cardIndex}" aria-pressed="${localStorageApi?.isCompared(car) ? "true" : "false"}">${localStorageApi?.isCompared(car) ? "✓ W porównaniu" : "⇄ Porównaj"}</button>
             </div>
 
           </article>
@@ -2472,6 +2629,10 @@
       }
     }
 
+    for (const [name, element] of [["type", vehicleType], ["damage", damage], ["seller_type", sellerType], ["sale_document_type", saleDocument], ["loc_state", locationState]]) {
+      if (String(element.value || "").trim()) params.set(name, String(element.value).trim());
+    }
+
 
     params.set(
       "per_page",
@@ -2615,7 +2776,7 @@
       if (requestId !== listRequestId) return;
 
       console.error(
-        "Rex.Bid API error:",
+        "REX.Bid API error:",
         error
       );
 
@@ -2686,6 +2847,14 @@
   }
 
   platform.addEventListener("change", () => loadCars());
+  make.addEventListener("change", async () => {
+    model.value = "";
+    model.disabled = true;
+    try { await loadFilterMetadata(); } catch (error) { console.warn("Nie udało się odświeżyć metadanych modeli.", error); }
+    updateFilterIndicators();
+    loadCars();
+  });
+  model.addEventListener("change", () => loadCars());
 
   activeFilterChips.addEventListener("click", event => {
     const button = event.target.closest("button[data-filter-id]");
@@ -2700,13 +2869,18 @@
   clearFiltersButton.addEventListener("click", clearAllFilters);
 
   if (typeof window !== "undefined") {
-    window.addEventListener("popstate", () => {
+    window.addEventListener("popstate", async () => {
       restoreFiltersFromUrl();
+      try { await loadFilterMetadata(model.value); } catch (error) { console.warn("Nie udało się odtworzyć metadanych filtrów.", error); }
       loadCars({ updateUrl: false });
     });
   }
 
   loadMoreButton.addEventListener("click", () => loadCars({ append: true }));
+  marketShortcuts?.addEventListener("click", event => {
+    const button = event.target.closest("[data-market-filter]");
+    if (button) applyMarketShortcut(button.dataset.marketFilter);
+  });
 
   carsContainer.addEventListener("click", event => {
     const button = event.target.closest("button[data-local-action]");
@@ -2715,12 +2889,7 @@
     event.stopPropagation();
     const selectedCar = listedCars[Number(button.dataset.carIndex)];
     if (!selectedCar) return;
-    if (button.dataset.localAction === "favorite") {
-      localStorageApi.toggleFavorite(selectedCar);
-    } else {
-      const result = localStorageApi.toggleCompare(selectedCar);
-      if (!result.ok && result.reason === "limit") window.alert("Możesz porównać maksymalnie 3 samochody. Usuń jeden z porównania, aby dodać kolejny.");
-    }
+    if (button.dataset.localAction === "favorite") localStorageApi.toggleFavorite(selectedCar);
     renderCars(listedCars);
     localStorageApi.refreshCounts();
   });
@@ -2733,6 +2902,8 @@
   */
 
   restoreFiltersFromUrl();
+  loadFilterMetadata(model.value)
+    .catch(error => console.warn("Metadane filtrów są chwilowo niedostępne.", error));
   loadCars({ updateUrl: false });
 
 </script>

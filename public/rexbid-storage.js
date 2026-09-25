@@ -3,7 +3,6 @@
 
   const STORAGE_KEY = "rex_bid_local_v1";
   const LEGACY_KEY = "mtbid_favorites";
-  const MAX_COMPARE = 3;
   const text = (value, max = 240) => {
     if (value === null || value === undefined || typeof value === "object") return "";
     return String(value).replace(/[\u0000-\u001f\u007f]/g, " ").trim().slice(0, max);
@@ -83,7 +82,12 @@
       },
       auction: {
         state: text(first(auction.state, vehicle.auction_state, vehicle.auctionState, vehicle.status, vehicle.state), 60),
-        date: text(first(auction.full_date, auction.formatted, auction.auction_at, auction.date, vehicle.auction_date, vehicle.auction_at, vehicle.auctionAt), 80)
+        date: text(first(auction.auction_at, auction.full_date, auction.formatted, auction.date, vehicle.auction_date, vehicle.auction_at, vehicle.auctionAt), 80),
+        outcome_status: text(auction.outcome_status, 40),
+        lot_status: text(auction.lot_status, 40),
+        is_timed: auction.is_timed === true,
+        timed_end_at: text(auction.timed_end_at, 80),
+        sold_timed: auction.sold_timed === true
       },
       odometer: odometerText,
       primary_damage: text(first(condition.primary_damage, vehicle.primary_damage, vehicle.damage), 120),
@@ -118,14 +122,16 @@
     }
     return out;
   }
-  function emptyState() { return { schema: "rex-bid-local", version: 1, updated_at: "", legacy_migrated: false, favorites: [], compare: [] }; }
+  function emptyState() { return { schema: "rex-bid-local", version: 1, updated_at: "", legacy_migrated: false, favorites: [] }; }
   function readState() {
     let state = emptyState();
+    let discardLegacyCompare = false;
     try {
       const parsed = JSON.parse(root.localStorage.getItem(STORAGE_KEY) || "null");
       if (parsed && typeof parsed === "object") {
+        discardLegacyCompare = Object.prototype.hasOwnProperty.call(parsed, "compare");
         state = { ...state, legacy_migrated: parsed.legacy_migrated === true,
-          favorites: dedupe(parsed.favorites), compare: dedupe(parsed.compare, MAX_COMPARE) };
+          favorites: dedupe(parsed.favorites) };
       }
     } catch (_) {}
     if (!state.legacy_migrated) {
@@ -139,18 +145,20 @@
       } catch (_) {}
       state.legacy_migrated = true;
       writeState(state);
+    } else if (discardLegacyCompare) {
+      // One-time cleanup of the retired comparison list while preserving favorites.
+      writeState(state);
     }
     return state;
   }
   function writeState(state) {
     state.schema = "rex-bid-local"; state.version = 1; state.updated_at = new Date().toISOString();
-    state.favorites = dedupe(state.favorites); state.compare = dedupe(state.compare, MAX_COMPARE);
+    state.favorites = dedupe(state.favorites);
     try { root.localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) { return false; }
     refreshCounts();
     return true;
   }
   function getFavorites() { return readState().favorites; }
-  function getCompare() { return readState().compare; }
   function removeFrom(listName, vehicleOrKey) {
     const state = readState(), key = keyFor(vehicleOrKey);
     const before = state[listName].length;
@@ -178,18 +186,14 @@
   }
   function refreshCounts() {
     if (!root.document) return;
-    const favCount = getFavorites().length, compareCount = getCompare().length;
+    const favCount = getFavorites().length;
     root.document.querySelectorAll('[data-rexbid-count="favorites"]').forEach(node => { node.textContent = String(favCount); });
-    root.document.querySelectorAll('[data-rexbid-count="compare"]').forEach(node => { node.textContent = String(compareCount); });
   }
   const api = {
-    STORAGE_KEY, MAX_COMPARE, snapshotFromVehicle, getFavorites, getCompare,
+    STORAGE_KEY, snapshotFromVehicle, getFavorites,
     isFavorite(vehicle) { const key = keyFor(vehicle); return !!key && getFavorites().some(item => item.id === key); },
     toggleFavorite(vehicle) { return toggle("favorites", vehicle); },
     removeFavorite(vehicleOrKey) { return removeFrom("favorites", vehicleOrKey); },
-    isCompared(vehicle) { const key = keyFor(vehicle); return !!key && getCompare().some(item => item.id === key); },
-    toggleCompare(vehicle) { return toggle("compare", vehicle, MAX_COMPARE); },
-    removeCompare(vehicleOrKey) { return removeFrom("compare", vehicleOrKey); },
     detailHref, escapeHtml, safeImageUrl, refreshCounts
   };
   root.RexBidStorage = api;

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Moje konto | MTBID</title>
+  <title>Moje konto | REX.Bid</title>
 
   <style>
     * {
@@ -323,7 +323,7 @@
   <div class="header-inner">
 
     <a href="index.html" class="logo">
-      MT<span>BID</span>
+      REX<span>.Bid</span>
     </a>
 
     <nav>
@@ -399,7 +399,7 @@
           </div>
 
           <div>
-            <h2>Moje konto MTBID</h2>
+            <h2>Moje konto REX.Bid</h2>
             <div class="profile-email">
               Konto użytkownika
             </div>
@@ -462,7 +462,7 @@
             </div>
 
             <div class="row-value">
-              Użytkownik MTBID
+              Użytkownik REX.Bid
             </div>
           </div>
 
@@ -552,9 +552,7 @@
   <div class="footer-inner">
 
     <div>
-      <div class="footer-logo">
-        MTBID
-      </div>
+      <div class="footer-logo">REX<span>.Bid</span></div>
 
       <div style="margin-top:8px;">
         Platforma aukcji samochodów z USA
@@ -562,7 +560,7 @@
     </div>
 
     <div>
-      © 2026 MTBID
+      © 2026 REX.Bid
     </div>
 
   </div>
@@ -570,29 +568,12 @@
 </footer>
 
 
+<script src="/rexbid-storage.js"></script>
 <script>
 
 function updateFavorites() {
-
-  try {
-
-    const favorites =
-      JSON.parse(
-        localStorage.getItem("mtbid_favorites") || "[]"
-      );
-
-    document.getElementById(
-      "favoriteCount"
-    ).textContent = favorites.length;
-
-  } catch {
-
-    document.getElementById(
-      "favoriteCount"
-    ).textContent = "0";
-
-  }
-
+  const count = window.RexBidStorage?.getFavorites?.().length || 0;
+  document.getElementById("favoriteCount").textContent = String(count);
 }
 
 
@@ -601,7 +582,7 @@ function comingSoon(event) {
   event.preventDefault();
 
   alert(
-    "Ta funkcja zostanie podłączona w kolejnym etapie MTBID."
+    "Ta funkcja zostanie podłączona w kolejnym etapie REX.Bid."
   );
 
 }

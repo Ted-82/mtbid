@@ -22,7 +22,7 @@ function loadWorker(fetchImpl = async () => { throw new Error('Unexpected networ
     caches: { default: { match: async () => null, put: async () => {} } }
   };
   vm.createContext(context);
-  vm.runInContext(`${source}\nglobalThis.__history = { normalizeHistoryRecord, normalizeApibaraHistory, normalizeApibaraVehicleList, historyEventHash, saveOfficialHistory, saveVehicle, saveApiVehicle, syncVehicle, syncVehicleList, getSavedAuctionHistory, requestApibara, fetchApibaraVehicle, searchApibaraVehicles, fetchApibaraHistory, fetchApibaraVehicles, buildApibaraUrl, ApibaraRequestError, apibaraErrorResponse };`, context);
+  vm.runInContext(`${source}\nglobalThis.__history = { normalizeHistoryRecord, normalizeApibaraHistory, normalizeApibaraVehicleList, historyEventHash, saveOfficialHistory, saveVehicle, saveApiVehicle, syncVehicle, syncVehicleList, getSavedAuctionHistory, requestApibara, fetchApibaraVehicle, searchApibaraVehicles, fetchApibaraHistory, fetchApibaraVehicles, fetchApibaraVehicleFilters, getVehicleFilters, buildApibaraUrl, ApibaraRequestError, apibaraErrorResponse };`, context);
   return context;
 }
 
@@ -242,6 +242,34 @@ test('Apibara read helpers make no D1 access and keep endpoint persistence outsi
   assert.equal(page.nextCursor, 'cursor-next');
   assert.equal(page.records.length, 1);
   assert.equal(page.records[0].source_event_id, 'EV-1');
+});
+
+test('filter metadata proxy uses the shared client, keeps documented response data and caches per make', async () => {
+  let requestedUrl;
+  let savedResponse;
+  const payload = { data: { makes: ['Honda', 'Toyota'], models: { Honda: ['Civic'], Toyota: ['Camry'] }, year_ranges: { min: 1990, max: 2026 }, fuel: ['Gasoline'] } };
+  const context = loadWorker(async (url, options) => {
+    requestedUrl = new URL(url);
+    assert.equal(options.method, 'GET');
+    assert.equal(options.headers['X-API-Key'], 'filters-secret');
+    return new Response(JSON.stringify(payload), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  });
+  context.caches.default = {
+    async match() { return null; },
+    async put(key, response) { savedResponse = { key, response }; }
+  };
+  const response = await context.__history.getVehicleFilters(
+    new Request('https://rex.example/api/filters?make=Honda&unknown=ignored'),
+    { APIBARA_API_KEY: 'filters-secret', get REXBID_DB() { throw new Error('metadata read cannot touch D1'); } }
+  );
+  const result = await response.json();
+  assert.equal(response.status, 200);
+  assert.deepEqual(JSON.parse(JSON.stringify(result.data.makes)), ['Honda', 'Toyota']);
+  assert.equal(response.headers.get('Cache-Control'), 'public, max-age=21600');
+  assert.ok(savedResponse);
+  assert.equal(requestedUrl.pathname, '/api/v1/vehicle-auction/vehicles/filters');
+  assert.equal(requestedUrl.searchParams.get('make'), 'Honda');
+  assert.equal(requestedUrl.searchParams.has('unknown'), false);
 });
 
 test('production GET routes use D1 SELECT only and preserve vehicle/history responses', async () => {
@@ -703,7 +731,7 @@ test('index list pagination appends by cursor, resets filters, deduplicates by V
     if (!elements.has(id)) {
       elements.set(id, {
         id, value: '', innerHTML: '', textContent: '', hidden: false, disabled: false,
-        style: {}, listeners: {}, addEventListener(name, callback) { this.listeners[name] = callback; },
+        style: {}, dataset: {}, listeners: {}, addEventListener(name, callback) { this.listeners[name] = callback; }, querySelectorAll() { return []; }, setAttribute() {},
         scrollIntoView() {}
       });
     }
@@ -725,7 +753,10 @@ test('index list pagination appends by cursor, resets filters, deduplicates by V
   };
   vm.createContext(context);
 
-  const script = scripts[0][2].replace(/\n\s*loadCars\((?:\{\s*updateUrl:\s*false\s*\})?\);\s*$/, '\n  globalThis.initialLoad = loadCars();');
+  const script = scripts[0][2].replace(
+    /restoreFiltersFromUrl\(\);\s*loadFilterMetadata\(model\.value\)[\s\S]*?\.catch\(error => console\.warn\("Metadane filtrów są chwilowo niedostępne\.", error\)\);\s*loadCars\(\{ updateUrl: false \}\);/,
+    '\n  restoreFiltersFromUrl(); globalThis.initialLoad = loadCars({ updateUrl: false });'
+  );
   assert.notEqual(script, scripts[0][2], 'initial list load can be awaited by the test');
   vm.runInContext(`${script}\nglobalThis.testLoadCars = loadCars;`, context);
 
@@ -784,7 +815,7 @@ test('index exposes only Worker-supported advanced filters and restores shareabl
     if (!elements.has(id)) {
       elements.set(id, {
         id, value: '', innerHTML: '', textContent: '', hidden: false, disabled: false,
-        style: {}, listeners: {}, addEventListener(name, callback) { this.listeners[name] = callback; },
+        style: {}, dataset: {}, listeners: {}, addEventListener(name, callback) { this.listeners[name] = callback; }, querySelectorAll() { return []; }, setAttribute() {},
         scrollIntoView() {}
       });
     }
@@ -817,7 +848,10 @@ test('index exposes only Worker-supported advanced filters and restores shareabl
     console: { error() {}, warn() {}, log() {} }
   };
   vm.createContext(context);
-  const script = scripts[0][2].replace(/\n\s*loadCars\((?:\{\s*updateUrl:\s*false\s*\})?\);\s*$/, '\n  globalThis.initialLoad = loadCars();');
+  const script = scripts[0][2].replace(
+    /restoreFiltersFromUrl\(\);\s*loadFilterMetadata\(model\.value\)[\s\S]*?\.catch\(error => console\.warn\("Metadane filtrów są chwilowo niedostępne\.", error\)\);\s*loadCars\(\{ updateUrl: false \}\);/,
+    '\n  restoreFiltersFromUrl(); globalThis.initialLoad = loadCars({ updateUrl: false });'
+  );
   assert.notEqual(script, scripts[0][2]);
   vm.runInContext(`${script}\nglobalThis.testLoadCars = loadCars;`, context);
 
@@ -872,14 +906,54 @@ test('index exposes only Worker-supported advanced filters and restores shareabl
   await reset;
 
   Object.assign(location, { href: 'https://rex.bid/?platform=iaai&fuel_type=Electric', search: '?platform=iaai&fuel_type=Electric' });
-  window.listeners.popstate();
+  const restoreState = window.listeners.popstate();
   assert.equal(element('platform').value, 'iaai', 'back/forward restores the platform filter');
   assert.equal(element('fuelType').value, 'Electric', 'back/forward restores advanced filters');
-  assert.equal(requests[4].searchParams.get('platform'), 'iaai');
-  assert.equal(requests[4].searchParams.get('fuel_type'), 'Electric');
-  assert.equal(requests[4].searchParams.has('cursor'), false, 'restoring URL state starts at page one');
-  nextFetch.resolve(response([], null));
+  nextFetch.resolve(new Response(JSON.stringify({ ok: true, data: {} }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
   await new Promise(resolve => setImmediate(resolve));
+  assert.equal(requests[5].searchParams.get('platform'), 'iaai');
+  assert.equal(requests[5].searchParams.get('fuel_type'), 'Electric');
+  assert.equal(requests[5].searchParams.has('cursor'), false, 'restoring URL state starts at page one');
+  nextFetch.resolve(response([], null));
+  await restoreState;
+});
+
+test('market category shortcuts use only supported list filters and always start at page one', async () => {
+  const scripts = [...indexSource.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].filter(match => !/\bsrc\s*=/.test(match[1]));
+  const elements = new Map();
+  const element = id => {
+    if (!elements.has(id)) elements.set(id, { id, value: '', innerHTML: '', textContent: '', hidden: false, disabled: false,
+      style: {}, dataset: {}, listeners: {}, addEventListener(name, callback) { this.listeners[name] = callback; },
+      querySelectorAll() { return []; }, setAttribute() {}, scrollIntoView() {} });
+    return elements.get(id);
+  };
+  const requests = [];
+  const context = { document: { getElementById: element }, URL, URLSearchParams, Response,
+    fetch(url) { requests.push(new URL(url, 'https://rex.bid')); return Promise.resolve(new Response(JSON.stringify({ ok:true, data:[], meta:{ next_cursor:null } }), { status:200 })); },
+    console: { error(){}, warn(){}, log(){} } };
+  vm.createContext(context);
+  const script = scripts[0][2].replace(/restoreFiltersFromUrl\(\);\s*loadFilterMetadata\(model\.value\)[\s\S]*?\.catch\(error => console\.warn\("Metadane filtrów są chwilowo niedostępne\.", error\)\);\s*loadCars\(\{ updateUrl: false \}\);/, '\n  restoreFiltersFromUrl();');
+  vm.runInContext(`${script}\nglobalThis.quickFilter = applyMarketShortcut;`, context);
+  for (const [shortcut, param, value] of [['open','lot_sub_status','Open'],['timed','lot_status','Timed'],['buy-now','lot_status','Buy Now'],['upcoming','upcoming','only']]) {
+    await context.quickFilter(shortcut);
+    const request = requests.at(-1);
+    assert.equal(request.searchParams.get(param), value, shortcut);
+    assert.equal(request.searchParams.has('cursor'), false, `${shortcut} resets pagination`);
+  }
+});
+
+test('filter metadata option text and values are escaped before select markup', () => {
+  const blocks = [
+    extractFunctionBlock(indexSource, 'escapeHtml', 'getFilterValue'),
+    extractFunctionBlock(indexSource, 'metadataOption', 'metadataOptions'),
+    extractFunctionBlock(indexSource, 'setMetadataOptions', 'modelOptionsFor')
+  ].join('\n');
+  const select = { innerHTML: '', value: '', tagName: 'SELECT' };
+  const context = { element: select, escapeHtml: value => String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;') };
+  vm.createContext(context);
+  vm.runInContext(`${blocks}\nsetMetadataOptions(element, [{ value: '\"><img src=x onerror=alert(1)>', label: '<script>alert(1)</script>' }], 'Marka');`, context);
+  assert.doesNotMatch(select.innerHTML, /<img|<script>/i);
+  assert.match(select.innerHTML, /&lt;script&gt;/);
 });
 
 test('listing and detail price labels preserve price meaning and finished overrides a future auction date', () => {
@@ -887,14 +961,55 @@ test('listing and detail price labels preserve price meaning and finished overri
   const listingContext = {};
   vm.createContext(listingContext);
   vm.runInContext(`${listingBlock}\nglobalThis.priceInfo = getPriceInfo;`, listingContext);
-  const soldListingPrice = listingContext.priceInfo({ pricing: { sale_price_usd: 2025, current_bid_usd: 1800 } });
+  const soldListingPrice = listingContext.priceInfo({ auction: { state: 'finished' }, pricing: { sale_price_usd: 2025, current_bid_usd: 1800 } });
   const buyNowListingPrice = listingContext.priceInfo({ pricing: { current_bid_usd: null, buy_now_usd: 2925 } });
   assert.deepEqual(JSON.parse(JSON.stringify(soldListingPrice)), { value: 2025, label: 'Cena sprzedaży' });
   assert.deepEqual(JSON.parse(JSON.stringify(buyNowListingPrice)), { value: 2925, label: 'Kup teraz' });
   assert.equal(listingContext.priceInfo({ price: 1000, estimated_cost: { from: 500, to: 1500 } }).value, null);
+  assert.deepEqual(JSON.parse(JSON.stringify(listingContext.priceInfo({ pricing: { current_bid_usd: null, current_bid2_usd: 2600, buy_now_usd: 3500 }, auction: { is_timed: true } }))),
+    { value: 2600, label: 'Aktualna oferta · Timed Auction' }, 'secondary current bid is used when the primary value is empty');
+  assert.deepEqual(JSON.parse(JSON.stringify(listingContext.priceInfo({ auction: { state: 'finished' }, pricing: { buy_now_usd: 0, last_sold_price_usd: 1500 } }))),
+    { value: 1500, label: 'Ostatnia cena sprzedaży' }, 'a stale last-sale value stays explicit and is never labeled current or final');
+  assert.deepEqual(JSON.parse(JSON.stringify(listingContext.priceInfo({ auction: { state: 'finished' }, pricing: { last_sold_price_usd: 1500 } }))),
+    { value: 1500, label: 'Ostatnia cena sprzedaży' });
+  const dateBlock = extractFunctionBlock(indexSource, 'getAuctionDate', 'renderCars');
+  const dateContext = {};
+  vm.createContext(dateContext);
+  vm.runInContext(`${dateBlock}\nglobalThis.auctionDate = getAuctionDate;`, dateContext);
+  assert.equal(dateContext.auctionDate({ auction: { is_timed: true, timed_end_at: '2026-10-03T17:00:00Z', auction_at: '2026-10-02T09:00:00Z' } }), '03.10.2026, 17:00');
+  const statusBlock = extractFunctionBlock(indexSource, 'getAuctionStatusLabel', 'getMileage');
+  const statusContext = { getAuctionDate: () => null };
+  vm.createContext(statusContext);
+  vm.runInContext(`${statusBlock}\nglobalThis.statusLabel = getAuctionStatusLabel;`, statusContext);
+  assert.equal(statusContext.statusLabel({ auction: { state: 'open', is_timed: true } }), 'Timed Auction');
+  assert.equal(statusContext.statusLabel({ auction: { state: 'upcoming', auction_at: null, full_date: null, formatted: null } }), 'Nadchodząca · termin nieustalony');
+  assert.equal(statusContext.statusLabel({ auction: {} }), 'Status niedostępny');
+  const countdownBlock = extractFunctionBlock(carSource, 'startCountdown', 'updateAuctionUi');
+  const timerNodes = new Map([['countdown', { textContent: '' }], ['countdownLabel', { textContent: '' }], ['auctionTimerBox', { style: {} }]]);
+  const now = Date.now();
+  const countdownContext = {
+    car: { auction: { is_timed: true } }, auctionCountdownTimer: null, Date,
+    document: { getElementById: id => timerNodes.get(id) || null },
+    auctionPhase: () => 'prebid',
+    getAuctionStart: () => new Date(now + 7200000).toISOString(),
+    getAuctionEnd: () => new Date(now + 3600000).toISOString(),
+    clearInterval() {}, setInterval() { return 1; },
+    formatDate: value => value
+  };
+  vm.createContext(countdownContext);
+  vm.runInContext(`${countdownBlock}\nstartCountdown();`, countdownContext);
+  assert.equal(timerNodes.get('countdownLabel').textContent, 'Do końca aukcji czasowej');
+  assert.match(timerNodes.get('countdown').textContent, /^\d+:\d{2}:\d{2}$/);
+
+  const finalBidBlock = extractFunctionBlock(carSource, 'getFinalBid', 'getCurrentBid');
+  const finalBidContext = { car: { pricing: { last_sold_price_usd: 9876 } }, first: (...values) => values.find(value => value !== null && value !== undefined && value !== ''), valueFrom: () => undefined };
+  vm.createContext(finalBidContext);
+  vm.runInContext(`${finalBidBlock}\nglobalThis.finalBid = getFinalBid;`, finalBidContext);
+  assert.equal(finalBidContext.finalBid(), undefined, 'last historical sale is not treated as final bid for this event');
 
   const phaseBlock = extractFunctionBlock(carSource, 'auctionPhase', 'auctionStatusLabel');
   const phaseContext = {
+    car: { auction: { state: 'finished' } },
     getAuctionStatus: () => 'finished',
     getAuctionStart: () => '2099-12-28T17:30:00Z',
     getAuctionEnd: () => null,
@@ -928,14 +1043,27 @@ test('Car 2.0 keeps vehicle actions and media controls explicit without implying
   for (const fn of ['fetchVehicle', 'getVin', 'getLot', 'originalAuctionUrl', 'renderPhotos', 'openLightbox', 'setZoom', 'openViewer', 'startCountdown', 'initImportCalculator', 'fetchAuctionHistoryPages', 'updateAuctionUi']) {
     assert.match(carSource, new RegExp(`function ${fn}\\(`), `preserved detail-page function ${fn}`);
   }
-  assert.match(carSource, /Otwórz aukcję/);
+  assert.match(carSource, /function originalAuctionUrl\(/);
   assert.match(carSource, /id="toggleFavorite"/);
-  assert.match(carSource, /id="toggleCompare"/);
+  assert.doesNotMatch(carSource, /id="toggleCompare"|Dodaj do porównania|compare\.html/);
   assert.match(carSource, /Ulubione zapisane na tym urządzeniu/);
-  assert.match(carSource, /klasyfikacją nazwy\/typu sprzedawcy/);
+  assert.match(carSource, /Źródło aukcyjne maskuje nazwę sprzedawcy/);
   assert.match(carSource, /nie ocena prawna/);
   assert.match(carSource, /\.main-column,\.right-column\{display:contents\}/);
   assert.match(carSource, /#auctionHistoryPanel\{order:9\}/);
+});
+
+test('title document guidance uses only explicit document terms and source registration flag', () => {
+  const block = extractFunctionBlock(carSource, 'titleSourceStatus', 'titleVerdictLabel');
+  const context = { car: { sale_document: { registration: true } }, displayValue: value => value };
+  vm.createContext(context);
+  vm.runInContext(`${block}\nglobalThis.classify = titleSourceStatus;`, context);
+  assert.equal(context.classify('Clean Title', '', '', '', ''), 'good');
+  context.car.sale_document.registration = undefined;
+  assert.equal(context.classify('Salvage', '', '', '', ''), 'warn');
+  assert.equal(context.classify('Certificate of Destruction', '', '', '', ''), 'bad');
+  assert.equal(context.classify('Title Pending', '', '', '', ''), 'warn');
+  assert.equal(context.classify('Unknown document', '', '', '', ''), 'unknown');
 });
 
 test('car detail keeps exact VIN and LOT selection and never falls back to the first list item', () => {
@@ -972,7 +1100,7 @@ test('detail price facts stay distinct and updateable, and missing final price l
   };
   vm.createContext(priceContext);
   vm.runInContext(`${priceBlock}\nglobalThis.priceFacts = getAuctionPriceFacts; globalThis.priceFactsHtml = renderAuctionPriceFactsHtml;`, priceContext);
-  assert.deepEqual(JSON.parse(JSON.stringify(priceContext.priceFacts({ value: 1700, label: 'Aktualna oferta' }))), [{ label: 'Kup teraz', value: 2900 }, { label: 'Cena sprzedaży', value: 2025 }]);
+  assert.deepEqual(JSON.parse(JSON.stringify(priceContext.priceFacts({ value: 1700, label: 'Aktualna oferta' }))), [{ label: 'Kup teraz', value: 2900 }], 'old sale prices are not surfaced while the auction is active');
   phase = 'ended';
   assert.deepEqual(JSON.parse(JSON.stringify(priceContext.priceFacts({ value: 2025, label: 'Cena sprzedaży' }))), []);
 
@@ -996,6 +1124,6 @@ test('detail price facts stay distinct and updateable, and missing final price l
   assert.doesNotMatch(historyBox.innerHTML, /Cena końcowa/);
   assert.match(historyBox.innerHTML, /Example Seller/);
   assert.match(historyBox.innerHTML, /<th>Aukcja<\/th>/, 'platform is explicit even for a single-platform history');
-  assert.match(historyBox.innerHTML, /snapshoty Rex\.Bid nie są mieszane z historią aukcji/);
+  assert.match(historyBox.innerHTML, /snapshoty REX\.Bid nie są mieszane z historią aukcji/);
   assert.match(carSource, /oddzielne wydarzenia aukcyjne/);
 });

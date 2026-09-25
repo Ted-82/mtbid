@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rex.Bid — samochód</title>
-  <meta name="description" content="Rex.Bid — szczegóły pojazdu z aukcji Copart i IAAI." />
+  <title>REX.Bid — samochód</title>
+  <meta name="description" content="REX.Bid — szczegóły pojazdu z aukcji Copart i IAAI." />
 
   <style>
     * { box-sizing: border-box; }
@@ -837,7 +837,7 @@
       .lightbox-nav.left { left:4px; }
       .lightbox-nav.right { right:4px; }
     }
-  
+
 
 
 /* ==========================================================
@@ -1020,7 +1020,7 @@ body{background:var(--bg);color:var(--text)}
 .vehicle-actions .local-storage-note{grid-column:1/-1;color:#76828d;font-size:10px;line-height:1.4;padding:0 2px}
 @media(max-width:760px){.history-scroll{max-height:380px}.history-table{min-width:700px}}
 
-/* Rex.Bid Car 2.0 — informacje aukcyjne od razu, pełne szczegóły niżej. */
+/* REX.Bid Car 2.0 — informacje aukcyjne od razu, pełne szczegóły niżej. */
 main{padding-top:22px}
 .back{margin-bottom:12px;color:#65717c}
 .vehicle-head{
@@ -1190,19 +1190,56 @@ main{padding-top:22px}
   #details,.section,#importCalculator{width:100%}
 }
 
+/* Compact auction detail hierarchy and reliable controls over any image. */
+.summary{padding:14px}
+.summary h1{font-size:23px;margin-bottom:9px}
+.source-badge,.platform-pill{font-size:10px;padding:5px 8px}
+.auction-box{margin-bottom:8px}
+.auction-row{padding:8px 10px}
+.price-box{padding:10px;margin-bottom:8px}
+.price{font-size:23px}
+.price-facts{gap:6px;margin:7px 0}
+.price-fact{padding:7px 8px;min-height:0}
+.price-fact small{font-size:9px}
+.price-fact strong{font-size:12px}
+.section,.info-card,.import-calc{margin-bottom:10px}
+.section{padding:12px}
+.section-title{margin-bottom:9px}
+.spec{padding:8px}
+.damage{padding:9px}
+.seller-box{padding:10px}
+.seller-note{font-size:10px;line-height:1.45}
+.history-scroll{width:100%;overflow:auto;overscroll-behavior-inline:contain}
+.history-table{min-width:660px}
+#auctionHistoryPanel{display:block!important;visibility:visible!important;opacity:1!important;grid-column:1/-1}
+.gallery-arrow,#lbPrev,#lbNext,#lbClose,#lbMinus,#lbReset,#lbPlus,#viewerClose,#viewerFullscreen{
+  color:#fff!important;background:rgba(16,24,32,.88)!important;border:1px solid rgba(255,255,255,.82)!important;
+  box-shadow:0 2px 10px rgba(0,0,0,.38);text-shadow:0 1px 2px #000
+}
+.gallery-arrow:hover,#lbPrev:hover,#lbNext:hover,#lbClose:hover,#lbMinus:hover,#lbReset:hover,#lbPlus:hover,#viewerClose:hover,#viewerFullscreen:hover{
+  background:#111923!important;color:#fff!important
+}
+@media(max-width:1050px){#auctionHistoryPanel{grid-column:auto}}
+@media(max-width:600px){
+  .summary{padding:12px}
+  .summary h1{font-size:20px}
+  .section{padding:10px}
+  .section-title h2{font-size:15px}
+  .history-table{min-width:620px}
+}
+
 </style>
 </head>
 
 <body>
 <header>
   <div class="container header-inner">
-    <a href="/" class="logo">Rex<span>.Bid</span></a>
+    <a href="/" class="logo">REX<span>.Bid</span></a>
     <nav class="nav">
       <a href="/">Samochody</a>
       <a href="/#search">Wyszukiwarka</a>
       <a href="/#results">Aukcje</a>
       <a href="/ulubione.html">Obserwowane <span data-rexbid-count="favorites">0</span></a>
-      <a href="/compare.html">Porównaj <span data-rexbid-count="compare">0</span></a>
     </nav>
   </div>
 </header>
@@ -1216,7 +1253,7 @@ main{padding-top:22px}
 </main>
 
 <footer>
-  <div class="container">Rex.Bid — Vehicle Auction Marketplace</div>
+  <div class="container">REX<span style="color:var(--accent)">.Bid</span> — Vehicle Auction Marketplace</div>
 </footer>
 
 <div id="lightbox" class="lightbox" aria-hidden="true">
@@ -2026,29 +2063,19 @@ main{padding-top:22px}
     return first(
       car.pricing?.sale_price_usd,
       car.pricing?.final_price_usd,
-      car.pricing?.last_sold_price_usd,
       car.pricing?.final_bid_usd,
       car.sale_price_usd,
       car.final_price_usd,
-      car.auction?.last_sold_price_usd,
       car.auction?.final_bid_usd,
       car.final_bid,
       car.final_price,
-      valueFrom(["FinalBid","FinalBidAmount","lastSoldPriceUsd","LastSoldPriceUSD","SalePrice"])
+      valueFrom(["FinalBid","FinalBidAmount","SalePrice"])
     );
   }
 
   function getCurrentBid() {
-    return first(
-      car.pricing?.current_bid_usd,
-      car.pricing?.current_bid,
-      car.pricing?.current_bid2_usd,
-      car.pricing?.bid_usd,
-      car.current_bid,
-      car.auction?.current_bid_usd,
-      car.auction?.current_bid,
-      valueFrom(["currentBid","CurrentBid","bid","Bid"])
-    );
+    const candidates = [car.pricing?.current_bid_usd, car.pricing?.current_bid2_usd];
+    return candidates.find(value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)) && Number(value) > 0) ?? null;
   }
 
   function getAuctionBid() {
@@ -2072,19 +2099,16 @@ main{padding-top:22px}
     const buyNow = getBuyNow();
 
     if (phase === "ended") {
-      const salePrice = first(
+      const salePrice = [
         car.pricing?.sale_price_usd,
-        car.pricing?.final_price_usd,
-        car.sale_price_usd,
-        car.final_price_usd
-      );
+        car.pricing?.final_price_usd
+      ].find(value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)) && Number(value) > 0);
       if (!isEmpty(salePrice)) return { value: salePrice, label: "Cena sprzedaży" };
 
-      const lastSoldPrice = first(
+      const lastSoldPrice = [
         car.pricing?.last_sold_price_usd,
-        car.pricing?.last_sold_price,
         car.last_sold_price_usd
-      );
+      ].find(value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)) && Number(value) > 0);
       if (!isEmpty(lastSoldPrice)) return { value: lastSoldPrice, label: "Ostatnia cena sprzedaży" };
 
       return { value: null, label: "Cena sprzedaży niedostępna" };
@@ -2093,7 +2117,7 @@ main{padding-top:22px}
     if (!isEmpty(currentBid)) {
       return {
         value: currentBid,
-        label: phase === "prebid" ? "Najwyższa oferta przed licytacją" : "Aktualna oferta"
+        label: car.auction?.is_timed === true ? "Aktualna oferta · Timed Auction" : "Aktualna oferta"
       };
     }
     if (!isEmpty(buyNow)) return { value: buyNow, label: "Kup teraz" };
@@ -2105,8 +2129,8 @@ main{padding-top:22px}
     const facts = [
       { label: "Aktualna oferta", value: ended ? null : getCurrentBid() },
       { label: "Kup teraz", value: ended ? null : getBuyNow() },
-      { label: "Cena sprzedaży", value: first(car.pricing?.sale_price_usd, car.pricing?.final_price_usd, car.sale_price_usd, car.final_price_usd) },
-      { label: "Ostatnia cena sprzedaży", value: first(car.pricing?.last_sold_price_usd, car.pricing?.last_sold_price, car.last_sold_price_usd) }
+      { label: "Cena sprzedaży", value: ended ? first(car.pricing?.sale_price_usd, car.pricing?.final_price_usd, car.sale_price_usd, car.final_price_usd) : null },
+      { label: "Ostatnia cena sprzedaży", value: ended ? first(car.pricing?.last_sold_price_usd, car.pricing?.last_sold_price, car.last_sold_price_usd) : null }
     ];
     const salePrice = facts.find(fact => fact.label === "Cena sprzedaży")?.value;
     return facts.filter(fact => {
@@ -2123,12 +2147,8 @@ main{padding-top:22px}
   }
 
   function getBuyNow() {
-    return first(
-      car.pricing?.buy_now_usd,
-      car.buy_now,
-      car.auction?.buy_now,
-      valueFrom(["buyNow","BuyNow","buyNowAmount","buyNowPrice"])
-    );
+    const value = car.pricing?.buy_now_usd;
+    return value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)) && Number(value) > 0 ? value : null;
   }
 
   function getAuctionStatus() {
@@ -2141,6 +2161,8 @@ main{padding-top:22px}
 
   function formatDate(v) {
     if (isEmpty(v)) return "—";
+    const dateOnly = String(v).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (dateOnly) return `${dateOnly[3]}.${dateOnly[2]}.${dateOnly[1]}`;
     const d = new Date(v);
     if (Number.isNaN(d.getTime())) return esc(v);
     return d.toLocaleString("pl-PL", {
@@ -2243,166 +2265,56 @@ main{padding-top:22px}
   }
 
   function sellerProfile(name) {
-    const s = String(displayValue(name) || "").toLowerCase();
-    const rawType = first(
-      valueFrom(["seller_type","sellerType","SellerType","ProviderType"]),
-      valueFrom(["Origin"])
-    );
-    const type = String(displayValue(rawType) || "").toLowerCase();
-
-    const approvalRaw = first(
-      valueFrom(["sellerApproval","seller_approval","SellerApproval","sellerStatus","SellerStatus","sellerBadge","seller_badge"]),
-      valueFrom(["Approved","approved","isApproved","sellerApproved"])
-    );
-    const approval = String(displayValue(approvalRaw) || "").toLowerCase();
-
-    if (!name && !type) {
-      return {
-        label:"⚪ Brak danych o sprzedawcy",
-        cls:"unknown",
-        note:"Aukcja nie przekazała wystarczających danych, aby ocenić profil sprzedawcy."
-      };
-    }
-
-    // "Non-Insurance" / "Non Insurance" nie jest firmą ubezpieczeniową.
-    // Ten przypadek musi być rozpatrzony przed ogólnym wykrywaniem słowa "insurance".
-    if (/non[-\s]?insurance|non[-\s]?insur/.test(s + " " + type)) {
-      return {
-        label:"🟡 Non-Insurance — wymaga weryfikacji",
-        cls:"orange",
-        note:"Sprzedawca został oznaczony jako nieubezpieczeniowy. Nie nadajemy mu automatycznie statusu zaufanego ubezpieczyciela."
-      };
-    }
-
-    // Zielony profil ubezpieczyciela nadajemy tylko wtedy, gdy dane rzeczywiście
-    // wskazują na firmę ubezpieczeniową. Nie jest to gwarancja stanu auta.
-    if (/insurance|ubezpiec|ins\b|rcc/.test(type) || /insurance|progressive|state farm|geico|allstate|arbella/.test(s)) {
-      return {
-        label:"🟢 Zaufany profil — ubezpieczyciel",
-        cls:"green",
-        note:"Sprzedawca jest rozpoznany jako firma ubezpieczeniowa. To zielony profil sprzedawcy, zgodny z klasyfikacją stosowaną przez BidCars. Nie oznacza gwarancji stanu pojazdu ani wyniku rejestracji w Polsce."
-      };
-    }
-
-    if (/approved|verified|trusted/.test(approval)) {
-      return {
-        label:"🟢 Zweryfikowany sprzedawca",
-        cls:"green",
-        note:"Źródło aukcyjne przekazuje pozytywny status sprzedawcy. To ocena profilu źródła, a nie gwarancja transakcji."
-      };
-    }
-
-    if (/dealer|dealership|dealer|retailer|merchant/.test(s + " " + type)) {
-      return {
-        label:"🟡 Dealer / handlarz",
-        cls:"orange",
-        note:"Sprzedawca ma profil handlowy. Nie oznacza to oszustwa, ale warto dokładnie sprawdzić dokumenty, historię i warunki sprzedaży."
-      };
-    }
-
-    if (/fleet|lease|rental|remarketing|enterprise|hertz|avis|alamo/.test(s + " " + type)) {
-      return {
-        label:"🟡 Flota / leasing / remarketing",
-        cls:"orange",
-        note:"Sprzedawca wygląda na podmiot flotowy lub remarketingowy. To neutralny profil, wymagający sprawdzenia źródła pojazdu."
-      };
-    }
-
-    if (/private|individual|prywat/.test(s + " " + type)) {
-      return {
-        label:"🟡 Sprzedawca prywatny",
-        cls:"orange",
-        note:"Profil wygląda na prywatny. Nie oznacza to automatycznie większego ani mniejszego ryzyka — ważne są dokumenty i historia auta."
-      };
-    }
-
-    return {
-      label:"⚪ Profil sprzedawcy nieokreślony",
-      cls:"unknown",
-      note:"Brak wystarczających danych, aby rzetelnie przypisać sprzedawcę do profilu zielonego lub ostrzegawczego."
-    };
+    const raw = String(displayValue(name) || '').trim();
+    const masked = /[*#•]{3,}/.test(raw);
+    const type = displayValue(first(valueFrom(['seller_type','sellerType','SellerType','ProviderType']), valueFrom(['Origin'])));
+    if (masked) return { label: 'Dane ukryte przez źródło', cls: 'unknown', name: '', type, note: 'Źródło aukcyjne maskuje nazwę sprzedawcy.' };
+    if (!raw && !type) return { label: 'Brak danych o sprzedawcy', cls: 'unknown', name: '', type: '', note: 'Aukcja nie przekazała danych sprzedawcy.' };
+    return { label: raw ? 'Dane sprzedawcy z aukcji' : 'Typ sprzedawcy z aukcji', cls: 'unknown', name: raw, type, note: 'To wyłącznie informacja przekazana przez platformę; nie jest oceną wiarygodności sprzedawcy.' };
   }
 
+
+
   function titleSourceStatus(titleDoc, titleBrand, titleState, titleNotes, titleCode) {
-    const raw = findAllByKeys(car, [
-      "titleApproval","title_approval","TitleApproval",
-      "titleStatus","TitleStatus","titleBadge","title_badge",
-      "saleDocumentStatus","SaleDocumentStatus",
-      "saleDocumentApproval","SaleDocumentApproval",
-      "documentStatus","DocumentStatus",
-      "documentApproval","DocumentApproval"
-    ]);
-
-    const text = raw.map(v => String(displayValue(v) || "").toLowerCase()).join(" ");
-    const all = `${titleDoc || ""} ${titleBrand || ""} ${titleState || ""} ${titleNotes || ""} ${titleCode || ""}`.toLowerCase();
-
-    if (/warning|warn|dealer only|duplicate|lien|bonded|export only|non repairable|non-repairable|parts only|parts-only|scrap|junk|certificate of destruction|destruction/.test(text + " " + all)) return "warn";
-    if (/approved|verified|accepted/.test(text)) return "good";
-    if (/parts only|parts-only|scrap|junk|non repairable|non-repairable|certificate of destruction|destruction/.test(all)) return "bad";
-    if (/salvage|rebuilt|rebuildable|flood|certificate of salvage|bill of sale/.test(all)) return "salvage";
-    if (/clean|clear|clean title|clear title/.test(all)) return "good";
-    return "unknown";
+    const values = [titleDoc, titleBrand, titleState, titleNotes, titleCode,
+      car.sale_document?.name, car.sale_document?.type, car.sale_document?.status,
+      car.sale_document?.code].filter(Boolean).map(value => String(displayValue(value) || '').toLowerCase());
+    const text = values.join(' ');
+    const sourceRegistration = car.sale_document?.registration;
+    if (/certificate of destruction|non[- ]repairable|parts[- ]only|\bjunk\b|\bscrap\b/.test(text)) return 'bad';
+    if (/\bsalvage\b|rebuildable|rebuilt|flood|bill of sale|dealer only|pending|\btbo\b/.test(text) || sourceRegistration === false) return 'warn';
+    if (/\bclean\b|\bclear\b/.test(text) && sourceRegistration === true) return 'good';
+    return 'unknown';
   }
 
   function titleVerdictLabel(kind) {
-    if (kind === "good") return "🟢 Dokument zaakceptowany / korzystny";
-    if (kind === "salvage") return "🟡 Salvage — wymaga weryfikacji dokumentu";
-    if (kind === "warn") return "🟡 Dokument z ograniczeniem / ostrzeżeniem";
-    if (kind === "bad") return "🔴 Duże ryzyko dokumentowe";
-    return "⚪ Brak wystarczających danych";
+    if (kind === 'good') return 'Rejestracja w PL: prawdopodobnie możliwa';
+    if (kind === 'bad') return 'Dokument problematyczny — wymaga weryfikacji';
+    return 'Wymaga weryfikacji';
   }
 
   function titleVerdictNote(kind) {
-    if (kind === "good") return "Źródło aukcyjne wskazuje korzystny lub zatwierdzony status dokumentu. To nie jest prawna gwarancja rejestracji w Polsce.";
-    if (kind === "salvage") return "Salvage oznacza szkodę całkowitą w historii pojazdu, ale sam status Salvage nie oznacza automatycznie zakazu rejestracji w Polsce. Dokument wymaga indywidualnej weryfikacji, a po naprawie mogą być wymagane dodatkowe badania i dokumenty.";
-    if (kind === "warn") return "Źródło aukcyjne sygnalizuje ograniczenie dokumentu, np. dealer only lub duplicate. Przed zakupem trzeba sprawdzić oryginalny title i możliwość rejestracji.";
-    if (kind === "bad") return "Dokument może powodować poważne problemy z legalnym zarejestrowaniem pojazdu. Wymagana jest szczegółowa weryfikacja przed zakupem.";
-    return "Brakuje wystarczających informacji o dokumencie, aby nadać mu wiarygodny kolor.";
+    if (kind === 'good') return 'Źródło przekazało dokument Clean/Clear i oznaczyło go jako rejestracyjny. To nie przesądza o spełnieniu polskich wymagań ani o decyzji urzędu.';
+    if (kind === 'bad') return 'Źródło wskazuje dokument typu destruction, non-repairable, parts-only, junk lub scrap. Sprawdź oryginał i skutki dla konkretnego pojazdu przed zakupem.';
+    return 'Dostępne dane nie wystarczają do oceny dokumentu. Zweryfikuj oryginalny title i wymagania dla konkretnego pojazdu.';
   }
 
   function titleRegistration(titleText, brand, state, notes, titleCode) {
-    const t = `${titleText || ""} ${brand || ""} ${state || ""} ${notes || ""} ${titleCode || ""}`.toLowerCase();
-
-    if (/parts only|parts-only|parts only title|scrap|junk|non repairable|non-repairable|certificate of destruction|destruction/.test(t)) {
-      return {
-        cls:"bad",
-        label:"🔴 Duże ryzyko rejestracji",
-        text:"Dokument wygląda na taki, który może uniemożliwiać legalne zarejestrowanie pojazdu w Polsce."
-      };
-    }
-
-    if (/salvage|certificate of salvage/.test(t)) {
-      return {
-        cls:"warn",
-        label:"🟡 Salvage — wymaga weryfikacji",
-        text:"Sam status Salvage nie oznacza automatycznie zakazu rejestracji w Polsce, ale dokument wymaga indywidualnej weryfikacji. Po naprawie mogą być wymagane dodatkowe badania i dokumenty. Rex.Bid nie daje gwarancji rejestracji konkretnego pojazdu."
-      };
-    }
-
-    if (/bill of sale|billofsale|rebuildable|rebuilt|rebuilt title|flood/.test(t)) {
-      return {
-        cls:"warn",
-        label:"🟡 Wymaga dokładnej weryfikacji",
-        text:"Typ dokumentu lub marka title może wymagać dodatkowych dokumentów i indywidualnej weryfikacji przed zakupem. Rex.Bid nie daje gwarancji rejestracji."
-      };
-    }
-
-    if (/clean|clear|clean title|clear title/.test(t)) {
-      return {
-        cls:"good",
-        label:"🟢 Dokument wygląda korzystnie",
-        text:"Dane aukcji wskazują na CLEAR/CLEAN, ale ostateczna możliwość rejestracji zależy od dokumentu, stanu, kraju/województwa oraz polskiej procedury rejestracyjnej."
-      };
-    }
-
+    const cls = titleSourceStatus(titleText, brand, state, notes, titleCode);
     return {
-      cls:"unknown",
-      label:"⚪ Nie można ocenić",
-      text:"Brakuje wystarczających informacji o title. Przed zakupem trzeba zweryfikować oryginalny dokument."
+      cls,
+      label: titleVerdictLabel(cls),
+      text: titleVerdictNote(cls)
     };
   }
 
+
+
   function getAuctionStart() {
+    const sourceAuction = car.auction && typeof car.auction === "object" ? car.auction : null;
+    if (sourceAuction && ["auction_at", "formatted", "full_date"].some(key => Object.prototype.hasOwnProperty.call(sourceAuction, key))) {
+      return first(sourceAuction.auction_at, sourceAuction.full_date, sourceAuction.formatted) || null;
+    }
     return first(
       car.auction?.start_time, car.auction?.startTime,
       car.auction?.start_date_time, car.auction?.startDateTime,
@@ -2419,6 +2331,7 @@ main{padding-top:22px}
 
   function getAuctionEnd() {
     return first(
+      car.auction?.timed_end_at,
       car.auction?.end_time, car.auction?.endTime,
       car.auction?.end_date_time, car.auction?.endDateTime,
       car.auction?.auction_end, car.auction?.auctionEnd,
@@ -2432,6 +2345,7 @@ main{padding-top:22px}
 
   function auctionPhase() {
     const state = String(getAuctionStatus() || "").toLowerCase().trim();
+    const outcome = String(car.auction?.outcome_status || "").toLowerCase();
 
     const startRaw = getAuctionStart();
     const endRaw = getAuctionEnd();
@@ -2441,6 +2355,8 @@ main{padding-top:22px}
 
     const explicitlyCancelled =
       /cancel|cancelled|canceled|withdrawn/.test(state);
+
+    if (/sold|approval/.test(outcome) || car.auction?.sold_timed === true || state === "sold" || state === "not_sold" || state === "no_sale") return "ended";
 
     // Explicit terminal source status wins over a stale/future auction_at.
     if (state === "finished") return "ended";
@@ -2482,16 +2398,27 @@ main{padding-top:22px}
 
   function auctionStatusLabel() {
     const phase = auctionPhase();
-    if (phase === "prebid") return "W PRZYGOTOWANIU";
-    if (phase === "live") return "W TRAKCIE — LIVE";
-    if (phase === "ended") return "ZAKOŃCZONA";
-    return "W PRZYGOTOWANIU";
+    const state = String(getAuctionStatus() || "").toLowerCase();
+    const outcome = String(car.auction?.outcome_status || "").toLowerCase();
+    if (/not.?sold|no.?sale|unsold/.test(outcome) || ["not_sold", "no_sale"].includes(state)) return "Niesprzedana";
+    if (/sold|approval/.test(outcome) || state === "sold" || car.auction?.sold_timed === true) return "Sprzedana";
+    if (phase === "ended") return "Zakończona";
+    if (car.auction?.is_buy_now === true || String(car.auction?.lot_status || "").toLowerCase() === "buy now") return "Kup teraz";
+    if (car.auction?.is_timed === true || String(car.auction?.lot_status || "").toLowerCase() === "timed") return "Timed Auction";
+    if (state === "upcoming" || state === "scheduled" || state === "future" || car.auction?.upcoming === true) {
+      const start = getAuctionStart();
+      return start && Number.isFinite(Date.parse(String(start))) ? "Nadchodząca" : "Nadchodząca · termin nieustalony";
+    }
+    if (phase === "live") return "Live";
+    if (phase === "prebid") return "Przed licytacją";
+    return "Status niedostępny";
   }
 
   function auctionStatusClass() {
     const phase = auctionPhase();
     if (phase === "live") return "live";
     if (phase === "ended") return "ended";
+    if (car.auction?.is_timed === true) return "timed";
     return "prebid";
   }
 
@@ -2545,7 +2472,8 @@ main{padding-top:22px}
     const video = findMediaUrl("video");
     const hasHdPhotos = photos.some(photo => photo.large && photo.thumb && photo.large !== photo.thumb);
 
-    const date = getAuctionStart();
+    const timedEnd = car.auction?.is_timed === true ? getAuctionEnd() : null;
+    const date = timedEnd || getAuctionStart();
     const auctionPrice = getAuctionPriceInfo();
     const auctionState = auctionStatusLabel();
     const sourceAuctionUrl = originalAuctionUrl();
@@ -2583,7 +2511,7 @@ main{padding-top:22px}
       <div class="vehicle-head">
         <div class="vehicle-head-main">
           <div class="breadcrumbs">
-            <a href="/">Rex.Bid</a><span>›</span>
+            <a href="/">REX.Bid</a><span>›</span>
             <a href="/#results">Samochody</a><span>›</span>
             <span>${esc(platformName())}</span><span>›</span><span>${esc(lot || vin)}</span>
           </div>
@@ -2599,7 +2527,6 @@ main{padding-top:22px}
             <span class="vehicle-highlight status-highlight ${auctionStatusClass()}" id="auctionStatusHeadline"><i></i>${esc(auctionState)}</span>
             ${!isEmpty(odometer) ? `<span class="vehicle-highlight"><small>Przebieg</small><b>${nice(odometer)}</b></span>` : ""}
             ${!isEmpty(primaryDamage) ? `<span class="vehicle-highlight damage-highlight"><small>Główne uszkodzenie</small><b>${nice(primaryDamage)}</b></span>` : ""}
-            ${!isEmpty(date) ? `<span class="vehicle-highlight"><small>Termin aukcji</small><b>${esc(formatDate(date))}</b></span>` : ""}
           </div>
         </div>
         <div class="vehicle-head-actions">
@@ -2646,39 +2573,37 @@ main{padding-top:22px}
             <div class="jump-links"><a href="#damage">Uszkodzenia</a><a href="#title">TITLE</a><a href="#seller">Sprzedawca</a><a href="#shipping">Wysyłka i lokalizacja</a></div>
           </section>
 
-          <section class="panel section" id="damage">
+          ${!isEmpty(primaryDamage) || !isEmpty(secondaryDamage) || !isEmpty(getInfo(["Loss"])) ? `<section class="panel section" id="damage">
             <div class="section-title"><h2>Uszkodzenia</h2><span>Dane ze źródła aukcyjnego</span></div>
             <div class="damage-grid">
               ${!isEmpty(primaryDamage) ? `<div class="damage main"><small>Główne uszkodzenie</small><strong>${nice(primaryDamage)}</strong></div>` : ""}
               ${!isEmpty(secondaryDamage) ? `<div class="damage"><small>Drugorzędne uszkodzenie</small><strong>${nice(secondaryDamage)}</strong></div>` : ""}
               ${field("Rodzaj straty",getInfo(["Loss"]))}
             </div>
-          </section>
+          </section>` : ""}
 
           <section class="panel section" id="title">
-            <div class="section-title"><h2>Dokument / TITLE</h2><span>Wskazówka na podstawie dostępnych danych</span></div>
+            <div class="section-title"><h2>Dokument / TITLE</h2><span>Ocena orientacyjna</span></div>
             <div class="title-verdict ${displayTitleKind}"><div class="verdict-label">${esc(titleVerdictLabel(displayTitleKind))}</div><div class="verdict-text">${esc(titleVerdictNote(displayTitleKind))}</div></div>
             <div class="interpretation-note">To automatyczna wskazówka, nie ocena prawna. Zweryfikuj oryginalny dokument i wymagania rejestracyjne przed zakupem.</div>
-            <div class="color-legend">
-              <span><i class="legend-dot green"></i><b>Zielony</b> — korzystny / zaakceptowany</span>
-              <span><i class="legend-dot orange"></i><b>Żółty</b> — wymaga weryfikacji</span>
-              <span><i class="legend-dot red"></i><b>Czerwony</b> — podwyższone ryzyko</span>
-            </div>
             <div class="spec-grid">${field("Dokument",titleDoc)}${field("Title brand",titleBrand)}${field("Stan / kod title",titleCode)}${field("Stan title",titleState)}${field("Uwagi do title",titleNotes)}</div>
           </section>
 
           <section class="panel section" id="seller">
             <div class="section-title"><h2>Sprzedawca</h2><span>Informacje przekazane przez aukcję</span></div>
             <div class="seller-box">
-              <div class="seller-rating"><span class="risk-dot ${sellerInfo.cls}"></span>${esc(sellerInfo.label)}</div>
+              <div class="seller-rating">${esc(sellerInfo.label)}</div>
               <div class="mini-grid">
-                ${seller ? `<div class="mini-stat"><small>Sprzedawca</small><strong>${nice(seller)}</strong></div>` : ""}
-                ${!isEmpty(valueFrom(["seller_type","sellerType","SellerType","ProviderType"])) ? `<div class="mini-stat"><small>Typ sprzedawcy</small><strong>${nice(valueFrom(["seller_type","sellerType","SellerType","ProviderType"]))}</strong></div>` : ""}
+                ${sellerInfo.name ? `<div class="mini-stat"><small>Sprzedawca</small><strong>${nice(sellerInfo.name)}</strong></div>` : ""}
+                ${!isEmpty(sellerInfo.type) ? `<div class="mini-stat"><small>Typ sprzedawcy</small><strong>${nice(sellerInfo.type)}</strong></div>` : ""}
               </div>
               <div class="seller-note">${esc(sellerInfo.note)}</div>
-              <div class="interpretation-note">Opis profilu jest automatyczną klasyfikacją nazwy/typu sprzedawcy. Nie stanowi weryfikacji firmy ani gwarancji stanu pojazdu.</div>
-              <div class="color-legend compact"><span><i class="legend-dot green"></i><b>Zielony</b> — zaufany</span><span><i class="legend-dot orange"></i><b>Żółty</b> — weryfikacja</span><span><i class="legend-dot unknown"></i><b>Szary</b> — brak danych</span></div>
             </div>
+          </section>
+
+          <section class="info-card" id="auctionHistoryPanel">
+            <div class="info-card-head"><h3>Historia aukcji tego VIN</h3></div>
+            <div class="info-card-body"><div id="auctionHistory" class="auction-history"></div><div class="seller-note" style="margin-top:8px">Historia aukcji Apibara; snapshoty REX.Bid nie są mieszane z wydarzeniami sprzedaży.</div></div>
           </section>
 
           <section class="panel import-calc" id="importCalculator">
@@ -2706,17 +2631,14 @@ main{padding-top:22px}
             <div class="info-card-head"><h3>Aktualna aukcja</h3></div>
             <div class="info-card-body">
               <div class="primary-auction">
-                <div class="auction-main"><div class="auction-label" id="bidLabel">${esc(auctionPrice.label)}</div><div class="auction-price" id="currentBidPrice">${money(auctionPrice.value)}</div><div class="auction-state ${auctionStatusClass()}" id="auctionStatusText">${esc(auctionStatusLabel())}</div><div class="auction-countdown" id="auctionTimerBox"><span id="countdownLabel">Termin licytacji</span>: <span id="countdown">${formatDate(date)}</span></div></div>
+                <div class="auction-main"><div class="auction-label" id="bidLabel">${esc(auctionPrice.label)}</div><div class="auction-price" id="currentBidPrice">${money(auctionPrice.value)}</div><div class="auction-state ${auctionStatusClass()}" id="auctionStatusText">${esc(auctionStatusLabel())}</div><div class="auction-countdown" id="auctionTimerBox"${date ? "" : " style=\"display:none\""}><span id="countdownLabel">Termin licytacji</span>: <span id="countdown">${date ? formatDate(date) : ""}</span></div></div>
                 <div class="price-facts" id="priceFacts" aria-label="Pozostałe dostępne ceny"${priceFacts.length ? "" : " hidden"}>${renderAuctionPriceFactsHtml(priceFacts)}</div>
                 <div class="info-card-body" style="padding-top:10px">
-                  ${kv("Platforma",platformName())}${kv("Numer LOT",lot)}${kv("VIN",vin)}${kv("Data aukcji",formatDate(date))}${kv("Lokalizacja",location)}${kv("Główne uszkodzenie",primaryDamage)}${kv("Przebieg",odometer)}${kv("Sprzedający",seller)}
+                  ${kv("Platforma",platformName())}${kv("Numer LOT",lot)}${kv("VIN",vin)}${kv(car.auction?.is_timed === true ? "Koniec aukcji czasowej" : "Data aukcji",formatDate(date))}${kv("Lokalizacja",location)}${kv("Główne uszkodzenie",primaryDamage)}${kv("Przebieg",odometer)}${kv("Sprzedający",seller)}
                   <div class="action-row vehicle-actions" style="margin-top:12px">
                     <button class="action secondary" id="copyVin" ${isEmpty(vin) ? "disabled" : ""}>Kopiuj VIN</button>
                     <button class="action secondary" id="copyLink">Kopiuj link</button>
-                    ${sourceAuctionUrl ? `<a class="action primary source-action" href="${esc(sourceAuctionUrl)}" target="_blank" rel="noopener noreferrer">Otwórz aukcję ↗</a>` : `<button class="action secondary" type="button" disabled title="Brak bezpośredniego linku źródłowego">Link do aukcji niedostępny</button>`}
                     <button class="action secondary" type="button" id="toggleFavorite" aria-pressed="false">♡ Obserwuj auto</button>
-                    <button class="action secondary" type="button" id="toggleCompare" aria-pressed="false">⇄ Dodaj do porównania</button>
-                    <a class="action secondary" href="/compare.html">Otwórz porównanie <span data-rexbid-count="compare">0</span></a>
                     <div class="local-storage-note">Ulubione zapisane na tym urządzeniu.</div>
                   </div>
 
@@ -2738,10 +2660,8 @@ main{padding-top:22px}
               </div>
               <div class="section-title" style="margin:12px 0 5px"><h2 style="font-size:12px">Orientacyjna trasa</h2></div>
               <div class="mini-grid">
-                <div class="mini-stat"><small>USA → port</small><strong>900 USD</strong></div>
-                <div class="mini-stat"><small>Fracht morski</small><strong>1 400 USD</strong></div>
-                <div class="mini-stat"><small>Port → Polska</small><strong>450 USD</strong></div>
-                <div class="mini-stat"><small>Broker / inne</small><strong>300 USD</strong></div>
+                <div class="mini-stat"><small>Koszt trasy</small><strong>Wg kalkulatora</strong></div>
+                <div class="mini-stat"><small>Stawki</small><strong>Edytowalne założenia</strong></div>
               </div>
               <a class="jump-links" style="display:flex" href="#importCalculator">Przejdź do kalkulatora kosztów →</a>
             </div>
@@ -2752,15 +2672,10 @@ main{padding-top:22px}
             <div class="info-card-body">
               <div class="forecast-total"><small>Orientacyjnie do Polski</small><strong id="topForecast">Obliczanie…</strong></div>
               <div class="kv"><span>Cena auta</span><strong>${money(getAuctionBid())}</strong></div>
-              <div class="kv"><span>Transport + fracht</span><strong>2 750 USD</strong></div>
+              <div class="kv"><span>Transport i opłaty</span><strong>wg parametrów kalkulatora</strong></div>
               <div class="kv"><span>Cło / VAT / akcyza</span><strong>wg kalkulatora</strong></div>
               <a class="action primary" style="display:flex;align-items:center;justify-content:center;margin-top:10px" href="#importCalculator">Zobacz pełne wyliczenie</a>
             </div>
-          </section>
-
-          <section class="info-card" id="auctionHistoryPanel">
-            <div class="info-card-head"><h3>Historia aukcji tego VIN</h3></div>
-            <div class="info-card-body"><div id="auctionHistory" class="auction-history"></div><div class="seller-note" style="margin-top:8px">Historia pochodzi bezpośrednio z archiwum aukcyjnego Apibara; snapshoty Rex.Bid nie są mieszane z historią sprzedaży.</div></div>
           </section>
 
           <section class="info-card" id="sourceDocuments">
@@ -2816,30 +2731,18 @@ main{padding-top:22px}
 
   function bindPageEvents(video,image360) {
     const favoriteButton = document.getElementById("toggleFavorite");
-    const compareButton = document.getElementById("toggleCompare");
     const syncLocalActionButtons = () => {
       if (!window.RexBidStorage || !car) return;
       const favorite = window.RexBidStorage.isFavorite(car);
-      const compared = window.RexBidStorage.isCompared(car);
       if (favoriteButton) {
         favoriteButton.textContent = favorite ? "♥ Usuń z obserwowanych" : "♡ Obserwuj auto";
         favoriteButton.setAttribute("aria-pressed", String(favorite));
-      }
-      if (compareButton) {
-        compareButton.textContent = compared ? "✓ Usuń z porównania" : "⇄ Dodaj do porównania";
-        compareButton.setAttribute("aria-pressed", String(compared));
       }
       window.RexBidStorage.refreshCounts();
     };
     favoriteButton?.addEventListener("click", () => {
       if (!window.RexBidStorage || !car) return;
       window.RexBidStorage.toggleFavorite(car);
-      syncLocalActionButtons();
-    });
-    compareButton?.addEventListener("click", () => {
-      if (!window.RexBidStorage || !car) return;
-      const result = window.RexBidStorage.toggleCompare(car);
-      if (!result.ok && result.reason === "limit") window.alert("Możesz porównać maksymalnie 3 samochody. Usuń jeden z porównania, aby dodać kolejny.");
       syncLocalActionButtons();
     });
     syncLocalActionButtons();
@@ -3097,7 +3000,7 @@ main{padding-top:22px}
 
 
 
-  
+
 /* IMPORT COST CALCULATOR */
   function guessEngineCc() {
     const raw = String(first(
@@ -3237,7 +3140,10 @@ main{padding-top:22px}
       const now = Date.now();
 
       let target = NaN;
-      if (phase === "prebid" && Number.isFinite(start)) {
+      if (car.auction?.is_timed === true && Number.isFinite(end) && phase !== "ended") {
+        target = end;
+        if (label) label.textContent = "Do końca aukcji czasowej";
+      } else if (phase === "prebid" && Number.isFinite(start)) {
         target = start;
         if (label) label.textContent = "Do rozpoczęcia licytacji";
       } else if (phase === "live" && Number.isFinite(end)) {
@@ -3248,8 +3154,13 @@ main{padding-top:22px}
         node.textContent = "Zakończona";
         return;
       } else {
+        if (!Number.isFinite(start)) {
+          if (box) box.style.display = "none";
+          return;
+        }
+        if (box) box.style.display = "";
         if (label) label.textContent = "Termin licytacji";
-        node.textContent = Number.isFinite(start) ? formatDate(startRaw) : "—";
+        node.textContent = formatDate(startRaw);
         return;
       }
 
@@ -3325,7 +3236,7 @@ main{padding-top:22px}
       }
     } catch (e) {
       // Odświeżanie aukcji nie może zepsuć działającej strony.
-      console.warn("Rex.Bid auction refresh:", e);
+      console.warn("REX.Bid auction refresh:", e);
     }
   }
 
@@ -3552,7 +3463,7 @@ main{padding-top:22px}
           <tbody>${rows}</tbody>
         </table>
       </div>
-      <div class="history-count">${list.length > 1 ? `Znaleziono <strong>${list.length} oddzielne wydarzenia aukcyjne</strong> dla tego pojazdu. Najnowsze wydarzenia są wyświetlane jako pierwsze. ` : ""}Dostępne rekordy historii: <strong>${list.length}</strong>. Daty i ceny pochodzą z historii aukcyjnej Apibara; snapshoty Rex.Bid nie są mieszane z historią aukcji.</div>
+      <div class="history-count">${list.length > 1 ? `Znaleziono <strong>${list.length} oddzielne wydarzenia aukcyjne</strong> dla tego pojazdu. Najnowsze wydarzenia są wyświetlane jako pierwsze. ` : ""}Dostępne rekordy historii: <strong>${list.length}</strong>. Daty i ceny pochodzą z historii aukcyjnej Apibara; snapshoty REX.Bid nie są mieszane z historią aukcji.</div>
     `;
   }
 
@@ -3635,7 +3546,7 @@ main{padding-top:22px}
       updateAuctionUi();
       updateForecastFromCalculator();
     } catch (error) {
-      console.warn("Rex.Bid auction history:", error);
+      console.warn("REX.Bid auction history:", error);
       renderAuctionHistory();
     }
   }
@@ -3680,7 +3591,7 @@ main{padding-top:22px}
       photos = normalizeMedia(car);
       buildPage();
     } catch (error) {
-      console.error("Rex.Bid car error:",error);
+      console.error("REX.Bid car error:",error);
       page.innerHTML = `
         <div class="error">
           <strong style="display:block;color:#ff6d6d;font-size:18px;margin-bottom:8px">

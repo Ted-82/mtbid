@@ -3,6 +3,7 @@ const APIBARA_BASE =
 
 const CACHE_TTL_SECONDS = 60;
 const HISTORY_CACHE_TTL_SECONDS = 300;
+const FILTERS_CACHE_TTL_SECONDS = 21600;
 const MAX_SYNC_HISTORY_PAGES = 100;
 const MAX_SYNC_VEHICLE_PAGES = 100;
 
@@ -328,9 +329,14 @@ const APIBARA_MAX_PER_PAGE = 20;
 
 const APIBARA_LIST_PARAMS = new Set([
   "s", "platform", "auction_type", "lot_status", "lot_sub_status", "upcoming",
-  "make", "model", "type", "year_from", "year_to", "price_min", "price_max",
-  "odometer_from", "odometer_to", "fuel_type", "transmission", "drive_type",
-  "run_cond", "color", "per_page", "cursor", "updated_within_minutes"
+  "make", "series", "model", "generation_id", "generation", "type", "body_style",
+  "year_from", "year_to", "price_min", "price_max", "odometer_from", "odometer_to",
+  "fuel_type", "transmission", "drive_type", "run_cond", "damage", "color",
+  "engine_size_from", "engine_size_to", "engine_type", "cylinders", "has_key",
+  "sale_document_pending", "sale_document_type", "seller_type", "zip", "radius",
+  "units", "facility_id", "loc_state", "office_name", "auction_date_from",
+  "auction_date_to", "today_only", "has_shipping_price", "include_total",
+  "per_page", "cursor", "updated_within_minutes"
 ]);
 
 class ApibaraRequestError extends Error {
@@ -390,6 +396,18 @@ function buildApibaraUrl(requestSpec) {
         else params.set(name, String(value));
       }
       if (!params.has("per_page")) params.set("per_page", "20");
+      break;
+    }
+
+    case "vehicleFilters": {
+      pathname = "/vehicles/filters";
+      const input = requestSpec.params && typeof requestSpec.params === "object" ? requestSpec.params : {};
+      for (const name of ["make", "series", "model"]) {
+        const value = input[name];
+        if (value !== null && value !== undefined && String(value).trim()) {
+          params.set(name, String(value).trim().slice(0, 120));
+        }
+      }
       break;
     }
 
@@ -2719,8 +2737,12 @@ async function getCars(
     "lot_sub_status",
     "upcoming",
     "make",
+    "series",
     "model",
+    "generation_id",
+    "generation",
     "type",
+    "body_style",
     "year_from",
     "year_to",
     "price_min",
@@ -2731,7 +2753,27 @@ async function getCars(
     "transmission",
     "drive_type",
     "run_cond",
+    "damage",
     "color",
+    "engine_size_from",
+    "engine_size_to",
+    "engine_type",
+    "cylinders",
+    "has_key",
+    "sale_document_pending",
+    "sale_document_type",
+    "seller_type",
+    "zip",
+    "radius",
+    "units",
+    "facility_id",
+    "loc_state",
+    "office_name",
+    "auction_date_from",
+    "auction_date_to",
+    "today_only",
+    "has_shipping_price",
+    "include_total",
     "per_page",
     "cursor",
     "updated_within_minutes"
@@ -3045,6 +3087,15 @@ export default {
       );
     }
 
+    if (url.pathname === "/api/filters") {
+      try {
+        return await getVehicleFilters(request, env);
+      } catch (error) {
+        console.error("Rex.Bid filters error:", error);
+        return errorJson(error.message);
+      }
+    }
+
 
     /*
      * LISTA SAMOCHODÓW
@@ -3216,4 +3267,35 @@ function constantTimeTokenEqual(left, right) {
     difference |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
   }
   return difference === 0 && a.length > 0;
+}
+
+async function fetchApibaraVehicleFilters(env, params = {}) {
+  return requestApibara(env, { operation: "vehicleFilters", params });
+}
+
+async function getVehicleFilters(request, env) {
+  const incoming = new URL(request.url);
+  const params = new URLSearchParams();
+  for (const name of ["make", "series", "model"]) {
+    const value = incoming.searchParams.get(name);
+    if (value && value.trim()) params.set(name, value.trim().slice(0, 120));
+  }
+  const cacheKey = new Request(`https://rex-bid-cache.invalid/api/filters?${params.toString()}`, { method: "GET" });
+  const cache = caches.default;
+  const cached = await cache.match(cacheKey);
+  if (cached) {
+    const headers = new Headers(cached.headers);
+    headers.set("X-RexBid-Cache", "HIT");
+    return new Response(cached.body, { status: cached.status, headers });
+  }
+
+  const upstream = await fetchApibaraVehicleFilters(env, Object.fromEntries(params.entries()));
+  const payload = upstream && typeof upstream === "object" ? upstream : {};
+  const response = json({
+    ok: payload.ok !== false,
+    data: payload.data && typeof payload.data === "object" ? payload.data : payload,
+    meta: payload.meta || null
+  }, 200, "MISS", FILTERS_CACHE_TTL_SECONDS);
+  await cache.put(cacheKey, response.clone());
+  return response;
 }
