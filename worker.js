@@ -563,7 +563,7 @@ async function fetchApibaraHistory(env, identifier, { per_page = 20, cursor = nu
   return {
     response,
     records: getApibaraHistoryRecords(response),
-    nextCursor: response?.meta?.next_cursor ?? response?.data?.meta?.next_cursor ?? null
+    nextCursor: response?.meta?.next_cursor ?? response?.data?.meta?.next_cursor ?? response?.response?.meta?.next_cursor ?? response?.response?.data?.meta?.next_cursor ?? null
   };
 }
 
@@ -857,14 +857,12 @@ function normalizeVehicle(vehicle) {
       : {};
 
 
-  const sellerName =
-    cleanString(
-      firstValue(seller, [
-        "name",
-        "seller_name",
-        "sellerName"
-      ])
-    );
+  const sellerNameCandidates = [
+    firstValue(seller, ["displayName", "name", "seller_name", "sellerName", "companyName", "company_name", "providerName", "provider_name", "display"]),
+    getNested(vehicle, [["sale_information", "Seller", "displayName"], ["sale_information", "Seller", "name"], ["sale_information", "Seller", "seller_name"], ["details", "sale_information", "Seller", "name"]]),
+    firstValue(vehicle, ["seller_display_name", "sellerDisplayName", "provider_name", "providerName", "company_name", "companyName"])
+  ].map(cleanString).filter(value => value && !/^(?:\*{2,}|#{2,}|•{2,}|unknown|n\/?a|not available|null)$/i.test(value));
+  const sellerName = sellerNameCandidates[0] || "";
 
 
   const sellerType =
@@ -1865,8 +1863,9 @@ function getApibaraHistoryRecords(
   }
 
 
-  const data =
-    result.data;
+  const data = result.response && typeof result.response === "object" && result.response.data
+    ? result.response.data
+    : result.data;
 
 
   if (!data) {
@@ -1901,7 +1900,7 @@ function getApibaraHistoryRecords(
 
 function normalizeApibaraHistory(result, vehicleContext = {}) {
   return getApibaraHistoryRecords(result)
-    .map(record => normalizeHistoryRecord(record, vehicleContext))
+    .map(record => normalizeHistoryRecord(record, { ...vehicleContext, apibaraEvent: true }))
     .filter(Boolean);
 }
 
@@ -1958,11 +1957,15 @@ function normalizeHistoryRecord(
   const vin = cleanString(firstValue(record, ["vin", "VIN"]) || firstValue(vehicle, ["vin", "VIN"]) || vehicleContext.vin).toUpperCase();
   const lot = cleanString(firstValue(record, ["lot_number", "lotNumber", "lot", "stock_number", "stockNumber"])
     || firstValue(vehicle, ["lot_number", "lotNumber", "lot", "stock_number", "stockNumber"]) || vehicleContext.lot);
-  const seller = cleanString(firstValue(record, ["seller_name", "sellerName"])
-    || getNested(record, [["seller", "name"], ["seller", "displayName"]])
-    || (typeof record.seller === "string" ? record.seller : null)
-    || firstValue(record, ["seller_type", "sellerType"])
-    || getNested(record, [["seller", "type"]]));
+  const sellerCandidates = [
+    firstValue(record, ["seller_name", "sellerName", "seller_display_name", "provider_name", "providerName", "company_name", "companyName"]),
+    getNested(record, [["seller", "displayName"], ["seller", "name"], ["seller", "companyName"], ["seller", "company_name"], ["seller", "providerName"], ["seller", "provider_name"], ["seller", "display"], ["seller", "provider"]]),
+    getNested(record, [["sale_information", "Seller", "displayName"], ["sale_information", "Seller", "name"], ["sale_information", "Seller", "seller_name"], ["details", "sale_information", "Seller", "name"]]),
+    typeof record.seller === "string" ? record.seller : null
+  ].map(cleanString).filter(value => value && !/^(?:\*{2,}|#{2,}|•{2,}|unknown|n\/?a|not available|null)$/i.test(value));
+  const seller = sellerCandidates[0] || "";
+  const sellerType = cleanString(firstValue(record, ["seller_type", "sellerType"])
+    || getNested(record, [["seller", "type"], ["sale_information", "Seller", "type"]]));
 
   // Only semantically explicit event identifiers are accepted. A generic `id`
   // may identify the vehicle/listing rather than this historical auction.
@@ -1985,14 +1988,17 @@ function normalizeHistoryRecord(
   const saleDateRaw = firstValue(record, ["sale_date", "saleDate", "sold_date", "sold_at", "soldAt", "last_sold_day", "lastSoldDay"])
     || getNested(record, [["auction", "last_sold_day"], ["sale", "date"], ["sale", "sold_at"], ["vehicle", "auction", "last_sold_day"]]);
   const genericDate = firstValue(record, ["date"]);
-  const auctionDate = historyDate(auctionDateRaw || (!isSold ? genericDate : null));
-  const saleDate = historyDate(saleDateRaw || (isSold ? genericDate : null));
+  // The upstream history schema supplies a single event `date`; it does not
+  // label that date as a sale date. Preserve it as the auction/event date and
+  // only populate sale_date from an explicitly named sale field.
+  const auctionDate = historyDate(auctionDateRaw || genericDate);
+  const saleDate = historyDate(saleDateRaw);
 
   const pricing = record.pricing && typeof record.pricing === "object" ? record.pricing
     : vehicle.pricing && typeof vehicle.pricing === "object" ? vehicle.pricing : {};
   const auction = record.auction && typeof record.auction === "object" ? record.auction
     : vehicle.auction && typeof vehicle.auction === "object" ? vehicle.auction : {};
-  const currentBid = numberOrNull(firstValue(pricing, ["current_bid_usd", "current_bid", "currentBidUsd", "currentBid"])
+  const currentBid = numberOrNull(firstValue(pricing, ["current_bid_usd", "current_bid2_usd", "current_bid", "currentBidUsd", "currentBid"])
     ?? firstValue(record, ["current_bid_usd", "current_bid", "currentBidUsd", "currentBid", "bid"])
     ?? firstValue(auction, ["current_bid_usd", "current_bid"]));
   const buyNow = numberOrNull(firstValue(pricing, ["buy_now_usd", "buy_now", "buyNowUsd", "buyNow"])
@@ -2000,9 +2006,16 @@ function normalizeHistoryRecord(
 
   // A generic `price` remains source_price. Only explicitly named sale/final
   // fields can populate final_price, and a not-sold status always clears it.
-  const explicitFinalPrice = firstValue(pricing, ["sale_price_usd", "final_price_usd", "final_bid_usd", "sold_price_usd"])
+  const explicitFinalPrice = firstValue(pricing, ["sale_price_usd", "last_sold_price_usd", "final_price_usd", "final_bid_usd", "sold_price_usd"])
     ?? firstValue(record, ["sale_price_usd", "sale_price", "final_price_usd", "final_price", "final_bid_usd", "final_bid", "sold_price_usd", "sold_price"]);
-  const finalPrice = isUnsold ? null : numberOrNull(explicitFinalPrice);
+  // Apibara's real history event has `{ date, price, status }`. On an event
+  // whose source status is exactly Sold, its event-scoped price is the sale
+  // amount; on Not Sold / Sold on Approval / unknown records it remains only
+  // source_price. Legacy D1 rows use the default path and are never inferred.
+  const confirmedEventPrice = vehicleContext.apibaraEvent === true && statusLower === "sold"
+    ? firstValue(record, ["price", "price_usd"])
+    : null;
+  const finalPrice = isUnsold ? null : numberOrNull(explicitFinalPrice ?? confirmedEventPrice);
   const sourcePrice = numberOrNull(firstValue(record, ["price", "price_usd"])
     ?? firstValue(pricing, ["price", "price_usd"]));
 
@@ -2039,6 +2052,7 @@ function normalizeHistoryRecord(
     buy_now: buyNow,
     source_price: sourcePrice,
     seller: seller || null,
+    seller_type: sellerType && !/^(?:unknown|n\/?a|not available|null)$/i.test(sellerType) ? sellerType : null,
     status: status || null,
     raw_json: record
   };
@@ -3276,7 +3290,7 @@ async function fetchApibaraVehicleFilters(env, params = {}) {
 async function getVehicleFilters(request, env) {
   const incoming = new URL(request.url);
   const params = new URLSearchParams();
-  for (const name of ["make", "series", "model"]) {
+  for (const name of ["make", "series", "model", "generation_id"]) {
     const value = incoming.searchParams.get(name);
     if (value && value.trim()) params.set(name, value.trim().slice(0, 120));
   }
@@ -3291,10 +3305,13 @@ async function getVehicleFilters(request, env) {
 
   const upstream = await fetchApibaraVehicleFilters(env, Object.fromEntries(params.entries()));
   const payload = upstream && typeof upstream === "object" ? upstream : {};
+  const sourceData = payload.response && typeof payload.response === "object" && payload.response.data && typeof payload.response.data === "object"
+    ? payload.response.data
+    : payload.data && typeof payload.data === "object" ? payload.data : payload;
   const response = json({
     ok: payload.ok !== false,
-    data: payload.data && typeof payload.data === "object" ? payload.data : payload,
-    meta: payload.meta || null
+    data: sourceData && typeof sourceData === "object" ? sourceData : {},
+    meta: payload.meta || payload.response?.meta || null
   }, 200, "MISS", FILTERS_CACHE_TTL_SECONDS);
   await cache.put(cacheKey, response.clone());
   return response;

@@ -1228,7 +1228,30 @@ main{padding-top:22px}
   .history-table{min-width:620px}
 }
 
+.condition-summary{padding:12px 14px!important}
+.condition-summary-grid{display:grid;gap:0}
+.condition-summary-row{display:grid;grid-template-columns:26px minmax(0,1fr);align-items:start;gap:9px;padding:10px 0;border-bottom:1px solid #edf0f2;color:#485562;font-size:12px;line-height:1.45}
+.condition-summary-row:last-child{border-bottom:0}
+.condition-summary-row>div{min-width:0}
+.condition-summary-row strong{display:block;margin-bottom:2px;color:#263747;font-size:11px;font-weight:800}
+.condition-summary-icon{display:grid;place-items:center;width:23px;height:23px;border-radius:7px;background:#f2f4f6;color:#586675;font-size:12px;font-weight:900}
+.condition-title-badge{display:inline-flex;margin:5px 0 1px;padding:3px 7px;border:1px solid #e3e8ed;border-radius:20px;background:#f8f9fa;color:#566473;font-size:9px;font-weight:800}
+.condition-title-badge.good{border-color:#b8dfc6;background:#edf8f1;color:#21643b}
+.condition-title-badge.warn{border-color:#f1d99e;background:#fff8e7;color:#835f13}
+.condition-title-badge.bad{border-color:#efc0bd;background:#fff1f0;color:#9b3e38}
+.condition-disclaimer{display:block;margin-top:3px;color:#89939d;font-size:9px;line-height:1.4}
+.condition-more,.spec-more{margin-top:8px;border-top:1px solid #edf0f2}
+.condition-more summary,.spec-more summary{padding:10px 0 2px;color:#46596a;cursor:pointer;font-size:11px;font-weight:800;list-style:none}
+.condition-more summary::-webkit-details-marker,.spec-more summary::-webkit-details-marker{display:none}
+.condition-more summary::after,.spec-more summary::after{content:"＋";float:right;color:#a17a1e}
+.condition-more[open] summary::after,.spec-more[open] summary::after{content:"−"}
+.condition-more .spec-grid,.spec-more .spec-grid{padding-top:10px}
+@media(max-width:600px){.condition-summary-row{font-size:11px}.condition-summary-row strong{font-size:10px}}
+
 </style>
+
+<link rel="stylesheet" href="/rexbid-brand.css" />
+<script src="/rexbid-mobile-nav.js" defer></script>
 </head>
 
 <body>
@@ -1980,18 +2003,24 @@ main{padding-top:22px}
   }
 
   function sellerName() {
-    return first(
+    const candidates = [
       car.seller?.name,
       car.seller?.displayName,
+      car.seller?.display,
       car.seller?.seller_name,
       car.seller?.companyName,
+      car.seller?.company_name,
+      car.seller?.providerName,
+      car.seller?.provider_name,
       car.sale_information?.Seller?.name,
       car.sale_information?.Seller?.displayName,
       car.sale_information?.Seller?.seller_name,
       car.sale_information?.Seller?.companyName,
-      valueFrom(["sellerName","SellerName","seller_name"]),
-      valueFrom(["seller","Seller"])
-    );
+      car.details?.sale_information?.Seller?.name,
+      valueFrom(["seller_display_name","sellerDisplayName","provider_name","providerName","company_name","companyName","sellerName","SellerName","seller_name"]),
+      valueFrom(["Seller"])
+    ].map(value => String(displayValue(value) || "").trim()).filter(value => value && !/^(?:\*{2,}|#{2,}|•{2,}|unknown|n\/?a|not available|null)$/i.test(value));
+    return candidates[0] || "";
   }
 
   function platformName() {
@@ -2312,21 +2341,27 @@ main{padding-top:22px}
 
   function getAuctionStart() {
     const sourceAuction = car.auction && typeof car.auction === "object" ? car.auction : null;
+    let value;
     if (sourceAuction && ["auction_at", "formatted", "full_date"].some(key => Object.prototype.hasOwnProperty.call(sourceAuction, key))) {
-      return first(sourceAuction.auction_at, sourceAuction.full_date, sourceAuction.formatted) || null;
+      value = first(sourceAuction.auction_at, sourceAuction.full_date, sourceAuction.formatted) || null;
+    } else {
+      value = first(
+        car.auction?.start_time, car.auction?.startTime,
+        car.auction?.start_date_time, car.auction?.startDateTime,
+        car.auction?.auction_start, car.auction?.auctionStart,
+        car.auction?.auction_start_time, car.auction?.auctionStartTime,
+        car.auction?.live_start, car.auction?.liveStart,
+        getSale(["AuctionStartDateTime","AuctionStartTime","StartDateTime","StartTime","SaleDateTime"]),
+        valueFrom(["AuctionStartDateTime","AuctionStartTime","StartDateTime","StartTime","SaleDateTime"]),
+        car.auction?.auction_at, car.auction?.full_date,
+        getSale(["AuctionDateTime"]),
+        valueFrom(["AuctionDateTime"])
+      );
     }
-    return first(
-      car.auction?.start_time, car.auction?.startTime,
-      car.auction?.start_date_time, car.auction?.startDateTime,
-      car.auction?.auction_start, car.auction?.auctionStart,
-      car.auction?.auction_start_time, car.auction?.auctionStartTime,
-      car.auction?.live_start, car.auction?.liveStart,
-      getSale(["AuctionStartDateTime","AuctionStartTime","StartDateTime","StartTime","SaleDateTime"]),
-      valueFrom(["AuctionStartDateTime","AuctionStartTime","StartDateTime","StartTime","SaleDateTime"]),
-      car.auction?.auction_at, car.auction?.full_date,
-      getSale(["AuctionDateTime"]),
-      valueFrom(["AuctionDateTime"])
-    );
+    const state = String(car.auction?.state || getAuctionStatus() || "").toLowerCase();
+    const isUpcoming = ["upcoming", "scheduled", "future"].includes(state) || car.auction?.upcoming === true;
+    if (isUpcoming && (!value || !Number.isFinite(Date.parse(String(value))) || Date.parse(String(value)) <= Date.now())) return null;
+    return value || null;
   }
 
   function getAuctionEnd() {
@@ -2409,7 +2444,7 @@ main{padding-top:22px}
       const start = getAuctionStart();
       return start && Number.isFinite(Date.parse(String(start))) ? "Nadchodząca" : "Nadchodząca · termin nieustalony";
     }
-    if (phase === "live") return "Live";
+    if (phase === "live") return "Trwa";
     if (phase === "prebid") return "Przed licytacją";
     return "Status niedostępny";
   }
@@ -2473,7 +2508,7 @@ main{padding-top:22px}
     const hasHdPhotos = photos.some(photo => photo.large && photo.thumb && photo.large !== photo.thumb);
 
     const timedEnd = car.auction?.is_timed === true ? getAuctionEnd() : null;
-    const date = timedEnd || getAuctionStart();
+    const date = getAuctionDisplayDate();
     const auctionPrice = getAuctionPriceInfo();
     const auctionState = auctionStatusLabel();
     const sourceAuctionUrl = originalAuctionUrl();
@@ -2562,44 +2597,29 @@ main{padding-top:22px}
             <div class="section-title"><h2>Dane samochodu</h2><span>${mediaCount} unikalnych zdjęć</span></div>
             <div class="spec-grid compact-main">
               ${field("Rok",year)}${field("Marka",make)}${field("Model",model)}
-              ${field("Wersja / seria",series)}${field("VIN",vin)}${field("Nadwozie",getDescription(["BodyStyle","BodyStyleName"]))}
-              ${field("Typ pojazdu",getDescription(["Vehicle","VehicleClass","InventoryType"]))}${field("Silnik",getDescription(["Engine","EngineSize","EngineInformation"]))}${field("Skrzynia",getDescription(["Transmission","TransmissionDesc"]))}
-              ${field("Napęd",getDescription(["DriveLineType","DriveLineTypeDesc"]))}${field("Paliwo",getDescription(["FuelType","FuelTypeDesc"]))}${field("Cylindry",getDescription(["Cylinders","CylindersDesc"]))}
-              ${field("Przebieg",odometer)}${field("Status przebiegu",valueFrom(["ODOBrand"]))}${field("Kolor zewnętrzny",valueFrom(["ExteriorColor"]))}
-              ${field("Kolor wnętrza",valueFrom(["InteriorColor"]))}${field("Kluczyki",keys)}${field("Run & Drive",runDrive)}
-              ${field("Airbagi",airbags)}${field("Typ straty",getInfo(["Loss"]))}${field("ACV",getSale(["ActualCashValue"]))}
-              ${field("Szac. naprawa",getSale(["EstimatedRepairCost"]))}${field("Minimalna oferta",valueFrom(["MinimumBidAmount"]))}${field("Kto może kupić",valueFrom(["WhoCanBuy","whoCanBuy","WhoCanBid","whoCanBid"]))}
+              ${field("Wersja / seria",series)}${field("VIN",vin)}${field("Przebieg",odometer)}
+              ${field("Nadwozie",getDescription(["BodyStyle","BodyStyleName"]))}${field("Silnik",getDescription(["Engine","EngineSize","EngineInformation"]))}${field("Skrzynia",getDescription(["Transmission","TransmissionDesc"]))}
+              ${field("Napęd",getDescription(["DriveLineType","DriveLineTypeDesc"]))}${field("Kolor",valueFrom(["ExteriorColor"]))}
             </div>
+            <details class="spec-more"><summary>Pokaż więcej danych</summary><div class="spec-grid">
+              ${field("Typ pojazdu",getDescription(["Vehicle","VehicleClass","InventoryType"]))}${field("Paliwo",getDescription(["FuelType","FuelTypeDesc"]))}${field("Cylindry",getDescription(["Cylinders","CylindersDesc"]))}
+              ${field("Status przebiegu",valueFrom(["ODOBrand"]))}${field("Kolor wnętrza",valueFrom(["InteriorColor"]))}${field("Kluczyki",keys)}
+              ${field("Run & Drive",runDrive)}${field("Airbagi",airbags)}${field("Typ straty",getInfo(["Loss"]))}
+              ${field("ACV",getSale(["ActualCashValue"]))}${field("Szac. naprawa",getSale(["EstimatedRepairCost"]))}${field("Minimalna oferta",valueFrom(["MinimumBidAmount"]))}${field("Kto może kupić",valueFrom(["WhoCanBuy","whoCanBuy","WhoCanBid","whoCanBid"]))}
+            </div></details>
             <div class="jump-links"><a href="#damage">Uszkodzenia</a><a href="#title">TITLE</a><a href="#seller">Sprzedawca</a><a href="#shipping">Wysyłka i lokalizacja</a></div>
           </section>
 
-          ${!isEmpty(primaryDamage) || !isEmpty(secondaryDamage) || !isEmpty(getInfo(["Loss"])) ? `<section class="panel section" id="damage">
-            <div class="section-title"><h2>Uszkodzenia</h2><span>Dane ze źródła aukcyjnego</span></div>
-            <div class="damage-grid">
-              ${!isEmpty(primaryDamage) ? `<div class="damage main"><small>Główne uszkodzenie</small><strong>${nice(primaryDamage)}</strong></div>` : ""}
-              ${!isEmpty(secondaryDamage) ? `<div class="damage"><small>Drugorzędne uszkodzenie</small><strong>${nice(secondaryDamage)}</strong></div>` : ""}
-              ${field("Rodzaj straty",getInfo(["Loss"]))}
+          ${!isEmpty(primaryDamage) || !isEmpty(secondaryDamage) || !isEmpty(getInfo(["Loss"])) || sellerInfo.name || sellerInfo.type || !isEmpty(titleDoc) || !isEmpty(titleBrand) || !isEmpty(titleState) || !isEmpty(titleCode) || !isEmpty(runDrive) || !isEmpty(airbags) || !isEmpty(keys) ? `<section class="panel section condition-summary" id="conditionSummary">
+            <div class="section-title"><h2>Stan pojazdu</h2><span>Informacje ze źródła aukcyjnego</span></div>
+            <div class="condition-summary-grid">
+              ${!isEmpty(primaryDamage) || !isEmpty(secondaryDamage) || !isEmpty(getInfo(["Loss"])) ? `<div class="condition-summary-row" id="damage"><span class="condition-summary-icon" aria-hidden="true">!</span><div><strong>Uszkodzenia</strong><div>${!isEmpty(primaryDamage) ? `Główne: ${nice(primaryDamage)}` : "Brak danych o głównym uszkodzeniu"}${!isEmpty(secondaryDamage) ? ` · Dodatkowe: ${nice(secondaryDamage)}` : ""}${!isEmpty(getInfo(["Loss"])) ? ` · Rodzaj straty: ${nice(getInfo(["Loss"]))}` : ""}</div></div></div>` : ""}
+              ${!isEmpty(titleDoc) || !isEmpty(titleBrand) || !isEmpty(titleState) || !isEmpty(titleCode) ? `<div class="condition-summary-row" id="title"><span class="condition-summary-icon" aria-hidden="true">▤</span><div><strong>Dokument</strong><div>${!isEmpty(titleDoc) ? nice(titleDoc) : "Nazwa dokumentu niedostępna"}${!isEmpty(titleBrand) ? ` · ${nice(titleBrand)}` : ""}</div><span class="condition-title-badge ${esc(displayTitleKind)}">${esc(titleVerdictLabel(displayTitleKind))}</span><small class="condition-disclaimer">${esc(titleVerdictNote(displayTitleKind))} To wskazówka informacyjna, nie ocena prawna ani gwarancja rejestracji.</small></div></div>` : ""}
+              ${sellerInfo.name || sellerInfo.type ? `<div class="condition-summary-row" id="seller"><span class="condition-summary-icon" aria-hidden="true">↗</span><div><strong>Sprzedający</strong><div>${sellerInfo.name ? nice(sellerInfo.name) : "Nazwa niedostępna"}${sellerInfo.type ? ` · Typ: ${nice(sellerInfo.type)}` : ""}</div><small class="condition-disclaimer">Dane przekazane przez źródło aukcyjne; nie stanowią oceny wiarygodności.</small></div></div>` : ""}
+              ${!isEmpty(runDrive) || !isEmpty(airbags) || !isEmpty(keys) ? `<div class="condition-summary-row"><span class="condition-summary-icon" aria-hidden="true">✓</span><div><strong>Stan eksploatacyjny</strong><div>${!isEmpty(runDrive) ? `Uruchomienie: ${nice(runDrive)}` : ""}${!isEmpty(keys) ? `${!isEmpty(runDrive) ? " · " : ""}Kluczyki: ${nice(keys)}` : ""}${!isEmpty(airbags) ? `${!isEmpty(runDrive) || !isEmpty(keys) ? " · " : ""}Airbagi: ${nice(airbags)}` : ""}</div></div></div>` : ""}
+              ${!isEmpty(titleNotes) || !isEmpty(titleCode) ? `<details class="condition-more"><summary>Szczegóły dokumentu</summary><div class="spec-grid">${field("Stan / kod title",titleCode)}${field("Uwagi do title",titleNotes)}${field("Stan title",titleState)}</div></details>` : ""}
             </div>
           </section>` : ""}
-
-          <section class="panel section" id="title">
-            <div class="section-title"><h2>Dokument / TITLE</h2><span>Ocena orientacyjna</span></div>
-            <div class="title-verdict ${displayTitleKind}"><div class="verdict-label">${esc(titleVerdictLabel(displayTitleKind))}</div><div class="verdict-text">${esc(titleVerdictNote(displayTitleKind))}</div></div>
-            <div class="interpretation-note">To automatyczna wskazówka, nie ocena prawna. Zweryfikuj oryginalny dokument i wymagania rejestracyjne przed zakupem.</div>
-            <div class="spec-grid">${field("Dokument",titleDoc)}${field("Title brand",titleBrand)}${field("Stan / kod title",titleCode)}${field("Stan title",titleState)}${field("Uwagi do title",titleNotes)}</div>
-          </section>
-
-          <section class="panel section" id="seller">
-            <div class="section-title"><h2>Sprzedawca</h2><span>Informacje przekazane przez aukcję</span></div>
-            <div class="seller-box">
-              <div class="seller-rating">${esc(sellerInfo.label)}</div>
-              <div class="mini-grid">
-                ${sellerInfo.name ? `<div class="mini-stat"><small>Sprzedawca</small><strong>${nice(sellerInfo.name)}</strong></div>` : ""}
-                ${!isEmpty(sellerInfo.type) ? `<div class="mini-stat"><small>Typ sprzedawcy</small><strong>${nice(sellerInfo.type)}</strong></div>` : ""}
-              </div>
-              <div class="seller-note">${esc(sellerInfo.note)}</div>
-            </div>
-          </section>
 
           <section class="info-card" id="auctionHistoryPanel">
             <div class="info-card-head"><h3>Historia aukcji tego VIN</h3></div>
@@ -2631,7 +2651,7 @@ main{padding-top:22px}
             <div class="info-card-head"><h3>Aktualna aukcja</h3></div>
             <div class="info-card-body">
               <div class="primary-auction">
-                <div class="auction-main"><div class="auction-label" id="bidLabel">${esc(auctionPrice.label)}</div><div class="auction-price" id="currentBidPrice">${money(auctionPrice.value)}</div><div class="auction-state ${auctionStatusClass()}" id="auctionStatusText">${esc(auctionStatusLabel())}</div><div class="auction-countdown" id="auctionTimerBox"${date ? "" : " style=\"display:none\""}><span id="countdownLabel">Termin licytacji</span>: <span id="countdown">${date ? formatDate(date) : ""}</span></div></div>
+                <div class="auction-main"><div class="auction-label" id="bidLabel">${esc(auctionPrice.label)}</div><div class="auction-price" id="currentBidPrice">${money(auctionPrice.value)}</div><div class="auction-state ${auctionStatusClass()}" id="auctionStatusText">${esc(auctionStatusLabel())}</div><div class="auction-countdown" id="auctionTimerBox"${date ? "" : " style=\"display:none\""}><span id="countdownLabel">${car.auction?.is_timed === true ? "Koniec aukcji czasowej" : "Termin licytacji"}</span>: <span id="countdown">${date ? formatDate(date) : ""}</span></div></div>
                 <div class="price-facts" id="priceFacts" aria-label="Pozostałe dostępne ceny"${priceFacts.length ? "" : " hidden"}>${renderAuctionPriceFactsHtml(priceFacts)}</div>
                 <div class="info-card-body" style="padding-top:10px">
                   ${kv("Platforma",platformName())}${kv("Numer LOT",lot)}${kv("VIN",vin)}${kv(car.auction?.is_timed === true ? "Koniec aukcji czasowej" : "Data aukcji",formatDate(date))}${kv("Lokalizacja",location)}${kv("Główne uszkodzenie",primaryDamage)}${kv("Przebieg",odometer)}${kv("Sprzedający",seller)}
@@ -3143,7 +3163,7 @@ main{padding-top:22px}
       if (car.auction?.is_timed === true && Number.isFinite(end) && phase !== "ended") {
         target = end;
         if (label) label.textContent = "Do końca aukcji czasowej";
-      } else if (phase === "prebid" && Number.isFinite(start)) {
+      } else if (car.auction?.is_timed !== true && phase === "prebid" && Number.isFinite(start)) {
         target = start;
         if (label) label.textContent = "Do rozpoczęcia licytacji";
       } else if (phase === "live" && Number.isFinite(end)) {
@@ -3215,6 +3235,8 @@ main{padding-top:22px}
       priceFactsNode.innerHTML = renderAuctionPriceFactsHtml(facts);
       priceFactsNode.hidden = !facts.length;
     }
+
+    if (label) label.textContent = car.auction?.is_timed === true ? "Do końca aukcji czasowej" : "Termin licytacji";
 
     startCountdown();
   }
@@ -3343,7 +3365,12 @@ main{padding-top:22px}
     const saleDate = first(record.sale_date, historyField(record,["saleDate","sold_date","sold_at","soldAt","last_sold_day","lastSoldDay"]), historyNested(record,[["auction","last_sold_day"],["sale","date"],["sale","sold_at"]]));
     const status = first(record.status, historyField(record,["sale_status","saleStatus","auction_status","auctionStatus","state"]), historyNested(record,[["auction","last_sold_status"],["auction","status"],["sale","status"]]));
     const lot = first(record.lot, historyField(record,["lot_number","lotNumber","stock_number","stockNumber","stock"]), historyNested(record,[["vehicle","lot_number"],["auction","lot_number"]]), getLot());
-    const seller = first(record.seller, historyField(record,["seller_name","sellerName","seller_type","sellerType"]), historyNested(record,[["seller","name"],["seller","displayName"],["seller","type"]]));
+    const sellerRaw = first(record.seller, historyField(record,["seller_name","sellerName"]), historyNested(record,[["seller","name"],["seller","displayName"],["seller","companyName"],["seller","providerName"]]));
+    const sellerText = String(displayValue(sellerRaw) || "").trim();
+    const seller = /^(?:\*{2,}|#{2,}|•{2,}|unknown|n\/?a|not available|null)$/i.test(sellerText) ? "" : sellerText;
+    const sellerTypeRaw = first(record.seller_type, historyField(record,["sellerType"]), historyNested(record,[["seller","type"]]));
+    const sellerTypeText = String(displayValue(sellerTypeRaw) || "").trim();
+    const sellerType = /^(?:unknown|n\/?a|not available|null)$/i.test(sellerTypeText) ? "" : sellerTypeText;
     const currentBid = numberOrNull(first(record.current_bid, historyField(record,["current_bid_usd","currentBidUsd","currentBid","bid"]), historyNested(record,[["pricing","current_bid_usd"],["pricing","current_bid"],["auction","current_bid_usd"]])));
     const finalPrice = numberOrNull(first(record.final_price, historyField(record,["sale_price_usd","sale_price","final_price_usd","finalPriceUsd","final_bid_usd","sold_price_usd"]), historyNested(record,[["pricing","sale_price_usd"],["pricing","final_price_usd"],["pricing","final_bid_usd"],["pricing","sold_price_usd"]])));
     const buyNow = numberOrNull(first(record.buy_now, historyField(record,["buy_now_usd","buyNowUsd","buyNow"]), historyNested(record,[["pricing","buy_now_usd"],["pricing","buy_now"]])));
@@ -3365,7 +3392,8 @@ main{padding-top:22px}
       buy_now: buyNow,
       source_price: sourcePrice,
       status: String(displayValue(status) || "").trim(),
-      seller: String(displayValue(seller) || "").trim(),
+      seller,
+      seller_type: sellerType,
       raw_json: rawValue
     };
   }
@@ -3437,8 +3465,10 @@ main{padding-top:22px}
       const amount = hasFinalPrice ? item.final_price : hasCurrentBid ? item.current_bid : hasBuyNow ? item.buy_now : null;
       const amountLabel = hasFinalPrice ? "Cena końcowa"
         : hasCurrentBid ? "Aktualna oferta"
-        : hasBuyNow ? "Kup teraz" : "";
-      const price = amount === null || amount === undefined || Number.isNaN(Number(amount)) ? "—" : money(amount);
+        : hasBuyNow ? "Kup teraz" : !isEmpty(item.source_price) ? "Kwota z rekordu · typ nieokreślony" : "";
+      const displayAmount = amount === null || amount === undefined ? item.source_price : amount;
+      const price = displayAmount === null || displayAmount === undefined || Number.isNaN(Number(displayAmount)) ? "—" : money(displayAmount);
+      const sellerLabel = item.seller ? esc(item.seller) : item.seller_type ? `Typ: ${esc(item.seller_type)}` : "—";
       const status = historyStatusLabel(item.status);
       const platform = String(item.platform || platformName()).toUpperCase();
       const platformCls = platform.toLowerCase().includes("iaai") || platform === "IAA" ? "iaai" : "copart";
@@ -3449,7 +3479,7 @@ main{padding-top:22px}
           <td>${esc(item.lot || "—")}</td>
           <td class="history-price">${esc(price)}${amountLabel ? `<small style="display:block;font-size:10px;font-weight:600;opacity:.75">${esc(amountLabel)}</small>` : ""}</td>
           <td><span class="history-status ${historyStatusClass(item.status)}">${esc(status)}</span></td>
-          <td>${esc(item.seller || "—")}</td>
+          <td>${sellerLabel}</td>
         </tr>
       `;
     }).join("");
@@ -3529,6 +3559,11 @@ main{padding-top:22px}
       cursor = next;
     }
     return historyRecordsForRender(collected);
+  }
+
+  function getAuctionDisplayDate() {
+    if (car.auction?.is_timed === true) return getAuctionEnd() || null;
+    return getAuctionStart();
   }
 
   async function fetchAuctionHistory() {

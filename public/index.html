@@ -746,7 +746,36 @@
     @media (max-width: 1100px) { .cars { grid-template-columns:repeat(3,minmax(0,1fr)); } }
     @media (max-width: 700px) { .cars { grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; } .car-image{height:clamp(135px,30vw,190px)} }
     @media (max-width: 430px) { .cars { grid-template-columns:1fr; } .car-image{height:210px} }
+    .marketplace-aisles { display:grid; gap:26px; padding-top:22px; }
+    .market-aisle { min-width:0; }
+    .market-aisle-heading { display:flex; align-items:end; justify-content:space-between; gap:15px; margin-bottom:12px; }
+    .market-aisle-heading h2 { margin:3px 0 0; color:#1c2c3b; font-size:clamp(18px,2.2vw,23px); letter-spacing:-.5px; }
+    .aisle-more { display:inline-flex; align-items:center; gap:8px; padding:8px 11px; border:1px solid #e3e8ed; border-radius:9px; background:#fff; color:#304456; font-size:11px; font-weight:800; }
+    .aisle-more:hover { border-color:#e4b02c; color:#77540b; }
+    .market-aisle-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+    .aisle-message { grid-column:1/-1; padding:17px; border:1px solid #e3e8ed; border-radius:11px; background:#fff; color:#687581; font-size:12px; }
+    .market-aisle-card { min-width:0; overflow:hidden; border:1px solid #e3e8ed; border-radius:12px; background:#fff; box-shadow:0 3px 12px rgba(20,39,56,.045); color:#17202a; }
+    .market-aisle-card:hover { border-color:#d2b15b; box-shadow:0 8px 22px rgba(20,39,56,.1); transform:translateY(-2px); }
+    .market-aisle-card a { display:block; color:inherit; text-decoration:none; }
+    .aisle-photo { position:relative; height:clamp(120px,14vw,175px); background:#e9edf1; }
+    .aisle-photo img { width:100%; height:100%; object-fit:cover; }
+    .aisle-platform,.aisle-status { position:absolute; top:8px; padding:5px 7px; border-radius:20px; background:rgba(16,19,24,.86); color:#fff; font-size:9px; font-weight:800; }
+    .aisle-platform { left:8px; }
+    .aisle-status { right:8px; max-width:65%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .aisle-card-body { display:grid; gap:8px; padding:11px; }
+    .aisle-title { min-height:32px; margin:0; color:#1c2c3b; font-size:12px; font-weight:800; line-height:1.35; }
+    .aisle-identity { color:#74818d; font-size:9px; }
+    .aisle-price { color:#182b3a; font-size:15px; font-weight:900; }
+    .aisle-price small { display:block; margin-bottom:2px; color:#71808e; font-size:9px; font-weight:650; }
+    .aisle-secondary-price { margin-top:-5px; color:#74818d; font-size:9px; }
+    .aisle-date { color:#647381; font-size:10px; }
+    @media(max-width:950px){.market-aisle-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(max-width:650px){.market-aisle-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.aisle-photo{height:clamp(115px,34vw,155px)}.aisle-card-body{padding:9px}.aisle-title{font-size:11px}.marketplace-aisles{gap:22px}}
+    @media(max-width:390px){.market-aisle-grid{grid-template-columns:1fr}.aisle-photo{height:190px}.market-aisle-heading{align-items:center}.aisle-more{font-size:10px;padding:7px}}
   </style>
+
+<link rel="stylesheet" href="/rexbid-brand.css" />
+<script src="/rexbid-mobile-nav.js" defer></script>
 </head>
 
 <body>
@@ -828,6 +857,26 @@
   </section>
 
 
+  <section class="marketplace-aisles container" id="marketSections" aria-label="Kategorie aukcji">
+    <section class="market-aisle" data-market-aisle data-query="lot_sub_status=Open" data-title="Aktualne aukcje" data-href="lot_sub_status=Open">
+      <div class="market-aisle-heading"><div><span class="results-kicker">Katalog Rex.Bid</span><h2>Aktualne aukcje</h2></div><a class="aisle-more" href="/?lot_sub_status=Open">Zobacz wszystkie <span aria-hidden="true">→</span></a></div>
+      <div class="market-aisle-grid" data-aisle-results><div class="aisle-message">Ładowanie ofert…</div></div>
+    </section>
+    <section class="market-aisle" data-market-aisle data-query="lot_status=Buy%20Now" data-title="Kup teraz" data-href="lot_status=Buy%20Now">
+      <div class="market-aisle-heading"><div><span class="results-kicker">Oferta bez licytacji</span><h2>Kup teraz</h2></div><a class="aisle-more" href="/?lot_status=Buy%20Now">Zobacz wszystkie <span aria-hidden="true">→</span></a></div>
+      <div class="market-aisle-grid" data-aisle-results><div class="aisle-message">Ładowanie ofert…</div></div>
+    </section>
+    <section class="market-aisle" data-market-aisle data-query="platform=iaai&amp;lot_status=Timed" data-title="Timed Auctions" data-href="platform=iaai&amp;lot_status=Timed">
+      <div class="market-aisle-heading"><div><span class="results-kicker">IAAI</span><h2>Timed Auctions</h2></div><a class="aisle-more" href="/?platform=iaai&amp;lot_status=Timed">Zobacz wszystkie <span aria-hidden="true">→</span></a></div>
+      <div class="market-aisle-grid" data-aisle-results><div class="aisle-message">Ładowanie ofert…</div></div>
+    </section>
+    <section class="market-aisle" data-market-aisle data-query="upcoming=only" data-title="Nadchodzące aukcje" data-href="upcoming=only">
+      <div class="market-aisle-heading"><div><span class="results-kicker">Z potwierdzonym terminem</span><h2>Nadchodzące aukcje</h2></div><a class="aisle-more" href="/?upcoming=only">Zobacz wszystkie <span aria-hidden="true">→</span></a></div>
+      <div class="market-aisle-grid" data-aisle-results><div class="aisle-message">Ładowanie ofert…</div></div>
+    </section>
+  </section>
+
+
   <section class="container listing-section" aria-label="Wyszukiwarka i lista samochodów">
 
     <div class="filters">
@@ -845,9 +894,9 @@
           <option value="copart">COPART</option>
         </select>
 
-        <select id="make" aria-label="Marka"><option value="">Wszystkie marki</option></select>
+        <div class="filter-field"><label for="make">Marka</label><input id="make" type="text" list="makeOptions" autocomplete="off" placeholder="Wszystkie marki" aria-label="Marka — wybierz lub wpisz" /><datalist id="makeOptions"></datalist></div>
 
-        <select id="model" aria-label="Model" disabled><option value="">Najpierw wybierz markę</option></select>
+        <div class="filter-field"><label for="model">Model</label><input id="model" type="text" list="modelOptions" autocomplete="off" placeholder="Wpisz lub wybierz model" aria-label="Model — wybierz lub wpisz" /><datalist id="modelOptions"></datalist></div>
 
         <input
           id="yearFrom"
@@ -1115,14 +1164,29 @@
   ];
 
   function metadataRoot(payload) {
-    const data = payload && payload.data && typeof payload.data === "object" ? payload.data : payload;
-    return data && data.filters && typeof data.filters === "object" ? data.filters : data || {};
+    let data = payload;
+    for (let depth = 0; depth < 4 && data && typeof data === "object"; depth++) {
+      if (data.response && typeof data.response === "object" && data.response.data && typeof data.response.data === "object") {
+        data = data.response.data;
+        continue;
+      }
+      if (data.data && typeof data.data === "object") {
+        data = data.data;
+        continue;
+      }
+      if (data.filters && typeof data.filters === "object") {
+        data = data.filters;
+        continue;
+      }
+      break;
+    }
+    return data && typeof data === "object" ? data : {};
   }
 
   function metadataOption(item) {
     if (typeof item === "string" || typeof item === "number") return { value: String(item), label: String(item) };
     if (!item || typeof item !== "object") return null;
-    const value = item.value ?? item.id ?? item.code ?? item.name ?? item.label ?? item.make ?? item.model ?? item.type ?? item.state ?? item.fuel_type ?? item.transmission ?? item.drive_type ?? item.body_style ?? item.damage ?? item.seller_type ?? item.sale_document_type ?? item.year;
+    const value = item.value ?? item.code ?? item.name ?? item.label ?? item.make ?? item.model ?? item.type ?? item.state ?? item.fuel_type ?? item.transmission ?? item.drive_type ?? item.body_style ?? item.damage ?? item.seller_type ?? item.sale_document_type ?? item.id ?? item.year;
     const label = item.label ?? item.name ?? item.display ?? item.value ?? item.model ?? item.make ?? value;
     return value === null || value === undefined ? null : { value: String(value), label: String(label) };
   }
@@ -1132,6 +1196,7 @@
       const source = root && root[key];
       if (Array.isArray(source)) return source.map(metadataOption).filter(Boolean);
       if (source && typeof source === "object") {
+        if (Array.isArray(source.options)) return source.options.map(metadataOption).filter(Boolean);
         const values = Object.entries(source).flatMap(([name, value]) => {
           if (Array.isArray(value)) return value.map(metadataOption).filter(Boolean);
           if (value && typeof value === "object") {
@@ -1150,13 +1215,21 @@
     if (!element) return;
     const unique = new Map();
     for (const item of options) if (item.value.trim()) unique.set(item.value, item.label);
+    if (element.tagName === "INPUT") {
+      const list = document.getElementById(element.getAttribute("list"));
+      if (list) list.innerHTML = [...unique].map(([value, label]) => `<option value="${escapeHtml(value)}" label="${escapeHtml(label)}"></option>`).join("");
+      element.placeholder = placeholder;
+      if (selectedValue && !element.value) element.value = selectedValue;
+      return;
+    }
     element.innerHTML = `<option value="">${escapeHtml(placeholder)}</option>` +
       [...unique].map(([value, label]) => `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`).join("");
     if (selectedValue && unique.has(selectedValue)) element.value = selectedValue;
   }
 
   function modelOptionsFor(root, selectedMake) {
-    const models = root.models_by_make || root.models || root.model_options || [];
+    const groups = root.make_model && typeof root.make_model === "object" ? root.make_model : root;
+    const models = groups.models_by_make || groups.models || groups.model_options || [];
     if (Array.isArray(models)) {
       const group = models.find(item => item && typeof item === "object" && String(item.make ?? item.make_name ?? "").toLowerCase() === String(selectedMake || "").toLowerCase());
       if (group) return metadataOptions({ models: group.models || group.options || group.values || [] }, ["models"]);
@@ -1166,12 +1239,22 @@
       const key = Object.keys(models).find(name => name.toLowerCase() === String(selectedMake || "").toLowerCase());
       if (key) return metadataOptions({ models: models[key] }, ["models"]);
     }
+    const bySeries = groups.models_by_series || groups.series_by_make || root.models_by_series || root.series_by_make;
+    if (bySeries && typeof bySeries === "object") {
+      const makeKey = Object.keys(bySeries).find(name => name.toLowerCase() === String(selectedMake || "").toLowerCase());
+      if (makeKey) {
+        const grouped = bySeries[makeKey];
+        if (Array.isArray(grouped)) return grouped.flatMap(item => metadataOptions({ models: item?.models || item?.options || item?.values || [item] }, ["models"]));
+        if (grouped && typeof grouped === "object") return Object.values(grouped).flatMap(values => metadataOptions({ models: values }, ["models"]));
+      }
+    }
     return [];
   }
 
   function metadataRange(root, keys) {
     for (const key of keys) {
-      const source = root && root[key];
+      const ranges = root && root.ranges && typeof root.ranges === "object" ? root.ranges : {};
+      const source = root && root[key] !== undefined ? root[key] : ranges[key];
       const entries = Array.isArray(source) ? source : source && typeof source === "object" ? [source] : [];
       const bounds = entries.flatMap(entry => {
         if (typeof entry === "number") return [entry];
@@ -1185,40 +1268,43 @@
   }
 
   async function loadFilterMetadata(selectedModel = "") {
+    const modelDatalist = document.getElementById(model.getAttribute("list"));
+    if (modelDatalist) modelDatalist.replaceChildren();
     const params = new URLSearchParams();
-    if (make.value) params.set("make", make.value);
+    if (make.value.trim()) params.set("make", make.value.trim());
     const response = await fetch(`${API_BASE}/filters?${params.toString()}`, { headers: { Accept: "application/json" } });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const root = metadataRoot(await response.json());
     if (!make.dataset.ready) {
-      setMetadataOptions(make, metadataOptions(root, ["makes", "make"]), "Wszystkie marki", make.value);
+      const makeModel = root.make_model && typeof root.make_model === "object" ? root.make_model : root;
+      setMetadataOptions(make, metadataOptions(makeModel, ["makes", "make"]), "Wpisz lub wybierz markę", make.value);
       make.dataset.ready = "true";
     }
     const models = modelOptionsFor(root, make.value);
-    setMetadataOptions(model, models, make.value ? "Wszystkie modele" : "Najpierw wybierz markę", selectedModel || model.value);
-    model.disabled = !make.value || models.length === 0;
+    setMetadataOptions(model, models, make.value ? "Wpisz lub wybierz model" : "Wpisz model lub wybierz markę", selectedModel || model.value);
     for (const [element, keys, placeholder] of [
-      [fuelType, ["fuel", "fuel_types", "fuels"], "Dowolne"],
+      [fuelType, ["fuel_type", "fuel", "fuel_types", "fuels"], "Dowolne"],
       [transmission, ["transmission", "transmissions"], "Dowolna"],
-      [driveType, ["drive", "drive_types", "drivetrains"], "Dowolny"],
-      [runCond, ["run_condition", "run_conditions", "run_cond"], "Dowolny"],
+      [driveType, ["drive_type", "drive", "drive_types", "drivetrains"], "Dowolny"],
+      [runCond, ["running_condition", "run_condition", "run_conditions", "run_cond"], "Dowolny"],
       [vehicleType, ["vehicle_types", "types", "body_styles"], "Dowolny"],
       [damage, ["damage_groups", "damages", "damage"], "Dowolne"],
       [sellerType, ["seller_type", "seller_types"], "Dowolny"],
       [saleDocument, ["sale_document", "sale_documents", "sale_document_types"], "Dowolny"],
-      [locationState, ["locations", "location_states", "states"], "Dowolna"]
+      [locationState, ["location_states", "states", "locations"], "Dowolna"]
     ]) {
       const selected = element.value;
-      const options = metadataOptions(root, keys);
+      let options = metadataOptions(root, keys);
+      if (element === locationState && !options.length) options = metadataOptions(root.location_filters || {}, ["state"]);
       if (options.length) setMetadataOptions(element, options, placeholder, selected);
     }
     const years = metadataOptions(root, ["years", "year_ranges", "year_range"]);
     const yearNumbers = years.flatMap(item => [Number(item.value), Number(item.label)]).filter(value => Number.isInteger(value) && value >= 1886 && value <= new Date().getFullYear() + 2);
-    const bounds = root.year_ranges && !Array.isArray(root.year_ranges) ? root.year_ranges : root.years_range;
+    const bounds = root.year_ranges && !Array.isArray(root.year_ranges) ? root.year_ranges : root.years_range || root.ranges?.year;
     if (bounds && typeof bounds === "object") {
-      yearNumbers.push(Number(bounds.min ?? bounds.from ?? bounds.start), Number(bounds.max ?? bounds.to ?? bounds.end));
+      yearNumbers.push(Number(bounds.min ?? bounds.from ?? bounds.start ?? bounds.from_default), Number(bounds.max ?? bounds.to ?? bounds.end ?? bounds.to_default));
     }
-    const yearRange = metadataRange(root, ["year_ranges", "year_range", "years"]);
+    const yearRange = metadataRange(root, ["year_ranges", "year_range", "years", "year"]);
     if (yearRange) yearNumbers.push(yearRange.min, yearRange.max);
     const validYears = yearNumbers.filter(value => Number.isInteger(value) && value >= 1886 && value <= new Date().getFullYear() + 2);
     if (validYears.length) {
@@ -1226,8 +1312,8 @@
       yearFrom.max = String(Math.max(...validYears)); yearTo.max = yearFrom.max;
     }
     for (const [minInput, maxInput, keys] of [
-      [priceMin, priceMax, ["price_ranges", "price_range"]],
-      [odometerFrom, odometerTo, ["odometer_ranges", "odometer_range"]]
+      [priceMin, priceMax, ["price_ranges", "price_range", "price_usd"]],
+      [odometerFrom, odometerTo, ["odometer_ranges", "odometer_range", "odometer_mi"]]
     ]) {
       const range = metadataRange(root, keys);
       if (range) { minInput.min = String(range.min); minInput.max = String(range.max); maxInput.min = String(range.min); maxInput.max = String(range.max); }
@@ -1337,6 +1423,76 @@
     // Opcje zależne od marki są odświeżane przy następnym wyborze marki.
     // Czyszczenie filtrów nie potrzebuje osobnego requestu metadata.
     loadCars();
+  }
+
+  function marketAislePriceInfo(car, buyNowSection = false) {
+    if (!buyNowSection) return getPriceInfo(car);
+    const pricing = car?.pricing && typeof car.pricing === "object" ? car.pricing : {};
+    const buyNow = [pricing.buy_now_usd, car?.buy_now_usd].find(value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)) && Number(value) > 0);
+    if (buyNow === undefined) return getPriceInfo(car);
+    const currentBid = [pricing.current_bid_usd, pricing.current_bid2_usd].find(value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)) && Number(value) > 0);
+    return { value: Number(buyNow), label: "Kup teraz", secondary: currentBid === undefined ? "" : `Aktualna oferta · ${formatMoney(currentBid)}` };
+  }
+
+  function renderMarketAisleCard(car, buyNowSection = false) {
+    const vin = getVin(car);
+    const lot = getLot(car);
+    const identifier = vin || (lot && lot !== "—" ? lot : "");
+    if (!identifier) return "";
+    const href = vin ? `/car.html?vin=${encodeURIComponent(vin)}` : `/car.html?lot=${encodeURIComponent(lot)}`;
+    const image = localStorageApi?.safeImageUrl(getCarImage(car)) || "";
+    const price = marketAislePriceInfo(car, buyNowSection);
+    const status = getAuctionStatusLabel(car);
+    const statusHtml = status && status !== "Status niedostępny" ? `<span class="aisle-status">${escapeHtml(status)}</span>` : "";
+    const date = getAuctionDate(car);
+    return `<article class="market-aisle-card"><a href="${escapeHtml(href)}"><div class="aisle-photo">${image ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(getTitle(car))}" loading="lazy">` : ""}<span class="aisle-platform">${escapeHtml(getPlatform(car))}</span>${statusHtml}</div><div class="aisle-card-body"><h3 class="aisle-title">${escapeHtml(getTitle(car))}</h3><div class="aisle-identity">LOT ${escapeHtml(lot || "—")} · VIN ${escapeHtml(vin || "—")}</div><div class="aisle-price"><small>${escapeHtml(price.label)}</small>${price.value === null ? "—" : escapeHtml(formatMoney(price.value))}</div>${price.secondary ? `<div class="aisle-secondary-price">${escapeHtml(price.secondary)}</div>` : ""}${date ? `<div class="aisle-date">${car.auction?.is_timed === true && car.auction?.timed_end_at ? "Koniec aukcji czasowej" : "Termin aukcji"}: ${escapeHtml(date)}</div>` : ""}</div></a></article>`;
+  }
+
+  function marketAisleCars(payload) {
+    if (Array.isArray(payload?.data)) return payload.data;
+    if (Array.isArray(payload?.response?.data?.data)) return payload.response.data.data;
+    if (Array.isArray(payload?.response?.data)) return payload.response.data;
+    return [];
+  }
+
+  async function loadMarketAisle(section) {
+    if (!section || section.dataset.loaded === "true" || section.dataset.loading === "true") return;
+    section.dataset.loading = "true";
+    const target = section.querySelector("[data-aisle-results]");
+    const params = new URLSearchParams(section.dataset.query || "");
+    params.set("per_page", "4");
+    try {
+      const response = await fetch(`${API_BASE}/cars?${params.toString()}`, { headers: { Accept: "application/json" } });
+      const payload = await response.json();
+      if (!response.ok || payload?.ok === false) throw new Error(`HTTP ${response.status}`);
+      const buyNowSection = params.get("lot_status") === "Buy Now";
+      const cards = marketAisleCars(payload).slice(0, 4).map(car => renderMarketAisleCard(car, buyNowSection)).filter(Boolean);
+      target.innerHTML = cards.length ? cards.join("") : '<div class="aisle-message">Brak ofert w tej kategorii.</div>';
+      section.dataset.loaded = "true";
+    } catch (error) {
+      target.innerHTML = '<div class="aisle-message">Nie udało się pobrać ofert. <button type="button" class="aisle-retry">Spróbuj ponownie</button></div>';
+      target.querySelector(".aisle-retry")?.addEventListener("click", () => { section.dataset.loading = "false"; loadMarketAisle(section); }, { once: true });
+    } finally {
+      section.dataset.loading = "false";
+    }
+  }
+
+  function initMarketAisles() {
+    const sections = [...document.querySelectorAll("[data-market-aisle]")];
+    if (!sections.length) return;
+    if (!("IntersectionObserver" in window)) {
+      sections.forEach(section => loadMarketAisle(section));
+      return;
+    }
+    const observer = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          observer.unobserve(entry.target);
+          loadMarketAisle(entry.target);
+        }
+      }
+    }, { rootMargin: "280px 0px" });
+    sections.forEach(section => observer.observe(section));
   }
 
   function applyMarketShortcut(value) {
@@ -1855,9 +2011,11 @@
     if (/not.?sold|no.?sale|unsold/.test(outcome) || ["not_sold", "no_sale"].includes(state)) return "Niesprzedana";
     if (/sold|approval/.test(outcome) || state === "sold" || auction.sold_timed === true) return "Sprzedana";
     if (["finished", "closed", "ended"].includes(state) || auction.auction_ended_at) return "Zakończona";
+    const timedEnd = auction.is_timed === true && typeof auction.timed_end_at === "string" ? Date.parse(auction.timed_end_at) : NaN;
+    if (Number.isFinite(timedEnd) && timedEnd <= Date.now()) return "Zakończona";
     if (auction.is_buy_now === true || String(auction.lot_status || "").toLowerCase() === "buy now") return "Kup teraz";
     if (auction.is_timed === true || String(auction.lot_status || "").toLowerCase() === "timed") return "Timed Auction";
-    if (/live|running|in progress/.test(state) || String(auction.lot_sub_status || "").toLowerCase() === "live") return "Live";
+    if (/live|running|in progress/.test(state) || String(auction.lot_sub_status || "").toLowerCase() === "live") return "Trwa";
     if (state === "upcoming" || state === "scheduled" || state === "future" || auction.upcoming === true) {
       return getAuctionDate(car) ? "Nadchodząca" : "Nadchodząca · termin nieustalony";
     }
@@ -2102,22 +2260,25 @@
     const auction = car && car.auction && typeof car.auction === "object"
       ? car.auction
       : {};
-    const timedEnd = auction.is_timed === true && auction.timed_end_at ? auction.timed_end_at : "";
+    const timedEnd = auction.is_timed === true ? (auction.timed_end_at || "") : "";
     const value =
-      timedEnd ||
-      auction.auction_at ||
-      auction.full_date ||
-      auction.formatted ||
-      auction.auctionAt ||
-      car?.auction_at ||
-      car?.auctionAt ||
-      car?.auction_date ||
+      (auction.is_timed === true ? timedEnd : "") ||
+      (auction.is_timed === true ? "" : auction.auction_at) ||
+      (auction.is_timed === true ? "" : auction.full_date) ||
+      (auction.is_timed === true ? "" : auction.formatted) ||
+      (auction.is_timed === true ? "" : auction.auctionAt) ||
+      (auction.is_timed === true ? "" : car?.auction_at) ||
+      (auction.is_timed === true ? "" : car?.auctionAt) ||
+      (auction.is_timed === true ? "" : car?.auction_date) ||
       "";
 
     if (!value || typeof value !== "string") return "";
 
     const raw = value.trim();
     if (!Number.isFinite(Date.parse(raw))) return "";
+    const state = String(auction.state || car?.status || "").toLowerCase();
+    const upcoming = ["upcoming", "scheduled", "future"].includes(state) || auction.upcoming === true;
+    if (upcoming && Date.parse(raw) <= Date.now()) return "";
     const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/);
     if (!match) return raw;
 
@@ -2849,7 +3010,6 @@
   platform.addEventListener("change", () => loadCars());
   make.addEventListener("change", async () => {
     model.value = "";
-    model.disabled = true;
     try { await loadFilterMetadata(); } catch (error) { console.warn("Nie udało się odświeżyć metadanych modeli.", error); }
     updateFilterIndicators();
     loadCars();
@@ -2902,6 +3062,7 @@
   */
 
   restoreFiltersFromUrl();
+  initMarketAisles();
   loadFilterMetadata(model.value)
     .catch(error => console.warn("Metadane filtrów są chwilowo niedostępne.", error));
   loadCars({ updateUrl: false });

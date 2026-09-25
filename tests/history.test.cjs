@@ -731,7 +731,7 @@ test('index list pagination appends by cursor, resets filters, deduplicates by V
     if (!elements.has(id)) {
       elements.set(id, {
         id, value: '', innerHTML: '', textContent: '', hidden: false, disabled: false,
-        style: {}, dataset: {}, listeners: {}, addEventListener(name, callback) { this.listeners[name] = callback; }, querySelectorAll() { return []; }, setAttribute() {},
+        style: {}, dataset: {}, listeners: {}, addEventListener(name, callback) { this.listeners[name] = callback; }, querySelectorAll() { return []; }, getAttribute(name) { return name === "list" ? "modelOptions" : null; }, replaceChildren() { this.innerHTML = ""; }, setAttribute() {},
         scrollIntoView() {}
       });
     }
@@ -745,7 +745,8 @@ test('index list pagination appends by cursor, resets filters, deduplicates by V
     return new Promise((resolve, reject) => { nextFetch = { resolve, reject }; });
   };
   const context = {
-    document: { getElementById: element },
+    document: { getElementById: element, querySelectorAll() { return []; } },
+    window: { addEventListener() {} },
     URLSearchParams,
     Response,
     fetch: fetchImpl,
@@ -754,7 +755,7 @@ test('index list pagination appends by cursor, resets filters, deduplicates by V
   vm.createContext(context);
 
   const script = scripts[0][2].replace(
-    /restoreFiltersFromUrl\(\);\s*loadFilterMetadata\(model\.value\)[\s\S]*?\.catch\(error => console\.warn\("Metadane filtrów są chwilowo niedostępne\.", error\)\);\s*loadCars\(\{ updateUrl: false \}\);/,
+    /restoreFiltersFromUrl\(\);\s*(?:initMarketAisles\(\);\s*)?loadFilterMetadata\(model\.value\)[\s\S]*?\.catch\(error => console\.warn\("Metadane filtrów są chwilowo niedostępne\.", error\)\);\s*loadCars\(\{ updateUrl: false \}\);/,
     '\n  restoreFiltersFromUrl(); globalThis.initialLoad = loadCars({ updateUrl: false });'
   );
   assert.notEqual(script, scripts[0][2], 'initial list load can be awaited by the test');
@@ -815,7 +816,7 @@ test('index exposes only Worker-supported advanced filters and restores shareabl
     if (!elements.has(id)) {
       elements.set(id, {
         id, value: '', innerHTML: '', textContent: '', hidden: false, disabled: false,
-        style: {}, dataset: {}, listeners: {}, addEventListener(name, callback) { this.listeners[name] = callback; }, querySelectorAll() { return []; }, setAttribute() {},
+        style: {}, dataset: {}, listeners: {}, addEventListener(name, callback) { this.listeners[name] = callback; }, querySelectorAll() { return []; }, getAttribute(name) { return name === "list" ? "modelOptions" : null; }, replaceChildren() { this.innerHTML = ""; }, setAttribute() {},
         scrollIntoView() {}
       });
     }
@@ -839,7 +840,7 @@ test('index exposes only Worker-supported advanced filters and restores shareabl
   const requests = [];
   let nextFetch;
   const context = {
-    document: { getElementById: element },
+    document: { getElementById: element, querySelectorAll() { return []; } },
     URL, URLSearchParams, Response, window,
     fetch(url) {
       requests.push(new URL(url, 'https://rex.bid'));
@@ -849,7 +850,7 @@ test('index exposes only Worker-supported advanced filters and restores shareabl
   };
   vm.createContext(context);
   const script = scripts[0][2].replace(
-    /restoreFiltersFromUrl\(\);\s*loadFilterMetadata\(model\.value\)[\s\S]*?\.catch\(error => console\.warn\("Metadane filtrów są chwilowo niedostępne\.", error\)\);\s*loadCars\(\{ updateUrl: false \}\);/,
+    /restoreFiltersFromUrl\(\);\s*(?:initMarketAisles\(\);\s*)?loadFilterMetadata\(model\.value\)[\s\S]*?\.catch\(error => console\.warn\("Metadane filtrów są chwilowo niedostępne\.", error\)\);\s*loadCars\(\{ updateUrl: false \}\);/,
     '\n  restoreFiltersFromUrl(); globalThis.initialLoad = loadCars({ updateUrl: false });'
   );
   assert.notEqual(script, scripts[0][2]);
@@ -924,7 +925,7 @@ test('market category shortcuts use only supported list filters and always start
   const element = id => {
     if (!elements.has(id)) elements.set(id, { id, value: '', innerHTML: '', textContent: '', hidden: false, disabled: false,
       style: {}, dataset: {}, listeners: {}, addEventListener(name, callback) { this.listeners[name] = callback; },
-      querySelectorAll() { return []; }, setAttribute() {}, scrollIntoView() {} });
+      querySelectorAll() { return []; }, getAttribute(name) { return name === "list" ? "modelOptions" : null; }, replaceChildren() { this.innerHTML = ""; }, setAttribute() {}, scrollIntoView() {} });
     return elements.get(id);
   };
   const requests = [];
@@ -932,7 +933,7 @@ test('market category shortcuts use only supported list filters and always start
     fetch(url) { requests.push(new URL(url, 'https://rex.bid')); return Promise.resolve(new Response(JSON.stringify({ ok:true, data:[], meta:{ next_cursor:null } }), { status:200 })); },
     console: { error(){}, warn(){}, log(){} } };
   vm.createContext(context);
-  const script = scripts[0][2].replace(/restoreFiltersFromUrl\(\);\s*loadFilterMetadata\(model\.value\)[\s\S]*?\.catch\(error => console\.warn\("Metadane filtrów są chwilowo niedostępne\.", error\)\);\s*loadCars\(\{ updateUrl: false \}\);/, '\n  restoreFiltersFromUrl();');
+  const script = scripts[0][2].replace(/restoreFiltersFromUrl\(\);\s*(?:initMarketAisles\(\);\s*)?loadFilterMetadata\(model\.value\)[\s\S]*?\.catch\(error => console\.warn\("Metadane filtrów są chwilowo niedostępne\.", error\)\);\s*loadCars\(\{ updateUrl: false \}\);/, '\n  restoreFiltersFromUrl();');
   vm.runInContext(`${script}\nglobalThis.quickFilter = applyMarketShortcut;`, context);
   for (const [shortcut, param, value] of [['open','lot_sub_status','Open'],['timed','lot_status','Timed'],['buy-now','lot_status','Buy Now'],['upcoming','upcoming','only']]) {
     await context.quickFilter(shortcut);

@@ -1,0 +1,125 @@
+/* Shared Rex.Bid brand and responsive header for all public pages. */
+header {
+  background: #0f2030 !important;
+  color: #f8fafc !important;
+  border-bottom: 1px solid rgba(255,255,255,.1) !important;
+  box-shadow: 0 5px 22px rgba(8,13,20,.16);
+}
+
+header .header-inner,
+header .header {
+  position: relative;
+  box-sizing: border-box;
+  width: min(100%, 1280px);
+  min-height: 68px;
+  margin: 0 auto;
+  padding: 0 24px;
+  gap: 20px;
+}
+
+header .logo,
+header a.logo {
+  color: #fff !important;
+  font-weight: 900 !important;
+  letter-spacing: -1.2px;
+  text-decoration: none !important;
+  white-space: nowrap;
+}
+
+header .logo span,
+header a.logo span,
+footer .footer-logo span {
+  color: #f2ad24 !important;
+}
+
+header nav.rex-primary-nav {
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-end;
+  gap: clamp(12px, 2vw, 24px);
+  margin-left: auto;
+}
+
+header nav.rex-primary-nav a {
+  color: #dce2e9 !important;
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: none !important;
+  white-space: nowrap;
+}
+
+header nav.rex-primary-nav a:hover,
+header nav.rex-primary-nav a:focus-visible {
+  color: #f2ad24 !important;
+}
+
+header nav.rex-primary-nav [data-rexbid-count="favorites"] {
+  display: inline-grid;
+  min-width: 18px;
+  height: 18px;
+  margin-left: 3px;
+  padding: 0 4px;
+  place-items: center;
+  border-radius: 10px;
+  background: #f2ad24;
+  color: #17191d;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.rex-menu-toggle {
+  display: none;
+  width: 42px;
+  height: 40px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255,255,255,.24);
+  border-radius: 9px;
+  background: #1b2027;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.rex-menu-toggle:hover,
+.rex-menu-toggle:focus-visible {
+  border-color: #f2ad24;
+  color: #f2ad24;
+}
+
+@media (max-width: 1000px) {
+  header .header-inner,
+  header .header {
+    min-height: 62px;
+    padding: 0 16px;
+    gap: 12px;
+  }
+
+  header .rex-menu-toggle { display: inline-flex; margin-left: auto; }
+
+  header nav.rex-primary-nav {
+    display: none !important;
+    position: absolute;
+    z-index: 1200;
+    top: calc(100% + 1px);
+    right: 12px;
+    left: 12px;
+    width: auto;
+    margin: 0;
+    padding: 8px;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 0 0 12px 12px;
+    background: #0f2030;
+    box-shadow: 0 18px 28px rgba(0,0,0,.24);
+  }
+
+  header nav.rex-primary-nav.is-open { display: grid !important; gap: 2px; }
+  header nav.rex-primary-nav a { display: block; padding: 12px 13px; border-radius: 7px; font-size: 14px; }
+  header nav.rex-primary-nav a:hover,
+  header nav.rex-primary-nav a:focus-visible { background: rgba(242,173,36,.1); }
+  header .auth { display: none !important; }
+  header a.back { display: none; }
+}
