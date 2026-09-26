@@ -7,7 +7,7 @@
 
 Można przejść do projektowania warstwy kalkulacji i konfiguracji stawek, ale **nie do publikacji kompletnego „kosztu całkowitego” jako wiarygodnej liczby**. Do tego brakuje aktualnego amerykańskiego harmonogramu opłat IAA dla konkretnego rodzaju konta, ofert przewozowych i decyzji agenta celnego dotyczących klasyfikacji, pochodzenia oraz podstawy. Kalkulator powinien umieć zwrócić stan niekompletny i pokazać jawne pozycje konfigurowalne, zamiast dopisywać domyślne ceny.
 
-Obecny kalkulator w public/car.html pozostaje bez zmian. Jego domyślne USD→PLN, prowizja, transport, fracht, cło i akcyza są założeniami edytowalnymi, nie aktualnymi stawkami urzędowymi ani ofertą przewoźnika. Obecna matematyka nie jest w tym dokumencie zatwierdzona jako podstawa prawna.
+Stan bazowy przed Fazą 2: kalkulator w public/car.html miał przykładowe wartości domyślne i niezatwierdzoną sumę. W Fazie 2 zastąpiono go jawnie niekompletnym modelem; nie zatwierdzono żadnej podstawy prawnej ani nie dodano niepotwierdzonych opłat.
 
 ## Stany danych kalkulatora
 
@@ -17,15 +17,15 @@ Każdy wiersz wyliczenia ma posiadać co najmniej:
 - source_url_or_quote_id, checked_at, effective_from, effective_to
 - status, assumptions, included_in_customs_value?, included_in_vat_base?
 
-Dozwolone statusy: confirmed (potwierdzone dla danych wejściowych i zakresu), configurable (wymaga profilu/wyboru lub oferty), estimated (jawny szacunek, którego nie wolno przedstawiać jako opłaty potwierdzonej). Brak danych to null/stan niekompletny, nie zero. effective_from jest wymagane dla stawek; data sprawdzenia sama w sobie nie oznacza daty wejścia w życie.
+Dozwolone statusy: confirmed, configurable, estimated i unknown. Brak danych to null/unknown, nigdy zero. effective_from jest polem wersjonowanej konfiguracji; jeśli źródło nie podaje daty wejścia w życie, wartość pozostaje null, a checked_at nie zastępuje effective_from.
 
-## 1. Copart USA — potwierdzone opłaty i ograniczenia
+## 1. Copart USA — publicznie opublikowane kwoty, zastosowanie wymaga potwierdzenia
 
 Źródło główne: [Copart US Member Fees](https://www.copart.com/content/us/en/member-fees), sprawdzone **2026-09-26**. Strona publikuje kilka tabel Standard Pricing; widoczna kwota zależy od grupy tytułu (clean/non-clean), secure/unsecure payment oraz właściwego cennika. Copart wskazuje też standard/heavy vehicle i możliwe dodatkowe reguły. Nie wolno wybrać jednej tabeli dla wszystkich klientów i samochodów.
 
-### Przykładowy profil opłat: standard vehicle, clean title, secured payment
+### Publiczna tabela Standard Pricing: standard vehicle, clean title, secured payment
 
-To jawnie wybrany wariant z aktualnej strony opłat Copart, a nie uniwersalna obietnica ceny. Opłata bidding fee jest tiered. Dla cen testowych, przy Pre-Bid online:
+Kwoty poniżej są opublikowane przez Copart dla wskazanych kategorii, ale podczas porównania z oficjalnym zestawieniem Schedule A–D nie potwierdziliśmy, który member schedule ma być zastosowany do konta Rex.Bid. Nie są więc potwierdzoną wyceną dla kupującego. Opłata bidding fee jest tiered. Dla cen testowych, przy Pre-Bid online:
 
 | Cena wygranej oferty | Bidding fee: clean/secured | Pre-Bid virtual fee | Gate fee | Environmental fee w tej tabeli | Suma tych czterech pozycji |
 |---:|---:|---:|---:|---:|---:|
@@ -250,4 +250,67 @@ Konfiguracje muszą wykrywać nakładające się zakresy effective dates i braku
 4. Uzgodniony profil klienta Rex.Bid. Bez tego Copart też nie ma jednego właściwego cennika.
 5. Polityka odświeżania/versioningu: monitorowanie zmian Copart/TARIC/stawek podatkowych/FX i przechowywanie wersji użytej do historycznego estimate.
 
-**Wniosek:** rozpoczęcie technicznej implementacji modelu/adapterów stawek jest możliwe. Włączenie stałych domyślnych opłat IAA, transportu, cła i całkowitej ceny jako „potwierdzonej” nie jest jeszcze bezpieczne. Produkcyjny kalkulator powinien najpierw pokazywać zakres/opcjonalne pozycje i status niekompletności, dopóki nie wpłyną wymagane profile/quotes i walidacja ekspercka.
+**Wniosek po Fazie 2:** fundament techniczny i UI są zaimplementowane, ale pełnego kosztu importu nie wolno prezentować jako potwierdzonego. Brakujące pozycje pozostają unknown i blokują sumę. Suma orientacyjna jest możliwa dopiero po wypełnieniu wszystkich pozycji oraz podaniu jawnego kursu UI ze źródłem i datą; wtedy status wyniku pozostaje estimated/configurable.
+## 11. Faza 2 — zaimplementowany fundament (lokalnie)
+
+- Silnik obliczeń znajduje się w public/rexbid-calculator.js, a wersjonowane dane stawek w public/rexbid-calculator-rates.js. Moduły działają w przeglądarce i są eksportowalne do testów Node; nie zmieniają API, Workera ani D1.
+- Każda pozycja wyniku ma kwotę/null, walutę, status confirmed | configurable | estimated | unknown, źródło, checked_at i effective_from. Dla stawek Copart effective_from pozostaje null, bo publiczne źródło nie określiło tej daty.
+- Copart zawiera wyłącznie jawnie wybierane wartości z publicznej strony Standard Pricing dla standardowego pojazdu + clean/non-clean + secured + Pre-Bid oraz udokumentowane przedziały 1,000–1,199.99, 5,000–5,499.99, 10,000–14,999.99 oraz co najmniej 15,000 USD. Kwoty i składniki są widoczne w źródle, ale ich mapowanie na Schedule A/B/C/D nie zostało potwierdzone. Oficjalna strona Schedule A–D pokazuje inne wartości (np. clean przy $5,000: Schedule A $525, podczas gdy Standard Pricing pokazuje $750), a wybór zależy od profilu konta/licencji, wolumenu, liczby bidder accounts oraz płatności. Dlatego nie nazywamy tych pozycji Schedule A: użytkownik może wybrać wariant tylko do orientacyjnego sprawdzenia, linie mają status `configurable`, a kalkulacja nie jest potwierdzoną wyceną opłaty Copart. Nieznany profil lub nieobsługiwany przedział pozostaje unknown. Pojazdy heavy/industrial nie są objęte wariantem. Title group nie jest rozpoznawany automatycznie z opisu dokumentu.
+- IAA fee pozostaje unknown z komunikatem „Wymaga aktualnego cennika IAA”; można wpisać kwotę z indywidualnej, aktualnej wyceny jako configurable.
+- Inland USA, ocean freight, port/docelowa obsługa, ubezpieczenie i pozostałe pozycje są puste/unknown; ręczne wartości są configurable, a jawne zero różni się od pustego pola.
+- Cło liczy się tylko z podanej podstawy oraz stawki TARIC; status confirmed wymaga potwierdzonego źródła i daty. Akcyza wymaga prawnej kategorii, podstawy i pojemności tam, gdzie ma zastosowanie. Zwolnień nie wyprowadza się z fuel_type; niepotwierdzone kategorie pozostają unknown. VAT 23% jest regułą potwierdzoną, ale wynik pozostaje configurable, gdy podstawa VAT wymaga potwierdzenia.
+- Kurs orientacyjny UI wymaga jawnej wartości, źródła i daty; interfejsy getIndicativeRate/getCustomsRate/getExciseRate są przygotowane, ale nie wykonują requestów i zwracają unknown. Kurs UI nie jest używany do podstaw celnych/akcyzowych.
+- Suma nie jest zwracana, gdy choć jedno wymagane pole jest unknown. Po uzupełnieniu wszystkich składników i kursu UI zwracana suma ma status estimated, jeśli nie wszystkie dane mają potwierdzoną proweniencję. To nadal nie jest oficjalne rozliczenie.
+- Niezależne testy Copart używają ręcznie sprawdzonych expected values z tabel Fazy 1 dla pięciu kwot zakupu; testują też brakujące wejścia, podatki, statusy, FX i wersję konfiguracji.
+
+## 12. Market benchmark — Bid.Cars / DreamBid
+
+**Data sprawdzenia: 2026-09-26. Benchmark konkurencji nie jest źródłem stawek Rex.Bid.** Publiczne kalkulatory sprawdzono w zwykłym widoku bez logowania. Nie użyto ich danych do konfiguracji Rex.Bid.
+
+### Zakres widocznych kalkulatorów
+
+| Obszar | Bid.Cars | DreamBid | Ograniczenie obserwacji |
+|---|---|---|---|
+| Auction fee | Ogólny kalkulator nie pokazał stałej opłaty dla konkretnego VIN/LOT; wskazuje szczegółowy kalkulator przy danym locie. | Publiczny widget ma pozycję Auction fees; scenariusz widoczny dla IAAI, bid $10,000, Abilene TX pokazał $1,200. | Jedna obserwacja bez ujawnienia składowych/profilu kupującego; nie jest stawką Rex.Bid. |
+| Transport USA | Wymaga aukcji, oddziału i portu; opisuje składnik jako Trucking. | LOT/VIN lub ręczna lokalizacja; widoczna trasa Abilene → Houston wyniosła $550. | Brak dopasowania identycznego LOT i trasy do Rex.Bid. |
+| Ocean freight | Formularz wymaga portu, wynik opisuje jako Shipping. | Widoczna trasa Houston → Rotterdam wyniosła $995. | Trasa/usługa nie muszą odpowiadać wycenie do Polski. |
+| Port / handling / paperwork | Jawne BidCars Fee (+ VAT/Tax), extra costs dla ograniczeń zakupu, hazardous cargo i oversize; dostępne różne punkty odbioru/dostawy. | Zagregowana karta Transport & paperwork wyniosła 4 860 PLN. | DreamBid nie rozbił publicznie tej kwoty na port, agencję, dokumenty i dostawę. |
+| Cło, VAT, akcyza | Ogólna strona shipping calculator nie ujawniła podatkowego breakdown. | Customs for EU pokazał €4,253, bez dostępnego rozbicia dla tego scenariusza. | Nie da się odtworzyć podstawy celnej ani metodologii z podsumowania. |
+| Kurs walutowy | Strona pomocy opisuje średni kurs NBP w dniu aukcji i wskazuje możliwe dodatkowe opłaty transferowe $10–50. | Widget pokazał USD/PLN 3.8404, EUR/PLN 4.3750, USD/EUR 0.8778, aktualizacja 2026-09-26 22:00, źródło NBP. | To publiczne wskazanie UI; nie potwierdza prawnego kursu konkretnej odprawy. |
+| Opłata usługi własnej | Osobna pozycja BidCars Fee (+ VAT/Tax). | Strona główna deklaruje stałą opłatę 1 999 PLN netto; widget nie pokazał jednoznacznie, czy i gdzie ta opłata wchodzi do testowej sumy. | Różne ścieżki i warunki mogą mieć inny zakres. |
+| Zmienne wejściowe | Aukcja/oddział, kraj/port docelowy, typ pojazdu; dodatki dla ograniczeń zakupu, cargo niebezpiecznego i oversize. | VIN/LOT lub ręczna lokalizacja, oferta, klasa pojazdu oraz opcje Hybrid/Electric, wybranych stanów i Protection plan. | Nie wszystkie założenia są widoczne w skróconym podsumowaniu. |
+
+### Ręcznie zaobserwowany punkt DreamBid (nie to samo auto)
+
+Publiczny kalkulator, scenariusz IAAI Abilene TX i oferta $10,000, pokazał: auction fees $1,200; Abilene→Houston $550; Houston→Rotterdam $995; customs value/price $12,745; Customs for EU €4,253; Transport & paperwork 4 860 PLN; total 72 413 PLN. Widoczne pozycje USD sumują się do $12,745 (10,000 + 1,200 + 550 + 995). Nie znamy profilu fee ani pełnego modelu podatkowego dla VIN, dlatego to wyłącznie benchmark rynkowy.
+
+Bid.Cars skonfigurowano w publicznym interfejsie dla Copart/Houston/Poland/Gdynia, lecz kalkulator nie wyświetlił wyniku w dostępnej sesji. Nie zapisujemy niezaobserwanych kwot. Nie udało się uzyskać kilku rekordów o identycznym VIN/LOT, platformie, lokalizacji i cenie jednocześnie w Rex.Bid, Bid.Cars i DreamBid; publiczne kalkulatory wymagają danych konkretnego lotu, a katalogu Rex.Bid nie udało się odczytać z tej sesji. Tabela porównania tych samych aut pozostaje więc niewykonana, zamiast wypełniać ją pozornymi dopasowaniami.
+
+### Różnice i reverse validation
+
+- **confirmed difference:** konkurenci pokazują shipping/service albo zagregowane customs/transport cards; Rex.Bid pokazuje poszczególne pozycje i nie tworzy sumy, jeśli wymagane dane mają status unknown.
+- **different business assumption:** publiczne kalkulatory konkurencji prezentują usługę end-to-end dla lotu/lokalizacji. Rex.Bid nie ma własnych datowanych ofert spedytora ani potwierdzonego profilu kupującego; inland/freight/IAA pozostają unknown/configurable.
+- **unknown benchmark methodology:** w dostępnych podsumowaniach nie widać pełnej podstawy customs value, klasy CN/origin, profilu fee aukcyjnej, rozbicia VAT/akcyzy ani tego, co zawiera Transport & paperwork.
+- **possible Rex.Bid error (potwierdzona niezgodność tabel):** wcześniejszy UI błędnie nazwał wartości z `Standard Pricing` tabelą Schedule A. Oficjalna tabela Schedule A–D daje inne kwoty; np. clean $5,000 to $525 w A, $725 w C, podczas gdy publiczna tabela Standard Pricing pokazuje $750. UI i konfiguracja zostały skorygowane: nie deklarują Schedule A, pokazują wymóg dopasowania profilu i oznaczają obliczone fee jako `configurable`. Brakuje nadal zweryfikowanej faktury/wyceny dla profilu kupującego Rex.Bid, więc żaden wariant nie jest potwierdzoną ceną końcową dla użytkownika.
+
+### Kontrolne kwoty Rex.Bid z wybranej tabeli Standard Pricing
+
+Wartości poniżej to niezależne test fixtures dla wskazanego źródłowego wariantu (clean/non-clean, secured, Pre-Bid); nie są potwierdzeniem, że ten wariant dotyczy konta konkretnego użytkownika. Wszystkie linie pozostają `configurable`.
+
+| Oferta | Clean: suma buyer + Pre-Bid + gate + environmental | Non-clean: suma tych składników |
+|---:|---:|---:|
+| $1,000 | $473.00 | $560.00 |
+| $5,000 | $928.00 | $995.00 |
+| $10,000 | $1,058.00 | $1,250.00 |
+| $25,000 | $2,020.50 | $2,125.00 |
+| $50,000 | $3,833.00 | $4,000.00 |
+
+Zakresy pomiędzy opublikowanymi/zaimplementowanymi przedziałami pozostają `unknown`, bez interpolacji. Nie uwzględniamy opłat warunkowych (np. storage, late payment, relist, title mailing, finansowanie), bo zależą od zdarzeń lub nie są częścią obliczonego scenariusza.
+
+### Źródła benchmarku
+
+- [Bid.Cars public calculator](https://bid.cars/en/calculator) — trasa, typ pojazdu, Trucking, Shipping, BidCars Fee (+ VAT/Tax) i koszty dodatkowe.
+- [Bid.Cars help: home delivery](https://bid.cars/en/help/home-delivery) — wskazany kurs UI oraz możliwe koszty nieuwzględnione.
+- [DreamBid public calculator](https://dreambid.pl/en/calculator) — wejście VIN/LOT/location, offer amount i publiczny breakdown sprawdzony 2026-09-26.
+- [DreamBid homepage](https://dreambid.pl/en) — deklarowana opłata usługowa i zakres usługi.
+- [Copart US Member Fees](https://www.copart.com/content/us/en/member-fees) oraz [Copart Schedule A–D fee information](https://www.copart.com/Content/us/en/premier-member-fees-demo) — jedyne właściwe źródła do potwierdzania tabel Rex.Bid; konkurencja pozostaje benchmarkiem.

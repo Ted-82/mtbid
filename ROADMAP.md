@@ -58,14 +58,14 @@ Production status reflects the owner-confirmed `b25c452` / Worker version `a1e01
 
 ### 8. Import-cost estimator — source-backed model
 
-- **Phase 1 research/model documented:** see `docs/CALCULATOR_MODEL.md` (checked 2026-09-26). No production calculator arithmetic or rates were changed.
+- **Phase 1 research + Phase 2 calculator foundation implemented locally:** see docs/CALCULATOR_MODEL.md, public/rexbid-calculator.js, public/rexbid-calculator-rates.js, and public/car.html. No deploy or unconfirmed fee assumption was added.
 - Copart's official US page confirms tiered fees and differences by clean/non-clean title group, secure/unsecure payment, online bid type, gate/environmental and conditional charges. The page presents multiple schedules; a buyer profile and source title code must be selected before a fee can be called confirmed.
 - IAA's official US pages confirm a Buyer Fee Schedule and logged-in vehicle-specific Cost Calculator, but the public US fee page did not expose a readable complete numeric schedule in this research. Do not substitute Canadian rates, brokers, or blogs. Obtain account-specific IAA breakdowns.
 - Facility→port, ocean freight, insurance, destination fees and inland Poland delivery have no verified universal rate. Collect dated route/vehicle-specific forwarder quotes and model their included/excluded items separately.
 - Current official sources confirm Poland's 23% standard VAT and passenger-car excise categories/rates, with HEV/PHEV/EV distinctions and conditional exemptions. The actual customs code, vehicle origin/proof, customs valuation, tax base and customs exchange rate must be resolved for each scenario.
 - TARIC/Access2Markets research found that US location is not proof of US origin; some listed CN codes may have a conditional 0% US-origin preference under Regulation (EU) 2026/1455 while a 10% third-country rate is shown for an example CN code. Always query the exact code, origin, date and proof conditions; never hardcode a universal 10% or 0% duty.
-- Next: obtain current US IAA fee examples, choose the buyer profile Rex.Bid models, collect forwarder quotes and validate customs valuation/tax treatment with a Polish customs agent. Then implement versioned rate profiles with `effective_from/to`, line-level provenance and an incomplete result when required inputs are missing.
-- Keep the current browser calculator math untouched until those inputs are confirmed. All line items must identify amount, currency, source/source kind, checked/effective date and `confirmed/configurable/estimated` status. No estimate is a guaranteed payable total or legal/tax advice.
+- Current calculator shows Kalkulacja niepełna and no total when a required amount, tax input, or dated UI FX rate is unknown. Copart covers only selected secured Pre-Bid profiles and documented price bands; IAA remains unpriced. Line items expose amount/null, currency, provenance, checked/effective date and confirmed/configurable/estimated/unknown status. Next: obtain IAA schedules, buyer profile, forwarder quotes and customs-agent validation; then populate versioned rates and an NBP-backed indicative FX adapter.
+- The engine can show an estimated total only after all required amounts and a dated/source-backed indicative UI FX rate are provided. UI FX is not the legal customs/excise rate. No estimate is a guaranteed payable total or legal/tax advice.
 
 ### 9. Durable customer features
 

@@ -1251,6 +1251,32 @@ main{padding-top:22px}
 .condition-more .spec-grid,.spec-more .spec-grid{padding-top:10px}
 @media(max-width:600px){.condition-summary-row{font-size:11px}.condition-summary-row strong{font-size:10px}}
 
+
+/* Rex.Bid calculator Phase 2 */
+.import-calc{margin-top:0;padding:20px;border-radius:14px}
+.import-calc h2{margin:0 0 6px;font-size:20px;color:#17202a}
+.import-calc .calc-sub,.calc-tax-inputs p{color:#66727e;font-size:11px;line-height:1.5;margin:0 0 14px}
+.calc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.calc-field label{display:block;color:#66727e;font-size:11px;margin-bottom:5px}
+.calc-field-note{display:block;color:#66727e;font-size:10px;line-height:1.45;margin-top:6px}
+.calc-field input,.calc-field select{width:100%;height:44px;background:#fff;color:#17202a;border:1px solid #d5dce2;border-radius:8px;padding:0 10px;outline:none}
+.calc-field input:focus,.calc-field select:focus{border-color:#f0a800;box-shadow:0 0 0 3px rgba(240,168,0,.12)}
+.calc-tax-inputs{margin-top:14px;border-top:1px solid #e3e7eb}
+.calc-tax-inputs summary{padding:12px 0;color:#46596a;cursor:pointer;font-size:12px;font-weight:800}
+.calc-tax-inputs p{margin-bottom:10px}
+.calc-result{margin-top:14px;border:1px solid #dfe4e9;border-radius:10px;overflow:hidden;background:#fff}
+.calc-line{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:8px 12px;padding:10px 12px;border-bottom:1px solid #e3e7eb;font-size:12px;color:#17202a}
+.calc-line span{color:#66727e}.calc-line strong{text-align:right;font-weight:800}
+.calc-line-note{grid-column:1/-1;color:#6c7782;font-size:10px;line-height:1.45}
+.calc-state{font-size:9px;color:#6a7480;text-align:right;white-space:nowrap}
+.calc-state-confirmed{color:#21643b}.calc-state-configurable{color:#8a6500}.calc-state-estimated{color:#8054a5}.calc-state-unknown{color:#a13d37}
+.calc-completeness{padding:12px;font-size:13px;font-weight:900}
+.calc-completeness.is-incomplete{background:#fff4e6;color:#805717}.calc-completeness.is-complete{background:#edf8f1;color:#21643b}
+.calc-warning{margin-top:10px;padding:11px 13px;border:1px solid #e4c66d;background:#fff8e6;border-radius:8px;color:#6d5514;font-size:11px;line-height:1.5}
+.calc-warning ul{margin:6px 0 0;padding-left:18px}.calc-warning li+li{margin-top:3px}
+.calc-note{margin-top:10px;padding:10px 12px;border-radius:8px;background:#f7f8fa;color:#66727e;font-size:10px;line-height:1.55}
+@media(max-width:760px){.calc-grid{grid-template-columns:1fr 1fr}.calc-line{grid-template-columns:minmax(0,1fr) auto}.calc-state{grid-column:1/-1;text-align:left}}
+@media(max-width:480px){.calc-grid{grid-template-columns:1fr}.import-calc{padding:15px}}
 </style>
 
 <link rel="stylesheet" href="/rexbid-brand.css" />
@@ -1313,6 +1339,8 @@ main{padding-top:22px}
   </div>
 </div>
 
+<script src="/rexbid-calculator-rates.js"></script>
+<script src="/rexbid-calculator.js"></script>
 <script src="/rexbid-storage.js"></script>
 <script>
   const API_BASE = "/api";
@@ -2668,23 +2696,40 @@ main{padding-top:22px}
           </section>
 
           <section class="panel import-calc" id="importCalculator">
-            <h2>Szacunkowy koszt importu</h2>
-            <div class="calc-sub">Wartości są edytowalne. Kalkulator pokazuje orientacyjny koszt od zakupu na aukcji do Polski; nie zastępuje odprawy celnej ani wyceny firmy transportowej.</div>
-            <div class="calc-grid">
-              <div class="calc-field"><label>Kwota bazowa auta do kalkulacji (USD)</label><input id="calcBid" type="number" min="0" step="1"></div>
-              <div class="calc-field"><label>Kurs USD → PLN</label><input id="calcRate" type="number" min="0" step="0.0001" value="3.65"></div>
-              <div class="calc-field"><label>Prowizja aukcyjna (USD)</label><input id="calcAuctionFee" type="number" min="0" step="1" value="0"></div>
-              <div class="calc-field"><label>Transport do portu USA (USD)</label><input id="calcUsPort" type="number" min="0" step="1" value="900"></div>
-              <div class="calc-field"><label>Fracht morski (USD)</label><input id="calcSea" type="number" min="0" step="1" value="1400"></div>
-              <div class="calc-field"><label>Port → Polska (USD)</label><input id="calcPoland" type="number" min="0" step="1" value="450"></div>
-              <div class="calc-field"><label>Cło (%)</label><input id="calcDuty" type="number" min="0" step="0.1" value="10"></div>
-              <div class="calc-field"><label>VAT (%)</label><input id="calcVat" type="number" min="0" step="0.1" value="23"></div>
-              <div class="calc-field"><label>Akcyza (%)</label><input id="calcExcise" type="number" min="0" step="0.01"></div>
-              <div class="calc-field"><label>Broker / dokumenty / inne (USD)</label><input id="calcOther" type="number" min="0" step="1" value="300"></div>
-            </div>
-            <div class="calc-result" id="calcResult"></div><div class="calc-warning" id="calcWarning"></div>
-            <div class="calc-note">Wynik jest szacunkiem. Wartości domyślne są założeniami kalkulatora, a nie potwierdzeniem aktualnych stawek urzędowych. Rzeczywiste opłaty, kursy, podstawa podatków i koszty transportu mogą się różnić; zweryfikuj je przed zakupem.</div>
-          </section>
+  <h2>Szacunkowy koszt importu</h2>
+  <div class="calc-sub">Kalkulator pokazuje potwierdzone składniki i jawnie wskazuje braki. To szacunek informacyjny, nie oferta transportowa ani rozliczenie celne/podatkowe.</div>
+  <div class="calc-grid">
+    <div class="calc-field"><label for="calcPurchasePrice">Planowana cena zakupu (USD)</label><input id="calcPurchasePrice" type="number" min="0" step="1" inputmode="decimal" placeholder="Wpisz kwotę"></div>
+    <div class="calc-field" data-calculator-copart-profile><label for="calcCopartProfile">Copart — wariant opłaty do potwierdzenia</label><select id="calcCopartProfile"><option value="">Wybierz wariant tylko po potwierdzeniu profilu</option><option value="clean_secured_prebid">Clean title · secured · Pre-Bid</option><option value="nonclean_secured_prebid">Non-clean title · secured · Pre-Bid</option></select><small class="calc-field-note">Kwoty pochodzą z publicznej tabeli Standard Pricing. Nie potwierdzono, czy odpowiada ona Schedule A/B/C/D dla Twojego konta. Zastosowanie wymaga weryfikacji profilu członkowskiego, standardowego typu pojazdu, grupy title, płatności secured i Pre-Bid. W razie wątpliwości pozostaw wybór pusty.</small></div>
+    <div class="calc-field"><label for="calcAuctionFeeOverride">Opłata aukcyjna z aktualnej wyceny (USD)</label><input id="calcAuctionFeeOverride" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Opcjonalnie, jeśli znasz"></div>
+    <div class="calc-field"><label for="calcUsInland">Transport facility → port USA (USD)</label><input id="calcUsInland" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Wymaga oferty"></div>
+    <div class="calc-field"><label for="calcOceanFreight">Fracht morski (USD)</label><input id="calcOceanFreight" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Wymaga oferty"></div>
+    <div class="calc-field"><label for="calcDestinationCosts">Port docelowy / obsługa (USD)</label><input id="calcDestinationCosts" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Wymaga oferty"></div>
+    <div class="calc-field"><label for="calcInsurance">Ubezpieczenie transportu (USD)</label><input id="calcInsurance" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Wpisz ofertę lub 0"></div>
+    <div class="calc-field"><label for="calcOtherCosts">Pozostałe koszty / broker (USD)</label><input id="calcOtherCosts" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Wpisz ofertę lub 0"></div>
+  </div>
+  <details class="calc-tax-inputs">
+    <summary>Dane celne i podatkowe — opcjonalne, wymagają potwierdzenia</summary>
+    <p>Nie wyliczamy cła ani podatków z samego VIN, lokalizacji aukcji lub etykiety paliwa. Wpisz podstawy/klasyfikację potwierdzone dla konkretnej odprawy.</p>
+    <div class="calc-grid">
+      <div class="calc-field"><label for="calcCustomsValuePln">Wartość celna (PLN)</label><input id="calcCustomsValuePln" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Potwierdź dla odprawy"></div>
+      <div class="calc-field"><label for="calcDutyRate">Stawka TARIC (%)</label><input id="calcDutyRate" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Kod CN + pochodzenie + data"></div>
+      <div class="calc-field"><label for="calcDutySource">Źródło / kod taryfy</label><input id="calcDutySource" type="text" placeholder="Np. link TARIC lub dokument"></div>
+      <div class="calc-field"><label for="calcDutyCheckedAt">Data sprawdzenia stawki</label><input id="calcDutyCheckedAt" type="date"></div>
+      <div class="calc-field"><label for="calcExciseClass">Prawna kategoria akcyzy</label><select id="calcExciseClass"><option value="">Wybierz po weryfikacji dokumentów</option><option value="other_passenger">Pozostały samochód osobowy</option><option value="hev_non_plugin">HEV bez ładowania z zewnątrz</option><option value="hybrid_plugin">Hybryda plug-in</option><option value="electric">Elektryczny</option><option value="hydrogen">Wodorowy</option></select></div>
+      <div class="calc-field"><label for="calcEngineCc">Pojemność silnika (cm³)</label><input id="calcEngineCc" type="number" min="1" step="1" inputmode="numeric" placeholder="Potwierdź w dokumentach"></div>
+      <div class="calc-field"><label for="calcExciseExemption">Zwolnienie HEV/EV/wodór</label><select id="calcExciseExemption"><option value="unknown">Nieustalone</option><option value="not_eligible">Potwierdzono brak zwolnienia</option><option value="eligible">Potwierdzono kwalifikację — wymaga dokumentów</option></select></div>
+      <div class="calc-field"><label for="calcExciseBasePln">Podstawa akcyzy (PLN)</label><input id="calcExciseBasePln" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Potwierdź z agentem"></div>
+      <div class="calc-field"><label for="calcVatBasePln">Podstawa import VAT (PLN)</label><input id="calcVatBasePln" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Potwierdź z agentem"></div>
+      <div class="calc-field"><label for="calcUiFxRate">Orientacyjny kurs UI USD → PLN</label><input id="calcUiFxRate" type="number" min="0" step="0.0001" inputmode="decimal" placeholder="Wpisz kurs i wskaż źródło"></div>
+      <div class="calc-field"><label for="calcUiFxSource">Źródło kursu orientacyjnego</label><input id="calcUiFxSource" type="text" placeholder="Np. NBP Table A"></div>
+      <div class="calc-field"><label for="calcUiFxCheckedAt">Data kursu orientacyjnego</label><input id="calcUiFxCheckedAt" type="date"></div>
+    </div>
+  </details>
+  <div class="calc-result" id="calcResult" aria-live="polite"></div>
+  <div class="calc-warning" id="calcWarning" role="status"></div>
+  <div class="calc-note">Brak pola oznacza brak danych, nigdy koszt równy zero. Kurs orientacyjny UI, kurs celny i kurs właściwy dla akcyzy to odrębne wartości. Interfejs kursów NBP jest przygotowany, ale źródła kursów rozliczeniowych nie są jeszcze podłączone; nie pokazujemy fałszywie precyzyjnej sumy.</div>
+</section>
         </div>
 
         <aside class="right-column">
@@ -2731,10 +2776,9 @@ main{padding-top:22px}
           <section class="info-card forecast-card">
             <div class="info-card-head"><h3>Prognozowany koszt sprowadzenia</h3></div>
             <div class="info-card-body">
-              <div class="forecast-total"><small>Orientacyjnie do Polski</small><strong id="topForecast">Obliczanie…</strong></div>
-              <div class="kv"><span>Cena auta</span><strong>${money(getAuctionBid())}</strong></div>
-              <div class="kv"><span>Transport i opłaty</span><strong>wg parametrów kalkulatora</strong></div>
-              <div class="kv"><span>Cło / VAT / akcyza</span><strong>wg kalkulatora</strong></div>
+              <div class="forecast-total"><small>Szacunkowy koszt importu</small><strong id="topForecast">Kalkulacja niepełna</strong></div>
+              <div class="kv"><span>Cena z karty (nie jest ceną zakupu)</span><strong>${money(getAuctionBid())}</strong></div>
+              <div class="kv"><span>Pełne wyliczenie</span><strong>Wymaga potwierdzonych stawek i ofert</strong></div>
               <a class="action primary" style="display:flex;align-items:center;justify-content:center;margin-top:10px" href="#importCalculator">Zobacz pełne wyliczenie</a>
             </div>
           </section>
@@ -3063,125 +3107,29 @@ main{padding-top:22px}
 
 
 /* IMPORT COST CALCULATOR */
-  function guessEngineCc() {
-    const raw = String(first(
-      getDescription(["Engine","EngineSize","EngineInformation"]),
-      valueFrom(["DisplLiters"])
-    ) || "");
-    const m = raw.match(/([0-9]+(?:[.,][0-9]+)?)\s*L/i);
-    if (m) return Math.round(parseFloat(m[1].replace(",",".")) * 1000);
-    const cc = Number(valueFrom(["EngineCC","EngineCc","CubicCentimeters","DisplacementCC"]));
-    return Number.isFinite(cc) && cc > 0 ? cc : 0;
-  }
-
-  function guessExciseRate() {
-    const engine = String(first(getDescription(["Engine","EngineSize","EngineInformation"]),"")).toLowerCase();
-    const fuel = String(first(getDescription(["FuelType","FuelTypeDesc"]),"")).toLowerCase();
-    const cc = guessEngineCc();
-    const hybrid = /hybrid|mhev|phev/.test(engine + " " + fuel);
-    const electric = /electric|bev|ev\b/.test(engine + " " + fuel) && !/hybrid|phev/.test(engine + " " + fuel);
-
-    if (electric) return 0;
-    if (hybrid && cc > 0 && cc <= 2000) return 1.55;
-    if (hybrid && cc > 2000 && cc <= 3500) return 9.30;
-    if (cc > 2000) return 18.60;
-    return 3.10;
-  }
-
   function updateForecastFromCalculator() {
     const topForecast = document.getElementById("topForecast");
-    if (!topForecast) return;
-    const rate = Number(document.getElementById("calcRate")?.value || 0);
-    const result = document.getElementById("calcResult");
-    if (!rate || !result) return;
-    const totalLine = result.querySelector(".calc-total strong");
-    if (totalLine) topForecast.textContent = totalLine.textContent.split("≈").pop().trim();
+    if (topForecast) topForecast.textContent = "Kalkulacja niepełna";
   }
 
   function initImportCalculator() {
-    const bid = document.getElementById("calcBid");
-    const excise = document.getElementById("calcExcise");
-    if (!bid || !excise) return;
-
-    const currentBid = Number(getAuctionBid());
-    bid.value = Number.isFinite(currentBid) ? currentBid : 0;
-    excise.value = guessExciseRate().toFixed(2);
-
-    ["calcBid","calcRate","calcAuctionFee","calcUsPort","calcSea","calcPoland","calcDuty","calcVat","calcExcise","calcOther"]
-      .forEach(id => document.getElementById(id)?.addEventListener("input", updateImportCalculator));
-
-    updateImportCalculator();
+    const root = document.getElementById("importCalculator");
+    if (!root || !window.RexBidCalculator) return;
+    const platform = String(car.platform || car.source || "").toLowerCase();
+    const profileField = root.querySelector("[data-calculator-copart-profile]");
+    if (profileField) profileField.hidden = !platform.includes("copart");
+    window.RexBidCalculator.bindCalculator({
+      root, platform,
+      onUpdate(result) {
+        const topForecast = document.getElementById("topForecast");
+        if (topForecast) topForecast.textContent = result.complete && result.total
+          ? new Intl.NumberFormat("pl-PL", { style: "currency", currency: "PLN" }).format(result.total.amount)
+          : "Kalkulacja niepełna";
+      }
+    });
   }
 
-  function updateImportCalculator() {
-    const n = id => Number(document.getElementById(id)?.value || 0);
-    const bid = n("calcBid");
-    const rate = n("calcRate") || 1;
-    const auctionFee = n("calcAuctionFee");
-    const usPort = n("calcUsPort");
-    const sea = n("calcSea");
-    const poland = n("calcPoland");
-    const dutyRate = n("calcDuty") / 100;
-    const vatRate = n("calcVat") / 100;
-    const exciseRate = n("calcExcise") / 100;
-    const other = n("calcOther");
-
-    const customsBaseUsd = bid + auctionFee + usPort + sea;
-    const dutyUsd = customsBaseUsd * dutyRate;
-    const exciseBaseUsd = customsBaseUsd + dutyUsd;
-    const exciseUsd = exciseBaseUsd * exciseRate;
-    const vatBaseUsd = customsBaseUsd + dutyUsd + exciseUsd;
-    const vatUsd = vatBaseUsd * vatRate;
-    const totalUsd = customsBaseUsd + dutyUsd + exciseUsd + vatUsd + poland + other;
-    const totalPln = totalUsd * rate;
-
-    const lines = [
-      ["Cena auta", money(bid)],
-      ["Prowizja aukcyjna", money(auctionFee)],
-      ["Transport USA → port", money(usPort)],
-      ["Fracht morski", money(sea)],
-      ["Cło", money(dutyUsd)],
-      ["Akcyza", money(exciseUsd)],
-      ["VAT", money(vatUsd)],
-      ["Port → Polska", money(poland)],
-      ["Broker / dokumenty / inne", money(other)],
-      ["RAZEM", money(totalUsd) + " ≈ " + money(totalPln, "PLN")]
-    ];
-
-    const result = document.getElementById("calcResult");
-    if (result) {
-      result.innerHTML = lines.map((x,i) => `
-        <div class="calc-line ${i === lines.length-1 ? "calc-total" : ""}">
-          <span>${esc(x[0])}</span>
-          <strong>${esc(x[1])}</strong>
-        </div>
-      `).join("");
-    }
-
-    const topForecast = document.getElementById("topForecast");
-    if (topForecast) {
-      topForecast.textContent = Number.isFinite(totalPln)
-        ? totalPln.toLocaleString("pl-PL", { maximumFractionDigits: 0 }) + " zł"
-        : "—";
-    }
-
-    const cc = guessEngineCc();
-    const warning = document.getElementById("calcWarning");
-    if (warning) {
-      const title = first(getInfo(["TitleSaleDoc"]),getSale(["TitleSaleDoc"]),valueFrom(["Title"]));
-      const notes = first(getInfo(["TitleSaleDocNotes"]),getSale(["Notes"]),valueFrom(["TitleNotes"]));
-      const titleText = String(title || "").toUpperCase() + " " + String(notes || "").toUpperCase();
-      const flags = [];
-      if (/PENDING|TBO|BILL\s*OF\s*SALE|DEALERS\s*ONLY/.test(titleText)) flags.push("title wymaga szczegółowej weryfikacji");
-      if (cc) flags.push(`pojemność użyta do podpowiedzi akcyzy: ${cc.toLocaleString("pl-PL")} cm³`);
-      warning.textContent = flags.length
-        ? "Uwaga: " + flags.join("; ") + "."
-        : "Kalkulator nie wykrył dodatkowych ostrzeżeń z danych aukcyjnych.";
-    }
-  }
-
-
-  let auctionRefreshTimer = null;
+    let auctionRefreshTimer = null;
   let auctionCountdownTimer = null;
 
   function startCountdown() {
