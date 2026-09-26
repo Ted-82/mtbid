@@ -8,10 +8,10 @@ Rex.Bid is a Polish-language vehicle-auction discovery and research product for 
 
 - Repository: [Ted-82/mtbid](https://github.com/Ted-82/mtbid)
 - Branch: `main`
-- Owner-confirmed production source commit: `b25c452` (`Refine Rex.Bid home and auction data semantics`)
-- Owner-confirmed deployed Worker Version ID: `a1e0199f-97c4-4e93-99ab-96041327d5c7`
+- Owner-confirmed GitHub checkpoint: `1d917d0` (Provider Independence)
+- Owner-confirmed deployed Worker Version ID: `241cfe3e-663d-49c3-bd2b-b29e8f20cb80`
 - Local Git base when provider-independence work began: `80128cc` (`Document Rex.Bid architecture and production roadmap`)
-- Current provider-independence changes are local and **not deployed**; do not represent them as production behavior.
+- Provider Independence is deployed and production-regression checked at the version above; mark this architecture checkpoint **DONE**.
 - Worker: `mtbid`
 - Production URL: <https://mtbid.tedn828.workers.dev>
 - Wrangler configuration file: `wrangler.jsonc`
@@ -25,7 +25,7 @@ The production checkpoint and owner acceptance above are supplied by the owner. 
 
 The Cloudflare Worker in `worker.js` serves the JSON API and static assets. The browser calls same-origin `/api/...` routes. The current upstream provider is Apibara. Wrangler binds the application D1 database as `REXBID_DB`.
 
-Provider access now has a local adapter boundary in `providers/apibara.js`; it owns approved upstream operations, URL construction, the `X-API-Key` header from only `env.APIBARA_API_KEY`, timeout, manual redirects, safe transport errors, and Apibara-to-Rex normalization. `providers/contract.js` defines the canonical entities and provider registry. The Worker uses the registry and D1 persistence remains outside the adapter. This refactor is local/unreleased; production remains at the checkpoint above. Never print, copy, fixture, or commit secret values.
+Provider access has an adapter boundary in `providers/apibara.js`; it owns approved upstream operations, URL construction, the `X-API-Key` header from only `env.APIBARA_API_KEY`, timeout, manual redirects, safe transport errors, and Apibara-to-Rex normalization. `providers/contract.js` defines the canonical entities and provider registry. The Worker uses the registry and D1 persistence remains outside the adapter. This provider-independence refactor is deployed in Worker version `241cfe3e-663d-49c3-bd2b-b29e8f20cb80` (GitHub checkpoint `1d917d0`). Never print, copy, fixture, or commit secret values.
 
 ### Worker API routes
 
@@ -149,9 +149,9 @@ Keep tests offline: fixtures/mocks must not call production Apibara or D1. Produ
 
 ## CURRENT WORK / CONTINUE HERE
 
-1. Provider-independence checkpoint is locally verified: `node --test` 66/66, provider/Worker syntax checks and `git diff --check` pass. Frontend files, API routes and D1 migrations were not changed by the adapter refactor.
-2. Commit/push did **not** complete: `git add` failed twice because Windows denied creation of `.git/index.lock`, including after the workspace was granted access to `.git`. Do not work around by editing the index manually. Production is still the owner-confirmed checkpoint above.
-3. Provider checkpoint files to stage/commit when `.git` writes work: `worker.js`, `providers/apibara.js`, `providers/contract.js`, `tests/history.test.cjs`, `tests/product-feedback.test.cjs`, `tests/provider-independence.test.cjs`, `tests/fixtures/provider-b-vehicle.json`, `PROJECT_HANDOFF.md`, `ARCHITECTURE.md`, `ROADMAP.md`. No UI, `.env`, `.wrangler`, ZIP, backup, D1 migration, or production data files belong in that checkpoint.
-4. Data Sync Foundation is the next local design step. Review `ARCHITECTURE.md` → “Data Sync Foundation” and `docs/proposals/0002_provider_sync_foundation.sql`. The SQL is a proposal outside Wrangler's migrations directory, was tested only in in-memory SQLite after `0000`/`0001`, and has **not** been applied anywhere.
+1. Provider Independence is **DONE** and production-regression checked on Worker version `241cfe3e-663d-49c3-bd2b-b29e8f20cb80`, corresponding to owner-provided GitHub checkpoint `1d917d0`. Read-only GET checks passed for `/`, `/api/database`, all three `/api/cars` variants, `/api/filters`, exact IAAI/Copart VIN lookups, exact LOT lookup, auction history with a real next-cursor request, IAAI Timed Auction fields, and seller extraction.
+2. D1 counts from `/api/database` were `vehicles=0`, `snapshots=0`, `auction_history=0` before and after these GET checks; no unexpected count change was observed. This only verifies the observed read-only regression run, not future sync operations.
+3. No product code was changed during the regression run. This handoff file records the production checkpoint update.
+4. Data Sync Foundation remains the next design step. Review `ARCHITECTURE.md` → “Data Sync Foundation” and `docs/proposals/0002_provider_sync_foundation.sql`. The SQL is a proposal outside Wrangler's migrations directory, tested only in in-memory SQLite after `0000`/`0001`, and has **not** been applied anywhere.
 5. Do not add a schedule/queue yet. First approve provider-source identity, per-source freshness/lease, idempotent page checkpointing, D1-first rollout conditions, and API rate budget. GET stays read-only and explicit protected sync remains the persistence trigger.
 6. Written provider data-rights confirmation remains a blocker before expanding durable storage, backfilling history, or retaining additional photos/raw payloads. The proposal adds no raw payload/media copies and does not modify existing PKs or rows.
