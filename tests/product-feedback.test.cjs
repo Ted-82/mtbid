@@ -7,7 +7,10 @@ const vm = require('node:vm');
 const root = path.resolve(__dirname, '..');
 const samples = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/apibara-live-observations.json'), 'utf8'));
 const ownerCases = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/owner-data-cases.json'), 'utf8'));
-const workerSource = fs.readFileSync(path.join(root, 'worker.js'), 'utf8').replace('export default {', 'globalThis.__worker = {');
+const workerSource = fs.readFileSync(path.join(root, 'worker.js'), 'utf8')
+  .replace('import apibaraModule from "./providers/apibara.js";', 'const apibaraModule = globalThis.__apibaraModule;')
+  .replace('import contract from "./providers/contract.js";', 'const contract = globalThis.__providerContract;')
+  .replace('export default {', 'globalThis.__worker = {');
 const indexSource = fs.readFileSync(path.join(root, 'public/index.html'), 'utf8');
 const carSource = fs.readFileSync(path.join(root, 'public/car.html'), 'utf8');
 
@@ -19,9 +22,9 @@ function extractFunctionBlock(source, name, nextName) {
 }
 
 function workerHelpers() {
-  const context = { URL, URLSearchParams, Request, Response, Headers, AbortController, console, fetch: async () => { throw new Error('network disabled in unit tests'); }, setTimeout, clearTimeout, setInterval, clearInterval, caches: { default: { match: async () => null, put: async () => {} } } };
+  const context = { URL, URLSearchParams, Request, Response, Headers, AbortController, __apibaraModule: require('../providers/apibara.js'), __providerContract: require('../providers/contract.js'), console, fetch: async () => { throw new Error('network disabled in unit tests'); }, setTimeout, clearTimeout, setInterval, clearInterval, caches: { default: { match: async () => null, put: async () => {} } } };
   vm.createContext(context);
-  vm.runInContext(`${workerSource}\nglobalThis.helpers = { normalizeHistoryRecord, normalizeApibaraHistory, normalizeVehicle };`, context);
+  vm.runInContext(`${workerSource}\nglobalThis.helpers = { normalizeHistoryRecord, normalizeApibaraHistory: normalizeProviderHistory, normalizeVehicle };`, context);
   return context.helpers;
 }
 

@@ -1,0 +1,14 @@
+{
+  "vehicleRef": "provider-b-listing-9",
+  "market": "IAAI",
+  "identity": { "chassis": "1HGCM82633A123456", "stock": "LOT-123" },
+  "description": { "modelYear": 2021, "manufacturer": "Honda", "nameplate": "Accord", "trimName": "Sport" },
+  "sale": { "phase": "Timed", "startsAt": "2026-10-10T14:00:00Z", "timedClose": "2026-10-10T15:00:00Z", "timed": true },
+  "money": { "leadingOffer": 500, "instantPurchase": 7000, "settledAmount": null, "currencyCode": "USD" },
+  "sellerRecord": { "legalName": "Example Insurance", "category": "INS" },
+  "vehicleState": { "mainDamage": "Front End", "additionalDamage": "Minor Dent", "operation": "Run & Drive", "keysIncluded": true },
+  "paperwork": { "display": "Salvage", "registrationPossible": true, "exportPossible": true },
+  "images": { "primary": ["https://example.test/photo.jpg"], "small": ["https://example.test/thumb.jpg"], "videoAvailable": false, "rotationAvailable": true },
+  "place": { "displayName": "Example, CA" },
+  "distance": { "miles": 42000 }
+}

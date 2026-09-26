@@ -11,10 +11,14 @@ const carSource = fs.readFileSync(path.join(root, 'public/car.html'), 'utf8');
 const indexSource = fs.readFileSync(path.join(root, 'public/index.html'), 'utf8');
 
 function loadWorker(fetchImpl = async () => { throw new Error('Unexpected network request'); }, timer = {}) {
-  const source = workerSource.replace('export default {', 'globalThis.__worker = {');
+  const source = workerSource
+    .replace('import apibaraModule from "./providers/apibara.js";', 'const apibaraModule = globalThis.__apibaraModule;')
+    .replace('import contract from "./providers/contract.js";', 'const contract = globalThis.__providerContract;')
+    .replace('export default {', 'globalThis.__worker = {');
   assert.notEqual(source, workerSource, 'Worker module export marker should exist');
   const context = {
-    URL, URLSearchParams, Request, Response, Headers, AbortController, console: timer.console || console,
+    URL, URLSearchParams, Request, Response, Headers, AbortController,
+    __apibaraModule: require('../providers/apibara.js'), __providerContract: require('../providers/contract.js'), console: timer.console || console,
     fetch: fetchImpl,
     setTimeout: timer.setTimeout || setTimeout,
     clearTimeout: timer.clearTimeout || clearTimeout,
@@ -22,7 +26,7 @@ function loadWorker(fetchImpl = async () => { throw new Error('Unexpected networ
     caches: { default: { match: async () => null, put: async () => {} } }
   };
   vm.createContext(context);
-  vm.runInContext(`${source}\nglobalThis.__history = { normalizeHistoryRecord, normalizeApibaraHistory, normalizeApibaraVehicleList, historyEventHash, saveOfficialHistory, saveVehicle, saveApiVehicle, syncVehicle, syncVehicleList, getSavedAuctionHistory, requestApibara, fetchApibaraVehicle, searchApibaraVehicles, fetchApibaraHistory, fetchApibaraVehicles, fetchApibaraVehicleFilters, getVehicleFilters, buildApibaraUrl, ApibaraRequestError, apibaraErrorResponse };`, context);
+  vm.runInContext(`${source}\nglobalThis.__history = { normalizeHistoryRecord, normalizeVehicle, mergeProviderPayload, normalizeApibaraHistory: normalizeProviderHistory, normalizeApibaraVehicleList: normalizeProviderVehicleList, historyEventHash, saveAuctionHistory, saveVehicle, saveApiVehicle, syncVehicle, syncVehicleList, getSavedAuctionHistory, requestApibara: (env, spec) => apibaraProvider.request(env, spec), fetchApibaraVehicle: fetchProviderVehicle, searchApibaraVehicles: searchProviderVehicles, fetchApibaraHistory: fetchProviderHistory, fetchApibaraVehicles: fetchProviderVehicles, fetchApibaraVehicleFilters: fetchProviderFilters, getVehicleFilters, buildApibaraUrl: apibaraProvider.buildRequestUrl, ApibaraRequestError: ProviderError, apibaraErrorResponse: providerErrorResponse, provider: apibaraProvider };`, context);
   return context;
 }
 
@@ -93,7 +97,7 @@ class SyncMemoryD1 {
           const row = Object.fromEntries(columns.map((column, index) => [column, args[index]]));
           if (table === 'vehicles') {
             const old = db.vehicles.find(item => item.vehicle_key === row.vehicle_key);
-            if (old) Object.assign(old, row);
+            if (old) Object.assign(old, Object.fromEntries(Object.entries(row).filter(([, value]) => value !== null && value !== undefined && value !== '')));
             else db.vehicles.push(row);
           } else {
             row.id = db.snapshots.length + 1;
@@ -482,7 +486,7 @@ test('requestApibara logs safe fetch diagnostics and redacts secrets and upstrea
   }), error => error.code === 'UPSTREAM' && error.status === null);
 
   assert.equal(logs.length, 1);
-  assert.match(logs[0], /Apibara request diagnostic/);
+  assert.match(logs[0], /Provider transport diagnostic/);
   assert.match(logs[0], /"stage":"fetch"/);
   assert.match(logs[0], /"errorName":"TypeError"/);
   assert.match(logs[0], /"errorMessage":"fetch failed \[REDACTED\]"/);
@@ -562,17 +566,35 @@ test('same event ID updates one D1 record when status and price change', async (
   const { __history } = loadWorker();
   const db = new MemoryD1();
   const env = { REXBID_DB: db };
-  await __history.saveOfficialHistory(env, 'copart:VIN-1', __history.normalizeApibaraHistory({ data: [fixtures.eventFirst] }, fixtures.vehicle));
-  await __history.saveOfficialHistory(env, 'copart:VIN-1', __history.normalizeApibaraHistory({ data: [fixtures.eventUpdated] }, fixtures.vehicle));
+  await __history.saveAuctionHistory(env, 'copart:VIN-1', __history.normalizeApibaraHistory({ data: [fixtures.eventFirst] }, fixtures.vehicle));
+  await __history.saveAuctionHistory(env, 'copart:VIN-1', __history.normalizeApibaraHistory({ data: [fixtures.eventUpdated] }, fixtures.vehicle));
   assert.equal(db.rows.length, 1);
   assert.equal(db.rows[0].status, 'sold');
   assert.equal(db.rows[0].final_price, 5200);
   assert.equal(JSON.parse(db.rows[0].raw_json).status, 'sold');
   assert.equal(db.rows[0].seller, 'Copart Direct');
-  await __history.saveOfficialHistory(env, 'copart:VIN-1', __history.normalizeApibaraHistory({ data: [fixtures.eventOther] }, fixtures.vehicle));
+  await __history.saveAuctionHistory(env, 'copart:VIN-1', __history.normalizeApibaraHistory({ data: [fixtures.eventOther] }, fixtures.vehicle));
   assert.equal(db.rows.length, 2, 'different source event IDs stay separate');
   assert.equal(db.rows[0].source_event_id, 'ABC');
   assert.equal(db.rows[1].source_event_id, 'DEF', 'different IDs with the same LOT and date remain separate');
+});
+
+test('partial provider payload does not blank persisted good fields or erase raw source data', async () => {
+  const db = new SyncMemoryD1();
+  const { __history } = loadWorker();
+  const env = { REXBID_DB: db };
+  const full = { vin: 'VIN-PARTIAL', platform: 'copart', lot_number: 'LOT-PARTIAL', pricing: { current_bid_usd: 500 }, seller: { name: 'Known Seller' }, condition: { primary_damage: 'Front End' } };
+  await __history.saveVehicle(env, __history.normalizeVehicle(full), full);
+  const partial = { vin: 'VIN-PARTIAL', platform: 'copart', lot_number: 'LOT-PARTIAL', pricing: { current_bid_usd: null }, seller: { name: '' }, condition: { primary_damage: '' } };
+  await __history.saveVehicle(env, __history.normalizeVehicle(partial), partial);
+  assert.equal(db.vehicles[0].current_bid, 500);
+  assert.equal(db.vehicles[0].seller_name, 'Known Seller');
+  assert.equal(db.vehicles[0].damage, 'Front End');
+  const raw = JSON.parse(db.vehicles[0].raw_json);
+  assert.equal(raw.pricing.current_bid_usd, 500);
+  assert.equal(raw.seller.name, 'Known Seller');
+  assert.equal(db.snapshots.length, 1, 'a partial response with no source changes does not create a false snapshot');
+  assert.ok(db.statements.some(sql => /COALESCE\(NULLIF\(excluded\.seller_name/i.test(sql)));
 });
 
 test('Sold on Approval clears a previously persisted final price without assigning the event seller', async () => {
@@ -586,7 +608,7 @@ test('Sold on Approval clears a previously persisted final price without assigni
     status: 'Sold', event_hash: 'old', captured_at: 'old', raw_json: JSON.stringify({ date: '2026-09-21', status: 'Sold', price: 9000 })
   });
   const record = context.__history.normalizeApibaraHistory({ data: { history: [{ platform: 'iaai', lot_number: 'L88', date: '2026-09-21', price: 9225, status: 'Sold on Approval' }] } }, { vin: 'VIN-88' });
-  await context.__history.saveOfficialHistory(env, 'iaai:VIN-88', record);
+  await context.__history.saveAuctionHistory(env, 'iaai:VIN-88', record);
   assert.equal(db.rows.length, 1);
   assert.equal(db.rows[0].final_price, null);
   assert.equal(db.rows[0].seller, null);

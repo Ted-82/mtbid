@@ -1,6 +1,6 @@
 # Rex.Bid Production Roadmap
 
-Status reflects the owner-confirmed `b25c452` / Worker version `a1e0199f-97c4-4e93-99ab-96041327d5c7` checkpoint. Items below are work to do unless explicitly described as current behavior in `PROJECT_HANDOFF.md` or `ARCHITECTURE.md`. Do not treat a roadmap item as implemented merely because a page or button exists.
+Production status reflects the owner-confirmed `b25c452` / Worker version `a1e0199f-97c4-4e93-99ab-96041327d5c7` checkpoint. The local provider-independence work is based on `80128cc` and is not deployed. Items below are work to do unless explicitly described as current behavior in `PROJECT_HANDOFF.md` or `ARCHITECTURE.md`. Do not treat a roadmap item as implemented merely because a page or button exists.
 
 ## NOW — stabilize the accepted product
 
@@ -30,24 +30,31 @@ Status reflects the owner-confirmed `b25c452` / Worker version `a1e0199f-97c4-4e
 
 ### 5. Data rights gate
 
-- Obtain and retain a clear answer from Apibara on storage, refresh, derived values, historical event retention, display/cache, customer access and deletion obligations.
-- Until then, avoid expanding durable history retention or using stored data for a new resale/paid report product.
+- **OPEN LEGAL/DATA QUESTION:** Obtain written confirmation from Apibara for permitted cache duration, storage/retention (including old auction history), transformed/derived values, customer display/redelivery, redistribution/resale, and photos/media rights; clarify deletion or takedown duties and source-platform restrictions.
+- Public [Apibara Terms](https://apibara.tech/en/terms) require key security and restrict abuse, limit bypass, resale of access against plan and representing data as guaranteed/official; they make the customer responsible for its application, requests, stored data and legal compliance. The public terms reviewed do **not** clearly specify a retention period or grant/deny long-term storage, redistribution of vehicle fields/history, or image rights. Do not infer permission from API availability.
+- Apibara [pricing/API guidance](https://apibara.tech/en/pricing) recommends keeping keys server-side, caching fields that do not need real-time refresh, and reviewing obligations for displaying or redistributing third-party data/media. This is not a specific license for indefinite history or photo retention.
+- Until clarified, do not expand durable history archival or start a paid vehicle-history/report product. Keep `raw_payload` retention subject to this decision.
 
 ## NEXT — production foundations and useful workflows
 
 ### 6. Provider independence groundwork
 
-- Approve the target adapter/canonical/API boundary in `ARCHITECTURE.md`.
-- Define versioned vehicle/listing/history DTOs and provenance fields; write mapping contract tests around the existing Apibara payload before extracting modules.
-- Define VIN-to-multiple-listings behavior, provider priority, freshness, conflict resolution, missing-field merge rules and outage fallback.
-- Avoid broad rewrites. Migrate one endpoint at a time while keeping the current frontend response contract working.
+- **Local groundwork implemented, unreleased:** `providers/apibara.js` owns transport, Apibara request specs/auth/timeouts/errors and source normalization; `providers/contract.js` defines versioned Rex canonical entities and adapter registry/validation. Provider B exists only as a differently-shaped test fixture/mapper; it is not an integrated data source.
+- Before release, review build/test results and ensure every public compatibility serializer preserves existing frontend behavior. Do not claim Provider B is production-ready.
+- Define VIN-to-multiple-listings behavior, provider priority, freshness, conflict resolution, missing-field merge rules and outage fallback before registering a second provider.
+- Current D1 keys are not source-namespaced. Prepare only an additive migration after rights and collision review; do not change current PKs or merge existing rows automatically.
 
 ### 7. Production synchronization lifecycle
 
+- **Data Sync Foundation proposal prepared locally, not applied:** `docs/proposals/0002_provider_sync_foundation.sql` adds provider-source identity/freshness/leases and run status without changing PKs or copying raw media/history into new tables. It was validated against `0000`/`0001` plus a legacy sample in in-memory SQLite only. Review and approve the schema before moving it into Wrangler's migration directory.
+- Keep `vehicle_key` stable and add provider/platform-scoped `source_key`; explicit provider/listing ID first, LOT fallback, VIN last. Ambiguous VIN-only/relisted cases need review. Add provider provenance to future snapshots/events but leave existing rows nullable and untouched.
+- Sync pages should be idempotent and checkpoint cursor + counters with page writes; lease per source to prevent overlap. Preserve prior good fields on partial source payloads. Advance `last_synced_at` only after the complete required sync; partial failure retains old last-success and sets source/run state to partial/failed.
+- Do not yet choose a Cron frequency or add a queue. First verify provider plan limits and data rights; then select an operator/scheduled/queue trigger and provider-wide request budget. No automatic retry storms on 429/5xx/timeouts.
 - Verify `REXBID_SYNC_TOKEN` presence/configuration without revealing it; create/rotate only through a secret manager when authorized.
 - Decide the actual trigger and ownership: authenticated manual operator action, scheduled Cron, queue, or a combination. Define freshness intervals per active/upcoming/closed listing, concurrency, rate budgets, backoff policy, checkpoint/cursor storage, idempotency and resumability.
 - Add durable sync-run status only if required; use additive D1 migration, collision review and restore plan. A partially paginated run must never be marked complete.
 - Prioritize active vehicles first, then recheck older closed events whose status/sale fields can change. Avoid re-fetching every record on every user GET.
+- Keep provider fetch/normalization D1-independent. Any manual, scheduled or queue trigger must reuse explicit persistence orchestration; never make ordinary GET a hidden sync trigger.
 
 ### 8. Import-cost estimator — source-backed model
 

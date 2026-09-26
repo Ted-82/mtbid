@@ -1,5 +1,23 @@
-const APIBARA_BASE =
-  "https://apibara.tech/api/v1/vehicle-auction";
+import apibaraModule from "./providers/apibara.js";
+import contract from "./providers/contract.js";
+
+const { createApibaraProvider, ProviderError } = apibaraModule;
+const { createProviderRegistry, validateRexVehicle, validateRexHistoryEvent } = contract;
+const apibaraProvider = createApibaraProvider({
+  fetch: (...args) => fetch(...args),
+  setTimeout: (...args) => setTimeout(...args),
+  clearTimeout: (...args) => clearTimeout(...args),
+  console
+});
+const providerRegistry = createProviderRegistry([apibaraProvider]);
+const DEFAULT_PROVIDER = "apibara";
+
+function getProviderAdapter(env) {
+  const requestedId = cleanString(env?.REXBID_PROVIDER_ID).trim() || DEFAULT_PROVIDER;
+  const provider = providerRegistry.get(requestedId);
+  if (!provider) throw new ProviderError("rex", "CONFIGURATION", 500);
+  return provider;
+}
 
 const CACHE_TTL_SECONDS = 60;
 const HISTORY_CACHE_TTL_SECONDS = 300;
@@ -27,7 +45,7 @@ const MAX_SYNC_VEHICLE_PAGES = 100;
  * - brak wybierania pierwszego wyniku
  * - lokalne zapisywanie pojazdów
  * - snapshoty zmian
- * - prawdziwa historia sprzedaży Apibara
+ * - provider-agnostic vehicle/history normalization and explicit persistence
  * - cache ograniczający liczbę requestów
  *
  * ============================================================
@@ -227,362 +245,53 @@ function normalizeIdentifier(value) {
  * ============================================================
  */
 
-function vehicleMatchesIdentifier(
-  vehicle,
-  identifier
-) {
-  if (
-    !vehicle ||
-    typeof vehicle !== "object"
-  ) {
-    return false;
-  }
-
-  const wanted =
-    normalizeIdentifier(identifier);
-
-  if (!wanted) {
-    return false;
-  }
-
-
-  const vinCandidates = [
-    vehicle.vin,
-    vehicle.VIN,
-    vehicle.slug_vin,
-    vehicle.slugVin,
-
-    getNested(vehicle, [
-      ["vehicle", "vin"]
-    ]),
-
-    getNested(vehicle, [
-      ["vehicle", "VIN"]
-    ]),
-
-    getNested(vehicle, [
-      ["details", "vin"]
-    ]),
-
-    getNested(vehicle, [
-      ["details", "VIN"]
-    ])
-  ];
-
-
-  for (const candidate of vinCandidates) {
-    if (
-      normalizeIdentifier(candidate) ===
-      wanted
-    ) {
-      return true;
-    }
-  }
-
-
-  const lotCandidates = [
-    vehicle.lot_number,
-    vehicle.lot,
-    vehicle.stock_number,
-    vehicle.stock,
-    vehicle.stock_no,
-    vehicle.stockNo,
-
-    getNested(vehicle, [
-      ["vehicle", "lot_number"]
-    ]),
-
-    getNested(vehicle, [
-      ["vehicle", "lot"]
-    ]),
-
-    getNested(vehicle, [
-      ["vehicle", "stock_number"]
-    ]),
-
-    getNested(vehicle, [
-      ["details", "lot_number"]
-    ])
-  ];
-
-
-  for (const candidate of lotCandidates) {
-    if (
-      normalizeIdentifier(candidate) ===
-      wanted
-    ) {
-      return true;
-    }
-  }
-
-  return false;
+function vehicleMatchesIdentifier(vehicle, identifier, providerId = DEFAULT_PROVIDER) {
+  return Boolean(providerRegistry.get(providerId)?.matchesIdentifier(vehicle, identifier));
 }
 
 
 /* ============================================================
- * APiBARA REQUEST
+ * PROVIDER ADAPTER BOUNDARY
  * ============================================================
  */
 
-const APIBARA_TIMEOUT_MS = 10000;
-const APIBARA_MAX_PER_PAGE = 20;
-
-const APIBARA_LIST_PARAMS = new Set([
-  "s", "platform", "auction_type", "lot_status", "lot_sub_status", "upcoming",
-  "make", "series", "model", "generation_id", "generation", "type", "body_style",
-  "year_from", "year_to", "price_min", "price_max", "odometer_from", "odometer_to",
-  "fuel_type", "transmission", "drive_type", "run_cond", "damage", "color",
-  "engine_size_from", "engine_size_to", "engine_type", "cylinders", "has_key",
-  "sale_document_pending", "sale_document_type", "seller_type", "zip", "radius",
-  "units", "facility_id", "loc_state", "office_name", "auction_date_from",
-  "auction_date_to", "today_only", "has_shipping_price", "include_total",
-  "per_page", "cursor", "updated_within_minutes"
-]);
-
-class ApibaraRequestError extends Error {
-  constructor(code, status = null, retryAfter = null) {
-    const message = ({
-      CONFIGURATION: "Usługa danych pojazdów jest niedostępna.",
-      INVALID_REQUEST: "Nieprawidłowe parametry zapytania.",
-      TIMEOUT: "Usługa danych pojazdów nie odpowiedziała na czas.",
-      RATE_LIMITED: "Usługa danych pojazdów chwilowo ogranicza zapytania.",
-      NOT_FOUND: "Nie znaleziono danych pojazdu.",
-      AUTH: "Usługa danych pojazdów jest niedostępna.",
-      UPSTREAM: "Usługa danych pojazdów zwróciła błąd.",
-      INVALID_RESPONSE: "Usługa danych pojazdów zwróciła nieprawidłową odpowiedź."
-    })[code] || "Nie udało się pobrać danych pojazdu.";
-    super(message);
-    this.name = "ApibaraRequestError";
-    this.code = code;
-    this.status = status;
-    this.retryAfter = retryAfter;
-  }
-}
-
-function apibaraPerPage(value, defaultValue = 20) {
-  if (value === null || value === undefined || value === "") return defaultValue;
-  if (!/^\d+$/.test(String(value))) throw new ApibaraRequestError("INVALID_REQUEST", 400);
-  return Math.min(APIBARA_MAX_PER_PAGE, Math.max(1, Number(value)));
-}
-
-function buildApibaraUrl(requestSpec) {
-  if (!requestSpec || typeof requestSpec !== "object") {
-    throw new ApibaraRequestError("INVALID_REQUEST", 400);
-  }
-
-  let pathname;
-  const params = new URLSearchParams();
-  const identifier = cleanString(requestSpec.identifier).trim();
-
-  switch (requestSpec.operation) {
-    case "vehicleByIdentifier":
-      if (!identifier) throw new ApibaraRequestError("INVALID_REQUEST", 400);
-      pathname = `/vehicles/${encodeURIComponent(identifier)}`;
-      break;
-
-    case "searchVehicles":
-      pathname = "/vehicles";
-      if (!cleanString(requestSpec.search).trim()) throw new ApibaraRequestError("INVALID_REQUEST", 400);
-      params.set("s", cleanString(requestSpec.search).trim());
-      params.set("per_page", String(apibaraPerPage(requestSpec.per_page, 20)));
-      break;
-
-    case "listVehicles": {
-      pathname = "/vehicles";
-      const input = requestSpec.params && typeof requestSpec.params === "object" ? requestSpec.params : {};
-      for (const [name, value] of Object.entries(input)) {
-        if (!APIBARA_LIST_PARAMS.has(name) || value === null || value === undefined || value === "") continue;
-        if (name === "per_page") params.set(name, String(apibaraPerPage(value, 20)));
-        else params.set(name, String(value));
-      }
-      if (!params.has("per_page")) params.set("per_page", "20");
-      break;
-    }
-
-    case "vehicleFilters": {
-      pathname = "/vehicles/filters";
-      const input = requestSpec.params && typeof requestSpec.params === "object" ? requestSpec.params : {};
-      for (const name of ["make", "series", "model"]) {
-        const value = input[name];
-        if (value !== null && value !== undefined && String(value).trim()) {
-          params.set(name, String(value).trim().slice(0, 120));
-        }
-      }
-      break;
-    }
-
-    case "vehicleHistory": {
-      if (!identifier) throw new ApibaraRequestError("INVALID_REQUEST", 400);
-      pathname = `/vehicles/${encodeURIComponent(identifier)}/history`;
-      params.set("per_page", String(apibaraPerPage(requestSpec.per_page, 20)));
-      // Cursor is opaque: only URL-encode it, never parse, trim, or derive it.
-      if (requestSpec.cursor !== null && requestSpec.cursor !== undefined && requestSpec.cursor !== "") {
-        params.set("cursor", String(requestSpec.cursor));
-      }
-      break;
-    }
-
-    default:
-      throw new ApibaraRequestError("INVALID_REQUEST", 400);
-  }
-
-  const base = new URL(`${APIBARA_BASE.replace(/\/+$/, "")}/`);
-  const url = new URL(pathname.replace(/^\/+/, ""), base);
-  if (url.origin !== base.origin || !url.pathname.startsWith(base.pathname)) {
-    throw new ApibaraRequestError("INVALID_REQUEST", 400);
-  }
-  url.search = params.toString();
-  return url;
-}
-
-function safeApibaraDiagnosticText(value, apiKey) {
-  if (value === null || value === undefined) return null;
-  let text = String(value);
-  if (apiKey) text = text.split(String(apiKey)).join("[REDACTED]");
-  text = text.replace(/(x-api-key|authorization)\s*[:=]\s*[^\s,;]+/gi, "$1=[REDACTED]");
-  return text.slice(0, 500);
-}
-
-function safeApibaraCauseDescription(cause, apiKey, depth = 0) {
-  if (cause === null || cause === undefined) return null;
-  if (typeof cause !== "object") return safeApibaraDiagnosticText(cause, apiKey);
-
-  const description = {};
-  for (const field of ["name", "code", "errno", "syscall", "hostname", "message"]) {
-    const value = cause[field];
-    if (["string", "number", "boolean"].includes(typeof value)) {
-      description[field] = safeApibaraDiagnosticText(value, apiKey);
-    }
-  }
-  if (depth < 1 && cause.cause !== undefined) {
-    description.cause = safeApibaraCauseDescription(cause.cause, apiKey, depth + 1);
-  }
-  return Object.keys(description).length ? description : { type: "object" };
-}
-
-function logApibaraRequestDiagnostic(error, stage, apiKey, requestSpec) {
-  const cause = error?.cause;
-  console.error("Apibara request diagnostic", JSON.stringify({
-    operation: requestSpec?.operation || null,
-    stage,
-    errorName: safeApibaraDiagnosticText(error?.name || "UnknownError", apiKey),
-    errorMessage: safeApibaraDiagnosticText(error?.message || "", apiKey),
-    causeType: typeof cause,
-    cause: safeApibaraCauseDescription(cause, apiKey)
-  }));
-}
-
-async function requestApibara(env, requestSpec) {
-  const apiKey = env?.APIBARA_API_KEY;
-  if (!apiKey) throw new ApibaraRequestError("CONFIGURATION", 500);
-
-  let url;
-  try {
-    url = buildApibaraUrl(requestSpec);
-  } catch (error) {
-    logApibaraRequestDiagnostic(error, "URL", apiKey, requestSpec);
-    throw error;
-  }
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), APIBARA_TIMEOUT_MS);
-
-  try {
-    const response = await fetch(url.toString(), {
-      method: "GET",
-      // Workers fetch supports "manual" but not "error". Never follow upstream
-      // redirects so the API key cannot be sent to a different host.
-      redirect: "manual",
-      headers: { "Accept": "application/json", "X-API-Key": apiKey },
-      signal: controller.signal
-    });
-
-    if (!response.ok) {
-      const code = response.status === 404 ? "NOT_FOUND"
-        : response.status === 401 || response.status === 403 ? "AUTH"
-        : response.status === 429 ? "RATE_LIMITED" : "UPSTREAM";
-      const retryAfterHeader = response.headers.get("Retry-After");
-      const retryAfter = retryAfterHeader && /^\d+$/.test(retryAfterHeader) ? Number(retryAfterHeader) : null;
-      console.warn("Apibara HTTP response error", JSON.stringify({
-        operation: requestSpec.operation,
-        stage: "fetch",
-        status: response.status,
-        code,
-        contentType: response.headers.get("Content-Type") || null
-      }));
-      // Consume but never include upstream error bodies in exceptions or logs.
-      try { await response.body?.cancel(); } catch {}
-      throw new ApibaraRequestError(code, response.status, retryAfter);
-    }
-
-    try {
-      return await response.json();
-    } catch {
-      throw new ApibaraRequestError("INVALID_RESPONSE", response.status);
-    }
-  } catch (error) {
-    if (error instanceof ApibaraRequestError) throw error;
-    logApibaraRequestDiagnostic(error, "fetch", apiKey, requestSpec);
-    if (controller.signal.aborted || error?.name === "AbortError") {
-      throw new ApibaraRequestError("TIMEOUT", 504);
-    }
-    throw new ApibaraRequestError("UPSTREAM", null);
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
 /* ============================================================
- * APiBARA READ LAYER
+ * PROVIDER READ LAYER
  * ============================================================
  * These helpers perform upstream reads only. They never access D1;
  * endpoint handlers decide separately whether to persist the result.
  */
 
-async function fetchApibaraVehicle(env, identifier) {
-  return requestApibara(env, {
-    operation: "vehicleByIdentifier",
-    identifier
-  });
+async function fetchProviderVehicle(env, identifier) {
+  return getProviderAdapter(env).fetchVehicle(env, identifier);
 }
 
-async function searchApibaraVehicles(env, search, perPage = 20) {
-  return requestApibara(env, {
-    operation: "searchVehicles",
-    search,
-    per_page: perPage
-  });
+async function searchProviderVehicles(env, search, perPage = 20) {
+  return getProviderAdapter(env).searchVehicles(env, search, perPage);
 }
 
-async function fetchApibaraHistory(env, identifier, { per_page = 20, cursor = null } = {}) {
-  const response = await requestApibara(env, {
-    operation: "vehicleHistory",
-    identifier,
-    per_page,
-    cursor
-  });
-  return {
-    response,
-    records: getApibaraHistoryRecords(response),
-    nextCursor: response?.meta?.next_cursor ?? response?.data?.meta?.next_cursor ?? response?.response?.meta?.next_cursor ?? response?.response?.data?.meta?.next_cursor ?? null
-  };
+async function fetchProviderHistory(env, identifier, { per_page = 20, cursor = null } = {}) {
+  return getProviderAdapter(env).fetchHistory(env, identifier, { per_page, cursor });
 }
 
-async function fetchApibaraVehicles(env, params = {}) {
-  return requestApibara(env, {
-    operation: "listVehicles",
-    params
-  });
+async function fetchProviderVehicles(env, params = {}) {
+  return getProviderAdapter(env).listVehicles(env, params);
 }
 
-function normalizeApibaraVehicleList(result) {
-  if (!Array.isArray(result?.data)) return [];
-  return result.data
-    .map(raw => ({ raw, normalized: normalizeVehicle(raw) }))
-    .filter(item => item.normalized);
+function normalizeProviderVehicleList(result, providerId = DEFAULT_PROVIDER) {
+  const provider = providerRegistry.get(providerId);
+  if (!provider) return [];
+  return provider.vehicleListRecords(result)
+    .map(raw => {
+      const normalized = normalizeVehicle(raw, providerId);
+      const canonical = normalized ? provider.toCanonicalVehicle(raw, normalized) : null;
+      return { raw, normalized, canonical };
+    })
+    .filter(item => item.normalized && validateRexVehicle(item.canonical).valid);
 }
 
-function apibaraErrorResponse(error) {
-  if (!(error instanceof ApibaraRequestError)) return errorJson("Nie udało się pobrać danych.", 502);
+function providerErrorResponse(error) {
+  if (!(error instanceof ProviderError)) return errorJson("Nie udało się pobrać danych.", 502);
   const status = error.code === "INVALID_REQUEST" ? 400
     : error.code === "NOT_FOUND" ? 404
     : error.code === "RATE_LIMITED" ? 429
@@ -601,472 +310,13 @@ function apibaraErrorResponse(error) {
  * ============================================================
  */
 
-function normalizeVehicle(vehicle) {
-  if (
-    !vehicle ||
-    typeof vehicle !== "object"
-  ) {
-    return null;
-  }
-
-
-  const vin =
-    cleanString(
-      firstValue(vehicle, [
-        "vin",
-        "VIN"
-      ])
-    );
-
-
-  const slugVin =
-    cleanString(
-      firstValue(vehicle, [
-        "slug_vin",
-        "slugVin"
-      ])
-    );
-
-
-  const platform =
-    cleanString(
-      firstValue(vehicle, [
-        "platform"
-      ])
-    ).toLowerCase();
-
-
-  const lot =
-    cleanString(
-      firstValue(vehicle, [
-        "lot_number",
-        "lot",
-        "stock_number",
-        "stock"
-      ])
-    );
-
-
-  const title =
-    cleanString(
-      firstValue(vehicle, [
-        "title",
-        "name"
-      ])
-    );
-
-
-  const year =
-    numberOrNull(
-      firstValue(vehicle, [
-        "year"
-      ])
-    );
-
-
-  const make =
-    cleanString(
-      firstValue(vehicle, [
-        "make"
-      ])
-    );
-
-
-  const model =
-    cleanString(
-      firstValue(vehicle, [
-        "model"
-      ])
-    );
-
-
-  /* AUCTION */
-
-  const auction =
-    vehicle.auction &&
-    typeof vehicle.auction === "object"
-      ? vehicle.auction
-      : {};
-
-
-  const auctionState =
-    cleanString(
-      firstValue(auction, [
-        "state",
-        "status"
-      ])
-    );
-
-
-  const auctionAt =
-    firstValue(auction, [
-      "auction_at",
-      "auctionAt",
-      "full_date",
-      "date",
-      "start_at",
-      "startAt"
-    ]);
-
-
-  const auctionEnd =
-    firstValue(auction, [
-      "end_at",
-      "endAt",
-      "ends_at",
-      "endsAt",
-      "timed_end_at"
-    ]);
-
-
-  /* PRICING */
-
-  const pricing =
-    vehicle.pricing &&
-    typeof vehicle.pricing === "object"
-      ? vehicle.pricing
-      : {};
-
-
-  const currentBid =
-    numberOrNull(
-      firstValue(pricing, [
-        "current_bid_usd",
-        "current_bid",
-        "bid_usd",
-        "current_bid2_usd"
-      ])
-    );
-
-
-  const buyNow =
-    numberOrNull(
-      firstValue(pricing, [
-        "buy_now_usd",
-        "buy_now"
-      ])
-    );
-
-
-  const lastSoldPrice =
-    numberOrNull(
-      firstValue(pricing, [
-        "last_sold_price_usd",
-        "last_sold_price",
-        "sold_price_usd",
-        "sold_price"
-      ])
-    );
-
-
-  /* LOCATION */
-
-  const location =
-    vehicle.location &&
-    typeof vehicle.location === "object"
-      ? vehicle.location
-      : {};
-
-
-  const locationDisplay =
-    cleanString(
-      firstValue(location, [
-        "display",
-        "name",
-        "city"
-      ])
-    );
-
-
-  /* CONDITION */
-
-  const condition =
-    vehicle.condition &&
-    typeof vehicle.condition === "object"
-      ? vehicle.condition
-      : {};
-
-
-  const damage =
-    cleanString(
-      firstValue(condition, [
-        "primary_damage",
-        "damage"
-      ])
-    );
-
-
-  const secondaryDamage =
-    cleanString(
-      firstValue(condition, [
-        "secondary_damage"
-      ])
-    );
-
-
-  const lossType =
-    cleanString(
-      firstValue(condition, [
-        "loss_type",
-        "lossType",
-        "loss"
-      ])
-    );
-
-
-  const runConditionValue = firstValue(condition, ["run_condition", "runCondition"]);
-  const runCondition = cleanString(
-    runConditionValue && typeof runConditionValue === "object"
-      ? firstValue(runConditionValue, ["value", "label", "name"])
-      : runConditionValue
-  ) || cleanString(getNested(vehicle, [["details", "vehicle_information", "StartCode"], ["details", "attributes", "RunAndDrive"]]));
-
-
-  const hasKey =
-    firstValue(condition, [
-      "has_key",
-      "hasKey"
-    ]) ?? getNested(vehicle, [["details", "vehicle_information", "KeySlashFob"], ["details", "attributes", "KeyFob"]]);
-
-
-  /* ODOMETER */
-
-  const odometer =
-    vehicle.odometer &&
-    typeof vehicle.odometer === "object"
-      ? vehicle.odometer
-      : {};
-
-
-  const mileage =
-    numberOrNull(
-      firstValue(odometer, [
-        "mi",
-        "miles"
-      ])
-    );
-
-
-  /* SELLER */
-
-  const seller =
-    vehicle.seller &&
-    typeof vehicle.seller === "object"
-      ? vehicle.seller
-      : {};
-
-
-  const sellerNameCandidates = [
-    getNested(vehicle, [["details", "attributes", "ProviderName"]]),
-    getNested(vehicle, [["details", "attributes", "provider_name"]]),
-    getNested(vehicle, [["details", "sale_information", "Seller"]]),
-    getNested(vehicle, [["details", "sale_information", "seller"]]),
-    getNested(vehicle, [["details", "vehicle_information", "Seller"]]),
-    getNested(vehicle, [["sale_information", "Seller", "displayName"], ["sale_information", "Seller", "name"], ["sale_information", "Seller", "seller_name"], ["sale_information", "Seller"], ["details", "sale_information", "Seller", "name"]]),
-    ...["displayName", "name", "seller_name", "sellerName", "companyName", "company_name", "providerName", "provider_name", "display"].map(key => seller[key]),
-    ...["seller_display_name", "sellerDisplayName", "provider_name", "providerName", "company_name", "companyName"].map(key => vehicle[key])
-  ].map(value => typeof value === "string" || typeof value === "number" ? cleanString(value) : "").filter(value => value && !/^(?:[*#•\s]+|unknown(?: seller)?|seller unknown|n\/?a|not available|name unavailable|nazwa niedostępna|brak danych|unavailable|null|none|masked|[-—])$/i.test(value));
-  const sellerName = sellerNameCandidates[0] || "";
-
-
-  const sellerTypeCandidates = [
-    vehicle.details?.attributes?.ProviderType,
-    vehicle.details?.attributes?.ProviderTypeTimedAuction,
-    getNested(vehicle, [["details", "sale_information", "SellerType"]]),
-    getNested(vehicle, [["details", "sale_information", "seller_type"]]),
-    getNested(vehicle, [["sale_information", "SellerType"]]),
-    ...["type", "normalized_type", "seller_type", "sellerType"].map(key => seller[key])
-  ].map(cleanString).filter(value => value && !/^(?:unknown|n\/?a|not available|unavailable|null|none|-)$/i.test(value));
-  const sellerType = sellerTypeCandidates[0] || "";
-
-  const sellerTypeNormalized = /^(?:ins|insurance)$/i.test(sellerType) ? "insurance"
-    : /^(?:nins|non[_ -]?insurance)$/i.test(sellerType) ? "non_insurance" : sellerType;
-
-
-  /* SALE DOCUMENT */
-
-  const saleDocument =
-    vehicle.sale_document &&
-    typeof vehicle.sale_document === "object"
-      ? vehicle.sale_document
-      : {};
-
-
-  const documentName =
-    cleanString(
-      firstValue(saleDocument, [
-        "name",
-        "document_name",
-        "documentName"
-      ])
-    );
-
-
-  const documentType =
-    cleanString(
-      firstValue(saleDocument, [
-        "type",
-        "normalized_type",
-        "document_type",
-        "documentType"
-      ])
-    );
-
-
-  const exportAllowed =
-    firstValue(saleDocument, [
-      "export_allowed",
-      "exportAllowed",
-      "export"
-    ]);
-
-
-  const registrationAllowed =
-    firstValue(saleDocument, [
-      "registration_allowed",
-      "registrationAllowed",
-      "registration",
-      "can_register"
-    ]);
-
-
-  /* MEDIA */
-
-  const media =
-    vehicle.media &&
-    typeof vehicle.media === "object"
-      ? vehicle.media
-      : {};
-
-
-  const hasVideo =
-    firstValue(media, [
-      "has_video",
-      "hasVideo"
-    ]);
-
-
-  const has360 =
-    firstValue(media, [
-      "has_360",
-      "has360",
-      "has_360_view",
-      "has360View"
-    ]);
-
-
-  /* AUCTION URL */
-
-  const auctionUrl =
-    cleanString(
-      firstValue(vehicle, [
-        "auction_url",
-        "auctionUrl",
-        "source_url",
-        "sourceUrl",
-        "url",
-        "listing_url",
-        "listingUrl"
-      ])
-    );
-
-
-  const identity =
-    vin ||
-    slugVin ||
-    lot ||
-    "";
-
-
-  if (!identity) {
-    return null;
-  }
-
-
-  const vehicleKey =
-    (
-      platform ||
-      "unknown"
-    ) +
-    ":" +
-    identity;
-
-
-  const fingerprintSource = {
-    platform,
-    vin,
-    lot,
-    auctionState,
-    auctionAt,
-    auctionEnd,
-    currentBid,
-    buyNow,
-    lastSoldPrice,
-    locationDisplay,
-    damage,
-    secondaryDamage,
-    mileage,
-    sellerName,
-    sellerType: sellerTypeNormalized,
-    documentName,
-    documentType
-  };
-
-
-  const fingerprint =
-    simpleHash(
-      JSON.stringify(
-        fingerprintSource
-      )
-    );
-
-
-  return {
-    vehicleKey,
-    vin,
-    slugVin,
-    platform,
-    lot,
-    title,
-    year,
-    make,
-    model,
-
-    auctionState,
-    auctionAt,
-    auctionEnd,
-
-    currentBid,
-    buyNow,
-    lastSoldPrice,
-
-    locationDisplay,
-
-    damage,
-    secondaryDamage,
-    lossType,
-    runCondition,
-    hasKey,
-
-    mileage,
-
-    sellerName,
-    sellerType: sellerTypeNormalized,
-
-    documentName,
-    documentType,
-    exportAllowed,
-    registrationAllowed,
-
-    hasVideo,
-    has360,
-
-    auctionUrl,
-
-    fingerprint
-  };
+function normalizeVehicle(vehicle, providerId = DEFAULT_PROVIDER) {
+  const provider = providerRegistry.get(providerId);
+  const normalized = provider?.normalizeVehicle(vehicle);
+  if (!normalized) return null;
+  if (provider.toCanonicalVehicle) Object.defineProperty(normalized, "rex", { value: provider.toCanonicalVehicle(vehicle, normalized), enumerable: false });
+  return normalized;
 }
-
 
 /* ============================================================
  * HASH
@@ -1094,6 +344,30 @@ function simpleHash(value) {
   }
 
   return String(hash >>> 0);
+}
+
+function parseJsonValue(value) {
+  try { return typeof value === "string" ? JSON.parse(value) : value ?? null; } catch { return null; }
+}
+
+function mergeProviderPayload(previous, incoming) {
+  if (incoming === null || incoming === undefined || incoming === "") return previous ?? incoming;
+  if (Array.isArray(incoming)) return incoming.length ? incoming : (previous ?? incoming);
+  if (typeof incoming !== "object") return incoming;
+  const oldObject = previous && typeof previous === "object" && !Array.isArray(previous) ? previous : {};
+  const merged = { ...oldObject };
+  for (const [key, value] of Object.entries(incoming)) merged[key] = mergeProviderPayload(oldObject[key], value);
+  return merged;
+}
+
+function mergeNormalizedVehicle(previous, incoming) {
+  if (!previous) return incoming;
+  const merged = { ...previous };
+  for (const [key, value] of Object.entries(incoming)) {
+    if (value !== null && value !== undefined && value !== "") merged[key] = value;
+  }
+  merged.fingerprint = getProviderAdapter({}).fingerprintNormalizedVehicle(merged);
+  return merged;
 }
 
 
@@ -1289,13 +563,19 @@ async function saveVehicle(
         SELECT
           vehicle_key,
           first_seen_at,
-          fingerprint
+          fingerprint,
+          raw_json
         FROM vehicles
         WHERE vehicle_key = ?
         LIMIT 1
       `)
       .bind(vehicle.vehicleKey)
       .first();
+
+  const previousRaw = parseJsonValue(existing?.raw_json);
+  const persistedRaw = mergeProviderPayload(previousRaw, rawVehicle);
+  const previousNormalized = previousRaw ? normalizeVehicle(previousRaw) : null;
+  vehicle = mergeNormalizedVehicle(previousNormalized, vehicle);
 
 
   const firstSeen =
@@ -1386,46 +666,46 @@ async function saveVehicle(
       ON CONFLICT(vehicle_key)
       DO UPDATE SET
 
-        vin = excluded.vin,
-        slug_vin = excluded.slug_vin,
-        platform = excluded.platform,
-        lot = excluded.lot,
+        vin = COALESCE(NULLIF(excluded.vin, ''), vehicles.vin),
+        slug_vin = COALESCE(NULLIF(excluded.slug_vin, ''), vehicles.slug_vin),
+        platform = COALESCE(NULLIF(excluded.platform, ''), vehicles.platform),
+        lot = COALESCE(NULLIF(excluded.lot, ''), vehicles.lot),
 
-        title = excluded.title,
-        year = excluded.year,
-        make = excluded.make,
-        model = excluded.model,
+        title = COALESCE(NULLIF(excluded.title, ''), vehicles.title),
+        year = COALESCE(excluded.year, vehicles.year),
+        make = COALESCE(NULLIF(excluded.make, ''), vehicles.make),
+        model = COALESCE(NULLIF(excluded.model, ''), vehicles.model),
 
-        auction_state = excluded.auction_state,
-        auction_at = excluded.auction_at,
-        auction_end = excluded.auction_end,
+        auction_state = COALESCE(NULLIF(excluded.auction_state, ''), vehicles.auction_state),
+        auction_at = COALESCE(NULLIF(excluded.auction_at, ''), vehicles.auction_at),
+        auction_end = COALESCE(NULLIF(excluded.auction_end, ''), vehicles.auction_end),
 
-        current_bid = excluded.current_bid,
-        buy_now = excluded.buy_now,
-        last_sold_price = excluded.last_sold_price,
+        current_bid = COALESCE(excluded.current_bid, vehicles.current_bid),
+        buy_now = COALESCE(excluded.buy_now, vehicles.buy_now),
+        last_sold_price = COALESCE(excluded.last_sold_price, vehicles.last_sold_price),
 
-        location_display = excluded.location_display,
+        location_display = COALESCE(NULLIF(excluded.location_display, ''), vehicles.location_display),
 
-        damage = excluded.damage,
-        secondary_damage = excluded.secondary_damage,
-        loss_type = excluded.loss_type,
-        run_condition = excluded.run_condition,
-        has_key = excluded.has_key,
+        damage = COALESCE(NULLIF(excluded.damage, ''), vehicles.damage),
+        secondary_damage = COALESCE(NULLIF(excluded.secondary_damage, ''), vehicles.secondary_damage),
+        loss_type = COALESCE(NULLIF(excluded.loss_type, ''), vehicles.loss_type),
+        run_condition = COALESCE(NULLIF(excluded.run_condition, ''), vehicles.run_condition),
+        has_key = COALESCE(excluded.has_key, vehicles.has_key),
 
-        mileage = excluded.mileage,
+        mileage = COALESCE(excluded.mileage, vehicles.mileage),
 
-        seller_name = excluded.seller_name,
-        seller_type = excluded.seller_type,
+        seller_name = COALESCE(NULLIF(excluded.seller_name, ''), vehicles.seller_name),
+        seller_type = COALESCE(NULLIF(excluded.seller_type, ''), vehicles.seller_type),
 
-        document_name = excluded.document_name,
-        document_type = excluded.document_type,
-        export_allowed = excluded.export_allowed,
-        registration_allowed = excluded.registration_allowed,
+        document_name = COALESCE(NULLIF(excluded.document_name, ''), vehicles.document_name),
+        document_type = COALESCE(NULLIF(excluded.document_type, ''), vehicles.document_type),
+        export_allowed = COALESCE(excluded.export_allowed, vehicles.export_allowed),
+        registration_allowed = COALESCE(excluded.registration_allowed, vehicles.registration_allowed),
 
-        has_video = excluded.has_video,
-        has_360 = excluded.has_360,
+        has_video = COALESCE(excluded.has_video, vehicles.has_video),
+        has_360 = COALESCE(excluded.has_360, vehicles.has_360),
 
-        auction_url = excluded.auction_url,
+        auction_url = COALESCE(NULLIF(excluded.auction_url, ''), vehicles.auction_url),
 
         last_seen_at = excluded.last_seen_at,
 
@@ -1484,7 +764,7 @@ async function saveVehicle(
 
       vehicle.fingerprint,
 
-      safeJson(rawVehicle)
+      safeJson(persistedRaw)
     )
     .run();
 
@@ -1531,7 +811,7 @@ async function saveVehicle(
 
         vehicle.fingerprint,
 
-        safeJson(rawVehicle)
+        safeJson(persistedRaw)
       )
       .run();
   }
@@ -1553,10 +833,9 @@ async function saveApiVehicle(
   env,
   result
 ) {
-  if (
-    !result ||
-    !Array.isArray(result.data)
-  ) {
+  const provider = getProviderAdapter(env);
+  const providerVehicles = Array.isArray(result) ? result : result ? provider.vehicleListRecords(result) : [];
+  if (!providerVehicles.length) {
     return {
       saved: false,
       count: 0
@@ -1568,13 +847,13 @@ async function saveApiVehicle(
 
 
   for (
-    const vehicle of result.data
+    const vehicle of providerVehicles
   ) {
     const normalized =
-      normalizeVehicle(vehicle);
+      normalizeVehicle(vehicle, provider.id);
 
 
-    if (!normalized) {
+    if (!normalized || !validateRexVehicle(provider.toCanonicalVehicle(vehicle, normalized)).valid) {
       continue;
     }
 
@@ -1606,18 +885,18 @@ async function syncVehicle(env, identifier, options = {}) {
     MAX_SYNC_HISTORY_PAGES,
     Math.max(1, Number.isInteger(options.maxPages) ? options.maxPages : 100)
   );
-  const perPage = apibaraPerPage(options.per_page, 20);
+  const perPage = getProviderAdapter(env).validatePerPage(options.per_page, 20);
   let rawVehicle = null;
+  const provider = getProviderAdapter(env);
 
   try {
-    const direct = await fetchApibaraVehicle(env, identifier);
-    if (direct?.data && vehicleMatchesIdentifier(direct.data, identifier)) {
-      rawVehicle = direct.data;
-    } else if (direct?.data) {
-      const search = await searchApibaraVehicles(env, identifier, 20);
-      rawVehicle = Array.isArray(search?.data)
-        ? search.data.find(item => vehicleMatchesIdentifier(item, identifier)) || null
-        : null;
+    const direct = await fetchProviderVehicle(env, identifier);
+    const directVehicle = provider.vehicleDetailRecord(direct);
+    if (directVehicle && vehicleMatchesIdentifier(directVehicle, identifier, provider.id)) {
+      rawVehicle = directVehicle;
+    } else if (directVehicle) {
+      const search = await searchProviderVehicles(env, identifier, 20);
+      rawVehicle = provider.vehicleListRecords(search).find(item => vehicleMatchesIdentifier(item, identifier, provider.id)) || null;
     }
   } catch (error) {
     if (error?.code !== "NOT_FOUND") {
@@ -1627,18 +906,21 @@ async function syncVehicle(env, identifier, options = {}) {
 
   if (!rawVehicle) {
     try {
-      const search = await searchApibaraVehicles(env, identifier, 20);
-      rawVehicle = Array.isArray(search?.data)
-        ? search.data.find(item => vehicleMatchesIdentifier(item, identifier)) || null
-        : null;
+      const search = await searchProviderVehicles(env, identifier, 20);
+      rawVehicle = provider.vehicleListRecords(search).find(item => vehicleMatchesIdentifier(item, identifier, provider.id)) || null;
     } catch (error) {
       return { ok: false, completed: false, phase: "vehicle", error: error?.code || "UPSTREAM" };
     }
   }
 
-  const normalizedVehicle = normalizeVehicle(rawVehicle);
+  const normalizedVehicle = normalizeVehicle(rawVehicle, provider.id);
   if (!normalizedVehicle) {
     return { ok: false, completed: false, phase: "vehicle", error: "NOT_FOUND" };
+  }
+  const canonicalVehicle = provider.toCanonicalVehicle(rawVehicle, normalizedVehicle);
+  const vehicleValidation = validateRexVehicle(canonicalVehicle);
+  if (!vehicleValidation.valid) {
+    return { ok: false, completed: false, phase: "validation", error: "INVALID_CANONICAL_VEHICLE" };
   }
 
   const includeHistory = options.includeHistory !== false;
@@ -1653,16 +935,17 @@ async function syncVehicle(env, identifier, options = {}) {
     for (let page = 0; page < maxPages; page++) {
       let fetched;
       try {
-        fetched = await fetchApibaraHistory(env, identifier, { per_page: perPage, cursor });
+        fetched = await fetchProviderHistory(env, identifier, { per_page: perPage, cursor });
       } catch (error) {
         return { ok: false, completed: false, phase: "history", error: error?.code || "UPSTREAM", pagesFetched };
       }
 
       pagesFetched++;
-      historyRecords.push(...normalizeApibaraHistory(fetched.response, {
+      historyRecords.push(...normalizeProviderHistory(fetched.response, {
         vin: normalizedVehicle.vin,
         platform: normalizedVehicle.platform,
-        lot: normalizedVehicle.lot
+        lot: normalizedVehicle.lot,
+        provider: provider.id
       }));
 
       const nextCursor = fetched.nextCursor;
@@ -1691,7 +974,7 @@ async function syncVehicle(env, identifier, options = {}) {
     await ensureDatabase(env);
     const vehicleResult = await saveVehicle(env, normalizedVehicle, rawVehicle);
     const historyResult = includeHistory
-      ? await saveOfficialHistory(env, normalizedVehicle.vehicleKey, historyRecords)
+      ? await saveAuctionHistory(env, normalizedVehicle.vehicleKey, historyRecords)
       : [];
     return {
       ok: true,
@@ -1708,6 +991,7 @@ async function syncVehicle(env, identifier, options = {}) {
 }
 
 async function syncVehicleList(env, params = {}, options = {}) {
+  const provider = getProviderAdapter(env);
   const maxPages = Math.min(
     MAX_SYNC_VEHICLE_PAGES,
     Math.max(1, Number.isInteger(options.maxPages) ? options.maxPages : 100)
@@ -1720,12 +1004,12 @@ async function syncVehicleList(env, params = {}, options = {}) {
   for (let page = 0; page < maxPages; page++) {
     let response;
     try {
-      response = await fetchApibaraVehicles(env, { ...params, ...(cursor ? { cursor } : {}) });
+      response = await fetchProviderVehicles(env, { ...params, ...(cursor ? { cursor } : {}) });
     } catch (error) {
       return { ok: false, completed: false, error: error?.code || "UPSTREAM", pagesFetched: pages.length };
     }
     pages.push(response);
-    const nextCursor = response?.meta?.next_cursor ?? response?.data?.meta?.next_cursor ?? null;
+    const nextCursor = provider.responseMeta(response)?.next_cursor ?? null;
     if (nextCursor === null || nextCursor === undefined || nextCursor === "") {
       complete = true;
       break;
@@ -1746,14 +1030,14 @@ async function syncVehicleList(env, params = {}, options = {}) {
 
   const byKey = new Map();
   for (const response of pages) {
-    for (const item of normalizeApibaraVehicleList(response)) {
+    for (const item of normalizeProviderVehicleList(response, provider.id)) {
       byKey.set(item.normalized.vehicleKey, item);
     }
   }
 
   try {
     await ensureDatabase(env);
-    const result = await saveApiVehicle(env, { data: [...byKey.values()].map(item => item.raw) });
+    const result = await saveApiVehicle(env, [...byKey.values()].map(item => item.raw));
     return { ok: true, completed: true, pagesFetched: pages.length, vehicles: result.count };
   } catch (error) {
     console.error("Rex.Bid list sync persistence error", error?.name || "Error");
@@ -1841,10 +1125,10 @@ async function getLocalHistorySummary(
 
 
 /* ============================================================
- * NORMALIZE APiBARA HISTORY
+ * NORMALIZE PROVIDER HISTORY
  * ============================================================
  *
- * Apibara zwraca:
+ * The active provider adapter returns source records in its provider contract.
  *
  * data: {
  *   vehicle: {...},
@@ -1862,52 +1146,29 @@ async function getLocalHistorySummary(
  * ============================================================
  */
 
-function getApibaraHistoryRecords(
-  result
+function getProviderHistoryRecords(
+  result,
+  providerId = DEFAULT_PROVIDER
 ) {
-  if (!result) {
-    return [];
-  }
-
-
-  const data = result.response && typeof result.response === "object" && result.response.data
-    ? result.response.data
-    : result.data;
-
-
-  if (!data) {
-    return [];
-  }
-
-
-  if (
-    Array.isArray(data.history)
-  ) {
-    return data.history;
-  }
-
-
-  if (
-    data.history &&
-    Array.isArray(data.history.data)
-  ) {
-    return data.history.data;
-  }
-
-
-  if (
-    Array.isArray(data)
-  ) {
-    return data;
-  }
-
-
-  return [];
+  const provider = providerRegistry.get(providerId);
+  return provider ? provider.historyRecords(result) : [];
 }
 
-function normalizeApibaraHistory(result, vehicleContext = {}) {
-  return getApibaraHistoryRecords(result)
-    .map(record => normalizeHistoryRecord(record, { ...vehicleContext, apibaraEvent: true }))
+function normalizeProviderHistory(result, vehicleContext = {}) {
+  const providerId = vehicleContext.provider || DEFAULT_PROVIDER;
+  const provider = providerRegistry.get(providerId);
+  if (!provider) return [];
+  return getProviderHistoryRecords(result, providerId)
+    .map(record => {
+      const providerContext = { ...vehicleContext, provider: providerId };
+      const normalized = provider.normalizeHistoryRecord(record, providerContext);
+      if (normalized) {
+        const canonical = provider.toCanonicalHistoryEvent(record, providerContext);
+        if (!validateRexHistoryEvent(canonical).valid) return null;
+        Object.defineProperty(normalized, "rex", { value: canonical, enumerable: false });
+      }
+      return normalized;
+    })
     .filter(Boolean);
 }
 
@@ -1947,142 +1208,14 @@ function rawJsonValueCount(value) {
  * ============================================================
  */
 
-function normalizeHistoryRecord(
-  record,
-  vehicleContext = {}
-) {
-  if (
-    !record ||
-    typeof record !== "object"
-  ) {
-    return null;
-  }
-
-
-  const vehicle = record.vehicle && typeof record.vehicle === "object" ? record.vehicle : {};
-  const platform = cleanString(firstValue(record, ["platform", "source"]) || firstValue(vehicle, ["platform", "source"]) || vehicleContext.platform).toLowerCase();
-  const vin = cleanString(firstValue(record, ["vin", "VIN"]) || firstValue(vehicle, ["vin", "VIN"]) || vehicleContext.vin).toUpperCase();
-  const lot = cleanString(firstValue(record, ["lot_number", "lotNumber", "lot", "stock_number", "stockNumber"])
-    || firstValue(vehicle, ["lot_number", "lotNumber", "lot", "stock_number", "stockNumber"]) || vehicleContext.lot);
-  const sellerCandidates = [
-    getNested(record, [["details", "attributes", "ProviderName"]]),
-    getNested(record, [["details", "attributes", "provider_name"]]),
-    getNested(record, [["details", "sale_information", "Seller"]]),
-    getNested(record, [["details", "sale_information", "seller"]]),
-    getNested(record, [["details", "vehicle_information", "Seller"]]),
-    getNested(record, [["sale_information", "Seller", "displayName"], ["sale_information", "Seller", "name"], ["sale_information", "Seller", "seller_name"], ["sale_information", "Seller"], ["details", "sale_information", "Seller", "name"]]),
-    ...["displayName", "name", "companyName", "company_name", "providerName", "provider_name", "display", "provider"].map(key => record.seller && typeof record.seller === "object" ? record.seller[key] : null),
-    ...["seller_name", "sellerName", "seller_display_name", "provider_name", "providerName", "company_name", "companyName"].map(key => record[key]),
-    typeof record.seller === "string" ? record.seller : null
-  ].map(value => typeof value === "string" || typeof value === "number" ? cleanString(value) : "").filter(value => value && !/^(?:[*#•\s]+|unknown(?: seller)?|seller unknown|n\/?a|not available|name unavailable|nazwa niedostępna|brak danych|unavailable|null|none|masked|[-—])$/i.test(value));
-  const seller = sellerCandidates[0] || "";
-  const sellerTypeRaw = [
-    getNested(record, [["details", "attributes", "ProviderType"]]),
-    getNested(record, [["details", "attributes", "ProviderTypeTimedAuction"]]),
-    getNested(record, [["details", "sale_information", "SellerType"]]),
-    getNested(record, [["sale_information", "Seller", "type"]]),
-    ...["seller_type", "sellerType"].map(key => record[key]),
-    ...["type", "normalized_type", "seller_type", "sellerType"].map(key => record.seller && typeof record.seller === "object" ? record.seller[key] : null)
-  ].map(cleanString).find(value => value && !/^(?:unknown|n\/?a|not available|unavailable|null|none|-)$/i.test(value)) || "";
-  const sellerType = /^(?:ins|insurance)$/i.test(sellerTypeRaw) ? "insurance"
-    : /^(?:nins|non[_ -]?insurance)$/i.test(sellerTypeRaw) ? "non_insurance" : sellerTypeRaw;
-
-  // Only semantically explicit event identifiers are accepted. A generic `id`
-  // may identify the vehicle/listing rather than this historical auction.
-  // The current public Apibara schema does not name a stable event-ID field.
-  // Accept only an explicitly named source_event_id if a response supplies it;
-  // do not guess that generic `id` or undocumented aliases identify an event.
-  const sourceEventId = cleanString(firstValue(record, ["source_event_id"])
-    || getNested(record, [["auction", "source_event_id"]]));
-  const explicitEventKey = cleanString(firstValue(record, ["event_key"])
-    || getNested(record, [["auction", "event_key"]]));
-
-  const status = cleanString(firstValue(record, ["status", "sale_status", "saleStatus", "auction_status", "auctionStatus", "lot_sub_status", "state"])
-    || getNested(record, [["auction", "last_sold_status"], ["auction", "status"], ["auction", "lot_sub_status"], ["sale", "status"], ["vehicle", "auction", "status"], ["vehicle", "auction", "lot_sub_status"]]));
-  const statusLower = status.toLowerCase();
-  const isConditional = /sold\s+on\s+approval|on\s+approval|sale\s+pending\s+approval|pending\s+approval/.test(statusLower);
-  const isUnsold = isConditional || /not sold|no sale|unsold|failed/.test(statusLower);
-
-  const auctionDateRaw = firstValue(record, ["auction_date", "auctionDate", "auction_at", "auctionAt", "full_date"])
-    || getNested(record, [["auction", "auction_at"], ["auction", "auctionAt"], ["auction", "full_date"], ["vehicle", "auction", "auction_at"]]);
-  const saleDateRaw = firstValue(record, ["sale_date", "saleDate", "sold_date", "sold_at", "soldAt", "last_sold_day", "lastSoldDay"])
-    || getNested(record, [["auction", "last_sold_day"], ["sale", "date"], ["sale", "sold_at"], ["vehicle", "auction", "last_sold_day"]]);
-  const genericDate = firstValue(record, ["date"]);
-  // The upstream history schema supplies a single event `date`; it does not
-  // label that date as a sale date. Preserve it as the auction/event date and
-  // only populate sale_date from an explicitly named sale field.
-  const auctionDate = historyDate(auctionDateRaw || genericDate);
-  const saleDate = historyDate(saleDateRaw);
-
-  const pricing = record.pricing && typeof record.pricing === "object" ? record.pricing
-    : vehicle.pricing && typeof vehicle.pricing === "object" ? vehicle.pricing : {};
-  const auction = record.auction && typeof record.auction === "object" ? record.auction
-    : vehicle.auction && typeof vehicle.auction === "object" ? vehicle.auction : {};
-  const currentBid = numberOrNull(firstValue(pricing, ["current_bid_usd", "current_bid2_usd", "current_bid", "currentBidUsd", "currentBid"])
-    ?? firstValue(record, ["current_bid_usd", "current_bid", "currentBidUsd", "currentBid", "bid"])
-    ?? firstValue(auction, ["current_bid_usd", "current_bid"]));
-  const buyNow = numberOrNull(firstValue(pricing, ["buy_now_usd", "buy_now", "buyNowUsd", "buyNow"])
-    ?? firstValue(record, ["buy_now_usd", "buy_now", "buyNowUsd", "buyNow"]));
-
-  // A generic `price` remains source_price. Only explicitly named sale/final
-  // fields can populate final_price, and a not-sold status always clears it.
-  const explicitFinalPrice = firstValue(pricing, ["sale_price_usd", "last_sold_price_usd", "final_price_usd", "final_bid_usd", "sold_price_usd"])
-    ?? firstValue(record, ["sale_price_usd", "sale_price", "final_price_usd", "final_price", "final_bid_usd", "final_bid", "sold_price_usd", "sold_price"]);
-  // Apibara's real history event has `{ date, price, status }`. On an event
-  // whose source status is exactly Sold, its event-scoped price is the sale
-  // amount; on Not Sold / Sold on Approval / unknown records it remains only
-  // source_price. Legacy D1 rows use the default path and are never inferred.
-  const confirmedEventPrice = vehicleContext.apibaraEvent === true && statusLower === "sold"
-    ? firstValue(record, ["price", "price_usd"])
-    : null;
-  const finalPrice = isUnsold ? null : numberOrNull(explicitFinalPrice ?? confirmedEventPrice);
-  const sourcePrice = numberOrNull(firstValue(record, ["price", "price_usd"])
-    ?? firstValue(pricing, ["price", "price_usd"]));
-
-  let eventKey = "";
-  if (sourceEventId) {
-    eventKey = `source:${platform || "unknown"}:${sourceEventId}`;
-  } else if (explicitEventKey) {
-    eventKey = /^(source|fallback):/.test(explicitEventKey)
-      ? explicitEventKey
-      : `source:${platform || "unknown"}:${explicitEventKey}`;
-  } else {
-    const identityDate = auctionDate || saleDate;
-    const identity = lot ? `lot:${historyIdentityPart(lot)}` : vin ? `vin:${historyIdentityPart(vin)}` : "";
-    const identityDay = String(identityDate || "").match(/^(\d{4}-\d{2}-\d{2})/)?.[1] || identityDate;
-    if (identity && identityDay) {
-      eventKey = `fallback:${platform || "unknown"}:${identity}:date:${identityDay}`;
-    }
-  }
-
-  if (!platform && !vin && !lot && !auctionDate && !saleDate && !status && currentBid === null && finalPrice === null && buyNow === null && sourcePrice === null) {
-    return null;
-  }
-
-  return {
-    event_key: eventKey || null,
-    source_event_id: sourceEventId || null,
-    vin: vin || null,
-    platform: platform || null,
-    lot: lot || null,
-    auction_date: auctionDate,
-    sale_date: saleDate,
-    current_bid: currentBid,
-    final_price: finalPrice,
-    buy_now: buyNow,
-    source_price: sourcePrice,
-    seller: seller || null,
-    seller_type: sellerType && !/^(?:unknown|n\/?a|not available|null)$/i.test(sellerType) ? sellerType : null,
-    status: status || null,
-    raw_json: record
-  };
+function normalizeHistoryRecord(record, vehicleContext = {}) {
+  const providerId = vehicleContext.provider || DEFAULT_PROVIDER;
+  const provider = providerRegistry.get(providerId);
+  const normalized = provider?.normalizeHistoryRecord(record, vehicleContext);
+  if (!normalized) return null;
+  if (provider.toCanonicalHistoryEvent) Object.defineProperty(normalized, "rex", { value: provider.toCanonicalHistoryEvent(record, vehicleContext), enumerable: false });
+  return normalized;
 }
-
-
-/* ============================================================
- * HISTORY EVENT HASH
- * ============================================================
- */
 
 function historyEventHash(
   record
@@ -2094,11 +1227,11 @@ function historyEventHash(
 
 
 /* ============================================================
- * SAVE OFFICIAL APiBARA HISTORY
+ * SAVE AUCTION HISTORY
  * ============================================================
  */
 
-async function saveOfficialHistory(
+async function saveAuctionHistory(
   env,
   vehicleKey,
   normalizedRecords
@@ -2300,44 +1433,46 @@ async function getCar(
   env,
   identifier
 ) {
+  const provider = getProviderAdapter(env);
   const encoded =
     encodeURIComponent(identifier);
 
   let upstreamFailure = null;
   let shouldSearch = false;
 
-  /* DIRECT APiBARA */
+  /* Provider adapter owns upstream lookup and compatibility serialization. */
 
   try {
-    const result = await fetchApibaraVehicle(env, identifier);
+    const result = await fetchProviderVehicle(env, identifier);
+    const vehicleRecord = provider.vehicleDetailRecord(result);
 
 
     if (
-      result &&
-      result.data
+      vehicleRecord
     ) {
       const normalized =
         normalizeVehicle(
-          result.data
+          vehicleRecord,
+          provider.id
         );
 
 
       if (
         vehicleMatchesIdentifier(
-          result.data,
-          identifier
+        vehicleRecord,
+          identifier,
+          provider.id
         )
       ) {
         return json(
           {
-            ok:
-              result.ok !== false,
+            ok: provider.responseOk(result),
 
             data:
-              result.data,
+              provider.publicVehicleRecord(vehicleRecord),
 
             source:
-              "apibara",
+              provider.id,
 
             match:
               "exact",
@@ -2358,7 +1493,7 @@ async function getCar(
 
 
       console.warn(
-        "Apibara direct result does not match:",
+        "Provider direct result does not match:",
         identifier
       );
     }
@@ -2368,7 +1503,7 @@ async function getCar(
       shouldSearch = true;
     } else {
       upstreamFailure = error;
-      console.warn("Apibara direct lookup failed", error?.code || "UNKNOWN", error?.status || "");
+      console.warn("Provider direct lookup failed", error?.code || "UNKNOWN", error?.status || "");
     }
   }
 
@@ -2376,26 +1511,25 @@ async function getCar(
   /* FALLBACK SEARCH */
 
   if (shouldSearch || !upstreamFailure) try {
-    const searchResult = await searchApibaraVehicles(env, identifier, 20);
+    const searchResult = await searchProviderVehicles(env, identifier, 20);
 
 
-    if (
-      searchResult &&
-      Array.isArray(searchResult.data)
-    ) {
+    if (searchResult) {
+      const searchRecords = provider.vehicleListRecords(searchResult);
       const exact =
-        searchResult.data.find(
+        searchRecords.find(
           item =>
             vehicleMatchesIdentifier(
               item,
-              identifier
+              identifier,
+              provider.id
             )
         );
 
 
       if (exact) {
         const normalized =
-          normalizeVehicle(exact);
+          normalizeVehicle(exact, provider.id);
 
 
         return json(
@@ -2403,10 +1537,10 @@ async function getCar(
             ok: true,
 
             data:
-              exact,
+              provider.publicVehicleRecord(exact),
 
             source:
-              "apibara-search",
+              `${provider.id}-search`,
 
             match:
               "exact",
@@ -2428,7 +1562,7 @@ async function getCar(
 
   } catch (error) {
     if (error?.code !== "NOT_FOUND") upstreamFailure = error;
-    console.warn("Apibara fallback failed", error?.code || "UNKNOWN", error?.status || "");
+    console.warn("Provider fallback failed", error?.code || "UNKNOWN", error?.status || "");
   }
 
 
@@ -2547,34 +1681,32 @@ async function getHistory(
     ? incoming.searchParams.get("cursor")
     : null;
 
-  let apibaraHistory = null;
-  let apibaraNextCursor = null;
-
-  let apibaraError = null;
+  const provider = getProviderAdapter(env);
+  let providerHistory = null;
+  let providerNextCursor = null;
+  let providerErrorMessage = null;
 
 
   /*
    * Najważniejsza zmiana:
    *
    * Pobieramy pełne 20 rekordów.
-   * Apibara dokumentuje maksymalnie 20 na request
-   * dla tego endpointu.
+   * The selected provider adapter enforces its supported page-size limit.
    */
 
   try {
-    const historyPage = await fetchApibaraHistory(env, identifier, {
+    const historyPage = await fetchProviderHistory(env, identifier, {
       per_page: perPage,
       cursor
     });
-    apibaraHistory = historyPage.response;
-    apibaraNextCursor = historyPage.nextCursor;
+    providerHistory = historyPage.response;
+    providerNextCursor = historyPage.nextCursor;
 
   } catch (error) {
-    apibaraError =
-      error.message;
+    providerErrorMessage = error.message;
 
     console.warn(
-      "Rex.Bid Apibara history error:",
+      "Rex.Bid provider history error:",
       error.message
     );
   }
@@ -2586,8 +1718,9 @@ async function getHistory(
     try {
       localVehicle = await findLocalVehicle(env, identifier);
 
-      if (!localVehicle && apibaraHistory?.data?.vehicle) {
-        const vehicle = normalizeVehicle(apibaraHistory.data.vehicle);
+      const historyVehicle = provider.historyVehicleRecord(providerHistory);
+      if (!localVehicle && historyVehicle) {
+        const vehicle = normalizeVehicle(historyVehicle, provider.id);
         if (vehicle) {
           localVehicle = await findLocalVehicle(
             env,
@@ -2596,17 +1729,18 @@ async function getHistory(
         }
       }
     } catch (dbError) {
-      console.error("Rex.Bid official history lookup error:", dbError);
+      console.error("Rex.Bid provider history lookup error:", dbError);
     }
   }
 
   const vehicleContext = {
-    vin: localVehicle?.vin || apibaraHistory?.data?.vehicle?.vin,
-    platform: localVehicle?.platform || apibaraHistory?.data?.vehicle?.platform,
-    lot: localVehicle?.lot || apibaraHistory?.data?.vehicle?.lot_number
+    vin: localVehicle?.vin || provider.normalizeVehicle(provider.historyVehicleRecord(providerHistory))?.vin,
+    platform: localVehicle?.platform || provider.normalizeVehicle(provider.historyVehicleRecord(providerHistory))?.platform,
+    lot: localVehicle?.lot || provider.normalizeVehicle(provider.historyVehicleRecord(providerHistory))?.lot,
+    provider: provider.id
   };
-  let officialHistory = apibaraHistory
-    ? normalizeApibaraHistory(apibaraHistory, vehicleContext)
+  let upstreamHistoryRecords = providerHistory
+    ? normalizeProviderHistory(providerHistory, vehicleContext)
     : [];
 
   /*
@@ -2636,14 +1770,14 @@ async function getHistory(
    * a historia sprzedaży to prawdziwe aukcje.
    */
 
-  const finalHistory = apibaraHistory ? officialHistory : savedHistory;
-  const nextCursor = apibaraHistory ? apibaraNextCursor : null;
+  const finalHistory = providerHistory ? upstreamHistoryRecords : savedHistory;
+  const nextCursor = providerHistory ? providerNextCursor : null;
 
 
   /*
    * Zwracamy jednocześnie:
    *
-   * data        -> oryginalna odpowiedź Apibara
+   * data        -> public compatibility representation owned by the adapter
    * history     -> prosta tablica do wyświetlenia
    * rex_history -> nasza historia D1
    */
@@ -2652,10 +1786,7 @@ async function getHistory(
     {
       ok: true,
 
-      data:
-        apibaraHistory
-          ? apibaraHistory.data || null
-          : null,
+      data: providerHistory ? provider.publicHistoryData(providerHistory) : null,
 
       meta: {
         per_page: perPage,
@@ -2682,15 +1813,9 @@ async function getHistory(
             : []
       },
 
-      source:
-        apibaraHistory
-          ? "apibara"
-          : "d1",
+      source: providerHistory ? provider.id : "d1",
 
-      error:
-        apibaraError
-          ? apibaraError
-          : null
+      error: providerErrorMessage
     },
     200,
     "HISTORY",
@@ -2763,73 +1888,9 @@ async function getCars(
     new URLSearchParams();
 
 
-  const allowedParams = [
-    "s",
-    "platform",
-    "auction_type",
-    "lot_status",
-    "lot_sub_status",
-    "upcoming",
-    "make",
-    "series",
-    "model",
-    "generation_id",
-    "generation",
-    "type",
-    "body_style",
-    "year_from",
-    "year_to",
-    "price_min",
-    "price_max",
-    "odometer_from",
-    "odometer_to",
-    "fuel_type",
-    "transmission",
-    "drive_type",
-    "run_cond",
-    "damage",
-    "color",
-    "engine_size_from",
-    "engine_size_to",
-    "engine_type",
-    "cylinders",
-    "has_key",
-    "sale_document_pending",
-    "sale_document_type",
-    "seller_type",
-    "zip",
-    "radius",
-    "units",
-    "facility_id",
-    "loc_state",
-    "office_name",
-    "auction_date_from",
-    "auction_date_to",
-    "today_only",
-    "has_shipping_price",
-    "include_total",
-    "per_page",
-    "cursor",
-    "updated_within_minutes"
-  ];
-
-
-  for (
-    const name of allowedParams
-  ) {
-    const value =
-      incoming.searchParams.get(name);
-
-
-    if (
-      value !== null &&
-      value !== ""
-    ) {
-      params.set(
-        name,
-        value
-      );
-    }
+  const provider = getProviderAdapter(env);
+  for (const [name, value] of Object.entries(provider.listParams(incoming.searchParams))) {
+    params.set(name, value);
   }
 
 
@@ -2891,23 +1952,17 @@ async function getCars(
    * APiBARA
    */
 
-  const result = await fetchApibaraVehicles(env, Object.fromEntries(params.entries()));
+  const result = await fetchProviderVehicles(env, Object.fromEntries(params.entries()));
 
 
   const response =
     json(
       {
-        ok:
-          result.ok !== false,
+        ok: provider.responseOk(result),
 
-        data:
-          Array.isArray(result.data)
-            ? result.data
-            : [],
+        data: provider.publicVehicleRecords(result).map(record => provider.publicVehicleRecord(record)),
 
-        meta:
-          result.meta ||
-          null
+        meta: provider.responseMeta(result)
       },
       200,
       "MISS",
@@ -3303,17 +2358,15 @@ function constantTimeTokenEqual(left, right) {
   return difference === 0 && a.length > 0;
 }
 
-async function fetchApibaraVehicleFilters(env, params = {}) {
-  return requestApibara(env, { operation: "vehicleFilters", params });
+async function fetchProviderFilters(env, params = {}) {
+  return getProviderAdapter(env).fetchFilters(env, params);
 }
 
 async function getVehicleFilters(request, env) {
+  const provider = getProviderAdapter(env);
   const incoming = new URL(request.url);
   const params = new URLSearchParams();
-  for (const name of ["make", "series", "model", "generation_id"]) {
-    const value = incoming.searchParams.get(name);
-    if (value && value.trim()) params.set(name, value.trim().slice(0, 120));
-  }
+  for (const [name, value] of Object.entries(provider.filterParams(incoming.searchParams))) params.set(name, value);
   const cacheKey = new Request(`https://rex-bid-cache.invalid/api/filters?${params.toString()}`, { method: "GET" });
   const cache = caches.default;
   const cached = await cache.match(cacheKey);
@@ -3323,15 +2376,13 @@ async function getVehicleFilters(request, env) {
     return new Response(cached.body, { status: cached.status, headers });
   }
 
-  const upstream = await fetchApibaraVehicleFilters(env, Object.fromEntries(params.entries()));
+  const upstream = await fetchProviderFilters(env, Object.fromEntries(params.entries()));
   const payload = upstream && typeof upstream === "object" ? upstream : {};
-  const sourceData = payload.response && typeof payload.response === "object" && payload.response.data && typeof payload.response.data === "object"
-    ? payload.response.data
-    : payload.data && typeof payload.data === "object" ? payload.data : payload;
+  const sourceData = provider.publicFilterData(payload);
   const response = json({
-    ok: payload.ok !== false,
+    ok: provider.responseOk(payload),
     data: sourceData && typeof sourceData === "object" ? sourceData : {},
-    meta: payload.meta || payload.response?.meta || null
+    meta: provider.publicFilterMeta(payload)
   }, 200, "MISS", FILTERS_CACHE_TTL_SECONDS);
   await cache.put(cacheKey, response.clone());
   return response;

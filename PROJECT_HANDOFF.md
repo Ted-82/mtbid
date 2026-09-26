@@ -10,12 +10,14 @@ Rex.Bid is a Polish-language vehicle-auction discovery and research product for 
 - Branch: `main`
 - Owner-confirmed production source commit: `b25c452` (`Refine Rex.Bid home and auction data semantics`)
 - Owner-confirmed deployed Worker Version ID: `a1e0199f-97c4-4e93-99ab-96041327d5c7`
+- Local Git base when provider-independence work began: `80128cc` (`Document Rex.Bid architecture and production roadmap`)
+- Current provider-independence changes are local and **not deployed**; do not represent them as production behavior.
 - Worker: `mtbid`
 - Production URL: <https://mtbid.tedn828.workers.dev>
 - Wrangler configuration file: `wrangler.jsonc`
 - Cloudflare D1 binding: `REXBID_DB` → `rexbid-db` (`971879fe-04ed-4e8c-9dc6-5306980bb872`)
 - Static asset binding: `ASSETS` → `./public`
-- Current local checkout inspected for this handoff: `C:/Users/nowic/Desktop/stona_auta-www`, `main`, `b25c452`; the working tree was clean before adding these docs.
+- Current local checkout: `C:/Users/nowic/Desktop/stona_auta-www`, branch `main`; provider-independence work began from `80128cc` with clean working tree. The preceding docs claim `b25c452` as production checkpoint, not current Git HEAD.
 
 The production checkpoint and owner acceptance above are supplied by the owner. Do not infer that a local edit is deployed until a later deploy confirms it.
 
@@ -23,16 +25,16 @@ The production checkpoint and owner acceptance above are supplied by the owner. 
 
 The Cloudflare Worker in `worker.js` serves the JSON API and static assets. The browser calls same-origin `/api/...` routes. The current upstream provider is Apibara. Wrangler binds the application D1 database as `REXBID_DB`.
 
-Apibara access is centralized in `requestApibara(env, requestSpec)`. It reads only `env.APIBARA_API_KEY`, issues GET requests to explicitly approved operations, uses `redirect: "manual"`, has a timeout, does not retry automatically, and does not expose upstream error bodies to clients/logs. Never print, copy, fixture, or commit secret values.
+Provider access now has a local adapter boundary in `providers/apibara.js`; it owns approved upstream operations, URL construction, the `X-API-Key` header from only `env.APIBARA_API_KEY`, timeout, manual redirects, safe transport errors, and Apibara-to-Rex normalization. `providers/contract.js` defines the canonical entities and provider registry. The Worker uses the registry and D1 persistence remains outside the adapter. This refactor is local/unreleased; production remains at the checkpoint above. Never print, copy, fixture, or commit secret values.
 
 ### Worker API routes
 
 | Route | Method | Purpose |
 | --- | --- | --- |
-| `/api/cars` | GET | Paginated listing/search with supported Apibara query filters; returns `data` and upstream `meta` including `next_cursor`. |
+| `/api/cars` | GET | Paginated listing/search; adapter-owned upstream filters; public `data`/`meta` response preserved for the current frontend. |
 | `/api/car/:identifier` | GET | Vehicle detail by VIN or LOT. Direct lookup and fallback search both require an exact VIN/LOT match; never select the first approximate result. May include a D1 history summary via SELECT. |
-| `/api/car/:identifier/history` | GET | Paginated canonical auction events. Accepts `per_page` (bounded to 20) and opaque `cursor`; response is no-store and separates `history`, `meta.next_cursor`, local `rex_history`, and snapshots. |
-| `/api/filters` | GET | Proxies Apibara vehicle-filter metadata, with a six-hour cache and optional make/series/model narrowing. |
+| `/api/car/:identifier/history` | GET | Paginated Rex.Bid history events. Accepts `per_page` (adapter bounded, currently 20) and opaque `cursor`; response is no-store and separates `history`, `meta.next_cursor`, local `rex_history`, and snapshots. |
+| `/api/filters` | GET | Proxies normalized filter metadata through the adapter, with a six-hour cache and optional source-supported narrowing. |
 | `/api/database` | GET | D1 availability and row counts; read-only. |
 | `/api/sync/vehicle/:identifier` | POST | Explicit persistence operation; requires a valid `Authorization: Bearer …` token from `REXBID_SYNC_TOKEN`. It is not a GET and is not a public browsing route. Confirm the secret is configured before relying on it operationally. |
 
@@ -115,9 +117,10 @@ git diff --check
 
 Current suite files:
 
-- `tests/history.test.cjs` — Worker read/write separation, Apibara request safety, history canonicalization, pagination and D1 behavior.
+- `tests/history.test.cjs` — Worker read/write separation, provider request safety, history canonicalization, pagination and D1 behavior.
 - `tests/product-feedback.test.cjs` — source field mappings, title/seller/condition/status semantics and product markup contracts.
 - `tests/local-storage.test.cjs` — favorite persistence, exact links and hostile local-storage input handling.
+- `tests/provider-independence.test.cjs` — canonical mapping parity for Apibara-shaped and fake Provider B payloads, adapter safety/errors and compatibility response shape.
 - `tests/fixtures/` — representative observed payload shapes and regression cases; do not add credentials or unredacted personal data.
 
 Keep tests offline: fixtures/mocks must not call production Apibara or D1. Production requests and changes to Cloudflare require an explicit task and safety review.
@@ -134,7 +137,8 @@ Keep tests offline: fixtures/mocks must not call production Apibara or D1. Produ
 
 ## Known constraints / risks
 
-- Apibara is the only current provider adapter in production code; provider independence is a target design, not implemented isolation.
+- Apibara is the only real provider adapter. A provider registry, canonical Rex.Bid contract, and Provider B test double now exist locally; Provider B is not integrated and these changes are not deployed.
+- Current public compatibility data fields intentionally retain the response shape used by existing frontend pages. The active adapter owns that compatibility serialization; a future adapter must implement it or a separately versioned stable API DTO before replacing Apibara.
 - Some history payloads have only `{date, price, status, lot_number, platform}` and no seller or stable event ID. Fallback identity and price interpretation therefore have limits; never invent missing values.
 - Apibara availability/rate limits affect uncached reads. Do not add automatic retries or fan-out requests casually.
 - `REXBID_SYNC_TOKEN` is required for the explicit sync POST; verify its Cloudflare configuration before scheduling or manually invoking synchronization.
@@ -145,7 +149,9 @@ Keep tests offline: fixtures/mocks must not call production Apibara or D1. Produ
 
 ## CURRENT WORK / CONTINUE HERE
 
-1. This checkpoint is documentation only. Confirm the three docs are accurate and keep product files untouched.
-2. For the next product task, start with the owner’s prioritized “NOW” items in `ROADMAP.md`; do not redo the accepted Home/filters/seller/title/condition/history work.
-3. Before designing durable accounts or recurring synchronization, verify the deployed sync-secret setup, D1 schema/migration state and data-provider retention rights.
-4. Treat the production checkpoint above as the baseline. Do not deploy or migrate merely to validate documentation.
+1. Provider-independence checkpoint is locally verified: `node --test` 66/66, provider/Worker syntax checks and `git diff --check` pass. Frontend files, API routes and D1 migrations were not changed by the adapter refactor.
+2. Commit/push did **not** complete: `git add` failed twice because Windows denied creation of `.git/index.lock`, including after the workspace was granted access to `.git`. Do not work around by editing the index manually. Production is still the owner-confirmed checkpoint above.
+3. Provider checkpoint files to stage/commit when `.git` writes work: `worker.js`, `providers/apibara.js`, `providers/contract.js`, `tests/history.test.cjs`, `tests/product-feedback.test.cjs`, `tests/provider-independence.test.cjs`, `tests/fixtures/provider-b-vehicle.json`, `PROJECT_HANDOFF.md`, `ARCHITECTURE.md`, `ROADMAP.md`. No UI, `.env`, `.wrangler`, ZIP, backup, D1 migration, or production data files belong in that checkpoint.
+4. Data Sync Foundation is the next local design step. Review `ARCHITECTURE.md` → “Data Sync Foundation” and `docs/proposals/0002_provider_sync_foundation.sql`. The SQL is a proposal outside Wrangler's migrations directory, was tested only in in-memory SQLite after `0000`/`0001`, and has **not** been applied anywhere.
+5. Do not add a schedule/queue yet. First approve provider-source identity, per-source freshness/lease, idempotent page checkpointing, D1-first rollout conditions, and API rate budget. GET stays read-only and explicit protected sync remains the persistence trigger.
+6. Written provider data-rights confirmation remains a blocker before expanding durable storage, backfilling history, or retaining additional photos/raw payloads. The proposal adds no raw payload/media copies and does not modify existing PKs or rows.
