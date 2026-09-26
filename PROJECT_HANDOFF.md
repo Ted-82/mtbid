@@ -144,7 +144,7 @@ Keep tests offline: fixtures/mocks must not call production Apibara or D1. Produ
 - `REXBID_SYNC_TOKEN` is required for the explicit sync POST; verify its Cloudflare configuration before scheduling or manually invoking synchronization.
 - D1 migrations are checked-in SQL. Never apply a migration to production without verifying the target binding/database and reviewing the exact pending migration.
 - Account pages are not proof of authentication, durable customer records, favorites sync, saved searches or alerts. Those need backend design, security/privacy decisions and tests.
-- Calculator estimates, current auction fees, transport, freight, tax and excise assumptions need dated sources/configuration before being marketed as current.
+- The existing `public/car.html` calculator math/defaults remain illustrative and unchanged. Current auction fees, transport/freight, customs value, duty, VAT base, excise classification and legal FX need dated/versioned inputs before the result is marketed as a current landed cost.
 - Rights to store, retain, derive from, or resell Apibara/history/report data need contract/licensing confirmation.
 
 ## CURRENT WORK / CONTINUE HERE
@@ -155,3 +155,5 @@ Keep tests offline: fixtures/mocks must not call production Apibara or D1. Produ
 4. Data Sync Foundation remains the next design step. Review `ARCHITECTURE.md` → “Data Sync Foundation” and `docs/proposals/0002_provider_sync_foundation.sql`. The SQL is a proposal outside Wrangler's migrations directory, tested only in in-memory SQLite after `0000`/`0001`, and has **not** been applied anywhere.
 5. Do not add a schedule/queue yet. First approve provider-source identity, per-source freshness/lease, idempotent page checkpointing, D1-first rollout conditions, and API rate budget. GET stays read-only and explicit protected sync remains the persistence trigger.
 6. Written provider data-rights confirmation remains a blocker before expanding durable storage, backfilling history, or retaining additional photos/raw payloads. The proposal adds no raw payload/media copies and does not modify existing PKs or rows.
+7. Import-cost Calculator Phase 1 research/model is documented in `docs/CALCULATOR_MODEL.md` (checked 2026-09-26). Copart US fee tables are confirmed only for explicit title/payment/bid profiles; IAA US numerical fees, route-specific transport quotes and customs-agent validation remain open. No production calculator code, defaults, or arithmetic were changed. Do not present default values as current official rates.
+8. Next calculator step: obtain account-specific IAA fee breakdowns, define the Rex.Bid buyer profile, request dated forwarder quotes, and validate customs classification/origin/value/tax bases with a Polish customs agent. Only then implement versioned rate configurations with effective dates and incomplete-state behavior. Keep production calculator math unchanged until the evidence is complete.

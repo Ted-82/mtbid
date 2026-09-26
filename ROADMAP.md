@@ -58,12 +58,14 @@ Production status reflects the owner-confirmed `b25c452` / Worker version `a1e01
 
 ### 8. Import-cost estimator — source-backed model
 
-- Preserve current arithmetic until every changed assumption has an authoritative, dated source and tests.
-- Research current Copart and IAA auction buyer fees, fee tiers, online/platform fees and membership/other relevant charges. Record source, currency, effective date and which auction buyer profile the estimate assumes.
-- Model facility-to-port trucking separately from ocean freight/port fees and destination delivery. Provide route/port assumptions and ranges where quotes vary.
-- Research customs duty, VAT and excise applicability by vehicle origin, fuel/engine/age and destination rules with qualified current sources. Make inputs explicit and version assumptions.
-- Return an itemized “estimated import cost”, show the assumption date and uncertainty, and provide a breakdown; never label estimates as guaranteed payable totals or legal/tax advice.
-- Add a configuration/version mechanism for changing rates without silently changing historical calculations.
+- **Phase 1 research/model documented:** see `docs/CALCULATOR_MODEL.md` (checked 2026-09-26). No production calculator arithmetic or rates were changed.
+- Copart's official US page confirms tiered fees and differences by clean/non-clean title group, secure/unsecure payment, online bid type, gate/environmental and conditional charges. The page presents multiple schedules; a buyer profile and source title code must be selected before a fee can be called confirmed.
+- IAA's official US pages confirm a Buyer Fee Schedule and logged-in vehicle-specific Cost Calculator, but the public US fee page did not expose a readable complete numeric schedule in this research. Do not substitute Canadian rates, brokers, or blogs. Obtain account-specific IAA breakdowns.
+- Facility→port, ocean freight, insurance, destination fees and inland Poland delivery have no verified universal rate. Collect dated route/vehicle-specific forwarder quotes and model their included/excluded items separately.
+- Current official sources confirm Poland's 23% standard VAT and passenger-car excise categories/rates, with HEV/PHEV/EV distinctions and conditional exemptions. The actual customs code, vehicle origin/proof, customs valuation, tax base and customs exchange rate must be resolved for each scenario.
+- TARIC/Access2Markets research found that US location is not proof of US origin; some listed CN codes may have a conditional 0% US-origin preference under Regulation (EU) 2026/1455 while a 10% third-country rate is shown for an example CN code. Always query the exact code, origin, date and proof conditions; never hardcode a universal 10% or 0% duty.
+- Next: obtain current US IAA fee examples, choose the buyer profile Rex.Bid models, collect forwarder quotes and validate customs valuation/tax treatment with a Polish customs agent. Then implement versioned rate profiles with `effective_from/to`, line-level provenance and an incomplete result when required inputs are missing.
+- Keep the current browser calculator math untouched until those inputs are confirmed. All line items must identify amount, currency, source/source kind, checked/effective date and `confirmed/configurable/estimated` status. No estimate is a guaranteed payable total or legal/tax advice.
 
 ### 9. Durable customer features
 
