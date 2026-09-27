@@ -1,0 +1,41 @@
+{
+  "checked_at": "2026-09-27",
+  "fx_usd_pln": 3.8404,
+  "cases": [
+    {
+      "id": "copart_tx_operable_under_2l",
+      "vehicle": { "platform": "copart", "auction": { "state_code": "TX", "location": "Houston, TX", "is_operable": true }, "vehicle_type": "sedan", "fuel_type": "Gasoline", "engine_cc": 1998 },
+      "purchase_price_usd": 7500,
+      "expected_pln_rounded_100": [52300, 63600, 72800],
+      "expected_port": "Houston"
+    },
+    {
+      "id": "copart_nj_operable_under_2l",
+      "vehicle": { "platform": "copart", "auction": { "state_code": "NJ", "location": "Newark, NJ", "zip": "07114", "is_operable": true }, "vehicle_type": "sedan", "fuel_type": "Gasoline", "engine_cc": 1998 },
+      "purchase_price_usd": 10000,
+      "expected_pln_rounded_100": [64800, 77300, 87200],
+      "expected_port": "Newark / Irvington"
+    },
+    {
+      "id": "copart_ca_suv_over_2l",
+      "vehicle": { "platform": "copart", "auction": { "state_code": "CA", "location": "East Bay, CA", "is_operable": true }, "vehicle_type": "SUV", "fuel_type": "Gasoline", "engine_cc": 3000 },
+      "purchase_price_usd": 25000,
+      "expected_pln_rounded_100": [164800, 189800, 204900],
+      "expected_port": "Los Angeles"
+    },
+    {
+      "id": "iaai_wa_unknown_origin_fee_profile",
+      "vehicle": { "platform": "iaai", "auction": { "state_code": "WA", "location": "Seattle, WA" }, "vehicle_type": "sedan", "fuel_type": "Gasoline", "engine_cc": 1800 },
+      "purchase_price_usd": 5000,
+      "expected_pln_rounded_100": [39200, 51600, 64800],
+      "expected_port": "Tacoma / Seattle"
+    },
+    {
+      "id": "copart_tx_nonrunner_suv_over_2l",
+      "vehicle": { "platform": "copart", "auction": { "state_code": "TX", "location": "Dallas, TX", "is_operable": false, "run_condition": "Stationary" }, "vehicle_type": "SUV", "fuel_type": "Gasoline", "engine_cc": 2500 },
+      "purchase_price_usd": 10000,
+      "expected_pln_rounded_100": [74600, 89200, 102700],
+      "expected_port": "Houston"
+    }
+  ]
+}

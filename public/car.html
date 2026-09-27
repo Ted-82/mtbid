@@ -1291,6 +1291,24 @@ main{padding-top:22px}
 @media(max-width:760px){.calc-primary{grid-template-columns:1fr;gap:8px}.calc-primary .calc-field input{height:44px;font-size:19px}.calc-grid{grid-template-columns:1fr 1fr}.calc-line{grid-template-columns:minmax(0,1fr) auto}.calc-state{grid-column:1/-1;text-align:left}}
 @media(max-width:600px){.calc-summary-row{padding:7px 10px}.calc-summary-total{padding:10px}}
 @media(max-width:480px){.calc-grid{grid-template-columns:1fr}.import-calc{padding:15px}}
+
+/* Estimated door-to-door range model; isolated from the strict calculator. */
+.door-estimator{margin:0 0 14px;padding:16px;border:1px solid #e3e8ed;border-radius:14px;background:linear-gradient(145deg,#fff 0%,#fbfcfd 100%)}
+.door-estimator h3{margin:0 0 4px;color:#17202a;font-size:17px}.door-est-intro{margin:0 0 12px;color:#697580;font-size:11px;line-height:1.45}
+.door-est-main{display:grid;grid-template-columns:minmax(180px,230px) minmax(0,1fr);gap:16px;align-items:center}
+.door-est-input label{display:block;margin-bottom:5px;color:#475461;font-size:11px;font-weight:800}
+.door-est-input input{width:100%;height:43px;padding:0 10px;border:1px solid #d4dbe2;border-radius:8px;background:#fff;color:#17202a;font-size:18px;font-weight:800}
+.door-est-input small{display:block;margin-top:5px;color:#79848d;font-size:10px;line-height:1.4}
+.door-est-total{min-width:0}.door-est-range{color:#17202a;font-size:clamp(22px,3vw,31px);font-weight:900;letter-spacing:-.035em;line-height:1.1}
+.door-est-expected{margin-top:5px;color:#43515d;font-size:12px;font-weight:750}.door-est-confidence{display:inline-flex;margin-top:7px;padding:3px 8px;border-radius:20px;background:#fff3d4;color:#755500;font-size:10px;font-weight:800}
+.door-est-disclaimer{margin:12px 0 0;color:#77818a;font-size:10px;line-height:1.45}
+.door-est-rows{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-top:12px}
+.door-est-row{display:flex;min-width:0;flex-direction:column;justify-content:space-between;gap:6px;padding:8px 9px;border:1px solid #ebeff2;border-radius:8px;background:#fff;font-size:10px}
+.door-est-row span{color:#68747f}.door-est-row strong{color:#25323c;font-size:11px;line-height:1.2}
+.door-est-details{margin-top:10px;border-top:1px solid #e8ecef}.door-est-details>summary{padding:10px 0 2px;color:#46596a;cursor:pointer;font-size:11px;font-weight:800}
+.door-est-detail{padding:8px 0;border-bottom:1px solid #edf0f2}.door-est-detail h4{margin:0 0 4px;color:#354451;font-size:11px}.door-est-detail p,.door-est-details>p{margin:3px 0;color:#74808a;font-size:10px;line-height:1.45;overflow-wrap:anywhere}.door-est-detail ul{margin:4px 0;padding-left:17px;color:#5e6b76;font-size:10px;line-height:1.45}
+@media(max-width:760px){.door-est-main{grid-template-columns:minmax(145px,190px) minmax(0,1fr);gap:11px}.door-est-rows{grid-template-columns:repeat(2,minmax(0,1fr))}.door-est-row:last-child{grid-column:1/-1}}
+@media(max-width:520px){.door-estimator{padding:13px}.door-est-main{grid-template-columns:1fr}.door-est-total{padding:10px;border-radius:9px;background:#f6f8fa}.door-est-range{font-size:25px}.door-est-rows{gap:6px}.door-est-row{padding:7px}.door-est-row:last-child{grid-column:auto}}
 </style>
 
 <link rel="stylesheet" href="/rexbid-brand.css" />
@@ -1355,6 +1373,8 @@ main{padding-top:22px}
 
 <script src="/rexbid-calculator-rates.js"></script>
 <script src="/rexbid-calculator.js"></script>
+<script src="/rexbid-door-estimator-rates.js"></script>
+<script src="/rexbid-door-estimator.js"></script>
 <script src="/rexbid-storage.js"></script>
 <script>
   const API_BASE = "/api";
@@ -2709,8 +2729,21 @@ main{padding-top:22px}
             <div class="info-card-body"><div id="auctionHistory" class="auction-history"></div><div class="seller-note" style="margin-top:8px">Historia aukcji Apibara; snapshoty REX.Bid nie są mieszane z wydarzeniami sprzedaży.</div></div>
           </section>
 
+          <section class="door-estimator" id="estimatedDoorCalculator" aria-labelledby="doorEstimatorTitle">
+            <h3 id="doorEstimatorTitle">Szacowany koszt pod dom</h3>
+            <p class="door-est-intro">Orientacyjne widełki dostawy auta z USA do Polski. To nie jest oferta transportowa ani rozliczenie celne.</p>
+            <div class="door-est-main">
+              <div class="door-est-input"><label for="doorEstimatePurchase">Planowana cena zakupu (USD)</label><input id="doorEstimatePurchase" data-est-purchase type="number" min="1" step="100" inputmode="decimal" placeholder="Wpisz kwotę"><small data-est-purchase-note>Wpisz planowaną cenę zakupu.</small></div>
+              <div class="door-est-total"><div class="door-est-range" data-est-total aria-live="polite">Wpisz planowaną cenę zakupu</div><div class="door-est-expected" data-est-expected></div><span class="door-est-confidence" data-est-confidence>Pewność: niska</span></div>
+            </div>
+            <div class="door-est-rows" data-est-rows></div>
+            <p class="door-est-disclaimer">Orientacyjna kalkulacja na podstawie publicznych danych rynkowych; dokładna wycena jest ustalana indywidualnie przed zakupem.</p>
+            <details class="door-est-details"><summary>Szczegóły, źródła i założenia</summary><div data-est-details></div></details>
+          </section>
+
           <section class="panel import-calc" id="importCalculator">
-            <h2>Szacunkowy koszt importu</h2>
+            <details class="strict-estimate-mode"><summary>Kalkulator ścisły — tylko po potwierdzeniu stawek i danych</summary>
+            <h2>Ścisły kalkulator kosztów</h2>
             <div class="calc-sub">Orientacyjny podgląd kosztów. Nie zastępuje oferty przewoźnika ani rozliczenia celnego.</div>
             <div class="calc-primary">
               <div class="calc-field"><label for="calcPurchasePrice">Planowana cena zakupu (USD)</label><input id="calcPurchasePrice" type="number" min="0" step="1" inputmode="decimal" placeholder="Wpisz kwotę"><small id="calcPurchaseHint" class="calc-field-note">Wpisz planowaną cenę zakupu.</small></div>
@@ -2752,6 +2785,7 @@ main{padding-top:22px}
                 <details class="calc-diagnostics" id="calcDiagnostics"><summary id="calcMissingLabel">Pokaż czego brakuje</summary><ul id="calcMissingList"></ul></details>
                 <p class="calc-note">Statusy źródeł: Potwierdzone, Do potwierdzenia, Szacunkowe lub Brak danych. Puste pole nie oznacza kosztu $0. Kurs UI, celny i akcyzowy są odrębnymi wartościami.</p>
               </div>
+            </details>
             </details>
           </section>
         </div>
@@ -3138,6 +3172,17 @@ main{padding-top:22px}
 
   function initImportCalculator() {
     const root = document.getElementById("importCalculator");
+    const estimateRoot = document.getElementById("estimatedDoorCalculator");
+    if (estimateRoot && window.RexBidDoorEstimator && window.RexBidCalculator) {
+      try {
+        const estimatePrefill = window.RexBidCalculator.prefillFromVehicle(car, { auctionEnded: auctionPhase() === "ended" });
+        window.RexBidDoorEstimator.bind({ root: estimateRoot, vehicle: car, prefill: estimatePrefill });
+      } catch (error) {
+        console.warn("REX.Bid estimated door calculator initialization:", error);
+        const total = estimateRoot.querySelector("[data-est-total]");
+        if (total) total.textContent = "Estymator chwilowo niedostępny";
+      }
+    }
     if (!root || !window.RexBidCalculator) return;
     try {
       const platform = String(car.platform || car.source || "").toLowerCase();
