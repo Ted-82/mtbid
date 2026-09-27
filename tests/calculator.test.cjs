@@ -272,3 +272,44 @@ test("incomplete result has no total, so UI cannot show a complete sum", () => {
   assert.equal(result.total, null);
   assert.equal(result.label, "Kalkulacja niepełna");
 });
+
+test("calculator initialization renders active, finished and no-price vehicle cards without throwing", () => {
+  const makeNode = (value = "") => ({
+    value, textContent: "", hidden: false, open: false, children: [],
+    append(...nodes) { this.children.push(...nodes); },
+    replaceChildren(...nodes) { this.children = [...nodes]; },
+    addEventListener() {}, scrollIntoView() {}, focus() {},
+    closest() { return makeNode(); }
+  });
+  const originalDocument = global.document;
+  global.document = { createElement: () => makeNode() };
+  try {
+    for (const vehicle of [
+      { platform: "copart", auction: { state: "upcoming" }, pricing: { current_bid_usd: 3400 } },
+      { platform: "iaai", auction: { state: "finished" }, pricing: { sale_price_usd: 5100 } },
+      { platform: "copart", auction: { state: "upcoming" }, pricing: {} }
+    ]) {
+      const nodes = {
+        calcPurchasePrice: makeNode(), calcEngineCc: makeNode(), calcPurchaseHint: makeNode(),
+        calcVehicleContext: makeNode(), calcSummary: makeNode(), calcDetailLines: makeNode(),
+        calcDiagnostics: makeNode(), calcMissingLabel: makeNode(), calcMissingList: makeNode(),
+        calcDetails: makeNode(), calcShowDetails: makeNode()
+      };
+      const root = {
+        querySelector(selector) { return nodes[selector.slice(1)] || null; },
+        addEventListener() {}
+      };
+      const prefill = calc.prefillFromVehicle(vehicle, { auctionEnded: vehicle.auction.state === "finished" });
+      let rendered;
+      assert.doesNotThrow(() => {
+        rendered = calc.bindCalculator({ root, platform: vehicle.platform, prefill, onUpdate(result) { rendered = result; } });
+      });
+      assert.equal(rendered.complete, false, "fixture intentionally lacks confirmed logistics, taxes and FX");
+      assert.equal(rendered.total, null);
+      assert.ok(nodes.calcSummary.children.length > 0, "summary rendered for the vehicle");
+      assert.equal(nodes.calcPurchasePrice.value, prefill.purchasePrice === null ? "" : String(prefill.purchasePrice));
+    }
+  } finally {
+    global.document = originalDocument;
+  }
+});

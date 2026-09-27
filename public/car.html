@@ -3140,22 +3140,30 @@ main{padding-top:22px}
   function initImportCalculator() {
     const root = document.getElementById("importCalculator");
     if (!root || !window.RexBidCalculator) return;
-    const platform = String(car.platform || car.source || "").toLowerCase();
-    const prefill = window.RexBidCalculator.prefillFromVehicle(car, { auctionEnded: auctionPhase() === "ended" });
-    const context = [
-      ["Platforma", platformName()], ["Lokalizacja", prefill.location || getLocation()],
-      ["Typ pojazdu", prefill.vehicleType], ["Paliwo", prefill.fuel],
-      ["Napęd", prefill.drivetrain], ["Pojemność silnika", prefill.engineCc ? `${prefill.engineCc} cm³` : null]
-    ].filter(([,value]) => !isEmpty(value)).map(([label,value]) => `${label}: ${value}`).join(" · ");
-    window.RexBidCalculator.bindCalculator({
-      root, platform, prefill, context,
-      onUpdate(result) {
-        const topForecast = document.getElementById("topForecast");
-        if (topForecast) topForecast.textContent = result.complete && result.total
-          ? new Intl.NumberFormat("pl-PL", { style: "currency", currency: "PLN" }).format(result.total.amount)
-          : "Kalkulacja niepełna";
-      }
-    });
+    try {
+      const platform = String(car.platform || car.source || "").toLowerCase();
+      const prefill = window.RexBidCalculator.prefillFromVehicle(car, { auctionEnded: auctionPhase() === "ended" });
+      const context = [
+        ["Platforma", platformName()], ["Lokalizacja", prefill.location || getLocation()],
+        ["Typ pojazdu", prefill.vehicleType], ["Paliwo", prefill.fuel],
+        ["Napęd", prefill.drivetrain], ["Pojemność silnika", prefill.engineCc ? `${prefill.engineCc} cm³` : null]
+      ].filter(([,value]) => !isEmpty(value)).map(([label,value]) => `${label}: ${value}`).join(" · ");
+      window.RexBidCalculator.bindCalculator({
+        root, platform, prefill, context,
+        onUpdate(result) {
+          const topForecast = document.getElementById("topForecast");
+          if (topForecast) topForecast.textContent = result.complete && result.total
+            ? new Intl.NumberFormat("pl-PL", { style: "currency", currency: "PLN" }).format(result.total.amount)
+            : "Kalkulacja niepełna";
+        }
+      });
+    } catch (error) {
+      console.warn("REX.Bid calculator initialization:", error);
+      const summary = root.querySelector("#calcSummary");
+      if (summary) summary.textContent = "Kalkulator chwilowo niedostępny. Dane pojazdu pozostają dostępne.";
+      const forecast = document.getElementById("topForecast");
+      if (forecast) forecast.textContent = "Kalkulator chwilowo niedostępny";
+    }
   }
 
     let auctionRefreshTimer = null;
