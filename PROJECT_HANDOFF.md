@@ -47,7 +47,7 @@ Unknown non-API paths are served through `ASSETS`. Non-GET requests to normal AP
 - `public/index.html` — Home/discovery sections and full catalog view (`?catalog=1`), search, filters, URL state and load-more pagination.
 - `public/car.html` — vehicle detail, gallery/media, auction module, details, history and import-cost estimate.
 - `public/ulubione.html` — local favorites/watchlist.
-- `public/konto.html`, `public/logowanie.html`, `public/rejestracja.html` — account-related UI; durable user accounts/authentication are not implemented as a backend product yet.
+- `public/konto.html`, `public/logowanie.html`, `public/rejestracja.html` — account-related UI. A local Supabase BFF proof-of-fit exists under `auth/`, but it is not configured/deployed and its proposal migration has not been applied; these pages are not yet production account UX.
 - `public/jak-to-dziala.html`, `public/kontakt.html`, `public/o-nas.html` — informational pages.
 - `public/rexbid-storage.js` — shared versioned local favorites store, including one-time legacy-key migration and cleanup of retired compare state while preserving favorites. Compare UI/product is removed per owner direction; do not restore it without a new owner decision.
 - `public/rexbid-brand.css`, `public/rexbid-mobile-nav.js` — shared visual brand and mobile navigation.
@@ -121,6 +121,7 @@ Current suite files:
 - `tests/product-feedback.test.cjs` — source field mappings, title/seller/condition/status semantics and product markup contracts.
 - `tests/local-storage.test.cjs` — favorite persistence, exact links and hostile local-storage input handling.
 - `tests/provider-independence.test.cjs` — canonical mapping parity for Apibara-shaped and fake Provider B payloads, adapter safety/errors and compatibility response shape.
+- `tests/accounts-proof-of-fit.test.cjs` — mocked Supabase/JWKS, PKCE, encrypted cookies, identity verification, account/favorite API contract, CSRF, refresh/logout and in-memory additive migration. No live Supabase, production D1 or OAuth requests.
 - `tests/fixtures/` — representative observed payload shapes and regression cases; do not add credentials or unredacted personal data.
 
 Keep tests offline: fixtures/mocks must not call production Apibara or D1. Production requests and changes to Cloudflare require an explicit task and safety review.
@@ -143,7 +144,7 @@ Keep tests offline: fixtures/mocks must not call production Apibara or D1. Produ
 - Apibara availability/rate limits affect uncached reads. Do not add automatic retries or fan-out requests casually.
 - `REXBID_SYNC_TOKEN` is required for the explicit sync POST; verify its Cloudflare configuration before scheduling or manually invoking synchronization.
 - D1 migrations are checked-in SQL. Never apply a migration to production without verifying the target binding/database and reviewing the exact pending migration.
-- Account pages are not proof of authentication, durable customer records, favorites sync, saved searches or alerts. Those need backend design, security/privacy decisions and tests.
+- The local Accounts Phase 2A proof is not a production auth launch. It needs `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, and a high-entropy `REXBID_AUTH_COOKIE_SECRET`; `docs/proposals/0003_accounts_foundation.sql` is unapplied. No Supabase project exists/configured for this proof, no live email/Google flow has been tested, no account UI is wired, and routes fail closed without configuration/tables. Rate limits and concurrent refresh-cookie races still need production treatment.
 - The existing `public/car.html` calculator math/defaults remain illustrative and unchanged. Current auction fees, transport/freight, customs value, duty, VAT base, excise classification and legal FX need dated/versioned inputs before the result is marketed as a current landed cost.
 - Rights to store, retain, derive from, or resell Apibara/history/report data need contract/licensing confirmation.
 
@@ -159,3 +160,4 @@ Keep tests offline: fixtures/mocks must not call production Apibara or D1. Produ
 8. Calculator engine/rate configuration are local and not released. Do not commit/deploy until the full test suite and review pass. Next, obtain IAA schedules, quotes and customs-agent validation before expanding confirmed rate coverage.
 9. Calculator Phase 2 local checkpoint: dedicated browser/Node engine and versioned configuration are loaded by car.html. Copart covers only the confirmed secured + Pre-Bid profiles after explicit selection; IAA and missing logistics/tax inputs remain unknown. Missing required values are never zero; UI FX is separate from customs/excise FX. New independent calculator tests are included. No commit, push or deploy has occurred.
 10. Continue by obtaining IAA US fee examples, dated shipper quotes, buyer-profile decision, customs-agent validation, and NBP FX adapter requirements. Do not add unsupported fee tiers or call an estimate an official amount.
+11. Accounts Phase 2A proof-of-fit is implemented locally only: Supabase adapter + verified identity contract, Google PKCE callback, encrypted `__Host-` HttpOnly cookie, internal issuer/subject mapping, and scoped favorites APIs. The additive proposal is tested in-memory after existing migrations and is not applied. For a live non-production test, create a Supabase project in an EU region, configure exact callback URLs/Google and email delivery, set the Worker URL/publishable key/cookie secret, and test against a verified non-production D1. Do not deploy or migrate production. Before production, add rate limits and address refresh-token rotation races. Authorization code is necessarily carried in the PKCE callback query; the app exchanges it and does not log it or expose access/refresh tokens.

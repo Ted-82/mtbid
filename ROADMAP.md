@@ -69,7 +69,9 @@ Production status reflects the owner-confirmed `b25c452` / Worker version `a1e01
 
 ### 9. Durable customer features
 
-Build only after authentication, data model, privacy and account recovery are specified:
+**Accounts Phase 2A proof-of-fit implemented locally, not deployed:** `auth/identity.js`, `auth/session.js`, `auth/supabase.js`, and `auth/routes.js` provide a mocked Supabase BFF candidate with PKCE, encrypted HttpOnly cookie, verified issuer/subject mapping and scoped favorites endpoints. `docs/proposals/0003_accounts_foundation.sql` is an additive, in-memory tested proposal only. There is no live Supabase project, configured Worker secrets, production D1 schema, customer-facing auth flow or real email/OAuth test yet. Before release, run the live proof in a non-production Supabase project/D1, configure transactional email and exact callback allowlists, add Cloudflare rate limits, and resolve concurrent refresh-cookie races.
+
+Then build durable customer features with privacy, recovery and account lifecycle specified:
 
 - customer accounts and secure authentication/session management;
 - persistent, cross-device favorites migrated from local versioned storage with dedupe/consent/error recovery;

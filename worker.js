@@ -1,8 +1,12 @@
 import apibaraModule from "./providers/apibara.js";
 import contract from "./providers/contract.js";
+import authProviderModule from "./auth/supabase.js";
+import accountsModule from "./auth/routes.js";
 
 const { createApibaraProvider, ProviderError } = apibaraModule;
 const { createProviderRegistry, validateRexVehicle, validateRexHistoryEvent } = contract;
+const { createSupabaseAuthProvider } = authProviderModule;
+const { createAccountsHandler } = accountsModule;
 const apibaraProvider = createApibaraProvider({
   fetch: (...args) => fetch(...args),
   setTimeout: (...args) => setTimeout(...args),
@@ -11,6 +15,12 @@ const apibaraProvider = createApibaraProvider({
 });
 const providerRegistry = createProviderRegistry([apibaraProvider]);
 const DEFAULT_PROVIDER = "apibara";
+const accountsHandler = createAccountsHandler({ provider: createSupabaseAuthProvider({
+  fetchImpl: (...args) => fetch(...args),
+  cryptoImpl: globalThis.crypto,
+  setTimeout: (...args) => setTimeout(...args),
+  clearTimeout: (...args) => clearTimeout(...args)
+}) });
 
 function getProviderAdapter(env) {
   const requestedId = cleanString(env?.REXBID_PROVIDER_ID).trim() || DEFAULT_PROVIDER;
@@ -2082,6 +2092,16 @@ export default {
   ) {
 
     const url = new URL(request.url);
+
+    if (url.pathname.startsWith("/api/auth/") || url.pathname === "/api/me" || url.pathname === "/api/me/favorites" || url.pathname.startsWith("/api/me/favorites/")) {
+      try { return await accountsHandler(request, env); }
+      catch {
+        return new Response(JSON.stringify({ ok: false, error: "Konto jest chwilowo niedostępne." }), {
+          status: 503,
+          headers: { "Content-Type": "application/json; charset=UTF-8", "Cache-Control": "private, no-store", "Referrer-Policy": "no-referrer" }
+        });
+      }
+    }
 
     /*
      * CORS

@@ -43,6 +43,35 @@ Local unreleased code places transport and source mapping in `providers/apibara.
 | `/api/sync/vehicle/:identifier` | POST | Authenticates bearer `REXBID_SYNC_TOKEN`, fetches vehicle and all bounded history pages, then persists vehicle, changed snapshots and official auction events. | No-store. Requires configured token. Rejects other methods. Synchronization does not mark success until pagination completes and persistence succeeds. |
 | unknown asset path | GET | `env.ASSETS.fetch(request)` | Serves the static `public/` site. |
 
+## Accounts BFF proof-of-fit (local, not production)
+
+The local Phase 2A proof mounts same-origin Worker routes under `/api/auth/*` and `/api/me*`. It is deliberately fail-closed: until `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, a random `REXBID_AUTH_COOKIE_SECRET` (at least 32 random bytes, base64url encoded), and the additive accounts tables exist, it returns a generic 503. No production Supabase project, D1 migration, or Worker deployment has been performed.
+
+`auth/supabase.js` owns fixed Supabase Auth REST endpoints, email/password signup/login, Google PKCE authorization and code exchange, refresh, local logout, JWKS/JWT verification, and mapping the verified Auth user to `RexIdentity`. It accepts no caller-supplied upstream URL. `SUPABASE_PUBLISHABLE_KEY` is a public project identifier, not a service-role secret; no service-role key is used. `auth/identity.js` defines `{issuer, subject, email_verified, auth_provider}` and a provider registry. Account identity is `(issuer, subject)`, never email.
+
+`auth/session.js` seals the access/refresh pair using AES-GCM under the Worker-only cookie secret. The browser receives `__Host-rexbid_session` with `Secure; HttpOnly; SameSite=Lax; Path=/` and no `Domain`; PKCE state/verifier use a separate short-lived encrypted HttpOnly cookie. Tokens are not returned in JSON, written to localStorage, or logged by this adapter. OAuth necessarily returns a short-lived one-use authorization `code` in the callback query under Supabase PKCE; it is exchanged server-side and the response immediately redirects to a clean same-origin path. The application does not log callback URLs or query values.
+
+Protected requests decrypt the cookie, refresh near-expiry sessions, validate JWT issuer/audience/expiry and signature using Supabase JWKS for asymmetric keys, and check Supabase `/user` for current identity/email-confirmation state. For legacy HS256 tokens (no public JWKS key), the adapter relies on Supabase `/user` to validate the signature online and does not store the JWT signing secret in Cloudflare. Auth responses are `private, no-store`; account writes require an exact same-origin `Origin`. Logout requests current-session revocation and always clears local cookies. Refresh token rotation introduces a production risk: concurrent requests at expiry can race to return `Set-Cookie`; Supabase's reuse window mitigates but does not remove stale-cookie races. Cloudflare rate limiting is required before public rollout.
+
+| Route | Method | Semantics |
+| --- | --- | --- |
+| `/api/auth/google` | GET | Starts Google OAuth with PKCE and encrypted flow cookie. |
+| `/api/auth/callback` | GET | Exchanges one-use code, verifies identity, maps/creates Rex.Bid user, sets cookie, then redirects without query credentials. |
+| `/api/auth/signup` | POST | Creates email/password user via Supabase; verified email is required before Rex.Bid account/session provisioning. |
+| `/api/auth/login` | POST | Authenticates through Supabase and sets only encrypted HttpOnly cookie. |
+| `/api/auth/refresh` | POST | Refreshes a near-expiry session and rotates the cookie; never returns token material. |
+| `/api/auth/logout` | POST | Requests local Supabase logout and clears browser cookies. |
+| `/api/me` | GET | Returns internal account selected from verified issuer + subject. |
+| `/api/me/favorites` | GET/POST | Lists or adds curated VIN/LOT/platform identity only. |
+| `/api/me/favorites/:key` | DELETE | Deletes only the current verified user's favorite. |
+| `/api/me/favorites/merge` | POST | Idempotently imports bounded guest identities; it does not accept vehicle payloads. |
+
+The handler derives user ID only from D1's `(auth_issuer, auth_subject)` mapping. It scopes all favorite operations to that internal ID, rejects top-level client `user_id`, deduplicates by VIN first and `platform + LOT` otherwise, and stores no password, email, session, token, or vehicle/media payload. `GET /api/me` and favorites GET are SELECT-only; auth completion and favorite writes are explicit mutations.
+
+`docs/proposals/0003_accounts_foundation.sql` is proposal-only and contains exactly `users` and `user_favorites` plus constraints/indexes. Its in-memory SQLite test applies it after `0000` and `0001` and verifies old vehicle/snapshot/history rows survive. Do not move it to the live migrations directory or apply it until project, region, domain, privacy/retention, and D1 target are approved.
+
+The proof uses mocked Auth REST responses and a locally generated signing key/JWKS. It demonstrates protocol mechanics, not a live account, configured Google OAuth, email delivery, final-domain cookies, real revocation behavior, or production rate limiting. Supabase currently recommends `@supabase/server` for Workers when using stateless bearer requests; `@supabase/ssr` targets SSR frameworks and is beta. This static Rex.Bid BFF proof therefore uses fixed Auth REST calls and Web Crypto rather than a browser Supabase client/localStorage.
+
 The current adapter owns the `/api/cars` filter allowlist: `s`, `platform`, `auction_type`, `lot_status`, `lot_sub_status`, `upcoming`, `make`, `series`, `model`, `generation_id`, `generation`, `type`, `body_style`, `year_from`, `year_to`, `price_min`, `price_max`, `odometer_from`, `odometer_to`, `fuel_type`, `transmission`, `drive_type`, `run_cond`, `damage`, `color`, `engine_size_from`, `engine_size_to`, `engine_type`, `cylinders`, `has_key`, `sale_document_pending`, `sale_document_type`, `seller_type`, `zip`, `radius`, `units`, `facility_id`, `loc_state`, `office_name`, `auction_date_from`, `auction_date_to`, `today_only`, `has_shipping_price`, `include_total`, `per_page`, `cursor`, and `updated_within_minutes`. Adapter metadata narrowing currently accepts `make`, `series`, `model`, and `generation_id`. Only verified provider-supported filters should reach the UI.
 
 `/api/filters` forwards `make`, `series`, `model` to the provider adapter. Although the list endpoint has other filters, do not assume every query parameter has useful metadata or is supported identically by every upstream platform.
