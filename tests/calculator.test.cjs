@@ -262,8 +262,9 @@ test("calculator main view is compact and keeps itemized diagnostics behind prog
   assert.ok(markup.includes('id="calcDiagnostics"'));
   assert.ok(!markup.includes('id="calcWarning"'));
   assert.ok(!markup.includes("Dlaczego wynik jest niepełny"));
-  assert.ok(markup.includes("Uzupełnij / pokaż szczegóły kalkulacji"));
-  assert.match(car, /@media\(max-width:600px\)\{\.calc-primary\{grid-template-columns:1fr/);
+  assert.equal((markup.match(/Uzupełnij \/ pokaż szczegóły kalkulacji/g) || []).length, 1);
+  assert.ok(!markup.includes('id="calcShowDetails"'));
+  assert.match(car, /@media\(max-width:760px\)\{\.calc-primary\{grid-template-columns:1fr/);
 });
 
 test("incomplete result has no total, so UI cannot show a complete sum", () => {
