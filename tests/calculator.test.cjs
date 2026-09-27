@@ -221,3 +221,54 @@ test("incomplete scenarios identify missing IAA schedule, freight, FX, tax basis
   assert.equal(noFx.total, null);
   assert.ok(noFx.blockers.some(item => /brak kursu orientacyjnego UI/.test(item)));
 });
+
+test("vehicle prefill uses active bid only as an editable suggestion and carries known vehicle facts", () => {
+  const result = calc.prefillFromVehicle({
+    platform: "copart", location: "Houston, TX", auction: { state: "upcoming", location: "Houston, TX" },
+    pricing: { current_bid_usd: 12500, sale_price_usd: 9000, buy_now_usd: 15000 },
+    vehicle_description: { FuelTypeDesc: "Gasoline", DriveLineTypeDesc: "AWD", EngineCC: 1998, VehicleClass: "SUV" }
+  });
+  assert.equal(result.purchasePrice, 12500);
+  assert.equal(result.purchaseKind, "active-suggestion");
+  assert.equal(result.platform, "copart");
+  assert.equal(result.location, "Houston, TX");
+  assert.equal(result.fuel, "Gasoline");
+  assert.equal(result.drivetrain, "AWD");
+  assert.equal(result.engineCc, 1998);
+  assert.equal(result.vehicleType, "SUV");
+});
+
+test("confirmed finished sale may prefill; historical sale is not used for an active auction", () => {
+  const finished = calc.prefillFromVehicle({ auction: { state: "finished" }, pricing: { sale_price_usd: 8400, current_bid_usd: 7900 } });
+  assert.equal(finished.purchasePrice, 8400);
+  assert.equal(finished.purchaseKind, "confirmed-sale");
+  const active = calc.prefillFromVehicle({ auction: { state: "upcoming" }, pricing: { sale_price_usd: 8400, current_bid_usd: null, buy_now_usd: 9100 } });
+  assert.equal(active.purchasePrice, 9100);
+  assert.equal(active.purchaseKind, "buy-now-suggestion");
+  const noPrice = calc.prefillFromVehicle({ auction: { state: "upcoming" }, pricing: { sale_price_usd: 8400 } });
+  assert.equal(noPrice.purchasePrice, null);
+  assert.equal(noPrice.purchaseKind, "none");
+});
+
+test("calculator main view is compact and keeps itemized diagnostics behind progressive disclosure", () => {
+  const fs = require("node:fs");
+  const car = fs.readFileSync(require("node:path").join(__dirname, "../public/car.html"), "utf8");
+  const start = car.indexOf('<section class="panel import-calc" id="importCalculator">');
+  const end = car.indexOf("</section>", start);
+  const markup = car.slice(start, end);
+  assert.ok(markup.indexOf('id="calcPurchasePrice"') < markup.indexOf('<details class="calc-details"'));
+  assert.ok(markup.includes('id="calcSummary"'));
+  assert.ok(markup.includes('id="calcDetailLines"'));
+  assert.ok(markup.includes('id="calcDiagnostics"'));
+  assert.ok(!markup.includes('id="calcWarning"'));
+  assert.ok(!markup.includes("Dlaczego wynik jest niepełny"));
+  assert.ok(markup.includes("Uzupełnij / pokaż szczegóły kalkulacji"));
+  assert.match(car, /@media\(max-width:600px\)\{\.calc-primary\{grid-template-columns:1fr/);
+});
+
+test("incomplete result has no total, so UI cannot show a complete sum", () => {
+  const result = calc.calculate({ platform: "iaai", purchasePriceUsd: 10000 });
+  assert.equal(result.complete, false);
+  assert.equal(result.total, null);
+  assert.equal(result.label, "Kalkulacja niepełna");
+});

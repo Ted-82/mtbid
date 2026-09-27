@@ -1275,7 +1275,21 @@ main{padding-top:22px}
 .calc-warning{margin-top:10px;padding:11px 13px;border:1px solid #e4c66d;background:#fff8e6;border-radius:8px;color:#6d5514;font-size:11px;line-height:1.5}
 .calc-warning ul{margin:6px 0 0;padding-left:18px}.calc-warning li+li{margin-top:3px}
 .calc-note{margin-top:10px;padding:10px 12px;border-radius:8px;background:#f7f8fa;color:#66727e;font-size:10px;line-height:1.55}
+.calc-primary{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.8fr);gap:14px;align-items:end;margin:12px 0}
+.calc-primary .calc-field input{height:54px;font-size:22px;font-weight:800}
+.calc-summary{border:1px solid #e0e5e9;border-radius:10px;background:#fff;overflow:hidden}
+.calc-summary-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;padding:8px 12px;border-bottom:1px solid #edf0f2;font-size:12px}
+.calc-summary-row>span{color:#596775}.calc-summary-row>strong{text-align:right;font-size:12px}.calc-summary-row>small{grid-column:1/-1;color:#77818a;font-size:10px}
+.calc-summary-total{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px;background:#f5f7f9;font-size:12px;font-weight:800}
+.calc-summary-total strong{font-size:16px;text-align:right}.calc-summary-missing{padding:8px 12px;color:#825e10;font-size:11px}
+.calc-summary-missing.is-complete{color:#21643b}.calc-details{margin-top:10px;border-top:1px solid #e3e7eb}.calc-details>summary{padding:10px 0;color:#46596a;cursor:pointer;font-size:12px;font-weight:800}
+.calc-details-inner{padding:4px 0 12px}.calc-context{margin:0 0 12px;padding:8px 10px;border-radius:8px;background:#f7f8fa;color:#5f6c78;font-size:10px;line-height:1.5}
+.calc-detail-group{margin:10px 0}.calc-detail-group>summary{padding:9px 0;color:#526273;cursor:pointer;font-size:11px;font-weight:750}
+.calc-detail-lines{border:1px solid #e3e7eb;border-radius:8px;overflow:hidden}.calc-detail-line{font-size:11px}.calc-diagnostics{margin-top:10px}.calc-diagnostics>summary{color:#6b7580;font-size:10px;cursor:pointer}
+.calc-diagnostics ul{margin:6px 0;padding-left:18px;color:#6b7580;font-size:10px;line-height:1.5}
+.calc-detail-heading{margin:16px 0 7px;font-size:12px;color:#4a5865}
 @media(max-width:760px){.calc-grid{grid-template-columns:1fr 1fr}.calc-line{grid-template-columns:minmax(0,1fr) auto}.calc-state{grid-column:1/-1;text-align:left}}
+@media(max-width:600px){.calc-primary{grid-template-columns:1fr;gap:8px}.calc-primary .calc-field input{height:48px;font-size:20px}.calc-summary-row{padding:7px 10px}.calc-summary-total{padding:10px}}
 @media(max-width:480px){.calc-grid{grid-template-columns:1fr}.import-calc{padding:15px}}
 </style>
 
@@ -2696,40 +2710,51 @@ main{padding-top:22px}
           </section>
 
           <section class="panel import-calc" id="importCalculator">
-  <h2>Szacunkowy koszt importu</h2>
-  <div class="calc-sub">Kalkulator pokazuje potwierdzone składniki i jawnie wskazuje braki. To szacunek informacyjny, nie oferta transportowa ani rozliczenie celne/podatkowe.</div>
-  <div class="calc-grid">
-    <div class="calc-field"><label for="calcPurchasePrice">Planowana cena zakupu (USD)</label><input id="calcPurchasePrice" type="number" min="0" step="1" inputmode="decimal" placeholder="Wpisz kwotę"></div>
-    <div class="calc-field" data-calculator-copart-profile><label for="calcCopartProfile">Copart — wariant opłaty do potwierdzenia</label><select id="calcCopartProfile"><option value="">Wybierz wariant tylko po potwierdzeniu profilu</option><option value="clean_secured_prebid">Clean title · secured · Pre-Bid</option><option value="nonclean_secured_prebid">Non-clean title · secured · Pre-Bid</option></select><small class="calc-field-note">Kwoty pochodzą z publicznej tabeli Standard Pricing. Nie potwierdzono, czy odpowiada ona Schedule A/B/C/D dla Twojego konta. Zastosowanie wymaga weryfikacji profilu członkowskiego, standardowego typu pojazdu, grupy title, płatności secured i Pre-Bid. W razie wątpliwości pozostaw wybór pusty.</small></div>
-    <div class="calc-field"><label for="calcAuctionFeeOverride">Opłata aukcyjna z aktualnej wyceny (USD)</label><input id="calcAuctionFeeOverride" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Opcjonalnie, jeśli znasz"></div>
-    <div class="calc-field"><label for="calcUsInland">Transport facility → port USA (USD)</label><input id="calcUsInland" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Wymaga oferty"></div>
-    <div class="calc-field"><label for="calcOceanFreight">Fracht morski (USD)</label><input id="calcOceanFreight" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Wymaga oferty"></div>
-    <div class="calc-field"><label for="calcDestinationCosts">Port docelowy / obsługa (USD)</label><input id="calcDestinationCosts" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Wymaga oferty"></div>
-    <div class="calc-field"><label for="calcInsurance">Ubezpieczenie transportu (USD)</label><input id="calcInsurance" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Wpisz ofertę lub 0"></div>
-    <div class="calc-field"><label for="calcOtherCosts">Pozostałe koszty / broker (USD)</label><input id="calcOtherCosts" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Wpisz ofertę lub 0"></div>
-  </div>
-  <details class="calc-tax-inputs">
-    <summary>Dane celne i podatkowe — opcjonalne, wymagają potwierdzenia</summary>
-    <p>Nie wyliczamy cła ani podatków z samego VIN, lokalizacji aukcji lub etykiety paliwa. Wpisz podstawy/klasyfikację potwierdzone dla konkretnej odprawy.</p>
-    <div class="calc-grid">
-      <div class="calc-field"><label for="calcCustomsValuePln">Wartość celna (PLN)</label><input id="calcCustomsValuePln" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Potwierdź dla odprawy"></div>
-      <div class="calc-field"><label for="calcDutyRate">Stawka TARIC (%)</label><input id="calcDutyRate" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Kod CN + pochodzenie + data"></div>
-      <div class="calc-field"><label for="calcDutySource">Źródło / kod taryfy</label><input id="calcDutySource" type="text" placeholder="Np. link TARIC lub dokument"></div>
-      <div class="calc-field"><label for="calcDutyCheckedAt">Data sprawdzenia stawki</label><input id="calcDutyCheckedAt" type="date"></div>
-      <div class="calc-field"><label for="calcExciseClass">Prawna kategoria akcyzy</label><select id="calcExciseClass"><option value="">Wybierz po weryfikacji dokumentów</option><option value="other_passenger">Pozostały samochód osobowy</option><option value="hev_non_plugin">HEV bez ładowania z zewnątrz</option><option value="hybrid_plugin">Hybryda plug-in</option><option value="electric">Elektryczny</option><option value="hydrogen">Wodorowy</option></select></div>
-      <div class="calc-field"><label for="calcEngineCc">Pojemność silnika (cm³)</label><input id="calcEngineCc" type="number" min="1" step="1" inputmode="numeric" placeholder="Potwierdź w dokumentach"></div>
-      <div class="calc-field"><label for="calcExciseExemption">Zwolnienie HEV/EV/wodór</label><select id="calcExciseExemption"><option value="unknown">Nieustalone</option><option value="not_eligible">Potwierdzono brak zwolnienia</option><option value="eligible">Potwierdzono kwalifikację — wymaga dokumentów</option></select></div>
-      <div class="calc-field"><label for="calcExciseBasePln">Podstawa akcyzy (PLN)</label><input id="calcExciseBasePln" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Potwierdź z agentem"></div>
-      <div class="calc-field"><label for="calcVatBasePln">Podstawa import VAT (PLN)</label><input id="calcVatBasePln" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Potwierdź z agentem"></div>
-      <div class="calc-field"><label for="calcUiFxRate">Orientacyjny kurs UI USD → PLN</label><input id="calcUiFxRate" type="number" min="0" step="0.0001" inputmode="decimal" placeholder="Wpisz kurs i wskaż źródło"></div>
-      <div class="calc-field"><label for="calcUiFxSource">Źródło kursu orientacyjnego</label><input id="calcUiFxSource" type="text" placeholder="Np. NBP Table A"></div>
-      <div class="calc-field"><label for="calcUiFxCheckedAt">Data kursu orientacyjnego</label><input id="calcUiFxCheckedAt" type="date"></div>
-    </div>
-  </details>
-  <div class="calc-result" id="calcResult" aria-live="polite"></div>
-  <div class="calc-warning" id="calcWarning" role="status"></div>
-  <div class="calc-note">Brak pola oznacza brak danych, nigdy koszt równy zero. Kurs orientacyjny UI, kurs celny i kurs właściwy dla akcyzy to odrębne wartości. Interfejs kursów NBP jest przygotowany, ale źródła kursów rozliczeniowych nie są jeszcze podłączone; nie pokazujemy fałszywie precyzyjnej sumy.</div>
-</section>
+            <h2>Szacunkowy koszt importu</h2>
+            <div class="calc-sub">Orientacyjny podgląd kosztów. Nie zastępuje oferty przewoźnika ani rozliczenia celnego.</div>
+            <div class="calc-primary">
+              <div class="calc-field"><label for="calcPurchasePrice">Planowana cena zakupu (USD)</label><input id="calcPurchasePrice" type="number" min="0" step="1" inputmode="decimal" placeholder="Wpisz kwotę"><small id="calcPurchaseHint" class="calc-field-note">Wpisz planowaną cenę zakupu.</small></div>
+              <div class="calc-summary" id="calcSummary" aria-live="polite"></div>
+            </div>
+            <button class="action secondary" id="calcShowDetails" type="button" aria-controls="calcDetails">Uzupełnij / pokaż szczegóły kalkulacji</button>
+            <details class="calc-details" id="calcDetails">
+              <summary>Uzupełnij / pokaż szczegóły kalkulacji</summary>
+              <div class="calc-details-inner">
+                <p class="calc-context" id="calcVehicleContext"></p>
+                <div class="calc-grid">
+                  <div class="calc-field" data-calculator-copart-profile><label for="calcCopartProfile">Copart — wariant opłaty do potwierdzenia</label><select id="calcCopartProfile"><option value="">Wybierz wariant tylko po potwierdzeniu profilu</option><option value="clean_secured_prebid">Clean title · secured · Pre-Bid</option><option value="nonclean_secured_prebid">Non-clean title · secured · Pre-Bid</option></select><small class="calc-field-note">Kwoty pochodzą z publicznej tabeli Standard Pricing. Nie potwierdzono, czy odpowiada ona Schedule A/B/C/D dla Twojego konta. Zastosowanie wymaga weryfikacji profilu członkowskiego, standardowego typu pojazdu, grupy title, płatności secured i Pre-Bid. W razie wątpliwości pozostaw wybór pusty.</small></div>
+                  <div class="calc-field"><label for="calcAuctionFeeOverride">Opłata aukcyjna z aktualnej wyceny (USD)</label><input id="calcAuctionFeeOverride" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Opcjonalnie, jeśli znasz"></div>
+                  <div class="calc-field"><label for="calcUsInland">Transport facility → port USA (USD)</label><input id="calcUsInland" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Wymaga oferty"></div>
+                  <div class="calc-field"><label for="calcOceanFreight">Fracht morski (USD)</label><input id="calcOceanFreight" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Wymaga oferty"></div>
+                  <div class="calc-field"><label for="calcDestinationCosts">Port docelowy / obsługa (USD)</label><input id="calcDestinationCosts" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Wymaga oferty"></div>
+                  <div class="calc-field"><label for="calcInsurance">Ubezpieczenie transportu (USD)</label><input id="calcInsurance" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Wpisz ofertę lub 0"></div>
+                  <div class="calc-field"><label for="calcOtherCosts">Broker / pozostałe koszty (USD)</label><input id="calcOtherCosts" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Wpisz ofertę lub 0"></div>
+                </div>
+                <details class="calc-detail-group">
+                  <summary>Dane celne, podatki i waluty</summary>
+                  <p class="calc-sub">Nie wyliczamy podstaw ani klasyfikacji podatkowej z samego VIN, lokalizacji lub etykiety paliwa. Wymagane dane potwierdź dla konkretnej odprawy.</p>
+                  <div class="calc-grid">
+                    <div class="calc-field"><label for="calcCustomsValuePln">Wartość celna (PLN)</label><input id="calcCustomsValuePln" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Potwierdź dla odprawy"></div>
+                    <div class="calc-field"><label for="calcDutyRate">Stawka TARIC (%)</label><input id="calcDutyRate" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Kod CN + pochodzenie + data"></div>
+                    <div class="calc-field"><label for="calcDutySource">Źródło / kod taryfy</label><input id="calcDutySource" type="text" placeholder="Np. link TARIC lub dokument"></div>
+                    <div class="calc-field"><label for="calcDutyCheckedAt">Data sprawdzenia stawki</label><input id="calcDutyCheckedAt" type="date"></div>
+                    <div class="calc-field"><label for="calcExciseClass">Prawna kategoria akcyzy</label><select id="calcExciseClass"><option value="">Wybierz po weryfikacji dokumentów</option><option value="other_passenger">Pozostały samochód osobowy</option><option value="hev_non_plugin">HEV bez ładowania z zewnątrz</option><option value="hybrid_plugin">Hybryda plug-in</option><option value="electric">Elektryczny</option><option value="hydrogen">Wodorowy</option></select></div>
+                    <div class="calc-field"><label for="calcEngineCc">Pojemność silnika (cm³)</label><input id="calcEngineCc" type="number" min="1" step="1" inputmode="numeric" placeholder="Jeśli znana ze źródła"></div>
+                    <div class="calc-field"><label for="calcExciseExemption">Zwolnienie HEV/EV/wodór</label><select id="calcExciseExemption"><option value="unknown">Nieustalone</option><option value="not_eligible">Potwierdzono brak zwolnienia</option><option value="eligible">Potwierdzono kwalifikację — wymaga dokumentów</option></select></div>
+                    <div class="calc-field"><label for="calcExciseBasePln">Podstawa akcyzy (PLN)</label><input id="calcExciseBasePln" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Potwierdź z agentem"></div>
+                    <div class="calc-field"><label for="calcVatBasePln">Podstawa import VAT (PLN)</label><input id="calcVatBasePln" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Potwierdź z agentem"></div>
+                    <div class="calc-field"><label for="calcUiFxRate">Orientacyjny kurs UI USD → PLN</label><input id="calcUiFxRate" type="number" min="0" step="0.0001" inputmode="decimal" placeholder="Wpisz kurs i wskaż źródło"></div>
+                    <div class="calc-field"><label for="calcUiFxSource">Źródło kursu orientacyjnego</label><input id="calcUiFxSource" type="text" placeholder="Np. NBP Table A"></div>
+                    <div class="calc-field"><label for="calcUiFxCheckedAt">Data kursu orientacyjnego</label><input id="calcUiFxCheckedAt" type="date"></div>
+                  </div>
+                </details>
+                <h3 class="calc-detail-heading">Rozbicie i status danych</h3>
+                <div class="calc-detail-lines" id="calcDetailLines"></div>
+                <details class="calc-diagnostics" id="calcDiagnostics"><summary id="calcMissingLabel">Pokaż czego brakuje</summary><ul id="calcMissingList"></ul></details>
+                <p class="calc-note">Statusy źródeł: Potwierdzone, Do potwierdzenia, Szacunkowe lub Brak danych. Puste pole nie oznacza kosztu $0. Kurs UI, celny i akcyzowy są odrębnymi wartościami.</p>
+              </div>
+            </details>
+          </section>
         </div>
 
         <aside class="right-column">
@@ -3116,10 +3141,14 @@ main{padding-top:22px}
     const root = document.getElementById("importCalculator");
     if (!root || !window.RexBidCalculator) return;
     const platform = String(car.platform || car.source || "").toLowerCase();
-    const profileField = root.querySelector("[data-calculator-copart-profile]");
-    if (profileField) profileField.hidden = !platform.includes("copart");
+    const prefill = window.RexBidCalculator.prefillFromVehicle(car, { auctionEnded: auctionPhase() === "ended" });
+    const context = [
+      ["Platforma", platformName()], ["Lokalizacja", prefill.location || getLocation()],
+      ["Typ pojazdu", prefill.vehicleType], ["Paliwo", prefill.fuel],
+      ["Napęd", prefill.drivetrain], ["Pojemność silnika", prefill.engineCc ? `${prefill.engineCc} cm³` : null]
+    ].filter(([,value]) => !isEmpty(value)).map(([label,value]) => `${label}: ${value}`).join(" · ");
     window.RexBidCalculator.bindCalculator({
-      root, platform,
+      root, platform, prefill, context,
       onUpdate(result) {
         const topForecast = document.getElementById("topForecast");
         if (topForecast) topForecast.textContent = result.complete && result.total
