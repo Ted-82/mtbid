@@ -158,7 +158,12 @@
     refreshCounts();
     return true;
   }
-  function getFavorites() { return readState().favorites; }
+  function localFavorites() { return readState().favorites; }
+  function getFavorites() {
+    const auth = root.RexBidAuth;
+    if (auth?.enabled) return auth.status === "authenticated" ? auth.getFavorites() : localFavorites();
+    return localFavorites();
+  }
   function removeFrom(listName, vehicleOrKey) {
     const state = readState(), key = keyFor(vehicleOrKey);
     const before = state[listName].length;
@@ -191,9 +196,23 @@
   }
   const api = {
     STORAGE_KEY, snapshotFromVehicle, getFavorites,
-    isFavorite(vehicle) { const key = keyFor(vehicle); return !!key && getFavorites().some(item => item.id === key); },
-    toggleFavorite(vehicle) { return toggle("favorites", vehicle); },
-    removeFavorite(vehicleOrKey) { return removeFrom("favorites", vehicleOrKey); },
+    getGuestFavorites: localFavorites,
+    clearGuestFavorites() { const state = readState(); state.favorites = []; writeState(state); },
+    isFavorite(vehicle) {
+      const auth = root.RexBidAuth;
+      if (auth?.enabled && auth.status === "authenticated") return auth.isFavorite(vehicle);
+      const key = keyFor(vehicle); return !!key && localFavorites().some(item => item.id === key);
+    },
+    toggleLocalFavorite(vehicle) { return toggle("favorites", vehicle); },
+    removeLocalFavorite(vehicleOrKey) { return removeFrom("favorites", vehicleOrKey); },
+    toggleFavorite(vehicle) {
+      const auth = root.RexBidAuth;
+      return auth?.enabled ? auth.toggleFavorite(vehicle) : toggle("favorites", vehicle);
+    },
+    removeFavorite(vehicleOrKey) {
+      const auth = root.RexBidAuth;
+      return auth?.enabled && auth.status === "authenticated" ? auth.removeFavorite(vehicleOrKey) : removeFrom("favorites", vehicleOrKey);
+    },
     detailHref, escapeHtml, safeImageUrl, refreshCounts
   };
   root.RexBidStorage = api;

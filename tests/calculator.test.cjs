@@ -250,6 +250,15 @@ test("confirmed finished sale may prefill; historical sale is not used for an ac
   assert.equal(noPrice.purchaseKind, "none");
 });
 
+test("Sold on Approval price is not treated as a confirmed purchase price", () => {
+  const pending = calc.prefillFromVehicle({
+    auction: { state: "finished", outcome_status: "Sold on Approval", last_sold_status: "Sold on Approval" },
+    pricing: { sale_price_usd: 950, last_sold_price_usd: 950, current_bid_usd: null, buy_now_usd: null }
+  });
+  assert.equal(pending.purchasePrice, null);
+  assert.equal(pending.purchaseKind, "none");
+});
+
 test("calculator main view is compact and keeps itemized diagnostics behind progressive disclosure", () => {
   const fs = require("node:fs");
   const car = fs.readFileSync(require("node:path").join(__dirname, "../public/car.html"), "utf8");

@@ -252,11 +252,14 @@ Utwórz konto →
 
 </main>
 
+<script src="/rexbid-auth.js"></script>
 <script>
 
 document
 .getElementById("loginForm")
 .addEventListener("submit",function(e){
+
+if (window.RexBidAuth?.enabled) return;
 
 e.preventDefault();
 

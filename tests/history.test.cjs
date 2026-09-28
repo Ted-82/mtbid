@@ -582,6 +582,40 @@ test('same event ID updates one D1 record when status and price change', async (
   assert.equal(db.rows[1].source_event_id, 'DEF', 'different IDs with the same LOT and date remain separate');
 });
 
+test('public detail/history edge cache reduces repeat provider requests without caching across history cursors', async () => {
+  const cached = new Map();
+  const cache = {
+    async match(request) { return cached.get(request.url)?.clone() || null; },
+    async put(request, response) { cached.set(request.url, response.clone()); }
+  };
+  let vehicleCalls = 0;
+  const historyCursors = [];
+  const context = loadWorker(async url => {
+    const parsed = new URL(url);
+    if (parsed.pathname.endsWith('/history')) {
+      historyCursors.push(parsed.searchParams.get('cursor'));
+      return new Response(JSON.stringify({data:{history:[]},meta:{next_cursor:null}}),{status:200});
+    }
+    vehicleCalls++;
+    return new Response(JSON.stringify({data:{vin:'VIN-CACHED',platform:'copart',lot_number:'LOT-CACHED'}}),{status:200});
+  });
+  context.caches.default = cache;
+  const env = {APIBARA_API_KEY:'fixture-key'};
+  const detailOne = await context.__worker.fetch(new Request('https://rex.bid/api/car/VIN-CACHED'),env);
+  const detailTwo = await context.__worker.fetch(new Request('https://rex.bid/api/car/VIN-CACHED?ignored=cache-buster'),env);
+  assert.equal(vehicleCalls,1,'repeat detail and ignored query values share the path-keyed detail cache');
+  assert.equal(detailOne.headers.get('Cache-Control'),'no-store','client-facing detail stays no-store');
+  assert.equal(detailTwo.headers.get('X-RexBid-Cache'),'HIT');
+
+  const first = 'https://rex.bid/api/car/VIN-CACHED/history?per_page=20';
+  const cursorA = 'https://rex.bid/api/car/VIN-CACHED/history?per_page=20&cursor=CURSOR-A';
+  await context.__worker.fetch(new Request(first),env);
+  await context.__worker.fetch(new Request(first),env);
+  await context.__worker.fetch(new Request(cursorA),env);
+  assert.deepEqual(historyCursors,[null,'CURSOR-A'],'repeat first-page history is cached, but a distinct opaque cursor is a distinct cache key');
+  assert.equal((await context.__worker.fetch(new Request(first),env)).headers.get('Cache-Control'),'no-store');
+});
+
 test('partial provider payload does not blank persisted good fields or erase raw source data', async () => {
   const db = new SyncMemoryD1();
   const { __history } = loadWorker();
@@ -670,60 +704,109 @@ test('history endpoint validates per_page and ends pagination when cursor is nul
   assert.equal(body.meta.has_more, false);
 });
 
-test('frontend follows three real cursors and collects 47 events without repeats', async () => {
-  const pages = [
-    Array.from({ length: 20 }, (_, i) => ({ event_key: `E${i}`, platform: 'copart', lot: `L${i}`, auction_date: `2025-01-${String(i + 1).padStart(2,'0')}` })),
-    Array.from({ length: 20 }, (_, i) => ({ event_key: `E${i + 20}`, platform: 'copart', lot: `L${i + 20}`, auction_date: `2025-02-${String(i + 1).padStart(2,'0')}` })),
-    Array.from({ length: 7 }, (_, i) => ({ event_key: `E${i + 40}`, platform: 'iaai', lot: `L${i + 40}`, auction_date: `2025-03-${String(i + 1).padStart(2,'0')}` }))
-  ];
-  const byCursor = new Map([[null, {history: pages[0], meta:fixtures.pages[0].meta}],
-    ['CURSOR-A', {history: pages[1], meta:fixtures.pages[1].meta}],
-    ['CURSOR-B', {history: pages[2], meta:fixtures.pages[2].meta}]]);
-  const requests = [];
-  const renderFunctions = extractFunctionBlock(carSource, 'historyRecordKey', 'renderAuctionHistory');
-  const helperBlock = extractFunctionBlock(carSource, 'fetchAuctionHistoryPages', 'fetchAuctionHistory');
-  const context = { API_BASE:'https://rex.bid/api', URLSearchParams,
-    normalizeHistoryRecord: record => record, auctionHistoryRecords:[],
-    isEmpty: value => value === null || value === undefined || value === '' };
+test('vehicle history opens with one page and exposes the exact opaque next cursor', async () => {
+  const pageBlock = extractFunctionBlock(carSource, 'fetchAuctionHistoryPage', 'getAuctionDisplayDate');
+  const context = { API_BASE:'https://rex.bid/api', URLSearchParams, normalizeHistoryRecord: record => record,
+    fetch: async url => { context.requests.push(new URL(url)); return new Response(JSON.stringify({history:[{event_key:'E1'}],meta:{next_cursor:'CURSOR/opaque+='}}), {status:200}); }, requests:[] };
   vm.createContext(context);
-  vm.runInContext(`${renderFunctions}${helperBlock}\nglobalThis.loadPages = fetchAuctionHistoryPages;`, context);
-  const result = await context.loadPages('VIN-1', () => {}, async url => {
-    const parsed = new URL(url);
-    const cursor = parsed.searchParams.get('cursor');
-    requests.push(cursor);
-    return new Response(JSON.stringify(byCursor.get(cursor)), {status:200});
-  });
-  assert.deepEqual(requests, [null, 'CURSOR-A', 'CURSOR-B']);
-  assert.equal(result.length, 47);
-  assert.equal(new Set(result.map(item => item.event_key)).size, 47);
+  vm.runInContext(`${pageBlock}\nglobalThis.loadOne = fetchAuctionHistoryPage;`, context);
+  const first = await context.loadOne('VIN-1');
+  assert.equal(context.requests.length, 1, 'opening the detail page requests only the first history page');
+  assert.equal(context.requests[0].searchParams.has('cursor'), false);
+  assert.equal(first.records.length, 1);
+  assert.equal(first.nextCursor, 'CURSOR/opaque+=');
 });
 
-test('frontend stops on a repeated cursor, deduplicates overlap, and retains completed pages on later failure', async () => {
-  const renderFunctions = extractFunctionBlock(carSource, 'historyRecordKey', 'renderAuctionHistory');
-  const helperBlock = extractFunctionBlock(carSource, 'fetchAuctionHistoryPages', 'fetchAuctionHistory');
-  const context = { API_BASE:'https://rex.bid/api', URLSearchParams, normalizeHistoryRecord: record => record,
-    auctionHistoryRecords:[], isEmpty: value => value === null || value === undefined || value === '' };
+test('detail initialization loads one history page and shows the manual continuation control', async () => {
+  const pageBlock = extractFunctionBlock(carSource, 'fetchAuctionHistoryPage', 'getAuctionDisplayDate');
+  const fetchBlock = extractFunctionBlock(carSource, 'fetchAuctionHistory', 'updateHistoryMoreButton');
+  const button = {hidden:true};
+  const context = { API_BASE:'https://rex.bid/api', URLSearchParams, normalizeHistoryRecord:record=>record,
+    auctionHistoryRecords:[],auctionHistoryNextCursor:null,
+    document:{getElementById:id=>id==='auctionHistory'?{}:id==='loadOlderAuctionHistory'?button:null},
+    getVin:()=> 'VIN-1', getLot:()=>null,
+    historyRecordsForRender:records=>records, renderAuctionHistory(){}, updateAuctionUi(){},updateForecastFromCalculator(){},
+    fetch:async url=>{context.requested.push(new URL(url));return new Response(JSON.stringify({history:[{event_key:'E1'}],meta:{next_cursor:'CURSOR-1'}}),{status:200});},requested:[]};
   vm.createContext(context);
-  vm.runInContext(`${renderFunctions}${helperBlock}\nglobalThis.loadPages = fetchAuctionHistoryPages;`, context);
+  vm.runInContext(`${pageBlock}${fetchBlock}function updateHistoryMoreButton(){const b=document.getElementById('loadOlderAuctionHistory');if(b)b.hidden=!auctionHistoryNextCursor;}\nglobalThis.initHistory=fetchAuctionHistory;`,context);
+  await context.initHistory();
+  assert.equal(context.requested.length,1);
+  assert.equal(context.auctionHistoryRecords.length,1);
+  assert.equal(context.auctionHistoryNextCursor,'CURSOR-1');
+  assert.equal(button.hidden,false);
+});
 
-  const duplicatePageRecord = {event_key:'E1',platform:'copart',lot:'L1',auction_date:'2025-01-01'};
-  let calls = 0;
-  const returned = await context.loadPages('VIN-1', () => {}, async () => {
-    calls++;
-    return new Response(JSON.stringify({history:[duplicatePageRecord],meta:{next_cursor:'CURSOR-A'}}), {status:200});
-  });
-  assert.equal(calls, 2, 'the repeated cursor does not trigger a third request');
-  assert.equal(returned.length, 1, 'same event on later page is removed');
-  assert.equal(new Set(returned.map(item=>item.event_key)).size, 1);
+test('manual older-history action requests one opaque cursor page, deduplicates, and preserves records on error', async () => {
+  const renderFunctions = extractFunctionBlock(carSource, 'historyRecordKey', 'renderAuctionHistory');
+  const pageBlock = extractFunctionBlock(carSource, 'fetchAuctionHistoryPage', 'getAuctionDisplayDate');
+  const updateBlock = extractFunctionBlock(carSource, 'updateHistoryMoreButton', 'loadOlderAuctionHistory');
+  const loadBlock = extractFunctionBlock(carSource, 'loadOlderAuctionHistory', 'auctionRefreshIntervalMs');
+  const button = {hidden:false,disabled:false,textContent:'Załaduj starsze wydarzenia'};
+  const original = {event_key:'E1',platform:'iaai',lot:'LOT-1',auction_date:'2025-01-01'};
+  const context = { API_BASE:'https://rex.bid/api', URLSearchParams, normalizeHistoryRecord: record => record,
+    auctionHistoryRecords:[original], auctionHistoryNextCursor:'CURSOR/opaque+=', auctionHistorySeenCursors:new Set(['CURSOR/opaque+=']), auctionHistoryLoading:false,
+    getVin:()=>'VIN-1',getLot:()=>null, isEmpty:value=>value===null||value===undefined||value==='',
+    document:{getElementById:id=>id==='loadOlderAuctionHistory'?button:null},
+    historyRecordsForRender:records=>{const map=new Map(); for(const item of records)map.set(item.event_key,item); return [...map.values()];},
+    renderAuctionHistory(){context.rendered=(context.rendered||0)+1;}, console:{warn(){}}, requests:[],
+    fetch:async url=>{context.requests.push(new URL(url));return new Response(JSON.stringify({history:[original,{event_key:'E2',lot:'LOT-2'}],meta:{next_cursor:null}}),{status:200});}};
+  vm.createContext(context);
+  vm.runInContext(`${renderFunctions}${pageBlock}${updateBlock}${loadBlock}\nglobalThis.loadOlder = loadOlderAuctionHistory;`,context);
+  await context.loadOlder();
+  assert.equal(context.requests.length,1);
+  assert.equal(context.requests[0].searchParams.get('cursor'),'CURSOR/opaque+=');
+  assert.equal(context.auctionHistoryRecords.length,2,'overlapping records are deduplicated while earlier events remain');
+  assert.equal(button.hidden,true,'the button disappears when there is no next cursor');
 
-  let completed = [];
-  let failCall = 0;
-  await assert.rejects(context.loadPages('VIN-1', page => { completed = page.slice(); }, async () => {
-    failCall++;
-    if (failCall === 1) return new Response(JSON.stringify({history:[duplicatePageRecord],meta:{next_cursor:'CURSOR-A'}}), {status:200});
-    return new Response('{}', {status:502});
-  }));
-  assert.equal(completed.length, 1, 'successfully fetched records remain available to the caller');
+  context.auctionHistoryNextCursor='CURSOR-CYCLE';
+  context.auctionHistorySeenCursors.add('CURSOR-CYCLE');
+  button.hidden=false;
+  context.fetch=async()=>new Response(JSON.stringify({history:[],meta:{next_cursor:'CURSOR-CYCLE'}}),{status:200});
+  await context.loadOlder();
+  assert.equal(context.auctionHistoryNextCursor,null,'a repeated opaque cursor ends paging instead of allowing repeated provider requests');
+  assert.equal(button.hidden,true);
+
+  context.auctionHistoryNextCursor='CURSOR-RETRY';
+  button.hidden=false;
+  context.fetch=async()=>{throw new Error('offline');};
+  await context.loadOlder();
+  assert.equal(context.auctionHistoryRecords.length,2,'a later failure preserves already-rendered history');
+  assert.equal(context.auctionHistoryNextCursor,'CURSOR-RETRY','failed page remains retryable');
+  assert.equal(button.disabled,false);
+});
+
+test('vehicle detail does not duplicate the Worker exact-search fallback after 404 or transient API failure', async () => {
+  const block = extractFunctionBlock(carSource, 'fetchVehicle', 'collectObjects');
+  const calls = [];
+  const context = { API_BASE:'/api', VIN:'VIN-1', LOT:'',
+    fetch:async url=>{calls.push(url);return new Response(JSON.stringify({error:'provider unavailable'}),{status:502});},
+    unwrapResult:body=>body?.data||null };
+  vm.createContext(context);
+  vm.runInContext(`${block}\nglobalThis.loadVehicle = fetchVehicle;`,context);
+  await assert.rejects(context.loadVehicle(),/provider unavailable/);
+  assert.deepEqual(calls,['/api/car/VIN-1'],'a 502 does not trigger a second upstream-backed list request');
+
+  calls.length=0;
+  context.fetch=async url=>{calls.push(url);return new Response(JSON.stringify({error:'not found'}),{status:404});};
+  await assert.rejects(context.loadVehicle(),/not found/);
+  assert.deepEqual(calls,['/api/car/VIN-1'],'the Worker already searched exactly; a client-side duplicate /api/cars search is unnecessary');
+});
+
+test('auction refresh cadence is phase-aware and stops polling when no real start is known', () => {
+  const block = extractFunctionBlock(carSource, 'auctionRefreshIntervalMs', 'startAuctionRefresh');
+  const now = Date.parse('2026-09-28T12:00:00Z');
+  const context = { Date, getAuctionStart:()=>new Date(now + 2*24*60*60*1000).toISOString() };
+  vm.createContext(context);
+  vm.runInContext(`${block}\nglobalThis.interval = auctionRefreshIntervalMs;`,context);
+  assert.equal(context.interval('live',now),30000);
+  assert.equal(context.interval('prebid',now),600000,'far-future auctions refresh no more than every ten minutes');
+  context.getAuctionStart=()=>new Date(now+30*60*1000).toISOString();
+  assert.equal(context.interval('prebid',now),120000,'nearer auctions use a tighter two-minute cadence');
+  context.getAuctionStart=()=>new Date(now+2*60*1000).toISOString();
+  assert.equal(context.interval('prebid',now),30000,'the final five minutes use a 30-second cadence');
+  context.getAuctionStart=()=>null;
+  assert.equal(context.interval('prebid',now),null,'unknown dates do not cause periodic provider reads');
+  assert.equal(context.interval('ended',now),null,'finished auctions do not poll');
 });
 
 test('frontend history code consumes canonical pages, caps requests, guards cursor loops, and preserves date-only values', () => {
@@ -734,8 +817,9 @@ test('frontend history code consumes canonical pages, caps requests, guards curs
 
   assert.match(carSource, /json\?\.history/);
   assert.match(carSource, /json\?\.meta\?\.next_cursor/);
-  assert.match(carSource, /const maxPages = 20/);
-  assert.match(carSource, /seenCursors\.has\(next\)/);
+  assert.match(carSource, /id="loadOlderAuctionHistory"[^>]*hidden/);
+  assert.match(carSource, /event\.target\?\.closest\?\.\("#loadOlderAuctionHistory"\)\) loadOlderAuctionHistory\(\)/);
+  assert.doesNotMatch(extractFunctionBlock(carSource, 'fetchAuctionHistory', 'updateHistoryMoreButton'), /fetchAuctionHistoryPages/);
   assert.match(carSource, /cache: "no-store"/);
   assert.match(carSource, /item\.final_price/);
 
@@ -1000,7 +1084,7 @@ test('filter metadata option text and values are escaped before select markup', 
 });
 
 test('listing and detail price labels preserve price meaning and finished overrides a future auction date', () => {
-  const listingBlock = extractFunctionBlock(indexSource, 'getPriceInfo', 'getMileage');
+  const listingBlock = [extractFunctionBlock(indexSource, 'hasApprovalPendingOutcome', 'getPriceInfo'), extractFunctionBlock(indexSource, 'getPriceInfo', 'getMileage')].join('\n');
   const listingContext = {};
   vm.createContext(listingContext);
   vm.runInContext(`${listingBlock}\nglobalThis.priceInfo = getPriceInfo;`, listingContext);
@@ -1020,7 +1104,9 @@ test('listing and detail price labels preserve price meaning and finished overri
   vm.createContext(dateContext);
   vm.runInContext(`${dateBlock}\nglobalThis.auctionDate = getAuctionDate;`, dateContext);
   assert.equal(dateContext.auctionDate({ auction: { is_timed: true, timed_end_at: '2026-10-03T17:00:00Z', auction_at: '2026-10-02T09:00:00Z' } }), '03.10.2026, 17:00');
-  const statusBlock = extractFunctionBlock(indexSource, 'getAuctionStatusLabel', 'getMileage');
+  assert.equal(dateContext.auctionDate({ auction: { state: 'finished', auction_at: '2099-10-03T17:00:00Z' } }), '', 'a future scheduled timestamp is not shown for a finished listing');
+  assert.match(dateContext.auctionDate({ auction: { state: 'open', auction_at: '2099-10-03T17:00:00Z' } }), /03\.10\.2099/, 'an active listing keeps its confirmed future date');
+  const statusBlock = [extractFunctionBlock(indexSource, 'hasApprovalPendingOutcome', 'getAuctionStatusLabel'), extractFunctionBlock(indexSource, 'getAuctionStatusLabel', 'getMileage')].join('\n');
   const statusContext = { getAuctionDate: () => null };
   vm.createContext(statusContext);
   vm.runInContext(`${statusBlock}\nglobalThis.statusLabel = getAuctionStatusLabel;`, statusContext);
@@ -1063,7 +1149,15 @@ test('listing and detail price labels preserve price meaning and finished overri
   vm.runInContext(`${phaseBlock}\nglobalThis.phase = auctionPhase;`, phaseContext);
   assert.equal(phaseContext.phase(), 'ended');
 
-  const detailBlock = extractFunctionBlock(carSource, 'getAuctionPriceInfo', 'getBuyNow');
+  const startBlock = extractFunctionBlock(carSource, 'getAuctionStart', 'getAuctionEnd');
+  const startContext = { car: { auction: { state: 'finished', auction_at: '2099-12-28T17:30:00Z' } }, first: (...values) => values.find(value => value !== null && value !== undefined && value !== ''), getAuctionStatus: () => 'finished', Date, getSale: () => null, valueFrom: () => null };
+  vm.createContext(startContext);
+  vm.runInContext(`${startBlock}\nglobalThis.start = getAuctionStart;`, startContext);
+  assert.equal(startContext.start(), null, 'detail view does not expose future auction_at for terminal state');
+  startContext.car = { auction: { state: 'open', auction_at: '2099-12-28T17:30:00Z' } };
+  assert.equal(startContext.start(), '2099-12-28T17:30:00Z', 'active detail view retains its confirmed date');
+
+  const detailBlock = [extractFunctionBlock(carSource, 'hasApprovalPendingOutcome', 'getAuctionPriceInfo'), extractFunctionBlock(carSource, 'getAuctionPriceInfo', 'getBuyNow')].join('\n');
   const detailContext = {
     car: { pricing: { sale_price_usd: 2025, last_sold_price_usd: 2025, buy_now_usd: 2925 } },
     auctionPhase: phaseContext.phase,
@@ -1083,7 +1177,7 @@ test('Car 2.0 keeps vehicle actions and media controls explicit without implying
   for (const id of ['mainPhoto', 'mainImage', 'thumbs', 'photoCount', 'prevPhoto', 'nextPhoto', 'openHd', 'openVideo', 'open360', 'lightbox', 'viewerModal', 'auctionHistory', 'importCalculator', 'copyVin', 'copyLink']) {
     assert.match(carSource, new RegExp(`id="${id}"`), `preserved detail-page control ${id}`);
   }
-  for (const fn of ['fetchVehicle', 'getVin', 'getLot', 'originalAuctionUrl', 'renderPhotos', 'openLightbox', 'setZoom', 'openViewer', 'startCountdown', 'initImportCalculator', 'fetchAuctionHistoryPages', 'updateAuctionUi']) {
+  for (const fn of ['fetchVehicle', 'getVin', 'getLot', 'originalAuctionUrl', 'renderPhotos', 'openLightbox', 'setZoom', 'openViewer', 'startCountdown', 'initImportCalculator', 'fetchAuctionHistoryPage', 'loadOlderAuctionHistory', 'updateAuctionUi']) {
     assert.match(carSource, new RegExp(`function ${fn}\\(`), `preserved detail-page function ${fn}`);
   }
   assert.match(carSource, /function originalAuctionUrl\(/);
@@ -1131,10 +1225,10 @@ test('car detail keeps exact VIN and LOT selection and never falls back to the f
 });
 
 test('detail price facts stay distinct and updateable, and missing final price labels history bid correctly', () => {
-  const priceBlock = extractFunctionBlock(carSource, 'getAuctionPriceFacts', 'getBuyNow');
+  const priceBlock = [extractFunctionBlock(carSource, 'hasApprovalPendingOutcome', 'getAuctionPriceFacts'), extractFunctionBlock(carSource, 'getAuctionPriceFacts', 'getBuyNow')].join('\n');
   let phase = 'live';
   const priceContext = {
-    car: { pricing: { current_bid_usd: 1700, buy_now_usd: 2900, sale_price_usd: 2025, last_sold_price_usd: 2025 } },
+    car: { pricing: { current_bid_usd: 1700, buy_now_usd: 2900, sale_price_usd: 2025, last_sold_price_usd: 2025 }, auction: { outcome_status: 'Sold' } },
     auctionPhase: () => phase,
     getCurrentBid: () => 1700,
     getBuyNow: () => 2900,
@@ -1149,6 +1243,8 @@ test('detail price facts stay distinct and updateable, and missing final price l
   assert.deepEqual(JSON.parse(JSON.stringify(priceContext.priceFacts({ value: 1700, label: 'Aktualna oferta' }))), [{ label: 'Kup teraz', value: 2900 }], 'old sale prices are not surfaced while the auction is active');
   phase = 'ended';
   assert.deepEqual(JSON.parse(JSON.stringify(priceContext.priceFacts({ value: 2025, label: 'Cena sprzedaży' }))), []);
+  priceContext.car = { pricing: { sale_price_usd: 950, last_sold_price_usd: 950 }, auction: { outcome_status: 'Sold on Approval', last_sold_status: 'Sold on Approval' } };
+  assert.deepEqual(JSON.parse(JSON.stringify(priceContext.priceFacts())), [], 'approval-pending amounts are not surfaced as completed sale facts');
 
   const historyBlock = extractFunctionBlock(carSource, 'renderAuctionHistory', 'formatHistoryDate');
   const historyBox = { innerHTML: '' };

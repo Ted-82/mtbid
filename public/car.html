@@ -1376,6 +1376,7 @@ main{padding-top:22px}
 <script src="/rexbid-door-estimator-rates.js"></script>
 <script src="/rexbid-door-estimator.js"></script>
 <script src="/rexbid-storage.js"></script>
+<script src="/rexbid-auth.js"></script>
 <script>
   const API_BASE = "/api";
   const params = new URLSearchParams(location.search);
@@ -1387,6 +1388,11 @@ main{padding-top:22px}
   let car = null;
   let photos = [];
   let auctionHistoryRecords = [];
+  let auctionHistoryNextCursor = null;
+  let auctionHistorySeenCursors = new Set();
+  let auctionHistoryLoading = false;
+  let auctionRefreshInFlight = false;
+  let auctionRefreshLastAt = 0;
 
   let photoIndex = 0;
 
@@ -1608,24 +1614,10 @@ main{padding-top:22px}
   async function fetchVehicle() {
     const attempts = [];
 
-    /*
-     * Najpierw korzystamy z właściwego endpointu pojedynczego auta.
-     * Worker obsługuje /api/car/{VIN} oraz /api/car/{LOT} i sam
-     * wykonuje dokładne sprawdzenie identyfikatora.
-     *
-     * Nie używamy tutaj /api/cars?vin=... jako pierwszej metody,
-     * ponieważ /api/cars jest endpointem listy i nie przyjmuje
-     * parametru vin jako filtra.
-     */
-    if (VIN) {
-      attempts.push(`${API_BASE}/car/${encodeURIComponent(VIN)}`);
-      attempts.push(`${API_BASE}/cars?s=${encodeURIComponent(VIN)}&per_page=20`);
-    }
-
-    if (LOT) {
-      attempts.push(`${API_BASE}/car/${encodeURIComponent(LOT)}`);
-      attempts.push(`${API_BASE}/cars?s=${encodeURIComponent(LOT)}&per_page=20`);
-    }
+    // The Worker owns direct lookup plus exact-match search fallback. Asking
+    // /api/cars again here duplicates that upstream search on every miss.
+    if (VIN) attempts.push(`${API_BASE}/car/${encodeURIComponent(VIN)}`);
+    if (LOT) attempts.push(`${API_BASE}/car/${encodeURIComponent(LOT)}`);
 
     let lastError = null;
 
@@ -1646,6 +1638,9 @@ main{padding-top:22px}
           lastError = new Error(
             json?.error || `HTTP ${response.status}`
           );
+          // Worker already performed its exact-match fallback. A definitive
+          // 404 may try the other supplied identifier, never a duplicate list search.
+          if (response.status !== 404) break;
           continue;
         }
 
@@ -1660,6 +1655,7 @@ main{padding-top:22px}
         );
       } catch (e) {
         lastError = e;
+        break;
       }
     }
 
@@ -2191,12 +2187,22 @@ main{padding-top:22px}
     return getCurrentBid();
   }
 
+  function hasApprovalPendingOutcome(value) {
+    const normalized = String(value || "").toLowerCase().replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
+    return /sold on approval|approval pending|pending approval|awaiting approval|on approval/.test(normalized);
+  }
+
+  function auctionApprovalPending() {
+    return hasApprovalPendingOutcome(car.auction?.outcome_status) || hasApprovalPendingOutcome(car.auction?.last_sold_status) || hasApprovalPendingOutcome(car.last_sold_status);
+  }
+
   function getAuctionPriceInfo() {
     const phase = auctionPhase();
     const currentBid = getCurrentBid();
     const buyNow = getBuyNow();
 
     if (phase === "ended") {
+      if (auctionApprovalPending()) return { value: null, label: "Cena sprzedaży niepotwierdzona" };
       const salePrice = [
         car.pricing?.sale_price_usd,
         car.pricing?.final_price_usd
@@ -2224,11 +2230,12 @@ main{padding-top:22px}
 
   function getAuctionPriceFacts(primaryPrice = getAuctionPriceInfo()) {
     const ended = auctionPhase() === "ended";
+    const approvalPending = ended && auctionApprovalPending();
     const facts = [
       { label: "Aktualna oferta", value: ended ? null : getCurrentBid() },
       { label: "Kup teraz", value: ended ? null : getBuyNow() },
-      { label: "Cena sprzedaży", value: ended ? first(car.pricing?.sale_price_usd, car.pricing?.final_price_usd, car.sale_price_usd, car.final_price_usd) : null },
-      { label: "Ostatnia cena sprzedaży", value: ended ? first(car.pricing?.last_sold_price_usd, car.pricing?.last_sold_price, car.last_sold_price_usd) : null }
+      { label: "Cena sprzedaży", value: ended && !approvalPending ? first(car.pricing?.sale_price_usd, car.pricing?.final_price_usd, car.sale_price_usd, car.final_price_usd) : null },
+      { label: "Ostatnia cena sprzedaży", value: ended && !approvalPending ? first(car.pricing?.last_sold_price_usd, car.pricing?.last_sold_price, car.last_sold_price_usd) : null }
     ];
     const salePrice = facts.find(fact => fact.label === "Cena sprzedaży")?.value;
     return facts.filter(fact => {
@@ -2449,6 +2456,10 @@ main{padding-top:22px}
       );
     }
     const state = String(car.auction?.state || getAuctionStatus() || "").toLowerCase();
+    const outcome = String(car.auction?.outcome_status || "").toLowerCase();
+    const terminal = /^(?:finished|sold|not[_ -]?sold|no[_ -]?sale|unsold|closed|ended|completed|cancelled|canceled|withdrawn)$/.test(state)
+      || /sold|approval|not[_ -]?sold|no[_ -]?sale|unsold/.test(outcome);
+    if (terminal && value && Number.isFinite(Date.parse(String(value))) && Date.parse(String(value)) > Date.now()) return null;
     const isUpcoming = ["upcoming", "scheduled", "future"].includes(state) || car.auction?.upcoming === true;
     if (isUpcoming && (!value || !Number.isFinite(Date.parse(String(value))) || Date.parse(String(value)) <= Date.now())) return null;
     return value || null;
@@ -2526,7 +2537,8 @@ main{padding-top:22px}
     const state = String(getAuctionStatus() || "").toLowerCase();
     const outcome = String(car.auction?.outcome_status || "").toLowerCase();
     if (/not.?sold|no.?sale|unsold/.test(outcome) || ["not_sold", "no_sale"].includes(state)) return "Niesprzedana";
-    if (/sold|approval/.test(outcome) || state === "sold" || car.auction?.sold_timed === true) return "Sprzedana";
+    if (auctionApprovalPending()) return "Oczekuje na zatwierdzenie";
+    if (/\bsold\b/.test(outcome) || state === "sold" || car.auction?.sold_timed === true) return "Sprzedana";
     if (phase === "ended") return "Zakończona";
     if (car.auction?.is_buy_now === true || String(car.auction?.lot_status || "").toLowerCase() === "buy now") return "Kup teraz";
     if (car.auction?.is_timed === true || String(car.auction?.lot_status || "").toLowerCase() === "timed") return "Timed Auction";
@@ -2726,7 +2738,7 @@ main{padding-top:22px}
 
           <section class="info-card" id="auctionHistoryPanel">
             <div class="info-card-head"><h3>Historia aukcji tego VIN</h3></div>
-            <div class="info-card-body"><div id="auctionHistory" class="auction-history"></div><div class="seller-note" style="margin-top:8px">Historia aukcji Apibara; snapshoty REX.Bid nie są mieszane z wydarzeniami sprzedaży.</div></div>
+            <div class="info-card-body"><div id="auctionHistory" class="auction-history"></div><button id="loadOlderAuctionHistory" type="button" hidden style="margin-top:12px;padding:9px 13px;border:1px solid #d5dde4;border-radius:8px;background:#fff;color:#203246;font-weight:750;cursor:pointer">Załaduj starsze wydarzenia</button><div class="seller-note" style="margin-top:8px">Historia aukcji; snapshoty REX.Bid nie są mieszane z wydarzeniami sprzedaży.</div></div>
           </section>
 
           <section class="door-estimator" id="estimatedDoorCalculator" aria-labelledby="doorEstimatorTitle">
@@ -2903,11 +2915,14 @@ main{padding-top:22px}
       }
       window.RexBidStorage.refreshCounts();
     };
-    favoriteButton?.addEventListener("click", () => {
+    favoriteButton?.addEventListener("click", async () => {
       if (!window.RexBidStorage || !car) return;
-      window.RexBidStorage.toggleFavorite(car);
+      favoriteButton.disabled = true;
+      try { await window.RexBidStorage.toggleFavorite(car); }
+      finally { favoriteButton.disabled = false; }
       syncLocalActionButtons();
     });
+    globalThis.addEventListener?.("rexbid:auth-state", syncLocalActionButtons);
     syncLocalActionButtons();
 
     document.getElementById("prevPhoto")?.addEventListener("click",() => {
@@ -3241,7 +3256,7 @@ main{padding-top:22px}
         if (label) label.textContent = "Do przewidywanego końca";
       } else if (phase === "ended") {
         if (label) label.textContent = "Status aukcji";
-        node.textContent = "Zakończona";
+        node.textContent = auctionApprovalPending() ? "Oczekuje na zatwierdzenie" : "Zakończona";
         return;
       } else {
         if (!Number.isFinite(start)) {
@@ -3306,12 +3321,13 @@ main{padding-top:22px}
       priceFactsNode.hidden = !facts.length;
     }
 
-    if (label) label.textContent = car.auction?.is_timed === true ? "Do końca aukcji czasowej" : "Termin licytacji";
-
     startCountdown();
   }
 
   async function refreshAuctionData() {
+    if (auctionRefreshInFlight || document.visibilityState === "hidden") return;
+    auctionRefreshInFlight = true;
+    auctionRefreshLastAt = Date.now();
     try {
       const fresh = await fetchVehicle();
       if (!fresh) return;
@@ -3329,6 +3345,8 @@ main{padding-top:22px}
     } catch (e) {
       // Odświeżanie aukcji nie może zepsuć działającej strony.
       console.warn("REX.Bid auction refresh:", e);
+    } finally {
+      auctionRefreshInFlight = false;
     }
   }
 
@@ -3610,36 +3628,22 @@ main{padding-top:22px}
     return null;
   }
 
-  async function fetchAuctionHistoryPages(identifier, onPage = () => {}, fetchImpl = fetch) {
-    let cursor = null;
-    const collected = [];
-    const seenCursors = new Set();
-    const maxPages = 20;
-
-    for (let pageNo = 0; pageNo < maxPages; pageNo++) {
-      const query = new URLSearchParams({per_page:"20"});
-      if (cursor !== null) query.set("cursor", String(cursor));
-      const response = await fetchImpl(`${API_BASE}/car/${encodeURIComponent(identifier)}/history?${query.toString()}`, {
-        headers: {"Accept":"application/json"},
-        cache: "no-store"
-      });
-      if (!response.ok) throw new Error(`Historia HTTP ${response.status}`);
-      const json = await response.json();
-      const rawRecords = Array.isArray(json?.history) ? json.history
-        : Array.isArray(json?.data?.history) ? json.data.history
-        : Array.isArray(json?.data) ? json.data : [];
-      for (const record of rawRecords) {
-        const normalized = normalizeHistoryRecord(record);
-        if (normalized) collected.push(normalized);
-      }
-      onPage(historyRecordsForRender(collected));
-      const next = json?.meta?.next_cursor ?? json?.data?.meta?.next_cursor ?? null;
-      if (next === null || next === undefined || next === "") break;
-      if (seenCursors.has(next)) break;
-      seenCursors.add(next);
-      cursor = next;
-    }
-    return historyRecordsForRender(collected);
+  async function fetchAuctionHistoryPage(identifier, cursor = null, fetchImpl = fetch) {
+    const query = new URLSearchParams({per_page:"20"});
+    if (cursor !== null) query.set("cursor", String(cursor));
+    const response = await fetchImpl(`${API_BASE}/car/${encodeURIComponent(identifier)}/history?${query.toString()}`, {
+      headers: {"Accept":"application/json"},
+      cache: "no-store"
+    });
+    if (!response.ok) throw new Error(`Historia HTTP ${response.status}`);
+    const json = await response.json();
+    const rawRecords = Array.isArray(json?.history) ? json.history
+      : Array.isArray(json?.data?.history) ? json.data.history
+      : Array.isArray(json?.data) ? json.data : [];
+    return {
+      records: rawRecords.map(normalizeHistoryRecord).filter(Boolean),
+      nextCursor: json?.meta?.next_cursor ?? json?.data?.meta?.next_cursor ?? null
+    };
   }
 
   function getAuctionDisplayDate() {
@@ -3654,10 +3658,11 @@ main{padding-top:22px}
     if (!identifier) return;
 
     try {
-      auctionHistoryRecords = await fetchAuctionHistoryPages(identifier, page => {
-        auctionHistoryRecords = page;
-        renderAuctionHistory();
-      });
+      const page = await fetchAuctionHistoryPage(identifier);
+      auctionHistoryRecords = historyRecordsForRender(page.records);
+      auctionHistoryNextCursor = page.nextCursor || null;
+      auctionHistorySeenCursors = new Set(auctionHistoryNextCursor ? [String(auctionHistoryNextCursor)] : []);
+      updateHistoryMoreButton();
       renderAuctionHistory();
       updateAuctionUi();
       updateForecastFromCalculator();
@@ -3666,24 +3671,63 @@ main{padding-top:22px}
       renderAuctionHistory();
     }
   }
+
+  function updateHistoryMoreButton() {
+    const button = document.getElementById("loadOlderAuctionHistory");
+    if (button) button.hidden = !auctionHistoryNextCursor;
+  }
+
+  async function loadOlderAuctionHistory() {
+    if (!auctionHistoryNextCursor || auctionHistoryLoading) return;
+    const button = document.getElementById("loadOlderAuctionHistory");
+    const identifier = getVin() || getLot();
+    if (!identifier) return;
+    auctionHistoryLoading = true;
+    if (button) { button.disabled = true; button.textContent = "Ładowanie…"; }
+    try {
+      const page = await fetchAuctionHistoryPage(identifier, auctionHistoryNextCursor);
+      auctionHistoryRecords = historyRecordsForRender([...auctionHistoryRecords, ...page.records]);
+      const nextCursor = page.nextCursor || null;
+      const repeated = nextCursor !== null && auctionHistorySeenCursors.has(String(nextCursor));
+      auctionHistoryNextCursor = repeated ? null : nextCursor;
+      if (auctionHistoryNextCursor !== null) auctionHistorySeenCursors.add(String(auctionHistoryNextCursor));
+      renderAuctionHistory();
+      updateHistoryMoreButton();
+    } catch (error) {
+      console.warn("REX.Bid older auction history:", error);
+      if (button) button.textContent = "Nie udało się pobrać — spróbuj ponownie";
+    } finally {
+      auctionHistoryLoading = false;
+      if (button) {
+        button.disabled = false;
+        if (auctionHistoryNextCursor) button.textContent = "Załaduj starsze wydarzenia";
+        else button.hidden = true;
+      }
+    }
+  }
+  function auctionRefreshIntervalMs(phase = auctionPhase(), now = Date.now()) {
+    if (phase === "live") return 30000;
+    if (phase !== "prebid") return null;
+    const startRaw = getAuctionStart();
+    const start = startRaw ? new Date(startRaw).getTime() : NaN;
+    if (!Number.isFinite(start)) return null;
+    const untilStart = start - now;
+    if (untilStart <= 5 * 60 * 1000) return 30000;
+    if (untilStart <= 60 * 60 * 1000) return 120000;
+    return 600000;
+  }
+
   function startAuctionRefresh() {
     if (auctionRefreshTimer) clearInterval(auctionRefreshTimer);
-    // Podczas oczekiwania i LIVE odświeżamy ofertę co 10 sekund,
-    // dzięki czemu cena/status mogą zmieniać się bez przeładowania strony.
+    auctionRefreshLastAt = Date.now();
+    // Timed checks are cheap locally; provider reads are phase-aware, hidden-tab
+    // aware, and single-flight. Far-future auctions do not poll every 10 seconds.
     auctionRefreshTimer = setInterval(() => {
-      // Nie zatrzymujemy odświeżania tylko dlatego, że poprzedni snapshot
-      // miał status "sold/closed". Jeśli aukcja ma przyszły start albo
-      // właśnie trwa, nowe dane mogą zmienić cenę i status.
-      const startRaw = getAuctionStart();
-      const start = startRaw ? new Date(startRaw).getTime() : NaN;
+      if (document.visibilityState === "hidden" || auctionRefreshInFlight) return;
       const now = Date.now();
-      const shouldWatch =
-        (Number.isFinite(start) && now <= start + 12 * 60 * 60 * 1000) ||
-        auctionPhase() === "prebid" ||
-        auctionPhase() === "live";
-
-      if (shouldWatch) refreshAuctionData();
-    }, 10000);
+      const minimumInterval = auctionRefreshIntervalMs(auctionPhase(), now);
+      if (minimumInterval && now - auctionRefreshLastAt >= minimumInterval) refreshAuctionData();
+    }, 15000);
   }
 
   async function init() {
@@ -3719,6 +3763,9 @@ main{padding-top:22px}
     }
   }
 
+  document.addEventListener("click", event => {
+    if (event.target?.closest?.("#loadOlderAuctionHistory")) loadOlderAuctionHistory();
+  });
   init();
 </script>
 </body>

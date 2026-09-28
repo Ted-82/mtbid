@@ -132,7 +132,7 @@ test('Timed IAAI presentation uses timed_end_at and secondary current bid withou
   assert.equal(noBid.pricing.current_bid_usd, null);
   assert.equal(noBid.pricing.current_bid2_usd, null);
 
-  const pricingBlock = extractFunctionBlock(indexSource, 'getPriceInfo', 'getMileage');
+  const pricingBlock = [extractFunctionBlock(indexSource, 'hasApprovalPendingOutcome', 'getPriceInfo'), extractFunctionBlock(indexSource, 'getPriceInfo', 'getMileage')].join('\n');
   const priceContext = {};
   vm.createContext(priceContext);
   vm.runInContext(`${pricingBlock}\nglobalThis.price = getPriceInfo;`, priceContext);
@@ -141,13 +141,86 @@ test('Timed IAAI presentation uses timed_end_at and secondary current bid withou
   assert.match(dateBlock, /if \(car\.auction\?\.is_timed === true\) return getAuctionEnd\(\) \|\| null/);
   assert.match(dateBlock, /car\.auction\?\.timed_end_at/);
 
-  const statusBlock = indexSource.match(/function getAuctionStatusLabel\(car\) \{[\s\S]*?\n  \}/)?.[0];
+  const statusBlock = [extractFunctionBlock(indexSource, 'hasApprovalPendingOutcome', 'getAuctionStatusLabel'), indexSource.match(/function getAuctionStatusLabel\(car\) \{[\s\S]*?\n  \}/)?.[0]].filter(Boolean).join('\n');
   assert.ok(statusBlock);
   const statusContext = { getAuctionDate: () => '' };
   vm.createContext(statusContext);
   vm.runInContext(`${statusBlock}\nglobalThis.statusLabel = getAuctionStatusLabel;`, statusContext);
   assert.equal(statusContext.statusLabel({ auction: { state: 'open', is_timed: true, timed_end_at: '2020-01-01T00:00:00Z' } }), 'Zakończona');
   assert.equal(statusContext.statusLabel({ auction: { state: 'upcoming', auction_at: null } }), 'Nadchodząca · termin nieustalony');
+});
+
+test('Sold on Approval is pending in list/detail and never becomes confirmed sale pricing', () => {
+  const actual = {
+    auction: { state: 'finished', outcome_status: 'Sold on Approval', last_sold_status: 'Sold on Approval' },
+    pricing: { sale_price_usd: 950, last_sold_price_usd: 950, current_bid_usd: null, buy_now_usd: null }
+  };
+  const listBlocks = [
+    extractFunctionBlock(indexSource, 'hasApprovalPendingOutcome', 'getPriceInfo'),
+    extractFunctionBlock(indexSource, 'getPriceInfo', 'getAuctionStatusLabel'),
+    extractFunctionBlock(indexSource, 'getAuctionStatusLabel', 'getMileage')
+  ].join('\n');
+  const listContext = { Date, getAuctionDate: () => null };
+  vm.createContext(listContext);
+  vm.runInContext(`${listBlocks}\nglobalThis.price = getPriceInfo; globalThis.status = getAuctionStatusLabel;`, listContext);
+  assert.deepEqual(JSON.parse(JSON.stringify(listContext.price(actual))), { value: null, label: 'Cena sprzedaży niepotwierdzona' });
+  assert.equal(listContext.status(actual), 'Oczekuje na zatwierdzenie');
+
+  const detailBlocks = [
+    extractFunctionBlock(carSource, 'hasApprovalPendingOutcome', 'getAuctionPriceInfo'),
+    extractFunctionBlock(carSource, 'getAuctionPriceInfo', 'getAuctionPriceFacts'),
+    extractFunctionBlock(carSource, 'getAuctionPriceFacts', 'renderAuctionPriceFactsHtml'),
+    extractFunctionBlock(carSource, 'auctionStatusLabel', 'auctionStatusClass')
+  ].join('\n');
+  const carContext = {
+    car: actual,
+    auctionPhase: () => 'ended',
+    getCurrentBid: () => null,
+    getBuyNow: () => null,
+    isEmpty: value => value === null || value === undefined || value === '',
+    first: (...values) => values.find(value => value !== null && value !== undefined && value !== ''),
+    getAuctionStatus: () => actual.auction.state
+  };
+  vm.createContext(carContext);
+  vm.runInContext(`${detailBlocks}\nglobalThis.price = getAuctionPriceInfo; globalThis.facts = getAuctionPriceFacts; globalThis.status = auctionStatusLabel;`, carContext);
+  assert.deepEqual(JSON.parse(JSON.stringify(carContext.price())), { value: null, label: 'Cena sprzedaży niepotwierdzona' });
+  assert.deepEqual(JSON.parse(JSON.stringify(carContext.facts())), []);
+  assert.equal(carContext.status(), 'Oczekuje na zatwierdzenie');
+
+  const confirmed = { auction: { state: 'finished', outcome_status: 'Sold' }, pricing: { sale_price_usd: 1200 } };
+  assert.deepEqual(JSON.parse(JSON.stringify(listContext.price(confirmed))), { value: 1200, label: 'Cena sprzedaży' });
+  assert.equal(listContext.status({ auction: { state: 'finished', outcome_status: 'Not Sold' } }), 'Niesprzedana');
+});
+
+test('detail auction UI refresh updates status and prices without a missing DOM-label reference', () => {
+  const nodes = new Map([
+    ['auctionStatusText', { textContent: '', className: '' }],
+    ['auctionStatusHeadline', { innerHTML: '', className: '' }],
+    ['currentBidPrice', { textContent: '' }],
+    ['bidLabel', { textContent: '' }],
+    ['priceFacts', { innerHTML: '', hidden: false }]
+  ]);
+  const context = {
+    car: { auction: { state: 'finished', outcome_status: 'Sold on Approval' } },
+    auctionPhase: () => 'ended',
+    document: { getElementById: id => nodes.get(id) || null },
+    auctionStatusLabel: () => 'Oczekuje na zatwierdzenie',
+    auctionStatusClass: () => 'ended',
+    getAuctionPriceInfo: () => ({ value: null, label: 'Cena sprzedaży niepotwierdzona' }),
+    money: value => value == null ? '—' : `$${value}`,
+    getAuctionPriceFacts: () => [],
+    renderAuctionPriceFactsHtml: () => '',
+    esc: value => String(value),
+    startCountdown: () => {}
+  };
+  vm.createContext(context);
+  const block = extractFunctionBlock(carSource, 'updateAuctionUi', 'refreshAuctionData');
+  vm.runInContext(`${block}\nglobalThis.update = updateAuctionUi;`, context);
+  assert.doesNotThrow(() => context.update());
+  assert.equal(nodes.get('auctionStatusText').textContent, 'Oczekuje na zatwierdzenie');
+  assert.equal(nodes.get('currentBidPrice').textContent, '—');
+  assert.equal(nodes.get('bidLabel').textContent, 'Cena sprzedaży niepotwierdzona');
+  assert.equal(nodes.get('priceFacts').hidden, true);
 });
 
 test('all public product pages use the shared REX.Bid brand and mobile navigation', () => {
@@ -300,6 +373,8 @@ test('upcoming aisle only shows source-confirmed future date and never substitut
   vm.runInContext(`${block}\nglobalThis.date = getConfirmedUpcomingDate;`, context);
   assert.equal(context.date({ auction: { state: 'upcoming', formatted: '2026-10-01', sale_price_usd: 9000 } }), '', 'display text alone is not treated as a confirmed date');
   assert.match(context.date({ auction: { auction_at: '2099-05-06T12:30:00Z' } }), /06\.05\.2099/);
+  assert.equal(context.date({ auction: { state: 'finished', auction_at: '2099-05-06T12:30:00Z' } }), '', 'ended cards never advertise a future auction date');
+  assert.equal(context.date({ auction: { state: 'finished', auction_at: '2020-05-06T12:30:00Z' } }), '', 'the upcoming aisle excludes finished listings');
   assert.equal(context.date({ auction: { auction_at: '2000-01-01T00:00:00Z' } }), '');
 });
 

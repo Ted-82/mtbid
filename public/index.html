@@ -944,6 +944,7 @@
 
 
 <script src="/rexbid-storage.js"></script>
+<script src="/rexbid-auth.js"></script>
 <script>
   const API_BASE = "/api";
 
@@ -1346,6 +1347,10 @@
     const auction = car?.auction && typeof car.auction === "object" ? car.auction : {};
     const raw = auction.auction_at || auction.full_date || car?.auction_at || car?.auction_date || "";
     if (typeof raw !== "string" || !raw.trim() || !Number.isFinite(Date.parse(raw)) || Date.parse(raw) <= Date.now()) return "";
+    const state = String(auction.state || car?.status || "").toLowerCase();
+    const outcome = String(auction.outcome_status || auction.last_sold_status || "").toLowerCase();
+    if (/^(?:finished|sold|not[_ -]?sold|no[_ -]?sale|unsold|closed|ended|completed|cancelled|canceled|withdrawn)$/.test(state)
+      || /sold|approval|not[_ -]?sold|no[_ -]?sale|unsold/.test(outcome)) return "";
     const match = raw.trim().match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/);
     if (!match) return "";
     const date = `${match[3]}.${match[2]}.${match[1]}`;
@@ -1877,6 +1882,11 @@
    * ==========================================================
    */
 
+  function hasApprovalPendingOutcome(value) {
+    const normalized = String(value || "").toLowerCase().replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
+    return /sold on approval|approval pending|pending approval|awaiting approval|on approval/.test(normalized);
+  }
+
   function getPriceInfo(car) {
     if (!car) return { value: null, label: "Cena niedostępna" };
 
@@ -1885,9 +1895,11 @@
     const auction = car.auction && typeof car.auction === "object" ? car.auction : {};
     const state = String(auction.state || car.status || "").toLowerCase();
     const outcome = String(auction.outcome_status || "").toLowerCase();
+    const approvalPending = hasApprovalPendingOutcome(outcome) || hasApprovalPendingOutcome(auction.last_sold_status);
     const terminal = ["finished", "sold", "closed", "ended", "not_sold", "no_sale"].includes(state) || Boolean(auction.auction_ended_at) || auction.sold_timed === true;
-    const sold = /sold|approval/.test(outcome) || ["sold"].includes(state) || ((state === "finished" || Boolean(auction.auction_ended_at)) && positive(pricing.sale_price_usd));
+    const sold = /\bsold\b/.test(outcome) && !approvalPending || ["sold"].includes(state) || ((state === "finished" || Boolean(auction.auction_ended_at)) && positive(pricing.sale_price_usd) && !approvalPending);
     const unsold = /not.?sold|no.?sale|unsold/.test(outcome) || ["not_sold", "no_sale"].includes(state);
+    if (terminal && approvalPending) return { value: null, label: "Cena sprzedaży niepotwierdzona" };
     if (terminal && sold) {
       const salePrice = positive(pricing.sale_price_usd, pricing.final_price_usd, car.sale_price_usd, car.final_price_usd);
       if (salePrice !== undefined) return { value: salePrice, label: "Cena sprzedaży" };
@@ -1912,7 +1924,8 @@
     const state = String(auction.state || car?.status || "").toLowerCase();
     const outcome = String(auction.outcome_status || "").toLowerCase();
     if (/not.?sold|no.?sale|unsold/.test(outcome) || ["not_sold", "no_sale"].includes(state)) return "Niesprzedana";
-    if (/sold|approval/.test(outcome) || state === "sold" || auction.sold_timed === true) return "Sprzedana";
+    if (hasApprovalPendingOutcome(outcome) || hasApprovalPendingOutcome(auction.last_sold_status)) return "Oczekuje na zatwierdzenie";
+    if (/\bsold\b/.test(outcome) || state === "sold" || auction.sold_timed === true) return "Sprzedana";
     if (["finished", "closed", "ended"].includes(state) || auction.auction_ended_at) return "Zakończona";
     const timedEnd = auction.is_timed === true && typeof auction.timed_end_at === "string" ? Date.parse(auction.timed_end_at) : NaN;
     if (Number.isFinite(timedEnd) && timedEnd <= Date.now()) return "Zakończona";
@@ -2180,6 +2193,10 @@
     const raw = value.trim();
     if (!Number.isFinite(Date.parse(raw))) return "";
     const state = String(auction.state || car?.status || "").toLowerCase();
+    const outcome = String(auction.outcome_status || auction.last_sold_status || "").toLowerCase();
+    const terminal = /^(?:finished|sold|not[_ -]?sold|no[_ -]?sale|unsold|closed|ended|completed|cancelled|canceled|withdrawn)$/.test(state)
+      || /sold|approval|not[_ -]?sold|no[_ -]?sale|unsold/.test(outcome);
+    if (terminal && Date.parse(raw) > Date.now()) return "";
     const upcoming = ["upcoming", "scheduled", "future"].includes(state) || auction.upcoming === true;
     if (upcoming && Date.parse(raw) <= Date.now()) return "";
     const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/);
@@ -2956,10 +2973,11 @@
     event.stopPropagation();
     const selectedCar = listedCars[Number(button.dataset.carIndex)];
     if (!selectedCar) return;
-    if (button.dataset.localAction === "favorite") localStorageApi.toggleFavorite(selectedCar);
-    renderCars(listedCars);
+    if (button.dataset.localAction === "favorite") Promise.resolve(localStorageApi.toggleFavorite(selectedCar)).finally(() => renderCars(listedCars));
+    else renderCars(listedCars);
     localStorageApi.refreshCounts();
   });
+  globalThis.addEventListener?.("rexbid:auth-state", () => renderCars(listedCars));
 
 
   /*

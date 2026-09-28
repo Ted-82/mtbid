@@ -400,6 +400,7 @@
 </footer>
 
 <script src="/rexbid-storage.js"></script>
+<script src="/rexbid-auth.js"></script>
 <script>
 (() => {
   const storage = window.RexBidStorage;
@@ -407,21 +408,34 @@
   const counter = document.getElementById("counter");
   const esc = storage.escapeHtml;
   const money = value => value === null || value === undefined || !Number.isFinite(Number(value)) ? "" : new Intl.NumberFormat("en-US", {style:"currency",currency:"USD",maximumFractionDigits:0}).format(Number(value));
+  const approvalPending = auction => /sold on approval|approval pending|pending approval|awaiting approval|on approval/.test(String(auction?.outcome_status || auction?.last_sold_status || "").toLowerCase().replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim());
   const statusLabel = auction => {
     const state = String(auction?.state || "").toLowerCase();
     const outcome = String(auction?.outcome_status || "").toLowerCase();
     if (/not.?sold|no.?sale|unsold/.test(outcome) || ["not_sold", "no_sale"].includes(state)) return "Niesprzedana";
-    if (/sold|approval/.test(outcome) || state === "sold" || auction?.sold_timed) return "Sprzedana";
+    if (approvalPending(auction)) return "Oczekuje na zatwierdzenie";
+    if (/\bsold\b/.test(outcome) || state === "sold" || auction?.sold_timed) return "Sprzedana";
     if (["finished", "closed", "ended"].includes(state)) return "Zakończona";
     if (auction?.is_timed || String(auction?.lot_status || "").toLowerCase() === "timed") return "Timed Auction";
     if (["open", "active"].includes(state)) return "Przed licytacją";
     return "Nadchodząca · termin nieustalony";
   };
+  if (window.RexBidAuth?.enabled) {
+    globalThis.addEventListener?.("rexbid:auth-state", () => {
+      if (window.RexBidAuth.status !== "authenticated") render();
+    });
+    window.RexBidAuth.mountFavoritesPage({ content, counter, storage }).then(mounted => { if (!mounted) render(); }).catch(() => {
+      if (window.RexBidAuth.status !== "authenticated") render();
+      else content.textContent = "Nie udało się wczytać ulubionych. Spróbuj ponownie.";
+    });
+    return;
+  }
   function priceInfo(car) {
     const pricing = car.pricing || {};
     const state = String(car.auction?.state || "").toLowerCase();
     const finished = ["finished","sold","closed","ended","not_sold","no_sale"].includes(state);
     const positive = value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)) && Number(value) > 0;
+    if (finished && approvalPending(car.auction)) return ["Cena sprzedaży niepotwierdzona", null];
     if (finished && positive(pricing.sale_price_usd)) return ["Cena sprzedaży", pricing.sale_price_usd];
     if (finished && positive(pricing.final_price_usd)) return ["Cena sprzedaży", pricing.final_price_usd];
     if (finished && positive(pricing.last_sold_price_usd)) return ["Ostatnia cena sprzedaży", pricing.last_sold_price_usd];

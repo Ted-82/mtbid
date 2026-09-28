@@ -117,6 +117,35 @@ test('favorite page safely renders hostile persisted fields, supports removal an
   assert.doesNotMatch(favoritesSource, /onclick=/i);
 });
 
+test('favorite page auth bootstrap may dispatch before mounting and safely falls back to a guest card', async () => {
+  const store = createStorage();
+  store.api.toggleFavorite(car({
+    vin: 'APPROVAL-VIN',
+    auction: { state: 'finished', outcome_status: 'Sold on Approval' },
+    pricing: { sale_price_usd: 950, last_sold_price_usd: 950 }
+  }));
+  const nodes = new Map();
+  const element = id => {
+    if (!nodes.has(id)) nodes.set(id, { innerHTML: '', textContent: '', listeners: {}, addEventListener(name, callback) { this.listeners[name] = callback; } });
+    return nodes.get(id);
+  };
+  const document = { getElementById: element, querySelectorAll() { return []; } };
+  let authStateListener;
+  const window = {
+    RexBidStorage: store.api,
+    RexBidAuth: { enabled: true, status: 'anonymous', mountFavoritesPage() { return Promise.resolve(false); } }
+  };
+  const script = [...favoritesSource.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)][0][1];
+  vm.runInNewContext(script, { window, document, Intl, Number, String, Array, Set, addEventListener(_name, callback) { authStateListener = callback; callback(); } });
+  await Promise.resolve();
+  const html = element('content').innerHTML;
+  assert.match(html, /APPROVAL-VIN/);
+  assert.match(html, /Oczekuje na zatwierdzenie/);
+  assert.match(html, /Cena sprzedaży niepotwierdzona/);
+  assert.doesNotMatch(html, /\$950/);
+  assert.equal(typeof authStateListener, 'function');
+});
+
 test('account favorite counter reads the shared versioned storage module', () => {
   assert.match(accountSource, /<script src="\/rexbid-storage\.js"><\/script>/);
   assert.match(accountSource, /window\.RexBidStorage\?\.getFavorites\?\.\(\)\.length/);
@@ -139,13 +168,16 @@ test('product pages retain favorites and dynamic-filter routes, while comparison
 
 test('favorites never show zero Buy Now or infer sale/current price from generic fields', () => {
   const inline = [...favoritesSource.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)][0][1];
+  const approvalBlock = inline.match(/  const approvalPending = auction => [\s\S]*?;\n/)?.[0];
   const priceBlock = inline.slice(inline.indexOf('  function priceInfo('), inline.indexOf('  function render()'));
+  assert.ok(approvalBlock);
   const context = { car: {} };
   vm.createContext(context);
-  vm.runInContext(`${priceBlock}\nglobalThis.priceInfo = priceInfo;`, context);
+  vm.runInContext(`${approvalBlock}\n${priceBlock}\nglobalThis.priceInfo = priceInfo;`, context);
   assert.deepEqual(JSON.parse(JSON.stringify(context.priceInfo({ auction: { state: 'open' }, pricing: { current_bid_usd: null, current_bid2_usd: 1200, buy_now_usd: 0, price: 9900, estimated_cost: 12000 } }))), ['Aktualna oferta', 1200]);
   assert.deepEqual(JSON.parse(JSON.stringify(context.priceInfo({ auction: { state: 'finished' }, pricing: { sale_price_usd: null, last_sold_price_usd: 2300, current_bid_usd: 1800 } }))), ['Ostatnia cena sprzedaży', 2300]);
   assert.deepEqual(JSON.parse(JSON.stringify(context.priceInfo({ auction: { state: 'open' }, pricing: { current_bid_usd: null, current_bid2_usd: null, buy_now_usd: 0, price: 9900, estimated_cost: 12000 } }))), ['Cena aukcji', null]);
+  assert.deepEqual(JSON.parse(JSON.stringify(context.priceInfo({ auction: { state: 'finished', outcome_status: 'Sold on Approval' }, pricing: { sale_price_usd: 950, last_sold_price_usd: 950 } }))), ['Cena sprzedaży niepotwierdzona', null]);
 });
 
 test('inline JavaScript remains syntactically valid across touched pages and storage', () => {

@@ -30,6 +30,7 @@ function getProviderAdapter(env) {
 }
 
 const CACHE_TTL_SECONDS = 60;
+const DETAIL_CACHE_TTL_SECONDS = 30;
 const HISTORY_CACHE_TTL_SECONDS = 300;
 const FILTERS_CACHE_TTL_SECONDS = 21600;
 const MAX_SYNC_HISTORY_PAGES = 100;
@@ -1443,6 +1444,18 @@ async function getCar(
   env,
   identifier
 ) {
+  const url = new URL(request.url);
+  url.search = "";
+  return cachedPublicGet(url.toString(), DETAIL_CACHE_TTL_SECONDS,
+    () => getCarUncached(request, env, identifier),
+    body => body?.ok === true && body?.match === "exact");
+}
+
+async function getCarUncached(
+  request,
+  env,
+  identifier
+) {
   const provider = getProviderAdapter(env);
   const encoded =
     encodeURIComponent(identifier);
@@ -1674,6 +1687,16 @@ async function getHistory(
   env,
   identifier
 ) {
+  return cachedPublicGet(request.url, HISTORY_CACHE_TTL_SECONDS,
+    () => getHistoryUncached(request, env, identifier),
+    body => body?.ok === true && body?.source === getProviderAdapter(env).id && !body?.error);
+}
+
+async function getHistoryUncached(
+  request,
+  env,
+  identifier
+) {
   const incoming = new URL(request.url);
   const rawPerPage = incoming.searchParams.get("per_page");
   let perPage = 20;
@@ -1831,6 +1854,47 @@ async function getHistory(
     "HISTORY",
     0
   );
+}
+
+async function cachedPublicGet(cacheUrl, ttlSeconds, load, shouldCache) {
+  const cache = caches.default;
+  const key = new Request(cacheUrl, { method: "GET" });
+  try {
+    const cached = await cache.match(key);
+    if (cached) {
+      const headers = new Headers(cached.headers);
+      headers.set("Cache-Control", "no-store");
+      headers.set("X-RexBid-Cache", "HIT");
+      return new Response(cached.body, { status: cached.status, statusText: cached.statusText, headers });
+    }
+  } catch {
+    // Cache failures must not make public reads unavailable.
+  }
+
+  const response = await load();
+  if (response.status !== 200) return response;
+  let payload;
+  try { payload = await response.clone().json(); } catch { return response; }
+  if (!shouldCache(payload)) return response;
+
+  const clientHeaders = new Headers(response.headers);
+  clientHeaders.set("Cache-Control", "no-store");
+  clientHeaders.set("X-RexBid-Cache", "MISS");
+  const clientResponse = new Response(response.body, { status: response.status, statusText: response.statusText, headers: clientHeaders });
+
+  const storedHeaders = new Headers(response.headers);
+  storedHeaders.set("Cache-Control", `public, max-age=${ttlSeconds}`);
+  storedHeaders.set("X-RexBid-Cache", "MISS");
+  try {
+    await cache.put(key, new Response(clientResponse.clone().body, {
+      status: clientResponse.status,
+      statusText: clientResponse.statusText,
+      headers: storedHeaders
+    }));
+  } catch {
+    // A cache write failure does not affect the successful upstream response.
+  }
+  return clientResponse;
 }
 
 
