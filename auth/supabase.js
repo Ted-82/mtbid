@@ -20,12 +20,63 @@ function decodeJsonPart(value) {
   catch { throw new AuthProviderError("INVALID_TOKEN", 401); }
 }
 
+const AUTH_TEST_HOST = "rexbid-auth-test.tedn828.workers.dev";
+function authDiagnosticsEnabled(env) {
+  return env?.REXBID_AUTH_DIAGNOSTICS === "enabled"
+    && env?.REXBID_AUTH_TEST_UI === "enabled"
+    && env?.REXBID_AUTH_TEST_HOST === AUTH_TEST_HOST;
+}
+function authKeyKind(value) {
+  if (typeof value !== "string" || !value) return "missing";
+  if (value.startsWith("sb_publishable_")) return "sb_publishable";
+  if (value.split(".").length === 3) return "legacy_jwt_format";
+  return "other";
+}
+function safeUrlPath(value) {
+  try { return new URL(value).pathname; } catch { return null; }
+}
+function safeAuthErrorCode(payload) {
+  for (const key of ["error_code", "code", "error"]) {
+    const value = payload?.[key];
+    if (typeof value === "string" && /^[a-z0-9_-]{1,64}$/i.test(value)) return value;
+  }
+  return null;
+}
+function safeContentType(value) {
+  const mediaType = typeof value === "string" ? value.split(";", 1)[0].trim().toLowerCase() : "";
+  return /^[a-z0-9!#$&^_.+-]+\/[a-z0-9!#$&^_.+-]+$/.test(mediaType) ? mediaType : null;
+}
+function safeTransportFacts(error, timedOut) {
+  const name = typeof error?.name === "string" && /^[A-Za-z][A-Za-z0-9_]{0,63}$/.test(error.name) ? error.name : "Error";
+  const cause = error && typeof error === "object" ? error.cause : undefined;
+  const causeType = typeof cause;
+  const rawCode = cause && typeof cause === "object" ? cause.code : undefined;
+  const causeCode = typeof rawCode === "string" && /^(?:ENOTFOUND|EAI_[A-Z0-9_]+|ECONN[A-Z0-9_]*|ETIMEDOUT|EHOST[A-Z0-9_]*|ENETUNREACH|CERT_[A-Z0-9_]+|ERR_TLS_[A-Z0-9_]+|ERR_SSL_[A-Z0-9_]+|ERR_[A-Z0-9_]+|UND_ERR_[A-Z0-9_]+|ABORT_ERR)$/i.test(rawCode) ? rawCode : null;
+  const signals = [error?.message, cause && typeof cause === "object" ? cause.message : cause, rawCode, causeCode]
+    .filter(value => typeof value === "string").join(" ").toLowerCase();
+  let category = "unknown";
+  if (timedOut || /\b(?:etimedout|timeout|timed out)\b/.test(signals)) category = "timeout";
+  else if (/\b(?:enotfound|eai_[a-z0-9_]+|dns|name resolution)\b/.test(signals)) category = "dns";
+  else if (/\b(?:cert_[a-z0-9_]+|err_tls_[a-z0-9_]+|err_ssl_[a-z0-9_]+|tls|ssl|certificate)\b/.test(signals)) category = "tls";
+  else if (name === "AbortError" || /\b(?:abort_err|aborted)\b/.test(signals)) category = "abort";
+  else if (/\b(?:econn[a-z0-9_]*|ehost[a-z0-9_]*|enetunreach|connection|socket)\b/.test(signals)) category = "connection";
+  return { name, category, causeType, causeCode };
+}
+function logAuthDiagnostic(env, fields) {
+  if (!authDiagnosticsEnabled(env)) return;
+  // Keep this structured log on a strict allowlist. Never pass upstream text, request data or tokens.
+  console.warn("Rex.Bid staging auth diagnostic", JSON.stringify({ provider: "supabase", ...fields }));
+}
+
 async function boundedFetch(fetchImpl, url, init, timeoutMs) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try { return await fetchImpl(url, { ...init, signal: controller.signal, redirect: "error" }); }
+  let response;
+  try { response = await fetchImpl(url, { ...init, signal: controller.signal, redirect: "manual" }); }
   catch { throw new AuthProviderError(controller.signal.aborted ? "AUTH_TIMEOUT" : "AUTH_UNAVAILABLE", 503); }
   finally { clearTimeout(timer); }
+  if (response.status >= 300 && response.status < 400) throw new AuthProviderError("AUTH_UNEXPECTED_REDIRECT", 502);
+  return response;
 }
 
 async function verifySupabaseJwt(token, config, { fetchImpl = fetch, cryptoImpl = globalThis.crypto, now = nowSeconds, timeoutMs = 7000 } = {}) {
@@ -81,31 +132,87 @@ function makeConfig(env) {
 }
 
 function createSupabaseAuthProvider({ fetchImpl = (...args) => fetch(...args), cryptoImpl = globalThis.crypto, now = nowSeconds, timeoutMs = 7000 } = {}) {
-  async function request(env, operation, { method = "GET", body, accessToken, redirectTo } = {}) {
-    const config = makeConfig(env);
+  async function request(env, operation, { method = "GET", body, accessToken, redirectTo, allowNonOk = false } = {}) {
     const paths = {
       signup: "/signup", password: "/token?grant_type=password", pkce: "/token?grant_type=pkce",
-      refresh: "/token?grant_type=refresh_token", user: "/user", logout: "/logout?scope=local"
+      refresh: "/token?grant_type=refresh_token", user: "/user", logout: "/logout?scope=local", connectivity: "/health"
     };
     const path = paths[operation];
     if (!path) throw new AuthProviderError("AUTH_OPERATION_UNSUPPORTED", 500);
+    let config;
+    try {
+      config = makeConfig(env);
+    } catch (error) {
+      logAuthDiagnostic(env, {
+        operation, method, stage: "configuration", upstream_path: `/auth/v1${path.split("?")[0]}`,
+        upstream_status: null, upstream_content_type: null, safe_error_code: "invalid_supabase_configuration",
+        supabase_url_format: "invalid", publishable_key_kind: authKeyKind(env?.SUPABASE_PUBLISHABLE_KEY)
+      });
+      throw error;
+    }
+    // Publishable keys are opaque API keys, not JWTs: send them only as `apikey`.
     const headers = new Headers({ Accept: "application/json", apikey: config.publishableKey });
     if (body !== undefined) headers.set("Content-Type", "application/json");
     if (accessToken) headers.set("Authorization", `Bearer ${accessToken}`);
-    else if (operation === "signup" || operation === "password" || operation === "pkce" || operation === "refresh") headers.set("Authorization", `Bearer ${config.publishableKey}`);
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     let response;
+    let endpoint;
     try {
-      const endpoint = new URL(`${config.baseUrl}${path}`);
+      endpoint = new URL(`${config.baseUrl}${path}`);
       if (operation === "signup" && redirectTo) endpoint.searchParams.set("redirect_to", redirectTo);
-      response = await fetchImpl(endpoint.href, { method, headers, body: body === undefined ? undefined : JSON.stringify(body), signal: controller.signal, redirect: "error" });
     } catch {
+      clearTimeout(timer);
+      logAuthDiagnostic(env, {
+        operation, method, stage: "URL", upstream_path: `/auth/v1${path.split("?")[0]}`,
+        upstream_status: null, upstream_content_type: null, safe_error_code: "invalid_upstream_url",
+        supabase_url_format: "valid_https_project_root", publishable_key_kind: authKeyKind(config.publishableKey),
+        auth_header_mode: accessToken ? "user_access_token" : "apikey_only"
+      });
+      throw new AuthProviderError("AUTH_UNAVAILABLE", 503);
+    }
+    try {
+      response = await fetchImpl(endpoint.href, { method, headers, body: body === undefined ? undefined : JSON.stringify(body), signal: controller.signal, redirect: "manual" });
+    } catch (error) {
+      clearTimeout(timer);
+      const transport = safeTransportFacts(error, controller.signal.aborted);
+      logAuthDiagnostic(env, {
+        operation, method, stage: "fetch", upstream_path: endpoint.pathname,
+        upstream_status: null, upstream_content_type: null,
+        safe_error_code: transport.category === "timeout" ? "timeout" : "transport_error",
+        error_name: transport.name, transport_category: transport.category,
+        cause_type: transport.causeType, cause_code: transport.causeCode,
+        supabase_url_format: "valid_https_project_root", hostname: endpoint.hostname,
+        publishable_key_kind: authKeyKind(config.publishableKey), auth_header_mode: accessToken ? "user_access_token" : "apikey_only"
+      });
       throw new AuthProviderError(controller.signal.aborted ? "AUTH_TIMEOUT" : "AUTH_UNAVAILABLE", 503);
     } finally { clearTimeout(timer); }
+    if (response.status >= 300 && response.status < 400) {
+      logAuthDiagnostic(env, {
+        operation, method, stage: "response", upstream_path: endpoint.pathname,
+        upstream_status: response.status, upstream_content_type: safeContentType(response.headers.get("Content-Type")),
+        safe_error_code: "unexpected_redirect", supabase_url_format: "valid_https_project_root",
+        upstream_host: endpoint.hostname, publishable_key_kind: authKeyKind(config.publishableKey),
+        auth_header_mode: accessToken ? "user_access_token" : "apikey_only"
+      });
+      const error = new AuthProviderError("AUTH_UNEXPECTED_REDIRECT", 502);
+      error.upstreamStatus = response.status;
+      throw error;
+    }
     let payload = null;
     try { payload = response.status === 204 ? null : await response.json(); } catch { /* don't surface upstream response text */ }
+    logAuthDiagnostic(env, {
+      operation, method, stage: "response", upstream_path: endpoint.pathname,
+      upstream_status: response.status, upstream_content_type: safeContentType(response.headers.get("Content-Type")),
+      safe_error_code: response.ok ? null : safeAuthErrorCode(payload),
+      supabase_url_format: "valid_https_project_root", upstream_host: new URL(config.baseUrl).hostname,
+      publishable_key_kind: authKeyKind(config.publishableKey), auth_header_mode: accessToken ? "user_access_token" : "apikey_only",
+      redirect_target_path: operation === "signup" && redirectTo ? safeUrlPath(redirectTo) : null,
+      signup_user_returned: operation === "signup" ? !!(payload?.user?.id || payload?.id) : null,
+      signup_session_returned: operation === "signup" ? !!payload?.access_token : null
+    });
     if (!response.ok) {
+      if (allowNonOk) return { config, payload, status: response.status };
       const status = response.status === 429 ? 503
         : response.status === 400 || response.status === 401 || response.status === 403 || response.status === 422 ? 401
         : response.status >= 500 ? 503 : 502;
@@ -113,7 +220,7 @@ function createSupabaseAuthProvider({ fetchImpl = (...args) => fetch(...args), c
         : status === 401 ? "AUTH_REJECTED" : "AUTH_UNAVAILABLE";
       throw new AuthProviderError(code, status);
     }
-    return { config, payload };
+    return { config, payload, status: response.status };
   }
 
   function normalizeSession(payload) {
@@ -165,6 +272,23 @@ function createSupabaseAuthProvider({ fetchImpl = (...args) => fetch(...args), c
     async logout(env, accessToken) {
       if (!accessToken) return;
       await request(env, "logout", { method: "POST", accessToken });
+    },
+    async healthCheck(env) {
+      try {
+        const result = await request(env, "connectivity", { method: "GET", allowNonOk: true });
+        return { ok: result.status >= 200 && result.status < 300, stage: "response", upstream_status: result.status, safe_error_code: result.status >= 200 && result.status < 300 ? null : "upstream_http_error" };
+      } catch (error) {
+        const safeCode = error instanceof AuthConfigurationError ? "invalid_supabase_configuration"
+          : error instanceof AuthProviderError && error.code === "AUTH_TIMEOUT" ? "timeout"
+          : error instanceof AuthProviderError && error.code === "AUTH_UNEXPECTED_REDIRECT" ? "unexpected_redirect"
+          : error instanceof AuthProviderError ? "transport_error" : "probe_failed";
+        return {
+          ok: false,
+          stage: error instanceof AuthConfigurationError ? "configuration" : error instanceof AuthProviderError && error.code === "AUTH_UNEXPECTED_REDIRECT" ? "response" : "fetch",
+          upstream_status: Number.isInteger(error?.upstreamStatus) ? error.upstreamStatus : null,
+          safe_error_code: safeCode
+        };
+      }
     }
   });
 }

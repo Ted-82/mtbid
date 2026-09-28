@@ -27,6 +27,26 @@ function configured(env) {
   return typeof env?.REXBID_AUTH_COOKIE_SECRET === "string" && env.REXBID_AUTH_COOKIE_SECRET.length >= 43
     && typeof env?.SUPABASE_URL === "string" && typeof env?.SUPABASE_PUBLISHABLE_KEY === "string";
 }
+const AUTH_TEST_HOST = "rexbid-auth-test.tedn828.workers.dev";
+const SAFE_AUTH_ERROR_CODES = new Set([
+  "AUTH_TIMEOUT", "AUTH_UNAVAILABLE", "AUTH_UNEXPECTED_REDIRECT", "AUTH_REJECTED",
+  "AUTH_RATE_LIMITED", "INVALID_SESSION", "INVALID_IDENTITY", "INVALID_TOKEN",
+  "SESSION_COOKIE_TOO_LARGE"
+]);
+function logStagingAuthRoute(request, env, fields) {
+  if (env?.REXBID_AUTH_DIAGNOSTICS !== "enabled"
+    || env?.REXBID_AUTH_TEST_UI !== "enabled"
+    || env?.REXBID_AUTH_TEST_HOST !== AUTH_TEST_HOST) return;
+  let hostname = "";
+  try { hostname = new URL(request.url).hostname; } catch { return; }
+  if (hostname !== AUTH_TEST_HOST) return;
+  // Only emit fixed, non-sensitive stage facts. Never include URL query, cookies, body or errors.
+  const requestId = request.headers.get("X-RexBid-Request-ID") || "";
+  console.info("Rex.Bid staging auth route", JSON.stringify({ ...fields, ...( /^[0-9a-f-]{36}$/i.test(requestId) ? { request_id: requestId } : {}) }));
+}
+function safeAuthError(error) {
+  return SAFE_AUTH_ERROR_CODES.has(error?.code) ? error.code : "unexpected_error";
+}
 function randomB64Url(cryptoImpl, bytes = 32) {
   const data = cryptoImpl.getRandomValues(new Uint8Array(bytes));
   let binary = ""; for (const byte of data) binary += String.fromCharCode(byte);
@@ -88,9 +108,13 @@ function validFavoriteKey(value) {
 
 async function resolveSession(request, env, provider, { cryptoImpl, now }) {
   const rawCookie = readCookie(request, sessionCookieName);
-  if (!rawCookie) return { identity: null, session: null, cookies: [] };
+  if (!rawCookie) {
+    logStagingAuthRoute(request, env, { operation: "session_resolve", stage: "cookie", outcome: "missing", cookie_present: false });
+    return { identity: null, session: null, cookies: [] };
+  }
   let session = await openCookiePayload(rawCookie, cookieSecret(env), cryptoImpl);
   if (!session || typeof session.access_token !== "string" || typeof session.refresh_token !== "string" || !Number.isFinite(session.expires_at)) {
+    logStagingAuthRoute(request, env, { operation: "session_resolve", stage: "cookie", outcome: "invalid", cookie_present: true });
     return { identity: null, session: null, cookies: [clearSessionCookie()] };
   }
   let cookieUpdate = null;
@@ -98,16 +122,23 @@ async function resolveSession(request, env, provider, { cryptoImpl, now }) {
     try {
       session = await provider.refresh(env, session);
       cookieUpdate = await sessionCookieFor(session, env, cryptoImpl);
+      logStagingAuthRoute(request, env, { operation: "session_resolve", stage: "refresh", outcome: "success", cookie_present: true, session_cookie_rotated: true });
     } catch (error) {
+      logStagingAuthRoute(request, env, { operation: "session_resolve", stage: "refresh", outcome: "failure", cookie_present: true, upstream_status: Number.isInteger(error?.status) ? error.status : null, safe_error_code: safeAuthError(error) });
       if (error?.status >= 500) return { identity: null, session: null, cookies: [], unavailable: true };
       return { identity: null, session: null, cookies: [clearSessionCookie()] };
     }
   }
   try {
     const identity = await provider.verifyIdentity(env, session.access_token);
-    if (!identity.email_verified) return { identity: null, session: null, cookies: [clearSessionCookie()] };
+    if (!identity.email_verified) {
+      logStagingAuthRoute(request, env, { operation: "session_resolve", stage: "identity", outcome: "email_unverified", cookie_present: true });
+      return { identity: null, session: null, cookies: [clearSessionCookie()] };
+    }
+    logStagingAuthRoute(request, env, { operation: "session_resolve", stage: "identity", outcome: "verified", cookie_present: true, email_verified: true });
     return { identity, session, cookies: cookieUpdate ? [cookieUpdate] : [] };
   } catch (error) {
+    logStagingAuthRoute(request, env, { operation: "session_resolve", stage: "identity", outcome: "failure", cookie_present: true, upstream_status: Number.isInteger(error?.status) ? error.status : null, safe_error_code: safeAuthError(error) });
     if (error?.status >= 500) return { identity: null, session: null, cookies: [], unavailable: true };
     return { identity: null, session: null, cookies: [clearSessionCookie()] };
   }
@@ -153,14 +184,26 @@ function accountDb(env) { return env?.REXBID_DB || null; }
 function createAccountsHandler({ provider, cryptoImpl = globalThis.crypto, now = nowSeconds } = {}) {
   if (!provider || typeof provider.verifyIdentity !== "function") throw new TypeError("An auth provider is required");
 
-  async function finishSession(request, env, session, returnPath = "/konto.html") {
+  async function finishSession(request, env, session, returnPath = "/konto.html", operation = "session") {
     const cookie = await sessionCookieFor(session, env, cryptoImpl);
-    const identity = await provider.verifyIdentity(env, session.access_token);
+    logStagingAuthRoute(request, env, { operation, stage: "identity_verification", outcome: "started", session_received: true });
+    let identity;
+    try { identity = await provider.verifyIdentity(env, session.access_token); }
+    catch (error) {
+      logStagingAuthRoute(request, env, { operation, stage: "identity_verification", outcome: "failure", safe_error_code: safeAuthError(error), upstream_status: Number.isInteger(error?.status) ? error.status : null });
+      throw error;
+    }
+    logStagingAuthRoute(request, env, { operation, stage: "identity_verification", outcome: identity.email_verified ? "verified" : "email_unverified", email_verified: !!identity.email_verified });
     if (!identity.email_verified) return reply({ ok: false, error: "Potwierdź adres e-mail, aby korzystać z konta." }, 403, [clearSessionCookie()]);
     const db = accountDb(env);
-    if (!db) return reply({ ok: false, error: "Konta są chwilowo niedostępne." }, 503, [clearSessionCookie()]);
+    if (!db) {
+      logStagingAuthRoute(request, env, { operation, stage: "account_persistence", outcome: "database_unavailable" });
+      return reply({ ok: false, error: "Konta są chwilowo niedostępne." }, 503, [clearSessionCookie()]);
+    }
     const user = await upsertAccount(db, createRexIdentity(identity), cryptoImpl);
-    return reply({ ok: true, user: { id: user.id, auth_provider: user.auth_provider, email_verified: !!user.email_verified } }, 200, [cookie]);
+    const response = reply({ ok: true, user: { id: user.id, auth_provider: user.auth_provider, email_verified: !!user.email_verified } }, 200, [cookie]);
+    logStagingAuthRoute(request, env, { operation, stage: "session_cookie", outcome: "created", session_cookie_created: true, response_status: response.status });
+    return response;
   }
 
   async function handle(request, env) {
@@ -193,19 +236,46 @@ function createAccountsHandler({ provider, cryptoImpl = globalThis.crypto, now =
       const flow = await openCookiePayload(flowText, cookieSecret(env), cryptoImpl);
       const code = url.searchParams.get("code");
       const state = url.searchParams.get("state");
+      const callbackFacts = {
+        operation: "callback", stage: "validation", flow_cookie_present: !!flowText,
+        flow_valid: !!flow, code_present: !!code, state_present: !!state,
+        state_matches: !!flow && state === flow.state,
+        verifier_present: !!flow?.verifier,
+        flow_expired: !!flow && flow.expires_at <= now(),
+        token_in_url: url.searchParams.has("access_token") || url.searchParams.has("refresh_token")
+      };
+      logStagingAuthRoute(request, env, callbackFacts);
       if (!flow || flow.expires_at <= now() || !code || code.length > 2048 || state !== flow.state || url.searchParams.has("access_token") || url.searchParams.has("refresh_token")) {
+        const reason = !flowText ? "flow_cookie_missing" : !flow ? "flow_cookie_invalid" : flow.expires_at <= now() ? "flow_expired" : !code || code.length > 2048 ? "code_missing_or_invalid" : state !== flow.state ? "state_mismatch" : "token_in_url";
+        logStagingAuthRoute(request, env, { operation: "callback", stage: "validation", outcome: "rejected", reason });
         return redirect("/logowanie.html?auth=failed", [clearFlowCookie(), clearSessionCookie()]);
       }
+      let callbackStage = "code_exchange";
       try {
+        logStagingAuthRoute(request, env, { operation: "callback", stage: callbackStage, outcome: "started", verifier_present: !!flow.verifier });
         const session = await provider.exchangeCode(env, { code, codeVerifier: flow.verifier });
+        logStagingAuthRoute(request, env, { operation: "callback", stage: callbackStage, outcome: "success", session_received: !!session?.access_token && !!session?.refresh_token });
+        callbackStage = "identity_verification";
         const verified = await provider.verifyIdentity(env, session.access_token);
-        if (!verified.email_verified) return redirect("/logowanie.html?auth=verify-email", [clearFlowCookie(), clearSessionCookie()]);
-        if (!accountDb(env)) return redirect("/logowanie.html?auth=unavailable", [clearFlowCookie(), clearSessionCookie()]);
+        if (!verified.email_verified) {
+          logStagingAuthRoute(request, env, { operation: "callback", stage: callbackStage, outcome: "email_unverified" });
+          return redirect("/logowanie.html?auth=verify-email", [clearFlowCookie(), clearSessionCookie()]);
+        }
+        logStagingAuthRoute(request, env, { operation: "callback", stage: callbackStage, outcome: "success", email_verified: true });
+        callbackStage = "account_persistence";
+        if (!accountDb(env)) {
+          logStagingAuthRoute(request, env, { operation: "callback", stage: callbackStage, outcome: "database_unavailable" });
+          return redirect("/logowanie.html?auth=unavailable", [clearFlowCookie(), clearSessionCookie()]);
+        }
         await upsertAccount(accountDb(env), createRexIdentity(verified), cryptoImpl);
+        callbackStage = "session_cookie";
         const value = await sealCookiePayload(session, cookieSecret(env), cryptoImpl);
         if (value.length > 3800) throw new Error("SESSION_COOKIE_TOO_LARGE");
-        return redirect(safeReturnPath(flow.return_path), [sessionCookie(value), clearFlowCookie()]);
-      } catch {
+        const response = redirect(safeReturnPath(flow.return_path), [sessionCookie(value), clearFlowCookie()]);
+        logStagingAuthRoute(request, env, { operation: "callback", stage: callbackStage, outcome: "created", session_cookie_created: true, response_status: response.status });
+        return response;
+      } catch (error) {
+        logStagingAuthRoute(request, env, { operation: "callback", stage: callbackStage, outcome: "failure", safe_error_code: safeAuthError(error), upstream_status: Number.isInteger(error?.status) ? error.status : Number.isInteger(error?.upstreamStatus) ? error.upstreamStatus : null });
         return redirect("/logowanie.html?auth=failed", [clearFlowCookie(), clearSessionCookie()]);
       }
     }
@@ -217,10 +287,14 @@ function createAccountsHandler({ provider, cryptoImpl = globalThis.crypto, now =
         const verifier = randomB64Url(cryptoImpl, 48), state = randomB64Url(cryptoImpl), challenge = await pkceChallenge(verifier, cryptoImpl);
         const callback = new URL("/api/auth/callback", url.origin); callback.searchParams.set("state", state);
         const flow = await sealCookiePayload({ state, verifier, return_path: "/konto.html", expires_at: now() + 86400 }, cookieSecret(env), cryptoImpl);
+        logStagingAuthRoute(request, env, { operation: "signup", stage: "upstream_request", outcome: "started" });
         const result = await provider.signup(env, { email, password, redirectTo: callback.href, codeChallenge: challenge });
-        if (result.session) return await finishSession(request, env, result.session);
+        logStagingAuthRoute(request, env, { operation: "signup", stage: "upstream_response", outcome: "success", session_received: !!result.session });
+        if (result.session) return await finishSession(request, env, result.session, "/konto.html", "signup");
+        logStagingAuthRoute(request, env, { operation: "signup", stage: "complete", outcome: "confirmation_required" });
         return reply({ ok: true, confirmation_required: true, message: "Jeśli można utworzyć konto, wyślemy wiadomość z potwierdzeniem." }, 202, [flowCookie(flow, 86400)]);
       } catch (error) {
+        logStagingAuthRoute(request, env, { operation: "signup", stage: "upstream_or_session", outcome: "failure", safe_error_code: safeAuthError(error), upstream_status: Number.isInteger(error?.status) ? error.status : Number.isInteger(error?.upstreamStatus) ? error.upstreamStatus : null });
         return reply({ ok: false, error: error?.status === 401 ? "Nie udało się utworzyć konta." : "Rejestracja jest chwilowo niedostępna." }, error?.status === 401 ? 400 : 503);
       }
     }
@@ -228,18 +302,28 @@ function createAccountsHandler({ provider, cryptoImpl = globalThis.crypto, now =
     if (path === `${AUTH_PREFIX}login` && method === "POST") {
       const body = await readJson(request), email = safeEmail(body?.email), password = safePassword(body?.password);
       if (!email || !password || Object.hasOwn(body || {}, "user_id")) return reply({ ok: false, error: "Nieprawidłowy e-mail lub hasło." }, 401);
-      try { return await finishSession(request, env, await provider.login(env, { email, password })); }
-      catch (error) { return reply({ ok: false, error: error?.status === 401 ? "Nieprawidłowy e-mail lub hasło." : "Logowanie jest chwilowo niedostępne." }, error?.status === 401 ? 401 : 503); }
+      logStagingAuthRoute(request, env, { operation: "login", stage: "upstream_request", outcome: "started" });
+      try {
+        const session = await provider.login(env, { email, password });
+        logStagingAuthRoute(request, env, { operation: "login", stage: "upstream_response", outcome: "success", session_received: !!session?.access_token && !!session?.refresh_token });
+        return await finishSession(request, env, session, "/konto.html", "login");
+      } catch (error) {
+        logStagingAuthRoute(request, env, { operation: "login", stage: "upstream_or_session", outcome: "failure", safe_error_code: safeAuthError(error), upstream_status: Number.isInteger(error?.status) ? error.status : Number.isInteger(error?.upstreamStatus) ? error.upstreamStatus : null });
+        return reply({ ok: false, error: error?.status === 401 ? "Nieprawidłowy e-mail lub hasło." : "Logowanie jest chwilowo niedostępne." }, error?.status === 401 ? 401 : 503);
+      }
     }
 
     if (path === `${AUTH_PREFIX}logout` && method === "POST") {
       const state = await resolveSession(request, env, provider, { cryptoImpl, now });
       try { if (state.session) await provider.logout(env, state.session.access_token); } catch { /* local cookie invalidation still logs out this browser */ }
-      return reply({ ok: true }, 200, [clearSessionCookie(), clearFlowCookie()]);
+      const response = reply({ ok: true }, 200, [clearSessionCookie(), clearFlowCookie()]);
+      logStagingAuthRoute(request, env, { operation: "logout", stage: "complete", outcome: "session_cleared", session_present: !!state.session, response_status: response.status });
+      return response;
     }
 
     if (path === `${AUTH_PREFIX}refresh` && method === "POST") {
       const state = await resolveSession(request, env, provider, { cryptoImpl, now });
+      logStagingAuthRoute(request, env, { operation: "refresh_endpoint", stage: "complete", outcome: state.unavailable ? "provider_unavailable" : state.identity ? "authenticated" : "anonymous", session_cookie_update: state.cookies.some(value => value.startsWith(`${sessionCookieName}=`) && !value.includes("Max-Age=0")) });
       if (state.unavailable) return reply({ ok: false, error: "Usługa logowania jest chwilowo niedostępna." }, 503);
       if (!state.identity) return reply({ ok: false, error: "Sesja wygasła." }, 401, state.cookies);
       return reply({ ok: true }, 200, state.cookies);

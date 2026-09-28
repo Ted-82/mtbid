@@ -1,0 +1,24 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "rexbid-auth-test",
+  "main": "./worker.staging.js",
+  "compatibility_date": "2026-09-19",
+  "workers_dev": true,
+  "vars": {
+    "REXBID_AUTH_TEST_UI": "enabled",
+    "REXBID_AUTH_TEST_HOST": "rexbid-auth-test.tedn828.workers.dev",
+    "REXBID_AUTH_DIAGNOSTICS": "enabled"
+  },
+  "d1_databases": [
+    {
+      "binding": "REXBID_DB",
+      "database_name": "rexbid-auth-test-db",
+      "database_id": "acb3cb8e-69a2-459f-8a46-0f2f5b9004be",
+      "migrations_dir": "migrations-staging"
+    }
+  ],
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  }
+}

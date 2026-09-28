@@ -6,7 +6,7 @@ const { DatabaseSync } = require('node:sqlite');
 const { webcrypto } = require('node:crypto');
 const { createSupabaseAuthProvider, verifySupabaseJwt } = require('../auth/supabase.js');
 const { createAccountsHandler } = require('../auth/routes.js');
-const { openCookiePayload, readCookie, sessionCookieName } = require('../auth/session.js');
+const { openCookiePayload, readCookie, sessionCookieName, flowCookie } = require('../auth/session.js');
 const { createRexIdentity, createAuthProviderRegistry } = require('../auth/identity.js');
 
 const root = path.resolve(__dirname, '..');
@@ -105,7 +105,9 @@ test('Supabase adapter validates JWKS JWT and maps verified identity without ema
   const identity = await provider.verifyIdentity(env, token);
   assert.deepEqual(identity, { issuer, subject, email_verified: true, auth_provider: 'google' });
   assert.equal(calls.length, 2);
-  assert.match(calls[1].init.headers.get('Authorization'), /^Bearer /);
+  assert.equal(new Headers(calls[0].init.headers).has('Authorization'), false, 'JWKS lookup does not use the publishable key as Bearer');
+  assert.equal(new Headers(calls[1].init.headers).get('Authorization'), `Bearer ${token}`, 'session validation uses the real user access token');
+  assert.equal(new Headers(calls[1].init.headers).get('apikey'), env.SUPABASE_PUBLISHABLE_KEY);
   assert.equal(identity.subject, subject);
   assert.notEqual(identity.subject, identity.email);
 });
@@ -162,6 +164,8 @@ test('provider enforces fixed Supabase endpoints and keeps tokens out of error m
   assert.deepEqual(calls.map(call => new URL(call.url).pathname), ['/auth/v1/token']);
   assert.equal(new URL(calls[0].url).searchParams.get('grant_type'), 'password');
   assert.equal(calls[0].init.headers.get('apikey'), env.SUPABASE_PUBLISHABLE_KEY);
+  assert.equal(calls[0].init.redirect, 'manual');
+  assert.doesNotMatch(fs.readFileSync(path.join(root, 'auth/supabase.js'), 'utf8'), /redirect:\s*["']error["']/);
   assert.equal(session.access_token, 'access-marker');
   const oauth = new URL(provider.oauthUrl(env, { redirectTo: 'https://rex.test/api/auth/callback?state=random-state', codeChallenge: 'only-pkce-challenge' }));
   assert.equal(oauth.pathname, '/auth/v1/authorize');
@@ -171,6 +175,228 @@ test('provider enforces fixed Supabase endpoints and keeps tokens out of error m
   assert.throws(() => provider.config({ ...env, SUPABASE_URL: 'https://attacker.test/path?redirect=1' }));
   const failed = createSupabaseAuthProvider({ fetchImpl: async () => responseJson({ message: 'refresh-marker' }, 401) });
   await assert.rejects(failed.refresh(env, session), error => error.status === 401 && !error.message.includes('refresh-marker'));
+});
+
+test('Supabase Auth treats 302, 307 and 308 as unexpected redirects and never follows or forwards credentials', async () => {
+  for (const status of [302, 307, 308]) {
+    const calls = [];
+    const originalWarn = console.warn;
+    const logs = [];
+    console.warn = (...args) => logs.push(args.join(' '));
+    const stagingEnv = { ...env, REXBID_AUTH_DIAGNOSTICS: 'enabled', REXBID_AUTH_TEST_UI: 'enabled', REXBID_AUTH_TEST_HOST: 'rexbid-auth-test.tedn828.workers.dev' };
+    const provider = createSupabaseAuthProvider({ fetchImpl: async (url, init) => {
+      calls.push({ url: String(url), init });
+      return new Response(null, { status, headers: { Location: 'https://redirect-target.test/path?token=private-location-marker' } });
+    } });
+    try {
+      await assert.rejects(provider.login(stagingEnv, { email: 'user@example.test', password: 'private-password-marker' }), error => error.code === 'AUTH_UNEXPECTED_REDIRECT' && error.status === 502);
+    } finally { console.warn = originalWarn; }
+    assert.equal(calls.length, 1, `HTTP ${status} must not cause a second request`);
+    assert.equal(calls[0].init.redirect, 'manual');
+    assert.equal(new Headers(calls[0].init.headers).get('apikey'), env.SUPABASE_PUBLISHABLE_KEY);
+    assert.equal(new Headers(calls[0].init.headers).has('Authorization'), false);
+    assert.equal(calls[0].url, `${issuer}/token?grant_type=password`);
+    assert.doesNotMatch(logs.join('\n'), /redirect-target|private-location|user@example|private-password|sb_publishable_test_public_id|Authorization|Bearer/);
+    assert.match(logs[0], new RegExp(`"upstream_status":${status}`));
+    assert.match(logs[0], /"safe_error_code":"unexpected_redirect"/);
+  }
+});
+
+test('JWKS validation also uses manual redirects and rejects 3xx without following', async () => {
+  const keys = await makeSigningKeys();
+  const token = await signJwt(keys.pair, { iss: issuer, sub: 'redirect-jwks', aud: 'authenticated', exp: 2000000000 });
+  const calls = [];
+  const provider = createSupabaseAuthProvider({ now: () => 1800000000, fetchImpl: async (url, init) => {
+    calls.push({ url: String(url), init });
+    return new Response(null, { status: 307, headers: { Location: 'https://redirect-target.test/jwks' } });
+  } });
+  await assert.rejects(provider.verifyIdentity(env, token), error => error.code === 'AUTH_UNEXPECTED_REDIRECT' && error.status === 502);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].init.redirect, 'manual');
+  assert.match(calls[0].url, /\.well-known\/jwks\.json$/);
+});
+
+test('Supabase publishable key is apikey-only; user access tokens are the only Bearer credentials', async () => {
+  const calls = [];
+  const sensitiveMarkers = ['access-login-marker', 'refresh-login-marker', 'access-exchange-marker', 'refresh-exchange-marker', 'access-refresh-marker', 'refresh-refresh-marker'];
+  const originalLog = console.log, originalError = console.error, originalWarn = console.warn;
+  const consoleOutput = [];
+  console.log = (...args) => consoleOutput.push(args.join(' '));
+  console.error = (...args) => consoleOutput.push(args.join(' '));
+  console.warn = (...args) => consoleOutput.push(args.join(' '));
+  const provider = createSupabaseAuthProvider({ fetchImpl: async (url, init = {}) => {
+    const headers = new Headers(init.headers || {});
+    calls.push({ url: String(url), method: init.method || 'GET', headers, body: init.body || '', redirect: init.redirect });
+    const path = new URL(String(url)).pathname;
+    if (path.endsWith('/signup')) return responseJson({ user: { id: 'signup-user' }, session: null });
+    if (path.endsWith('/token')) {
+      const grant = new URL(String(url)).searchParams.get('grant_type');
+      const marker = grant === 'password' ? 'login' : grant === 'pkce' ? 'exchange' : 'refresh';
+      return responseJson({ access_token: `access-${marker}-marker`, refresh_token: `refresh-${marker}-marker`, expires_in: 3600 });
+    }
+    return responseJson({});
+  } });
+
+  try {
+    await provider.signup(env, { email: 'signup@example.test', password: 'secure-password', redirectTo: 'https://rex.test/callback', codeChallenge: 'test-challenge' });
+    await provider.login(env, { email: 'login@example.test', password: 'secure-password' });
+    await provider.exchangeCode(env, { code: 'one-time-code', codeVerifier: 'pkce-verifier' });
+    await provider.refresh(env, { access_token: 'access-refresh-marker', refresh_token: 'refresh-refresh-marker', expires_at: 2000000000 });
+    await provider.logout(env, 'real-user-access-token');
+  } finally {
+    console.log = originalLog;
+    console.error = originalError;
+    console.warn = originalWarn;
+  }
+
+  const authCalls = calls.filter(call => new URL(call.url).pathname.startsWith('/auth/v1/'));
+  assert.equal(authCalls.length, 5);
+  for (const call of authCalls) {
+    assert.equal(call.headers.get('apikey'), env.SUPABASE_PUBLISHABLE_KEY);
+    assert.notEqual(call.headers.get('Authorization'), `Bearer ${env.SUPABASE_PUBLISHABLE_KEY}`);
+    assert.equal(call.redirect, 'manual');
+  }
+  for (const call of authCalls.filter(call => ['/signup', '/token'].includes(new URL(call.url).pathname))) {
+    assert.equal(call.headers.has('Authorization'), false, `${new URL(call.url).pathname} must not send the publishable key as Bearer`);
+  }
+  assert.equal(authCalls.find(call => new URL(call.url).searchParams.get('grant_type') === 'refresh_token').headers.has('Authorization'), false);
+  const logoutCall = authCalls.find(call => new URL(call.url).pathname.endsWith('/logout'));
+  assert.equal(logoutCall.headers.get('Authorization'), 'Bearer real-user-access-token');
+  assert.ok(calls.find(call => new URL(call.url).searchParams.get('grant_type') === 'refresh_token').body.includes('refresh-refresh-marker'));
+
+  assert.equal(consoleOutput.some(line => sensitiveMarkers.some(marker => line.includes(marker))), false);
+  assert.deepEqual(consoleOutput, []);
+  assert.doesNotMatch(JSON.stringify(authCalls.map(({ url, method, headers }) => ({ url, method, apikey: headers.get('apikey'), authorization: headers.get('Authorization') }))), /refresh-refresh-marker|secure-password|one-time-code|pkce-verifier/);
+});
+
+test('staging Supabase diagnostics report only safe request metadata and are disabled outside the staging wrapper', async () => {
+  const originalWarn = console.warn;
+  const logs = [];
+  console.warn = (...args) => logs.push(args.join(' '));
+  const provider = createSupabaseAuthProvider({ fetchImpl: async (url, init) => {
+    assert.equal(new URL(String(url)).pathname, '/auth/v1/signup');
+    assert.equal(init.method, 'POST');
+    const target = new URL(String(url));
+    if (target.searchParams.has('redirect_to')) assert.equal(target.searchParams.get('redirect_to'), 'https://rexbid-auth-test.tedn828.workers.dev/api/auth/callback?state=state-secret-marker');
+    const signupBody = JSON.parse(init.body);
+    assert.deepEqual(Object.keys(signupBody).sort(), ['code_challenge', 'code_challenge_method', 'email', 'password']);
+    assert.equal(signupBody.code_challenge_method, 's256');
+    return responseJson({ code: 'signup_disabled', message: 'private-email@example.test password-secret-marker token-secret-marker' }, 422);
+  } });
+  const stagingEnv = { ...env, REXBID_AUTH_DIAGNOSTICS: 'enabled', REXBID_AUTH_TEST_UI: 'enabled', REXBID_AUTH_TEST_HOST: 'rexbid-auth-test.tedn828.workers.dev' };
+  try {
+    await assert.rejects(provider.signup(stagingEnv, { email: 'private-email@example.test', password: 'password-secret-marker', redirectTo: 'https://rexbid-auth-test.tedn828.workers.dev/api/auth/callback?state=state-secret-marker', codeChallenge: 'challenge-secret-marker' }), error => error.status === 401);
+    assert.equal(logs.length, 1);
+    assert.match(logs[0], /"operation":"signup"/);
+    assert.match(logs[0], /"method":"POST"/);
+    assert.match(logs[0], /"stage":"response"/);
+    assert.match(logs[0], /"upstream_path":"\/auth\/v1\/signup"/);
+    assert.match(logs[0], /"upstream_status":422/);
+    assert.match(logs[0], /"upstream_content_type":"application\/json"/);
+    assert.match(logs[0], /"safe_error_code":"signup_disabled"/);
+    assert.match(logs[0], /"publishable_key_kind":"sb_publishable"/);
+    assert.match(logs[0], /"auth_header_mode":"apikey_only"/);
+    assert.match(logs[0], /"supabase_url_format":"valid_https_project_root"/);
+    assert.match(logs[0], /"redirect_target_path":"\/api\/auth\/callback"/);
+    assert.match(logs[0], /"signup_user_returned":false/);
+    assert.doesNotMatch(logs.join('\n'), /private-email|password-secret|token-secret|state-secret|challenge-secret|sb_publishable_test_public_id|Authorization|Bearer/);
+
+    logs.length = 0;
+    await assert.rejects(provider.signup(env, { email: 'private-email@example.test', password: 'password-secret-marker', codeChallenge: 'challenge-secret-marker', redirectTo: 'https://rexbid-auth-test.tedn828.workers.dev/api/auth/callback?state=state-secret-marker' }), error => error.status === 401);
+    assert.deepEqual(logs, []);
+  } finally { console.warn = originalWarn; }
+});
+
+test('staging auth diagnostics distinguish configuration and fetch failures without values', async () => {
+  const originalWarn = console.warn;
+  const logs = [];
+  console.warn = (...args) => logs.push(args.join(' '));
+  const provider = createSupabaseAuthProvider({ fetchImpl: async () => { throw new Error('private-fetch-message@example.test'); } });
+  const stagingEnv = { ...env, REXBID_AUTH_DIAGNOSTICS: 'enabled', REXBID_AUTH_TEST_UI: 'enabled', REXBID_AUTH_TEST_HOST: 'rexbid-auth-test.tedn828.workers.dev' };
+  try {
+    await assert.rejects(provider.signup(stagingEnv, { email: 'user@example.test', password: 'super-secret' }), error => error.status === 503);
+    assert.match(logs[0], /"stage":"fetch"/);
+    assert.match(logs[0], /"safe_error_code":"transport_error"/);
+    assert.match(logs[0], /"upstream_status":null/);
+    assert.doesNotMatch(logs[0], /user@example|super-secret|private-fetch-message/);
+
+    logs.length = 0;
+    await assert.rejects(provider.signup({ ...stagingEnv, SUPABASE_URL: 'https://project.supabase.co/rest/v1' }, { email: 'user@example.test', password: 'super-secret' }));
+    assert.match(logs[0], /"stage":"configuration"/);
+    assert.match(logs[0], /"safe_error_code":"invalid_supabase_configuration"/);
+    assert.match(logs[0], /"supabase_url_format":"invalid"/);
+    assert.doesNotMatch(logs[0], /user@example|super-secret|rest\/v1/);
+  } finally { console.warn = originalWarn; }
+});
+
+test('staging transport diagnostics classify fetch causes without logging messages or credentials', async () => {
+  const originalWarn = console.warn;
+  const logs = [];
+  console.warn = (...args) => logs.push(args.join(' '));
+  const provider = createSupabaseAuthProvider({ fetchImpl: async () => {
+    const cause = Object.assign(new Error('lookup private-project.supabase.co failed for user@example.test'), { code: 'EAI_AGAIN' });
+    throw Object.assign(new TypeError('fetch failed with private-password-marker and sb_secret_marker'), { cause });
+  } });
+  const stagingEnv = { ...env, SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_private-key-marker', REXBID_AUTH_DIAGNOSTICS: 'enabled', REXBID_AUTH_TEST_UI: 'enabled', REXBID_AUTH_TEST_HOST: 'rexbid-auth-test.tedn828.workers.dev' };
+  try {
+    await assert.rejects(provider.signup(stagingEnv, { email: 'user@example.test', password: 'private-password-marker' }), error => error.status === 503 && !error.message.includes('private-project') && !error.message.includes('private-password-marker'));
+    assert.equal(logs.length, 1);
+    const line = logs[0];
+    assert.match(line, /"operation":"signup"/);
+    assert.match(line, /"stage":"fetch"/);
+    assert.match(line, /"error_name":"TypeError"/);
+    assert.match(line, /"transport_category":"dns"/);
+    assert.match(line, /"cause_type":"object"/);
+    assert.match(line, /"cause_code":"EAI_AGAIN"/);
+    assert.match(line, /"hostname":"rex-test\.supabase\.co"/);
+    assert.match(line, /"upstream_status":null/);
+    assert.doesNotMatch(line, /user@example|private-password|private-key-marker|sb_secret_marker|lookup |fetch failed|Authorization|Bearer|cookie/i);
+
+    logs.length = 0;
+    const timeoutProvider = createSupabaseAuthProvider({ timeoutMs: 2, fetchImpl: async (_url, init) => new Promise((_resolve, reject) => {
+      init.signal.addEventListener('abort', () => reject(new DOMException('private timeout message marker', 'AbortError')), { once: true });
+    }) });
+    await assert.rejects(timeoutProvider.signup(stagingEnv, { email: 'user@example.test', password: 'private-password-marker' }), error => error.code === 'AUTH_TIMEOUT');
+    assert.equal(logs.length, 1);
+    assert.match(logs[0], /"operation":"signup"/);
+    assert.match(logs[0], /"stage":"fetch"/);
+    assert.match(logs[0], /"error_name":"AbortError"/);
+    assert.match(logs[0], /"transport_category":"timeout"/);
+    assert.match(logs[0], /"cause_type":"undefined"/);
+    assert.doesNotMatch(logs[0], /user@example|private-password|private timeout message|private-key-marker|Authorization|Bearer|cookie/i);
+  } finally { console.warn = originalWarn; }
+});
+
+test('staging connectivity probe performs only a bounded, sanitized GET to Supabase Auth health', async () => {
+  const calls = [];
+  const provider = createSupabaseAuthProvider({ fetchImpl: async (url, init) => {
+    calls.push({ url: String(url), method: init.method, body: init.body, headers: init.headers });
+    return responseJson({ version: 'private-upstream-version-marker', service: 'auth' }, 200);
+  } });
+  const result = await provider.healthCheck(env);
+  assert.deepEqual(result, { ok: true, stage: 'response', upstream_status: 200, safe_error_code: null });
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, 'https://rex-test.supabase.co/auth/v1/health');
+  assert.equal(calls[0].method, 'GET');
+  assert.equal(calls[0].body, undefined);
+  assert.equal(calls[0].headers.get('apikey'), env.SUPABASE_PUBLISHABLE_KEY);
+  assert.equal(calls[0].headers.has('Authorization'), false);
+  assert.doesNotMatch(JSON.stringify(result), /private-upstream-version-marker|sb_publishable_test_public_id/);
+
+  const unavailableProvider = createSupabaseAuthProvider({ fetchImpl: async () => responseJson({ error: 'private-upstream-error-marker' }, 503) });
+  assert.deepEqual(await unavailableProvider.healthCheck(env), { ok: false, stage: 'response', upstream_status: 503, safe_error_code: 'upstream_http_error' });
+  const redirectProvider = createSupabaseAuthProvider({ fetchImpl: async (_url, init) => {
+    assert.equal(init.redirect, 'manual');
+    return new Response(null, { status: 302, headers: { Location: 'https://redirect-target.test/path?token=private-marker' } });
+  } });
+  assert.deepEqual(await redirectProvider.healthCheck(env), { ok: false, stage: 'response', upstream_status: 302, safe_error_code: 'unexpected_redirect' });
+});
+
+test('Supabase Worker timeout uses Web-standard AbortController rather than Node-only AbortSignal.timeout', () => {
+  const source = fs.readFileSync(path.join(root, 'auth/supabase.js'), 'utf8');
+  assert.match(source, /new AbortController\(\)/);
+  assert.match(source, /setTimeout\(\(\) => controller\.abort\(\), timeoutMs\)/);
+  assert.doesNotMatch(source, /AbortSignal\.timeout|node:timers|require\(['"]node:/);
 });
 
 test('provider 429, 5xx and timeout are bounded, do not retry, and redact upstream details', async () => {
@@ -242,6 +468,66 @@ test('Google PKCE start stores verifier in encrypted HttpOnly cookie and emits o
   assert.match(sessionSet, /HttpOnly/); assert.match(sessionSet, /Secure/); assert.match(sessionSet, /SameSite=Lax/);
   assert.ok(!sessionSet.includes('oauth-access-marker'));
   assert.ok(!callback.headers.get('Location').includes('one-time-code-marker'));
+});
+
+test('staging callback diagnostics expose PKCE/session stages without state, code, verifier, cookie or tokens', async () => {
+  const db = new MemoryD1();
+  const diagnostics = [];
+  const originalInfo = console.info;
+  console.info = (...args) => diagnostics.push(args);
+  try {
+    const provider = {
+      exchangeCode: async (_env, input) => {
+        assert.equal(input.code, 'callback-code-secret-marker');
+        assert.equal(input.codeVerifier, 'pkce-verifier-secret-marker');
+        return { access_token: 'callback-access-secret-marker', refresh_token: 'callback-refresh-secret-marker', expires_at: 2000000000 };
+      },
+      verifyIdentity: async () => identityFor('callback-user'),
+      refresh: async () => { throw new Error('must not refresh'); }
+    };
+    const stagingEnv = { ...env, REXBID_DB: db, REXBID_AUTH_DIAGNOSTICS: 'enabled', REXBID_AUTH_TEST_UI: 'enabled', REXBID_AUTH_TEST_HOST: 'rexbid-auth-test.tedn828.workers.dev' };
+    const flow = { state: 'callback-state-secret-marker', verifier: 'pkce-verifier-secret-marker', return_path: '/konto.html', expires_at: 2000000000 };
+    const encrypted = await require('../auth/session.js').sealCookiePayload(flow, env.REXBID_AUTH_COOKIE_SECRET);
+    const flowCookieHeader = flowCookie(encrypted).split(';')[0];
+    const handler = createAccountsHandler({ provider, now: () => 1800000000 });
+    const callback = await handler(request('/api/auth/callback?state=callback-state-secret-marker&code=callback-code-secret-marker', {
+      method: 'GET', origin: null, cookie: flowCookieHeader,
+      host: 'https://rexbid-auth-test.tedn828.workers.dev'
+    }), stagingEnv);
+    assert.equal(callback.status, 303);
+    assert.ok(callback.headers.getSetCookie().some(value => value.startsWith(`${sessionCookieName}=`)));
+    const entries = diagnostics.map(args => JSON.parse(args[1]));
+    assert.ok(entries.some(item => item.operation === 'callback' && item.stage === 'validation' && item.state_matches === true && item.verifier_present === true));
+    assert.ok(entries.some(item => item.operation === 'callback' && item.stage === 'code_exchange' && item.outcome === 'success'));
+    assert.ok(entries.some(item => item.operation === 'callback' && item.stage === 'session_cookie' && item.session_cookie_created === true));
+    const serialized = JSON.stringify(diagnostics);
+    for (const marker of ['callback-state-secret-marker', 'callback-code-secret-marker', 'pkce-verifier-secret-marker', 'callback-access-secret-marker', 'callback-refresh-secret-marker', 'callback-user']) assert.ok(!serialized.includes(marker));
+  } finally { console.info = originalInfo; }
+});
+
+test('staging callback logs safe PKCE failure stage and refresh logs anonymous cookie state', async () => {
+  const diagnostics = [];
+  const originalInfo = console.info;
+  console.info = (...args) => diagnostics.push(args);
+  try {
+    const stagingEnv = { ...env, REXBID_DB: new MemoryD1(), REXBID_AUTH_DIAGNOSTICS: 'enabled', REXBID_AUTH_TEST_UI: 'enabled', REXBID_AUTH_TEST_HOST: 'rexbid-auth-test.tedn828.workers.dev' };
+    const flow = { state: 'state-private', verifier: 'verifier-private', return_path: '/konto.html', expires_at: 2000000000 };
+    const encrypted = await require('../auth/session.js').sealCookiePayload(flow, env.REXBID_AUTH_COOKIE_SECRET);
+    const handler = createAccountsHandler({ provider: {
+      exchangeCode: async () => { throw Object.assign(new Error('upstream body private'), { code: 'AUTH_REJECTED', status: 401 }); },
+      verifyIdentity: async () => { throw new Error('must not verify'); }
+    }, now: () => 1800000000 });
+    const callback = await handler(request('/api/auth/callback?state=state-private&code=code-private', { method: 'GET', origin: null, cookie: flowCookie(encrypted).split(';')[0], host: 'https://rexbid-auth-test.tedn828.workers.dev' }), stagingEnv);
+    assert.equal(callback.status, 303);
+    const refresh = await handler(request('/api/auth/refresh', { method: 'POST', host: 'https://rexbid-auth-test.tedn828.workers.dev', origin: 'https://rexbid-auth-test.tedn828.workers.dev' }), stagingEnv);
+    assert.equal(refresh.status, 401);
+    const entries = diagnostics.map(args => JSON.parse(args[1]));
+    assert.ok(entries.some(item => item.operation === 'callback' && item.stage === 'code_exchange' && item.outcome === 'failure' && item.safe_error_code === 'AUTH_REJECTED' && item.upstream_status === 401));
+    assert.ok(entries.some(item => item.operation === 'session_resolve' && item.stage === 'cookie' && item.outcome === 'missing'));
+    assert.ok(entries.some(item => item.operation === 'refresh_endpoint' && item.stage === 'complete' && item.outcome === 'anonymous'));
+    const serialized = JSON.stringify(diagnostics);
+    for (const marker of ['state-private', 'verifier-private', 'code-private', 'upstream body private']) assert.ok(!serialized.includes(marker));
+  } finally { console.info = originalInfo; }
 });
 
 test('HttpOnly session cookie, /api/me and favorites are account-isolated, idempotent and token-free', async () => {
