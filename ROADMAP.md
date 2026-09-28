@@ -2,6 +2,8 @@
 
 Status as of 2026-09-28: production Worker `mtbid` remains on the owner-confirmed provider-independent release `241cfe3e-663d-49c3-bd2b-b29e8f20cb80`; this sprint did not alter production. Staging Worker `rexbid-auth-test` uses only `rexbid-auth-test-db`, latest confirmed Version ID `6a3d470a-2778-4030-9e48-6ae7271d7ce4`. Accounts Phase 3 has owner-confirmed REAL BROWSER PASS on staging; production Auth is NOT DEPLOYED and migration `0003` is NOT APPLIED to production. Door-to-door estimator is a PROTOTYPE. Request-budget improvements are deployed to staging only. Items below remain work unless current status is explicitly recorded in `PROJECT_HANDOFF.md` or `ARCHITECTURE.md`; a page or button alone is not evidence of completion.
 
+**D1 Sync 2:** projekt w `docs/D1_SYNC_2_DESIGN.md` i `docs/proposals/0004_d1_sync_2.sql` ma status **PROPOZYCJA / NIEWDROŻONE**. Obecne trasy nadal korzystają głównie z providera; scheduler nie istnieje. Produkcyjna baza `rexbid-db` nie była migrowana. Szkic 0004 jest addytywny i poza aktywnym katalogiem Wrangler; koncepcyjnie zastępuje wcześniejszy projekt 0002. Nie stosować żadnej z tych propozycji ani obu naraz.
+
 ## NOW — stabilize the accepted product
 
 ### 1. Protect the working release
@@ -44,17 +46,15 @@ Status as of 2026-09-28: production Worker `mtbid` remains on the owner-confirme
 - Define VIN-to-multiple-listings behavior, provider priority, freshness, conflict resolution, missing-field merge rules and outage fallback before registering a second provider.
 - Current D1 keys are not source-namespaced. Prepare only an additive migration after rights and collision review; do not change current PKs or merge existing rows automatically.
 
-### 7. Production synchronization lifecycle
+### 7. Synchronizacja produkcyjna — PROPOZYCJA / NIEWDROŻONE
 
-- **Data Sync Foundation proposal prepared locally, not applied:** `docs/proposals/0002_provider_sync_foundation.sql` adds provider-source identity/freshness/leases and run status without changing PKs or copying raw media/history into new tables. It was validated against `0000`/`0001` plus a legacy sample in in-memory SQLite only. Review and approve the schema before moving it into Wrangler's migration directory.
-- Keep `vehicle_key` stable and add provider/platform-scoped `source_key`; explicit provider/listing ID first, LOT fallback, VIN last. Ambiguous VIN-only/relisted cases need review. Add provider provenance to future snapshots/events but leave existing rows nullable and untouched.
-- Sync pages should be idempotent and checkpoint cursor + counters with page writes; lease per source to prevent overlap. Preserve prior good fields on partial source payloads. Advance `last_synced_at` only after the complete required sync; partial failure retains old last-success and sets source/run state to partial/failed.
-- Do not yet choose a Cron frequency or add a queue. First verify provider plan limits and data rights; then select an operator/scheduled/queue trigger and provider-wide request budget. No automatic retry storms on 429/5xx/timeouts.
-- Verify `REXBID_SYNC_TOKEN` presence/configuration without revealing it; create/rotate only through a secret manager when authorized.
-- Decide the actual trigger and ownership: authenticated manual operator action, scheduled Cron, queue, or a combination. Define freshness intervals per active/upcoming/closed listing, concurrency, rate budgets, backoff policy, checkpoint/cursor storage, idempotency and resumability.
-- Add durable sync-run status only if required; use additive D1 migration, collision review and restore plan. A partially paginated run must never be marked complete.
-- Prioritize active vehicles first, then recheck older closed events whose status/sale fields can change. Avoid re-fetching every record on every user GET.
-- Keep provider fetch/normalization D1-independent. Any manual, scheduled or queue trigger must reuse explicit persistence orchestration; never make ordinary GET a hidden sync trigger.
+- Pełny projekt: `docs/D1_SYNC_2_DESIGN.md`; addytywny szkic pustego schematu: `docs/proposals/0004_d1_sync_2.sql`. Oba są poza aktywnym katalogiem migracji Wrangler. `0002_provider_sync_foundation.sql` to wcześniejszy, zastąpiony szkic — nie stosować go razem z 0004.
+- Model tożsamości rozdziela encję pojazdu, źródło providera, lifecycle listingu i event historii. Istniejący `vehicle_key`, PK i wiersze pozostają nietknięte; bez masowego backfillu.
+- Pipeline ma odkrywać canonical summaries przez endpoint listy, a szczegóły/historię odświeżać selektywnie. GET pozostaje read-only; sync nie uruchamia się przy przeglądaniu. Późniejszy, przełączany flagą D1-first zachowa obecny kontrakt odpowiedzi i użyje cursorów Rex.Bid.
+- Budżety są scenariuszami matematycznymi, nie pomiarem ani zgodą planu: ok. 98/956/4 778 requestów upstream/dzień dla 1k/10k/50k listingów przy założeniach z dokumentu. Najpierw potwierdzić quota planu, naliczanie stron oraz prawa retencji.
+- **OTWARTA BLOKADA PRAW/DANYCH:** nie rozszerzać trwałego przechowywania listingów, historii, snapshots ani mediów; bez backfillu i D1-first cutover do czasu pisemnej zgody na retencję, redystrybucję i usuwanie danych. Obecne raw JSON również wymaga przeglądu umowy.
+- Pierwszym krokiem implementacyjnym mają być testy offline kontraktu/repository/budżetu (zero live calls), następnie walidacja SQL w disposable SQLite. Migracja stagingowa wymaga osobnego upoważnienia; produkcyjna migracja i deploy `mtbid` wymagają późniejszej wyraźnej zgody.
+- Nie włączać Cron/Queues ani nie ustalać interwałów produkcyjnych, dopóki nie są potwierdzone limity dostawcy, limity konta Cloudflare i globalny request budget.
 
 ### 8. Import-cost estimator — source-backed model
 

@@ -1,5 +1,7 @@
 # Rex.Bid Architecture
 
+**D1 Sync 2 status:** PROPOSED / NOT DEPLOYED. The normative design is `docs/D1_SYNC_2_DESIGN.md`; `docs/proposals/0004_d1_sync_2.sql` is a proposal-only, additive empty-schema sketch. Do not apply it or the superseded 0002 draft. Production D1, Worker and public API are unchanged.
+
 Status as of 2026-09-28: **PRODUCTION** is the owner-confirmed provider-independent Worker release `241cfe3e-663d-49c3-bd2b-b29e8f20cb80`; no production resources were changed during the current quality sprint. **STAGING** is Worker `rexbid-auth-test`, isolated D1 `rexbid-auth-test-db`, latest deployment `6a3d470a-2778-4030-9e48-6ae7271d7ce4`. Accounts Phase 3 has owner-confirmed real-browser PASS on staging; production Auth is NOT DEPLOYED and accounts migration `0003` is NOT APPLIED to production. Request-budget improvements were deployed to staging only. The door-to-door estimator is a PROTOTYPE, not a confirmed quote. Treat local, staging, and production states separately.
 
 ## Current request and data flow
@@ -185,7 +187,9 @@ The initial adapter/registry and canonical model exist locally. Remaining recomm
 7. **D1 identity evolution:** current `vehicles.vehicle_key` and `auction_history(vehicle_key,event_key)` do not namespace records by provider. Preserve PKs/data; add source identity additively only after collision analysis (proposal below).
 8. **Deployment gate:** validate build/test contract, review exact migration only when needed, and confirm provider retention/license terms before any new durable archival or cross-provider redistribution.
 
-### D1 multi-provider adequacy and additive proposal (not implemented)
+> **SUPERSEDED DESIGN NOTE:** The historical proposal text in this section describes `0002_provider_sync_foundation.sql`. For all future design/review, use the more complete `docs/D1_SYNC_2_DESIGN.md` and empty-table-only `docs/proposals/0004_d1_sync_2.sql` below/linked from the current architecture summary. Both are **PROPOSED / NOT DEPLOYED**. Do not apply 0002 or 0004; do not apply them together. The 0002 identity approach is not sufficient for relisting/LOT reuse and alters existing tables.
+
+### D1 multi-provider adequacy and additive proposal (superseded; not implemented)
 
 The current schema can retain the existing normalized vehicle/event columns and raw JSON, but it is **not sufficient as a source identity model for multiple providers**: `vehicle_key` is not `(provider, provider_vehicle_id)`; history does not have a `provider` namespace; existing event keys/indexes can collide across providers; one `raw_json` is a latest source snapshot, not a separate record per source listing. Do not change existing primary keys or re-key rows without a collision report.
 
@@ -196,7 +200,7 @@ If/when needed, prepare an additive migration proposal (do not run it now):
 - Add `sync_state`/`sync_runs` only when resumable scheduled sync needs durable checkpoints; current manual POST can remain without a new table.
 - Audit before any uniqueness constraint; never auto-delete or merge ambiguous records.
 
-### Data Sync Foundation — proposed next stage
+### Data Sync Foundation — historical proposal, superseded; current design is D1 Sync 2
 
 The current production GET model is upstream-first; the local provider refactor still keeps GET as read-only. `vehicles.last_seen_at` is an observation time, not a reliable per-provider `last_synced_at`. Existing state has no per-source identity, freshness state, lease, or run record. Therefore it cannot safely answer which provider listing was refreshed, resume/coordinate a run, or distinguish stale data from a failed refresh.
 
@@ -238,3 +242,13 @@ trigger → claim source lease → provider fetch → canonical normalize → va
 The proposal stores only identity, freshness, status, lease and run counters in new tables; it does not expand photo/history payload storage. Existing `vehicles.raw_json` and `auction_history.raw_json` retention remains subject to the open written-terms question in `ROADMAP.md`. Do not backfill or extend retention until Apibara confirms permitted storage, caching, history retention, media rights and deletion duties.
 
 Adding Provider B also requires confirming data-access rights and service limits. Technical adapter compatibility does not grant rights to retain or republish provider data.
+
+## D1 Sync 2 — projekt referencyjny (PROPOZYCJA / NIEWDROŻONE)
+
+Aktualny, nadrzędny projekt znajduje się w `docs/D1_SYNC_2_DESIGN.md`; addytywny szkic nowych pustych tabel to `docs/proposals/0004_d1_sync_2.sql`. Te pliki nie należą do aktywnych migracji Wrangler. Wcześniejszy opis powyżej oraz `0002_provider_sync_foundation.sql` są historyczne i zostały koncepcyjnie zastąpione przez 0004. **Nie stosować 0002 ani 0004.**
+
+Proponowany schemat oddziela encję auta, źródło providera, lifecycle listingu i event history. `vehicle_key` oraz PK legacy pozostają bez zmian; nie planujemy masowego backfillu. VIN jest wskazówką dopasowania, a LOT nie jest globalnie trwały. Niejednoznaczne rekordy/relisting pozostają osobne. Discovery pobiera canonical list summaries; detail i historia są odświeżane selektywnie. Cursor i zapisy jednej strony mają być zatwierdzane atomowo. Niekompletny run nie aktualizuje znacznika pełnej świeżości.
+
+Docelowy odczyt katalogu korzysta z D1 i zachowuje publiczny kontrakt API. Zwykłe GET-y nie wykonują synchronizacji ani nie czekają na Apibara. Po późniejszym cutover typowa odsłona strony powinna mieć zero requestów upstream. Stale data może być zwrócona ze znacznikiem aktualizacji; odświeżenie działa osobnym, limitowanym procesem.
+
+**Blokada:** bez pisemnej zgody dostawcy nie rozszerzać trwałego przechowywania listingów, danych pochodnych, historii, snapshots, zdjęć/mediów ani czasu redystrybucji. Nie wdrażać migracji, discovery, Cron/Queues ani D1-first cutover. Request budget, freshness i trigger pozostają konfiguracją do zatwierdzenia po potwierdzeniu limitów planu Apibara i Cloudflare.
