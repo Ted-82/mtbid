@@ -32,7 +32,7 @@ const AUTH_TEST_HTML = String.raw`<!doctype html>
   async function run(label, operation){
     const n=++actionNumber; diagnostic.textContent=label+" #"+n+": preparing"; message.textContent=""; clearPrivate(); buttons.forEach(b=>b.disabled=true);
     try{diagnostic.textContent=label+" #"+n+": sending";const result=await operation();diagnostic.textContent=label+" #"+n+": response HTTP "+String(result?.status??"—")+(result?.requestId?" · Request: "+result.requestId:"")+(result?.setCookiePresent?" · Set-Cookie: present":"");render();return result;}
-    catch(error){diagnostic.textContent=label+" #"+n+": UI exception ("+( /^[A-Za-z][A-Za-z0-9]{0,39}$/.test(String(error?.name||""))?error.name:"Error")+")";message.textContent="Operacja jest chwilowo niedostępna.";render();return null;}
+    catch(error){const stage=/^(before_fetch|fetch|response)$/.test(String(error?.rexStage||""))?" at "+error.rexStage:"";diagnostic.textContent=label+" #"+n+": UI exception"+stage+" ("+( /^[A-Za-z][A-Za-z0-9]{0,39}$/.test(String(error?.name||""))?error.name:"Error")+")";message.textContent="Operacja jest chwilowo niedostępna.";render();return null;}
     finally{byId("password").value="";buttons.forEach(b=>b.disabled=false);}
   }
   byId("credentials").addEventListener("submit",event=>event.preventDefault());

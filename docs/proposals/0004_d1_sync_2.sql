@@ -9,7 +9,9 @@
 -- derived data, history, snapshots, and public redisplay remain gated on
 -- written provider permission and approved retention policy.
 
-PRAGMA foreign_keys = ON;
+-- Cloudflare D1 enables/enforces foreign keys by default. Do not issue
+-- PRAGMA foreign_keys=ON here: D1 runs statements in implicit transactions
+-- and disallows changing that setting inside a query/migration.
 
 CREATE TABLE IF NOT EXISTS vehicle_entities (
   entity_id TEXT PRIMARY KEY,
@@ -66,8 +68,10 @@ CREATE TABLE IF NOT EXISTS auction_listings (
   listing_generation INTEGER,
   vin_normalized TEXT,
   lot TEXT,
+  vehicle_title TEXT,
   make TEXT,
   model TEXT,
+  trim TEXT,
   year INTEGER,
   body_style TEXT,
   fuel_type TEXT,
@@ -75,6 +79,7 @@ CREATE TABLE IF NOT EXISTS auction_listings (
   drive_type TEXT,
   engine_size_l REAL,
   odometer_value REAL,
+  odometer_unit TEXT,
   auction_state TEXT,
   source_status TEXT,
   auction_at TEXT,
@@ -85,6 +90,7 @@ CREATE TABLE IF NOT EXISTS auction_listings (
   buy_now_usd REAL,
   final_price_usd REAL,
   source_price_usd REAL,
+  price_currency TEXT NOT NULL DEFAULT 'USD',
   seller_name TEXT,
   seller_type TEXT,
   primary_damage TEXT,
@@ -169,7 +175,7 @@ CREATE TABLE IF NOT EXISTS provider_sync_scopes (
   operation TEXT NOT NULL CHECK (operation IN ('discovery', 'detail_refresh', 'history_refresh', 'filter_metadata')),
   scope_fingerprint TEXT,
   status TEXT NOT NULL DEFAULT 'idle'
-    CHECK (status IN ('idle', 'running', 'partial', 'failed', 'blocked')),
+    CHECK (status IN ('idle', 'running', 'partial', 'complete', 'failed', 'blocked')),
   cursor TEXT,
   cursor_version INTEGER NOT NULL DEFAULT 1,
   cursor_updated_at TEXT,
@@ -180,6 +186,8 @@ CREATE TABLE IF NOT EXISTS provider_sync_scopes (
   next_due_at TEXT,
   retry_after_at TEXT,
   lease_owner TEXT,
+  lease_token TEXT,
+  lease_generation INTEGER NOT NULL DEFAULT 0 CHECK (lease_generation >= 0),
   lease_expires_at TEXT,
   consecutive_failures INTEGER NOT NULL DEFAULT 0 CHECK (consecutive_failures >= 0),
   last_error_code TEXT,
@@ -207,6 +215,52 @@ CREATE TABLE IF NOT EXISTS sync_runs (
   upstream_429 INTEGER NOT NULL DEFAULT 0 CHECK (upstream_429 >= 0),
   latency_ms INTEGER,
   error_code TEXT
+);
+
+-- Per-page commit ledger stores only a hash of the opaque cursor. It provides
+-- replay detection and cursor-loop protection without retaining raw cursors.
+CREATE TABLE IF NOT EXISTS sync_page_commits (
+  scope_key TEXT NOT NULL REFERENCES provider_sync_scopes(scope_key),
+  run_id TEXT NOT NULL REFERENCES sync_runs(run_id),
+  cursor_hash TEXT NOT NULL,
+  next_cursor_hash TEXT,
+  committed_at TEXT NOT NULL,
+  -- Cursor replay detection is run-scoped: a new discovery run may legitimately
+  -- start from the same opaque initial cursor as an earlier completed run.
+  PRIMARY KEY (scope_key, run_id, cursor_hash)
+);
+
+-- A guard row exists only inside one D1 batch transaction. CHECK failure aborts
+-- the complete batch when lease/cursor/run preconditions are stale.
+CREATE TABLE IF NOT EXISTS sync_batch_guards (
+  guard_id TEXT PRIMARY KEY,
+  allowed INTEGER NOT NULL CHECK (allowed = 1)
+);
+
+-- Durable global request budget with a separately protected retry reserve.
+CREATE TABLE IF NOT EXISTS provider_request_budgets (
+  provider TEXT NOT NULL,
+  budget_day TEXT NOT NULL,
+  normal_limit INTEGER NOT NULL CHECK (normal_limit >= 0),
+  retry_limit INTEGER NOT NULL CHECK (retry_limit >= 0),
+  normal_consumed INTEGER NOT NULL DEFAULT 0 CHECK (normal_consumed >= 0),
+  retry_consumed INTEGER NOT NULL DEFAULT 0 CHECK (retry_consumed >= 0),
+  normal_reserved INTEGER NOT NULL DEFAULT 0 CHECK (normal_reserved >= 0),
+  retry_reserved INTEGER NOT NULL DEFAULT 0 CHECK (retry_reserved >= 0),
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (provider, budget_day)
+);
+
+CREATE TABLE IF NOT EXISTS provider_request_reservations (
+  reservation_id TEXT PRIMARY KEY,
+  provider TEXT NOT NULL,
+  budget_day TEXT NOT NULL,
+  bucket TEXT NOT NULL CHECK (bucket IN ('normal', 'retry')),
+  request_count INTEGER NOT NULL CHECK (request_count > 0),
+  state TEXT NOT NULL CHECK (state IN ('reserved', 'started', 'finished', 'cancelled')),
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY (provider, budget_day) REFERENCES provider_request_budgets(provider, budget_day)
 );
 
 -- Begin with non-unique indexes. Add uniqueness only after real source-ID
@@ -241,5 +295,7 @@ CREATE INDEX IF NOT EXISTS idx_sync_scopes_due
   ON provider_sync_scopes(status, next_due_at, retry_after_at);
 CREATE INDEX IF NOT EXISTS idx_sync_scopes_lease
   ON provider_sync_scopes(lease_expires_at);
+CREATE INDEX IF NOT EXISTS idx_sync_runs_scope_status
+  ON sync_runs(scope_key, status, started_at DESC);
 CREATE INDEX IF NOT EXISTS idx_sync_runs_recent
   ON sync_runs(provider, operation, started_at DESC);
