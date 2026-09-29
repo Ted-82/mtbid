@@ -1,6 +1,6 @@
 # Rex.Bid D1 Sync 2 — projekt architektury
 
-**Status: Phase A DONE; Phase B D1 VERIFIED na izolowanym stagingu; Phase C NOT STARTED.** Phase B zweryfikowano na disposable SQLite oraz na prawdziwym Cloudflare D1 bindingu `rexbid-auth-test-db`, wyłącznie na danych syntetycznych. Produkcyjne `rexbid-db`, konfiguracja produkcji i publiczne API pozostały nietknięte. Proposal 0004 nadal leży poza aktywnymi migracjami Wrangler; nie stosować go do produkcji.
+**Status: Phase A DONE; Phase B D1 VERIFIED; Phase C SHADOW VERIFIED na izolowanym stagingu; Phase D NOT STARTED.** Phase B zweryfikowano na disposable SQLite oraz na prawdziwym Cloudflare D1 bindingu `rexbid-auth-test-db`, wyłącznie na danych syntetycznych. Phase C wykonała jeden ograniczony request discovery i zapisała minimalny, tymczasowy canonical subset do nowych tabel Sync; po bezpośredniej weryfikacji cleanup wszystkie te rekordy usunięto. Produkcyjne `rexbid-db`, konfiguracja produkcji i publiczne API pozostały nietknięte. Proposal 0004 nadal leży poza aktywnymi migracjami Wrangler; nie stosować go do produkcji.
 
 Stan wejściowy: repozytorium `main`, checkpoint Phase A `015ee6f`. D1 Sync nie ma schedulera ani wdrożonego modelu produkcyjnego. Zwykłe GET pozostają read-only, a obecny klient Apibara nadal obsługuje większość katalogu.
 
@@ -316,9 +316,15 @@ Lease wykorzystuje losowy token i monotoniczny generation. W tej samej transakcj
 
 Testy odtworzyły `0000` + `0001` i legacy rows na `node:sqlite` disposable DB, dwukrotnie zastosowały proposal 0004, potwierdziły niezmienione legacy rows/PK, replay, crash rollback, cursor loop, run-scoped initial cursor, leases i stale-owner protection, merge, Fake Provider B, budget race oraz `EXPLAIN QUERY PLAN`. Na staging D1 `rexbid-auth-test-db` wykonano następnie jednorazowy test przez rzeczywisty Worker binding z danymi syntetycznymi: `db.batch()` persist + checkpoint, rollback statementu, replay, cursor/repeated-cursor guard, lease acquire/block/expiry/recovery/stale generation, budget reservation/retry reserve, partial merge i query plans przeszły. Cleanup potwierdził wszystkie nowe Sync tables = 0 wierszy, `users=1`, `user_favorites=1`, legacy `vehicles`, `vehicle_snapshots`, `auction_history` bez zmian; foreign-key check pusty. Nie wykonano żadnego requestu providera.
 
-**Status:** Phase A **DONE**; Phase B **D1 VERIFIED** (offline SQLite + rzeczywisty staging D1); Phase C **NOT STARTED**. Proposal 0004 pozostaje w `docs/proposals/`, poza aktywnym katalogiem migracji i nie została zastosowana do produkcji. Końcowy staging Worker po usunięciu tymczasowego endpointu: `05cc0435-eb7b-4f98-b012-9335d6055a64`.
+**Phase C — wynik shadow testu:** Request ID `e62bf910-74b3-4386-a7ab-4a01be9fef6e`; pojedyncza strona Copart (`per_page=20`), 1 request Apibara łącznie. Provider zwrócił 20 rekordów; canonicalizer zaakceptował 20, odrzucił 0 i oznaczył 0 jako niejednoznaczne. Przy pustym baseline tabel Sync zapisano 20 nowych listingów, bez raw payloadów, mediów, URL-i zdjęć, snapshotów ani historii. Ponowne przekazanie tej samej przechwyconej strony do repository nie utworzyło duplikatów; synthetic Provider B, partial update, failure/recovery, replay, budget i readback przeszły. Nie pobierano detail ani history i nie wykonywano zewnętrznego requestu Provider B.
 
-**Następny krok:** Phase C nie została rozpoczęta. Przed nią należy osobno zatwierdzić ograniczony plan discovery/shadow-run, request budget oraz zakres/retencję danych. Produkcyjna migracja, import i discovery pozostają wyłączone i wymagają osobnych zgód oraz pisemnego rozstrzygnięcia praw/retencji.
+Tail dla tej próby potwierdził `stage=complete`, `live_requests=1`, `ok=true` i `cleanup=true`. UI wyświetliło `cleanup: undefined`, ponieważ endpoint zwracał `endState.cleanupPass`, a komponent oczekiwał `cleanup.verified`. To był wyłącznie błąd prezentacji wyniku; końcowy SELECT na rzeczywistym D1 potwierdził cleanup. Zachowany test `cleanupReport()` normalizuje to pole i chroni przed regresją.
+
+Po cleanup: wszystkie 11 tabel Sync = 0; `users=1`, `user_favorites=1`; legacy `vehicles=0`, `vehicle_snapshots=0`, `auction_history=0`. Publiczne `/api/cars`, Home, karta auta i Accounts nie korzystały z shadow rows. Tymczasowy endpoint, przycisk i flaga Phase C zostały usunięte z czystego stagingowego bundle.
+
+**Status:** Phase A **DONE**; Phase B **D1 VERIFIED**; Phase C **SHADOW VERIFIED** (jedna strona, jeden live request; staging D1 odczytana bezpośrednio i cleanup potwierdzony); Phase D **NOT STARTED**. Proposal 0004 pozostaje w `docs/proposals/`, poza aktywnym katalogiem migracji i nie została zastosowana do produkcji. Końcowy staging Worker bez tymczasowej trasy: `c3137145-5d14-4cb6-b888-51c092b25938`.
+
+**Następny krok:** nie rozpoczynać Phase D. Przed jakimkolwiek trwałym discovery lub D1-first rollout nadal wymagane są pisemne prawa/retencja od dostawcy oraz osobna zgoda na kolejną fazę. Phase C nie włączyła harmonogramu, queue, publicznego odczytu Sync ani masowego importu.
 
 ## Sources / status
 

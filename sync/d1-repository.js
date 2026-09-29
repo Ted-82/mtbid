@@ -333,6 +333,32 @@ class D1SyncRepository {
     return true;
   }
 
+  async finishPartialRun({scopeKey, runId, owner, token, leaseGeneration, now}) {
+    const nowIso = iso(now);
+    const guardId = crypto.randomUUID();
+    const guard = this.db.prepare(`INSERT INTO sync_batch_guards(guard_id,allowed)
+      VALUES(?,CASE WHEN EXISTS(SELECT 1 FROM provider_sync_scopes s JOIN sync_runs r ON r.scope_key=s.scope_key
+      WHERE s.scope_key=? AND s.lease_owner=? AND s.lease_token=? AND s.lease_generation=?
+        AND s.lease_expires_at>? AND r.run_id=? AND r.status='running') THEN 1 ELSE 0 END)`)
+      .bind(guardId, scopeKey, owner, token, leaseGeneration, nowIso, runId);
+    try {
+      await this.db.batch([
+        guard,
+        this.db.prepare(`UPDATE provider_sync_scopes SET status='partial',lease_owner=NULL,lease_token=NULL,
+          lease_expires_at=NULL,last_attempt_at=?,updated_at=? WHERE scope_key=? AND lease_owner=?
+          AND lease_token=? AND lease_generation=?`).bind(nowIso, nowIso, scopeKey, owner, token, leaseGeneration),
+        this.db.prepare(`UPDATE sync_runs SET status='partial',completed_at=? WHERE run_id=? AND scope_key=? AND status='running'`)
+          .bind(nowIso, runId, scopeKey),
+        this.db.prepare(`DELETE FROM sync_batch_guards WHERE guard_id=?`).bind(guardId)
+      ]);
+    } catch (error) {
+      if (String(error?.message || "").includes("CHECK constraint failed")) throw new Error("STALE_LEASE_OR_RUN");
+      throw error;
+    }
+    const run = await this.getRun(runId);
+    return run?.status === "partial";
+  }
+
   async persistDiscoveryPage(input) {
     const {scopeKey, provider, platform, runId, owner, token, cursor = null, nextCursor = null,
       records = [], now, crashAt = null} = input || {};
