@@ -373,15 +373,15 @@
         🚗 Aukcje
       </a>
 
-      <a href="#" class="side-link" onclick="comingSoon(event)">
+      <a href="#" class="side-link" data-coming-soon>
         🔨 Moje licytacje
       </a>
 
-      <a href="#" class="side-link" onclick="comingSoon(event)">
+      <a href="#" class="side-link" data-coming-soon>
         📋 Zamówienia
       </a>
 
-      <a href="#" class="side-link" onclick="comingSoon(event)">
+      <a href="#" class="side-link" data-coming-soon>
         ⚙ Ustawienia
       </a>
 
@@ -470,7 +470,7 @@
 
           <button
             class="btn btn-outline"
-            onclick="comingSoon(event)"
+            data-coming-soon
           >
             Edytuj
           </button>
@@ -492,7 +492,7 @@
 
           <button
             class="btn btn-outline"
-            onclick="comingSoon(event)"
+            data-coming-soon
           >
             Zmień
           </button>
@@ -514,7 +514,7 @@
 
           <button
             class="btn btn-outline"
-            onclick="comingSoon(event)"
+            data-coming-soon
           >
             Zmień
           </button>
@@ -580,15 +580,12 @@ function updateFavorites() {
 }
 
 
-function comingSoon(event) {
-
+document.addEventListener("click", event => {
+  const target = event.target.closest("[data-coming-soon]");
+  if (!target) return;
   event.preventDefault();
-
-  alert(
-    "Ta funkcja zostanie podłączona w kolejnym etapie REX.Bid."
-  );
-
-}
+  alert("Ta funkcja zostanie podłączona w kolejnym etapie REX.Bid.");
+});
 
 
 updateFavorites();

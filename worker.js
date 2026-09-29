@@ -6,12 +6,30 @@ import accountsModule from "./auth/routes.js";
 const { createApibaraProvider, ProviderError } = apibaraModule;
 const { createProviderRegistry, validateRexVehicle, validateRexHistoryEvent } = contract;
 const { createSupabaseAuthProvider } = authProviderModule;
-const { createAccountsHandler } = accountsModule;
+const { createAccountsHandler, isAuthConfigurationComplete } = accountsModule;
+const safeProviderConsole = {
+  warn(_label, serialized) {
+    let diagnostic = {};
+    try { diagnostic = JSON.parse(serialized); } catch {}
+    const operation = typeof diagnostic.operation === "string" && /^[a-z_]{1,40}$/.test(diagnostic.operation) ? diagnostic.operation : "unknown";
+    const status = Number.isInteger(diagnostic.status) && diagnostic.status >= 400 && diagnostic.status <= 599 ? diagnostic.status : null;
+    const code = ["NOT_FOUND", "AUTH", "RATE_LIMITED", "UPSTREAM", "INVALID_RESPONSE", "TIMEOUT"].includes(diagnostic.code) ? diagnostic.code : "UPSTREAM";
+    console.warn("rex.bid.provider", JSON.stringify({ provider: "apibara", operation, stage: "response", status, safe_error_code: code }));
+  },
+  error(_label, serialized) {
+    let diagnostic = {};
+    try { diagnostic = JSON.parse(serialized); } catch {}
+    const operation = typeof diagnostic.operation === "string" && /^[a-z_]{1,40}$/.test(diagnostic.operation) ? diagnostic.operation : "unknown";
+    const stage = diagnostic.stage === "URL" || diagnostic.stage === "fetch" ? diagnostic.stage : "unknown";
+    const errorType = diagnostic.errorName === "TypeError" ? "TypeError" : diagnostic.errorName === "Error" ? "Error" : "unknown";
+    console.warn("rex.bid.provider", JSON.stringify({ provider: "apibara", operation, stage, error_type: errorType }));
+  }
+};
 const apibaraProvider = createApibaraProvider({
   fetch: (...args) => fetch(...args),
   setTimeout: (...args) => setTimeout(...args),
   clearTimeout: (...args) => clearTimeout(...args),
-  console
+  console: safeProviderConsole
 });
 const providerRegistry = createProviderRegistry([apibaraProvider]);
 const DEFAULT_PROVIDER = "apibara";
@@ -308,7 +326,8 @@ function providerErrorResponse(error) {
     : error.code === "RATE_LIMITED" ? 429
     : error.code === "TIMEOUT" ? 504
     : error.code === "CONFIGURATION" ? 500 : 502;
-  const response = errorJson(error.message, status);
+  const publicMessage = error.code === "NOT_FOUND" ? "Nie znaleziono pojazdu." : error.code === "RATE_LIMITED" ? "Dane są chwilowo niedostępne. Spróbuj ponownie później." : error.code === "TIMEOUT" ? "Dostawca danych odpowiada zbyt wolno." : error.code === "CONFIGURATION" ? "Dostawca danych jest niedostępny." : "Nie udało się pobrać danych aukcyjnych.";
+  const response = errorJson(publicMessage, status);
   if (error.code === "RATE_LIMITED" && error.retryAfter !== null) {
     response.headers.set("Retry-After", String(error.retryAfter));
   }
@@ -996,7 +1015,7 @@ async function syncVehicle(env, identifier, options = {}) {
       historyRecords: historyResult.length
     };
   } catch (error) {
-    console.error("Rex.Bid sync persistence error", error?.name || "Error");
+    logSafeEvent("sync_persistence_failed", error);
     return { ok: false, completed: false, phase: "persistence", error: "D1_WRITE_FAILED", pagesFetched };
   }
 }
@@ -1051,7 +1070,7 @@ async function syncVehicleList(env, params = {}, options = {}) {
     const result = await saveApiVehicle(env, [...byKey.values()].map(item => item.raw));
     return { ok: true, completed: true, pagesFetched: pages.length, vehicles: result.count };
   } catch (error) {
-    console.error("Rex.Bid list sync persistence error", error?.name || "Error");
+    logSafeEvent("sync_list_persistence_failed", error);
     return { ok: false, completed: false, error: "D1_WRITE_FAILED", pagesFetched: pages.length };
   }
 }
@@ -1301,7 +1320,7 @@ async function saveAuctionHistory(
     // Ambiguous legacy rows are kept untouched. Do not silently merge or
     // delete history; a later data audit can resolve the collision explicitly.
     if (matches.length > 1) {
-      console.warn("Rex.Bid ambiguous legacy auction history match", vehicleKey, normalized.event_key);
+      logSafeEvent("history_ambiguous_legacy_match", null);
       persistedRecords.push(normalized);
       continue;
     }
@@ -1451,6 +1470,142 @@ async function getCar(
     body => body?.ok === true && body?.match === "exact");
 }
 
+const PRIVATE_PAGE_PATHS = new Set([
+  "/konto.html", "/ulubione.html", "/logowanie.html", "/rejestracja.html", "/reset-hasla.html",
+  "/konto", "/ulubione", "/logowanie", "/rejestracja", "/reset-hasla"
+]);
+const PUBLIC_PAGE_DESCRIPTIONS = {
+  "/": "Przeglądaj samochody z aukcji Copart i IAAI, korzystaj z filtrów i sprawdzaj szczegóły dostępnych pojazdów.",
+  "/index.html": "Przeglądaj samochody z aukcji Copart i IAAI, korzystaj z filtrów i sprawdzaj szczegóły dostępnych pojazdów.",
+  "/car.html": "Sprawdź zdjęcia, status aukcji, specyfikację i dostępną historię pojazdu z aukcji Copart lub IAAI.",
+  "/jak-to-dziala.html": "Poznaj sposób wyszukiwania pojazdów aukcyjnych USA i korzystania z informacji prezentowanych przez Rex.Bid.",
+  "/o-nas.html": "Poznaj Rex.Bid i sposób, w jaki pomagamy przeglądać oferty aukcji samochodowych w USA.",
+  "/kontakt.html": "Informacje kontaktowe Rex.Bid i dostępne sposoby uzyskania pomocy."
+};
+const SAFE_ERROR_CODES = new Set([
+  "CONFIGURATION", "RATE_LIMITED", "TIMEOUT", "NETWORK", "UPSTREAM", "NOT_FOUND",
+  "INVALID_REQUEST", "D1_UNAVAILABLE", "D1_WRITE_FAILED", "internal_error"
+]);
+
+function safeErrorCode(error) {
+  const code = typeof error?.code === "string" ? error.code : "internal_error";
+  return SAFE_ERROR_CODES.has(code) ? code : "internal_error";
+}
+
+function safeRoute(pathname) {
+  if (pathname.startsWith("/api/car/") && pathname.endsWith("/history")) return "/api/car/:identifier/history";
+  if (pathname.startsWith("/api/car/")) return "/api/car/:identifier";
+  if (pathname.startsWith("/api/sync/vehicle/")) return "/api/sync/vehicle/:identifier";
+  if (pathname.startsWith("/api/me/favorites/")) return "/api/me/favorites/:key";
+  return pathname;
+}
+
+function operationForPath(pathname) {
+  if (pathname.startsWith("/api/auth/") || pathname.startsWith("/api/me")) return "auth";
+  if (pathname.startsWith("/api/sync/")) return "sync";
+  if (pathname.startsWith("/api/")) return "provider";
+  return "http";
+}
+
+function responseErrorCode(response) {
+  if (response.status < 400) return null;
+  if (response.status === 404) return "not_found";
+  if (response.status === 405) return "method_not_allowed";
+  if (response.status === 429) return "rate_limited";
+  if (response.status === 504) return "upstream_timeout";
+  if (response.status === 502) return "upstream_unavailable";
+  if (response.status === 503) return "service_unavailable";
+  if (response.status >= 500) return "internal_error";
+  return "request_rejected";
+}
+
+async function applySecurityHeaders(response, request, { requestId = null, env = null } = {}) {
+  const headers = new Headers(response.headers);
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), browsing-topics=()");
+  headers.set("X-Frame-Options", "DENY");
+  headers.set("Strict-Transport-Security", "max-age=31536000");
+  const url = new URL(request.url);
+  let body = response.body;
+  if ((headers.get("Content-Type") || "").toLowerCase().includes("text/html")) {
+    const nonceBytes = new Uint8Array(18);
+    globalThis.crypto.getRandomValues(nonceBytes);
+    const nonce = Array.from(nonceBytes, byte => byte.toString(16).padStart(2, "0")).join("");
+    let html = await response.text();
+    if (url.pathname === "/car.html" && env?.REXBID_DOOR_ESTIMATOR_PROTOTYPE !== "enabled") {
+      html = html.replace(/\s*<section class="door-estimator"[\s\S]*?<\/section>/i, "");
+      html = html.replace(/\s*<script\s+src="\/rexbid-door-estimator(?:-rates)?\.js"[^>]*><\/script>/gi, "");
+    }
+    if (PUBLIC_PAGE_DESCRIPTIONS[url.pathname]) {
+      const title = (html.match(/<title>([\s\S]*?)<\/title>/i)?.[1] || "REX.Bid").replace(/<[^>]*>/g, "").trim();
+      const existingDescription = html.match(/<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i)?.[1];
+      const description = existingDescription || PUBLIC_PAGE_DESCRIPTIONS[url.pathname];
+      let social = "";
+      if (!existingDescription) social += `<meta name="description" content="${description}">`;
+      if (!/property=["']og:title["']/i.test(html)) social += `<meta property="og:title" content="${title}">`;
+      if (!/property=["']og:description["']/i.test(html)) social += `<meta property="og:description" content="${description}">`;
+      if (!/property=["']og:type["']/i.test(html)) social += `<meta property="og:type" content="website">`;
+      if (social) html = html.replace(/<\/head>/i, `${social}</head>`);
+      const canonicalOrigin = env?.REXBID_CANONICAL_ORIGIN;
+      if (canonicalOrigin && !url.search && !PRIVATE_PAGE_PATHS.has(url.pathname) && !/rel=["']canonical["']/i.test(html)) {
+        try {
+          const origin = new URL(canonicalOrigin);
+          if (origin.protocol === "https:" && origin.origin === canonicalOrigin) {
+            const canonicalPath = url.pathname === "/index.html" ? "/" : url.pathname;
+            const canonicalUrl = `${origin.origin}${canonicalPath}`;
+            html = html.replace(/<\/head>/i, `<link rel="canonical" href="${canonicalUrl}">${/property=["']og:url["']/i.test(html) ? "" : `<meta property="og:url" content="${canonicalUrl}">`}</head>`);
+          }
+        } catch {}
+      }
+    }
+    html = html.replace(/<script(?![^>]*\bnonce=)([^>]*)>/gi, `<script nonce="${nonce}"$1>`);
+    body = html;
+    headers.delete("Content-Length");
+    headers.delete("Content-Encoding");
+    headers.delete("ETag");
+    headers.set("Content-Security-Policy", `default-src 'self'; script-src 'self' 'nonce-${nonce}'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; media-src 'self' https: blob:; font-src 'self' https: data:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'`);
+  } else {
+    headers.set("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
+  }
+  if (PRIVATE_PAGE_PATHS.has(url.pathname) || url.pathname.startsWith("/api/auth/") || url.pathname.startsWith("/api/me")) {
+    headers.set("Cache-Control", "private, no-store");
+    headers.set("Pragma", "no-cache");
+    headers.set("X-Robots-Tag", "noindex, nofollow");
+    headers.append("Vary", "Cookie");
+  } else if (url.pathname.endsWith(".html")) {
+    // Per-response CSP nonce and environment-specific prototype gating require revalidation.
+    headers.set("Cache-Control", "no-cache");
+  } else if (/\.(?:js|css|svg|png|jpe?g|webp|ico|woff2?)$/i.test(url.pathname)) {
+    if (!headers.has("Cache-Control")) headers.set("Cache-Control", "public, max-age=3600");
+  }
+  if (requestId) headers.set("X-RexBid-Request-ID", requestId);
+  return new Response(body, { status: response.status, statusText: response.statusText, headers });
+}
+
+function friendlyFailure(request, status = 500) {
+  const url = new URL(request.url);
+  if (url.pathname.startsWith("/api/")) {
+    return new Response(JSON.stringify({ ok: false, error: status === 503 ? "Usługa jest chwilowo niedostępna." : "Wystąpił błąd serwera." }), {
+      status, headers: { "Content-Type": "application/json; charset=UTF-8", "Cache-Control": "no-store" }
+    });
+  }
+  const title = status === 404 ? "Nie znaleziono strony" : "Chwilowa niedostępność";
+  const message = status === 404 ? "Podany adres nie prowadzi do strony Rex.Bid." : "Wystąpił chwilowy problem. Spróbuj ponownie za chwilę.";
+  return new Response(`<!doctype html><html lang="pl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title} — REX.Bid</title><main style="font:16px system-ui;max-width:620px;margin:12vh auto;padding:24px"><h1>${title}</h1><p>${message}</p><a href="/">Wróć na stronę główną</a></main></html>`, {
+    status, headers: { "Content-Type": "text/html; charset=UTF-8", "Cache-Control": "no-store" }
+  });
+}
+
+function logSafeEvent(event, error = null) {
+  console.warn("rex.bid.event", JSON.stringify({ event, safe_error_code: error ? safeErrorCode(error) : undefined, error_type: error?.name === "TypeError" ? "TypeError" : error?.name === "Error" ? "Error" : undefined }));
+}
+
+function logRequest(event, fields) {
+  // Log schema is an allowlist: no URL/query, body, identifier, headers or error message.
+  console.info("rex.bid.request", JSON.stringify(fields));
+}
+
 async function getCarUncached(
   request,
   env,
@@ -1515,10 +1670,7 @@ async function getCarUncached(
       }
 
 
-      console.warn(
-        "Provider direct result does not match:",
-        identifier
-      );
+      logSafeEvent("provider_direct_result_mismatch", null);
     }
 
   } catch (error) {
@@ -1526,7 +1678,7 @@ async function getCarUncached(
       shouldSearch = true;
     } else {
       upstreamFailure = error;
-      console.warn("Provider direct lookup failed", error?.code || "UNKNOWN", error?.status || "");
+      logSafeEvent("provider_direct_lookup_failed", error);
     }
   }
 
@@ -1585,7 +1737,7 @@ async function getCarUncached(
 
   } catch (error) {
     if (error?.code !== "NOT_FOUND") upstreamFailure = error;
-    console.warn("Provider fallback failed", error?.code || "UNKNOWN", error?.status || "");
+    logSafeEvent("provider_fallback_failed", error);
   }
 
 
@@ -1660,10 +1812,7 @@ async function getCarUncached(
       }
 
     } catch (error) {
-      console.error(
-        "Rex.Bid local lookup error:",
-        error
-      );
+      logSafeEvent("d1_local_lookup_failed", error);
     }
   }
 
@@ -1736,12 +1885,9 @@ async function getHistoryUncached(
     providerNextCursor = historyPage.nextCursor;
 
   } catch (error) {
-    providerErrorMessage = error.message;
+    providerErrorMessage = "Dane historii są chwilowo niedostępne.";
 
-    console.warn(
-      "Rex.Bid provider history error:",
-      error.message
-    );
+    logSafeEvent("provider_history_failed", error);
   }
 
 
@@ -1762,7 +1908,7 @@ async function getHistoryUncached(
         }
       }
     } catch (dbError) {
-      console.error("Rex.Bid provider history lookup error:", dbError);
+      logSafeEvent("d1_history_lookup_failed", dbError);
     }
   }
 
@@ -2134,11 +2280,8 @@ async function getDatabaseStatus(
     );
 
   } catch (error) {
-    return errorJson(
-      "Błąd D1: " +
-      error.message,
-      500
-    );
+    logSafeEvent("database_status_failed", error);
+    return errorJson("Nie udało się odczytać statusu bazy.", 500);
   }
 }
 
@@ -2148,7 +2291,7 @@ async function getDatabaseStatus(
  * ============================================================
  */
 
-export default {
+const rexWorker = {
 
   async fetch(
     request,
@@ -2156,6 +2299,36 @@ export default {
   ) {
 
     const url = new URL(request.url);
+
+    if (url.pathname === "/rexbid-door-estimator.js" || url.pathname === "/rexbid-door-estimator-rates.js") {
+      if (env?.REXBID_DOOR_ESTIMATOR_PROTOTYPE !== "enabled") return errorJson("Nie znaleziono zasobu.", 404);
+    }
+
+    if (request.method === "GET" && url.pathname === "/health") {
+      return json({ ok: true, status: "alive" }, 200, null, 0);
+    }
+    if (request.method === "GET" && url.pathname === "/ready") {
+      const checks = { worker: "ok", d1: "unavailable", assets: "unavailable", provider: "not_configured", auth: { enabled: env?.AUTH_ENABLED === "true", configured: null } };
+      try {
+        if (env?.REXBID_DB?.prepare) {
+          const dbProbe = await env.REXBID_DB.prepare("SELECT 1 AS ready").first();
+          checks.d1 = dbProbe?.ready === 1 ? "ok" : "unavailable";
+        }
+      } catch { checks.d1 = "unavailable"; }
+      try {
+        if (typeof env?.ASSETS?.fetch === "function") {
+          const assetProbe = await env.ASSETS.fetch(new Request(new URL("/robots.txt", request.url), { method: "GET" }));
+          checks.assets = assetProbe.status >= 200 && assetProbe.status < 300 ? "ok" : "unavailable";
+        }
+      } catch { checks.assets = "unavailable"; }
+      try {
+        getProviderAdapter(env);
+        checks.provider = typeof env?.APIBARA_API_KEY === "string" && env.APIBARA_API_KEY.trim() ? "configured" : "not_configured";
+      } catch { checks.provider = "not_configured"; }
+      if (checks.auth.enabled) checks.auth.configured = !!isAuthConfigurationComplete?.(env, request.url);
+      const ready = checks.d1 === "ok" && checks.assets === "ok" && checks.provider === "configured" && (!checks.auth.enabled || checks.auth.configured);
+      return json({ ok: ready, status: ready ? "ready" : "not_ready", checks }, ready ? 200 : 503, null, 0);
+    }
 
     if (url.pathname.startsWith("/api/auth/") || url.pathname === "/api/me" || url.pathname === "/api/me/favorites" || url.pathname.startsWith("/api/me/favorites/")) {
       try { return await accountsHandler(request, env); }
@@ -2264,8 +2437,8 @@ export default {
       try {
         return await getVehicleFilters(request, env);
       } catch (error) {
-        console.error("Rex.Bid filters error:", error);
-        return errorJson(error.message);
+        logSafeEvent("filters_failed", error);
+        return providerErrorResponse(error);
       }
     }
 
@@ -2285,14 +2458,8 @@ export default {
         );
 
       } catch (error) {
-        console.error(
-          "Rex.Bid cars error:",
-          error
-        );
-
-        return errorJson(
-          error.message
-        );
+        logSafeEvent("cars_failed", error);
+        return providerErrorResponse(error);
       }
     }
 
@@ -2311,10 +2478,8 @@ export default {
         );
 
       } catch (error) {
-        return errorJson(
-          error.message,
-          500
-        );
+        logSafeEvent("database_status_failed", error);
+        return errorJson("Nie udało się odczytać statusu bazy.", 500);
       }
     }
 
@@ -2363,14 +2528,8 @@ export default {
         );
 
       } catch (error) {
-        console.error(
-          "Rex.Bid history error:",
-          error
-        );
-
-        return errorJson(
-          error.message
-        );
+        logSafeEvent("history_failed", error);
+        return providerErrorResponse(error);
       }
     }
 
@@ -2409,14 +2568,8 @@ export default {
         );
 
       } catch (error) {
-        console.error(
-          "Rex.Bid vehicle error:",
-          error
-        );
-
-        return errorJson(
-          error.message
-        );
+        logSafeEvent("vehicle_failed", error);
+        return providerErrorResponse(error);
       }
     }
 
@@ -2425,9 +2578,45 @@ export default {
      * ASSETS
      */
 
-    return env.ASSETS.fetch(
-      request
-    );
+    const assetResponse = await env?.ASSETS?.fetch?.(request);
+    if (assetResponse) {
+      if (assetResponse.status !== 404) return assetResponse;
+      if (url.pathname.startsWith("/api/")) return errorJson("Nie znaleziono endpointu.", 404);
+      return friendlyFailure(request, 404);
+    }
+    return friendlyFailure(request, 503);
+  }
+};
+
+export default {
+  async fetch(request, env, executionContext) {
+    const started = Date.now();
+    const url = new URL(request.url);
+    const requestId = globalThis.crypto?.randomUUID?.() || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+    const route = safeRoute(url.pathname);
+    const operation = operationForPath(url.pathname);
+    let response;
+    let errorCode;
+    try {
+      response = await rexWorker.fetch(request, env, executionContext);
+    } catch (error) {
+      errorCode = safeErrorCode(error);
+      response = friendlyFailure(request, 500);
+    }
+    if (!errorCode) errorCode = responseErrorCode(response);
+    const secured = await applySecurityHeaders(response, request, { requestId, env });
+    logRequest("request_complete", {
+      request_id: requestId,
+      method: request.method,
+      route,
+      status: secured.status,
+      duration_ms: Math.max(0, Date.now() - started),
+      provider_operation: operation === "provider" ? route : null,
+      sync_operation: operation === "sync" ? "manual_sync" : null,
+      auth_operation: operation === "auth" ? route : null,
+      ...(errorCode ? { safe_error_code: errorCode } : {})
+    });
+    return secured;
   }
 };
 

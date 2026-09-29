@@ -489,13 +489,10 @@ test('requestApibara logs safe fetch diagnostics and redacts secrets and upstrea
   }), error => error.code === 'UPSTREAM' && error.status === null);
 
   assert.equal(logs.length, 1);
-  assert.match(logs[0], /Provider transport diagnostic/);
+  assert.match(logs[0], /rex.bid.provider/);
   assert.match(logs[0], /"stage":"fetch"/);
-  assert.match(logs[0], /"errorName":"TypeError"/);
-  assert.match(logs[0], /"errorMessage":"fetch failed \[REDACTED\]"/);
-  assert.match(logs[0], /"causeType":"object"/);
-  assert.match(logs[0], /ECONNRESET/);
-  assert.match(logs[0], /"syscall":"connect"/);
+  assert.match(logs[0], /"error_type":"TypeError"/);
+  assert.doesNotMatch(logs[0], /errorMessage|cause|ECONNRESET|socket failure/);
   assert.doesNotMatch(logs[0], /PRIVATE_API_KEY/);
 });
 
@@ -515,7 +512,7 @@ test('requestApibara identifies URL-stage failures without logging credentials',
 
   assert.equal(logs.length, 1);
   assert.match(logs[0], /"stage":"URL"/);
-  assert.match(logs[0], /"causeType":"undefined"/);
+  assert.match(logs[0], /"error_type":"unknown"/);
   assert.doesNotMatch(logs[0], /PRIVATE_API_KEY/);
 });
 

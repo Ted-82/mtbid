@@ -1,6 +1,6 @@
 # Rex.Bid Production Roadmap
 
-Status as of 2026-09-29: production Worker `mtbid` remains on the owner-confirmed provider-independent release `241cfe3e-663d-49c3-bd2b-b29e8f20cb80`; this sprint did not alter production. Staging Worker `rexbid-auth-test` uses only `rexbid-auth-test-db`, clean deployment after removal of the temporary Phase B route `05cc0435-eb7b-4f98-b012-9335d6055a64`. Accounts Phase 3 has owner-confirmed REAL BROWSER PASS on staging; production Auth is NOT DEPLOYED and migration `0003` is NOT APPLIED to production. Door-to-door estimator is a PROTOTYPE. Request-budget improvements are deployed to staging only. Items below remain work unless current status is explicitly recorded in `PROJECT_HANDOFF.md` or `ARCHITECTURE.md`; a page or button alone is not evidence of completion.
+Status as of 2026-09-29: production Worker `mtbid` remains on the owner-confirmed provider-independent release `241cfe3e-663d-49c3-bd2b-b29e8f20cb80`; this sprint did not alter production. Staging Worker `rexbid-auth-test` uses only `rexbid-auth-test-db`; latest infrastructure deployment is `fc0820be-4bd4-464f-a08d-03ce81180030`. Accounts Phase 3 has owner-confirmed REAL BROWSER PASS on staging; production Auth is NOT DEPLOYED and migration `0003` is NOT APPLIED to production. Door-to-door estimator is a PROTOTYPE. Request-budget improvements are deployed to staging only. Items below remain work unless current status is explicitly recorded in `PROJECT_HANDOFF.md` or `ARCHITECTURE.md`; a page or button alone is not evidence of completion.
 
 **D1 Sync 2:** Phase A **DONE**; Phase B **D1 VERIFIED**; Phase C **SHADOW VERIFIED** na staging `rexbid-auth-test-db` po jednym live request discovery; Phase D **NOT STARTED**. Czysta wersja stagingu po usunięciu tymczasowej trasy Phase C: `c3137145-5d14-4cb6-b888-51c092b25938`. `sync/d1-repository.js` nie jest podłączone do Workera/API. Produkcyjna `rexbid-db` nie była migrowana. Proposal 0004 pozostaje poza aktywnym katalogiem Wrangler i została zastosowana wyłącznie do stagingu.
 
@@ -30,13 +30,13 @@ Status as of 2026-09-29: production Worker `mtbid` remains on the owner-confirme
 - Grow title-document guidance only from actual provider vocabulary plus explicit registration/export/pending flags. Keep three conservative informational states and a clear no-legal-guarantee explanation.
 - Do not produce “trusted seller” ratings from seller type alone. If a risk/quality indicator is later requested, define explainable evidence, confidence and data provenance first.
 
-### 5. Data rights gate
+### 5. Data rights — factual data cleared; original-photo archive restricted
 
-- **OPEN LEGAL/DATA QUESTION:** Obtain written confirmation from Apibara for permitted cache duration, storage/retention (including old auction history), transformed/derived values, customer display/redelivery, redistribution/resale, and photos/media rights; clarify deletion or takedown duties and source-platform restrictions.
-- Public [Apibara Terms](https://apibara.tech/en/terms) require key security and restrict abuse, limit bypass, resale of access against plan and representing data as guaranteed/official; they make the customer responsible for its application, requests, stored data and legal compliance. The public terms reviewed do **not** clearly specify a retention period or grant/deny long-term storage, redistribution of vehicle fields/history, or image rights. Do not infer permission from API availability.
-- Apibara [pricing/API guidance](https://apibara.tech/en/pricing) recommends keeping keys server-side, caching fields that do not need real-time refresh, and reviewing obligations for displaying or redistributing third-party data/media. This is not a specific license for indefinite history or photo retention.
-- Until clarified, do not expand durable history archival or start a paid vehicle-history/report product. Keep `raw_payload` retention subject to this decision.
-
+- Owner-reported written Apibara.tech response recorded in `docs/APIBARA_DATA_RIGHTS.md` (reported 2026-09-29; original message date not supplied) permits storage after auction and after subscription, historical VIN/LOT/status/price/seller/specification/damage/title data, change tracking/snapshots, derived data, commercial display/features/analytics/alerts, media URLs, supported remote-image display, temporary technical caching and thumbnails.
+- The response does not grant a separate copyright sublicense to permanently archive or redistribute original Copart/IAA photographs. URL retention, display, temporary cache and thumbnails are allowed from Apibara's side; permanent original-photo archive is NOT APPROVED by this response. A Rex.Bid watermark is not a license.
+- Do not resell Apibara API access, publish API keys, expose unrestricted raw API access to third parties or represent data as guaranteed/official Copart/IAA data.
+- This removes the Apibara-permission blocker for factual auction data/history/snapshots. It does not determine independent Copart/IAA terms, privacy obligations, operational limits or legal interpretation. Phase D remains NOT STARTED in this sprint; factual-data Phase D may proceed as a separately approved next phase, while permanent original-photo archiving remains gated.
+- Zachowuj factual data zgodnie z zakresem pisemnej odpowiedzi. Nie zapisuj kluczy ani nie udostępniaj nieograniczonego raw API. URL-e zdjęć, wspierane zdalne wyświetlanie, tymczasowy cache i thumbnails są dozwolone ze strony Apibara; trwała kopia/redistribution oryginalnych zdjęć pozostaje niezatwierdzona.
 ## NEXT — production foundations and useful workflows
 
 ### 6. Provider independence groundwork
@@ -44,7 +44,7 @@ Status as of 2026-09-29: production Worker `mtbid` remains on the owner-confirme
 - **Provider Independence DONE/PRODUCTION:** `providers/apibara.js` owns transport, request specs/auth/timeouts/errors and source normalization; `providers/contract.js` defines versioned Rex canonical entities and adapter registry/validation. Production Worker version `241cfe3e-663d-49c3-bd2b-b29e8f20cb80` is deployed. Provider B exists only as a differently-shaped test fixture/mapper; it is not an integrated data source.
 - Before release, review build/test results and ensure every public compatibility serializer preserves existing frontend behavior. Do not claim Provider B is production-ready.
 - Define VIN-to-multiple-listings behavior, provider priority, freshness, conflict resolution, missing-field merge rules and outage fallback before registering a second provider.
-- Current D1 keys are not source-namespaced. Prepare only an additive migration after rights and collision review; do not change current PKs or merge existing rows automatically.
+- Current D1 keys are not source-namespaced. Prepare only an additive migration after collision/identity review; factual-data permission from Apibara is documented, but do not change current PKs or merge existing rows automatically.
 
 ### 7. Synchronizacja produkcyjna — PROPOZYCJA / NIEWDROŻONE
 
@@ -52,7 +52,7 @@ Status as of 2026-09-29: production Worker `mtbid` remains on the owner-confirme
 - Model tożsamości rozdziela encję pojazdu, źródło providera, lifecycle listingu i event historii. Istniejący `vehicle_key`, PK i wiersze pozostają nietknięte; bez masowego backfillu.
 - Pipeline ma odkrywać canonical summaries przez endpoint listy, a szczegóły/historię odświeżać selektywnie. GET pozostaje read-only; sync nie uruchamia się przy przeglądaniu. Późniejszy, przełączany flagą D1-first zachowa obecny kontrakt odpowiedzi i użyje cursorów Rex.Bid.
 - Budżety są scenariuszami matematycznymi, nie pomiarem ani zgodą planu: ok. 98/956/4 778 requestów upstream/dzień dla 1k/10k/50k listingów przy założeniach z dokumentu. Najpierw potwierdzić quota planu, naliczanie stron oraz prawa retencji.
-- **OTWARTA BLOKADA PRAW/DANYCH:** nie rozszerzać trwałego przechowywania listingów, historii, snapshots ani mediów; bez backfillu i D1-first cutover do czasu pisemnej zgody na retencję, redystrybucję i usuwanie danych. Obecne raw JSON również wymaga przeglądu umowy.
+- **Prawa factual data:** potwierdzone przez Apibara według pisemnej odpowiedzi właściciela; szczegóły i granice są w `docs/APIBARA_DATA_RIGHTS.md`. Odrębna blokada pozostaje dla trwałego archiwum/redistribution oryginalnych zdjęć Copart/IAA oraz niezależnych obowiązków platformowych. D1 Sync Phase D pozostaje NOT STARTED do następnej, osobno zatwierdzonej fazy.
 - Phase A DONE; Phase B **D1 VERIFIED** na `rexbid-auth-test-db`. Phase C **SHADOW VERIFIED**: pojedynczy Copart list request, 20 provider records, 20 accepted, 0 rejected/ambiguous; real D1 readback, replay/idempotency, Fake Provider B, partial update, failure recovery i budget checks PASS. Tail wykazał `cleanup=true`; bezpośrednie county po cleanup potwierdziły Sync tables=0, `users=1`, `user_favorites=1`, legacy vehicle/history=0. UI chwilowo pokazało `cleanup: undefined` wskutek różnicy nazw pola; poprawiono helper raportowania i dodano regresję offline. Tymczasową trasę/przycisk/flagę usunięto, a czysty staging redeploy zakończono jako `c3137145-5d14-4cb6-b888-51c092b25938`. Phase D nie rozpoczęta. Produkcja nietknięta.
 - Nie włączać Cron/Queues ani nie ustalać interwałów produkcyjnych, dopóki nie są potwierdzone limity dostawcy, limity konta Cloudflare i globalny request budget.
 
@@ -88,7 +88,7 @@ Do not introduce vehicle comparison; the owner rejected that feature.
 
 ### 10. Historical events and data quality operations
 
-- Build a sync/backfill plan for ended listings and repeat VIN events only after provider retention rights are confirmed.
+- Build the factual-data sync/backfill plan for ended listings and repeat VIN events under the permission recorded in `docs/APIBARA_DATA_RIGHTS.md`; keep permanent archiving of original Copart/IAA photos out of scope unless separately licensed.
 - Track event source ID/fallback key, event date precision, latest source capture, raw payload version and normalization version.
 - Audit existing collision candidates before any unique index or re-key. Never auto-delete/merge ambiguous history.
 - Add reconciliation counters: fetched, normalized, inserted, updated, skipped, ambiguous, missing-data, failed. Keep identifiers and payloads out of routine logs where possible.
@@ -121,7 +121,7 @@ Do not introduce vehicle comparison; the owner rejected that feature.
 
 - Prepare privacy notice, terms of service, cookies/analytics notice where applicable, source-data attribution, estimate disclaimers and customer support/privacy contacts with legal review.
 - State that auction data may be delayed/incomplete and that title/import classification is informational, not a legal/registration guarantee.
-- Confirm rights to ingest, cache, retain, transform, display and expose Apibara/Copart/IAA data under each applicable contract and platform terms.
+- Apibara factual-data permission is recorded in `docs/APIBARA_DATA_RIGHTS.md`; independently review Copart/IAA platform terms and original-photo copyright/storage before archiving media.
 - Research legitimate vehicle-history report sources (including Carfax) and obtain written API, display, storage, customer disclosure and resale/redistribution terms. A publicly purchasable report is not proof of resale rights. Do not implement or resell until licensed.
 - Define customer request workflow for access, correction, export and deletion, plus provider-source data removal obligations.
 
@@ -158,7 +158,7 @@ Do not introduce vehicle comparison; the owner rejected that feature.
 
 Do not call Rex.Bid production-ready for broad public launch until all of these are satisfied:
 
-1. Provider data rights/retention and report licensing are understood and documented.
+1. Apibara factual data rights are documented; original-photo archive rights and vehicle-history report licensing remain separately gated.
 2. Domain, HTTPS and contact email are live and monitored.
 3. Account/security/privacy/terms decisions are implemented before persistent customer data is collected.
 4. Sync is bounded, observable, resumable and does not label partial runs complete.
@@ -174,3 +174,19 @@ Do not call Rex.Bid production-ready for broad public launch until all of these 
 - **Requires owner configuration:** produkcyjny Supabase URL/publishable key/cookie secret/canonical origin/redirect allowlist, Cloudflare Rate Limiting namespace+binding+progi, SMTP i właściwe privacy pages.
 - **Requires legal/business decision:** retention, privacy/terms, konto deletion (wymaga uprzywilejowanego Supabase Admin mechanizmu; nie dodano `service_role`) oraz kontakt/privacy mailbox.
 - **Not production deployed:** nie włączono produkcyjnego Auth, nie zastosowano `0003` do `rexbid-db`; staging-only flaga/bypass/diagnostics nie mogą być przenoszone do production. Zobacz checklistę `docs/ACCOUNT_PRODUCTION_READINESS.md` i inwentarz `docs/ACCOUNT_DATA_PRIVACY.md`.
+
+## Infrastruktura kontrolowanego launchu — lokalna propozycja, NOT DEPLOYED (2026-09-29)
+
+Lokalny diff dodaje `/health`, `/ready`, sanitizowane logi, security/cache headers, staging noindex, config guard i fail-closed guard dla door-to-door prototype. Nie wykonano deployu, D1 migracji ani Apibara requestów.
+
+### Wymagane przed publicznym launch
+
+1. Właściciel wybiera domenę/DNS/HTTPS; canonical, sitemap i Supabase callback aktualizujemy dopiero po zatwierdzeniu origin.
+2. Apibara factual data permission is documented; original Copart/IAA photo archive remains unapproved. D1 Sync Phase D is NOT STARTED in this sprint and may be separately approved for factual data.
+3. Zatwierdzić privacy, terms, cookies, retencję i proces eksportu/usunięcia konta.
+4. Właściciel wybiera SMTP i konfiguruje SPF/DKIM/DMARC, From/Reply-To, confirmation/reset oraz monitoring dostarczeń.
+5. Accounts production wymaga osobnej decyzji, produkcyjnego Supabase, origins/cookie secret, aktywnego Cloudflare rate-limit binding, przeglądu i odrębnego zastosowania migracji 0003. Auth pozostaje wyłączony; 0003 NOT APPLIED.
+6. Wykonać restore rehearsal, ustanowić monitoring/alerty i zdecydować o public API limits.
+7. Przejść `docs/PRODUCTION_DEPLOY_CHECKLIST.md`; każdy krytyczny punkt nierozstrzygnięty oznacza STOP.
+
+Statusy launch: `docs/LAUNCH_READINESS.md`; backup/restore: `docs/BACKUP_RECOVERY.md`.

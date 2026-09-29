@@ -946,6 +946,13 @@
 <script src="/rexbid-storage.js"></script>
 <script src="/rexbid-auth.js"></script>
 <script>
+  document.addEventListener?.("error", event => {
+    const image = event.target;
+    if (!(image instanceof HTMLImageElement) || !image.hasAttribute("data-fallback-image")) return;
+    image.style.display = "none";
+    if (image.nextElementSibling) image.nextElementSibling.style.display = "flex";
+  }, true);
+
   const API_BASE = "/api";
 
   const carsContainer =
@@ -2295,10 +2302,7 @@
                 src="${escapeHtml(safeImage)}"
                 alt="${escapeHtml(title)}"
                 loading="lazy"
-                onerror="
-                  this.style.display='none';
-                  this.nextElementSibling.style.display='flex';
-                "
+                data-fallback-image
               />
 
               <div

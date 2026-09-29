@@ -7,6 +7,10 @@
 
   "compatibility_date": "2026-09-19",
 
+  "vars": {
+    "REXBID_CANONICAL_ORIGIN": "https://mtbid.tedn828.workers.dev"
+  },
+
   "d1_databases": [
     {
       "binding": "REXBID_DB",
@@ -18,6 +22,19 @@
 
   "assets": {
     "directory": "./public",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/",
+      "/*.html",
+      "/konto",
+      "/ulubione",
+      "/logowanie",
+      "/rejestracja",
+      "/reset-hasla",
+      "/robots.txt",
+      "/sitemap.xml",
+      "/rexbid-door-estimator.js",
+      "/rexbid-door-estimator-rates.js"
+    ]
   }
 }

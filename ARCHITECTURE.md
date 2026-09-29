@@ -2,7 +2,7 @@
 
 **D1 Sync 2 status:** Phase A DONE; Phase B **D1 VERIFIED**; Phase C **SHADOW VERIFIED** on isolated staging with one bounded Apibara discovery request; Phase D NOT STARTED. `sync/d1-repository.js` is not connected to Worker/API. Proposal 0004 was applied only to staging for validation and remains outside Wrangler's production migrations. Production D1, Worker and public API are unchanged; do not apply 0004 to production without separate approval.
 
-Status as of 2026-09-29: **PRODUCTION** is the owner-confirmed provider-independent Worker release `241cfe3e-663d-49c3-bd2b-b29e8f20cb80`; no production resources were changed during the current quality sprint. **STAGING** is Worker `rexbid-auth-test`, isolated D1 `rexbid-auth-test-db`; after the Accounts readiness update, its current Version ID is `916a2a0c-f5ad-4643-b886-927c8b2849c9`. The earlier clean Phase C deployment was `c3137145-5d14-4cb6-b888-51c092b25938`. Accounts Phase 3 has owner-confirmed real-browser PASS on staging; production Auth is NOT DEPLOYED and accounts migration `0003` is NOT APPLIED to production. Request-budget improvements were deployed to staging only. The door-to-door estimator is a PROTOTYPE, not a confirmed quote. Treat local, staging, and production states separately.
+Status as of 2026-09-29: **PRODUCTION** is the owner-confirmed provider-independent Worker release `241cfe3e-663d-49c3-bd2b-b29e8f20cb80`; no production resources were changed during the current quality sprint. **STAGING** is Worker `rexbid-auth-test`, isolated D1 `rexbid-auth-test-db`; current infrastructure Version ID is `fc0820be-4bd4-464f-a08d-03ce81180030`. Accounts Phase 3 has owner-confirmed real-browser PASS on staging; production Auth is NOT DEPLOYED and accounts migration `0003` is NOT APPLIED to production. Request-budget improvements were deployed to staging only. The door-to-door estimator is a PROTOTYPE, not a confirmed quote. Treat local, staging, and production states separately.
 
 ## Current request and data flow
 
@@ -239,7 +239,7 @@ trigger → claim source lease → provider fetch → canonical normalize → va
 
 #### Data retention gate
 
-The proposal stores only identity, freshness, status, lease and run counters in new tables; it does not expand photo/history payload storage. Existing `vehicles.raw_json` and `auction_history.raw_json` retention remains subject to the open written-terms question in `ROADMAP.md`. Do not backfill or extend retention until Apibara confirms permitted storage, caching, history retention, media rights and deletion duties.
+The proposal stores only identity, freshness, status, lease and run counters in new tables; it does not expand photo/history payload storage. Apibara factual data/history/snapshots retention permission is now recorded in `docs/APIBARA_DATA_RIGHTS.md`. Existing raw JSON policy remains subject to minimization/configuration and any applicable platform/privacy obligations. Permanent archive/redistribution of original Copart/IAA photos is not approved by the Apibara response.
 
 Adding Provider B also requires confirming data-access rights and service limits. Technical adapter compatibility does not grant rights to retain or republish provider data.
 
@@ -253,7 +253,7 @@ Schemat propozycji oddziela encję auta, źródło providera, lifecycle listingu
 
 Docelowy odczyt katalogu korzysta z D1 i zachowuje publiczny kontrakt API. Zwykłe GET-y nie wykonują synchronizacji ani nie czekają na Apibara. Po późniejszym cutover typowa odsłona strony powinna mieć zero requestów upstream. Stale data może być zwrócona ze znacznikiem aktualizacji; odświeżenie działa osobnym, limitowanym procesem.
 
-**Blokada:** bez pisemnej zgody dostawcy nie rozszerzać trwałego przechowywania listingów, danych pochodnych, historii, snapshots, zdjęć/mediów ani czasu redystrybucji. Phase C była jednorazowym, ograniczonym shadow testem i jej dane usunięto; nie uruchomiono discovery cyklicznego, Cron/Queues ani D1-first cutover. Phase D nie rozpoczęta. Request budget, freshness i trigger pozostają konfiguracją do zatwierdzenia po potwierdzeniu limitów planu Apibara i Cloudflare.
+**Prawa factual data:** właściciel przekazał pisemną zgodę Apibara na przechowywanie/redystrybucję factual vehicle/auction/history/snapshot/derived data i użytek komercyjny w granicach `docs/APIBARA_DATA_RIGHTS.md`. Trwałe archiwum oryginalnych zdjęć Copart/IAA pozostaje niezatwierdzone. Phase C była jednorazowym shadow testem i jej dane usunięto; nie uruchomiono discovery cyklicznego, Cron/Queues ani D1-first cutover. Phase D nie rozpoczęta; następna faza może być osobno zatwierdzona dla factual data. Request budget, freshness i trigger nadal wymagają konfiguracji/limitów.
 
 ## Accounts — fail-closed readiness update (2026-09-29)
 
@@ -268,3 +268,11 @@ Refresh jest współdzielony per isolate i token; fallback weryfikuje stary, nad
 Nowe staging-scope endpointy: `/api/auth/recovery`, `/api/auth/resend-confirmation`, `/api/auth/password`, `/api/me/export`. Reset/resend odpowiadają neutralnie, recovery callback używa istniejącego PKCE/cookie flow i wraca do stanu ustawienia nowego hasła, password update próbuje `scope=global` revoke i czyści lokalne cookies. Export zwraca tylko własny Rex.Bid profile + favorites. Refresh single-flight działa w jednym Worker isolate; globalnej serializacji między isolate/colo nie ma. Account deletion nie jest aktywne, bo wymaga backendowego Supabase Admin uprawnienia i osobnej decyzji; `service_role` nie skonfigurowano.
 
 Zobacz: `docs/ACCOUNT_PRODUCTION_READINESS.md` i `docs/ACCOUNT_DATA_PRIVACY.md` — zawierają konfigurację, SMTP, Google/linking, schema 0003 review, dane/retencję oraz elementy wymagające właściciela/prawnika.
+
+## Launch infrastructure — staging zweryfikowany; produkcja nietknięta (2026-09-29)
+
+Worker wrapper dodaje security headers, liveness/readiness, request correlation oraz sanitizowane logi allowlistowane. `/health` nie wykonuje dependency/provider requests. `/ready` wykonuje `SELECT 1` na związanej D1 i pobranie statycznego `/robots.txt` z ASSETS; status providera sprawdza wyłącznie obecność klucza, Auth completeness jest sprawdzany tylko gdy `AUTH_ENABLED=true`. Odpowiedź nie zwraca sekretów. Outer handler zwraca bezpieczne 404/500 bez stack trace. Staging Version `9ce6f2ab-b7f4-4ab2-b31d-663089bd1f0b` potwierdził health/readiness, private no-store i bezpieczne 404.
+
+HTML ma nonce CSP i `frame-ancestors 'none'`; obrazy z HTTPS/data/blob są dozwolone, API i skrypty pozostają same-origin. Prywatne strony, `/api/auth/*` i `/api/me*` mają `private, no-store`, `Vary: Cookie`, `X-Robots-Tag: noindex, nofollow`; assets mogą być cache'owane. Assets config selektywnie uruchamia Worker przed root/HTML/robots/sitemap/prototype bundles, aby transformacje HTML oraz prototype/staging guard nie były omijane przez asset-first. Staging wrapper dodaje noindex do każdej odpowiedzi, zwraca `Disallow: /` i blokuje sitemap. Finalny staging smoke potwierdził te odpowiedzi oraz 404 obu prototype bundles.
+
+`scripts/validate-worker-config.cjs` wiąże `wrangler.jsonc` z `mtbid` + `rexbid-db`, a staging z `rexbid-auth-test` + `rexbid-auth-test-db`; wykrywa crossover oraz staging-only flags w produkcji. Door estimator i bezpośredni dostęp do jego bundles są domyślnie blokowane; staging Wrangler config nie włącza prototype flag. Zobacz `docs/PRODUCTION_DEPLOY_CHECKLIST.md`, `docs/BACKUP_RECOVERY.md`, `docs/LAUNCH_READINESS.md`. Brak aktywnego public API rate limitingu, domeny, restore rehearsal, monitoringu oraz osobnych praw do trwałego archiwum oryginalnych zdjęć nadal blokuje launch. Produkcja nie została wdrożona.

@@ -553,4 +553,4 @@ function createAccountsHandler({ provider, cryptoImpl = globalThis.crypto, now =
   return handle;
 }
 
-module.exports = { createAccountsHandler, favoriteInput, validFavoriteKey, pkceChallenge };
+module.exports = { createAccountsHandler, favoriteInput, validFavoriteKey, pkceChallenge, isAuthConfigurationComplete: configured };

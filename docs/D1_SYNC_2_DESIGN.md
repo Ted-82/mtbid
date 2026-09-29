@@ -10,7 +10,7 @@ Stan wejściowy: repozytorium `main`, checkpoint Phase A `015ee6f`. D1 Sync nie 
 2. Rozdzielić **fizyczną tożsamość pojazdu**, **wpis aukcyjny/listing**, **źródło providera** i **zdarzenie historii**.
 3. Odczyt katalogu docelowo wykonywać z D1. Sync ma być osobnym, ograniczonym procesem; zwykłe przeglądanie nie wywołuje providera.
 4. Pierwszy sync pobiera strony listy i zapisuje tylko dozwolone, walidowane canonical summaries. Nie pobiera szczegółów ani historii dla każdego wyniku.
-5. Nie włączać długotrwałego przechowywania/re-distribution danych Apibara, historii ani mediów przed pisemnym potwierdzeniem praw, retencji i obowiązków usunięcia.
+5. Factual vehicle/auction/history/snapshot/derived data storage and commercial display are permitted by the owner-reported written Apibara response recorded in `docs/APIBARA_DATA_RIGHTS.md`. Permanent archiving/redistribution of original Copart/IAA photos is NOT APPROVED; URLs, supported display, temporary technical cache and thumbnails are allowed from Apibara's side.
 6. Każdy zapis strony i checkpoint jej cursora muszą być atomowe/idempotentne. Niepełny przebieg nie przesuwa `last_complete_at` ani `last_success_at` zakresu.
 7. Przy N=1k/10k/50k, przykładowy budżet dobowy wynosi odpowiednio ok. **98 / 956 / 4 778** upstream requestów przy założeniach jawnie podanych niżej. To model limitu, nie prognoza ani włączony harmonogram.
 
@@ -62,28 +62,23 @@ Legacy `vehicle_key` w adapterze Apibara powstaje obecnie zasadniczo jako `platf
 
 Obecny `docs/proposals/0002_provider_sync_foundation.sql` jest **proposal-only** i nie jest w aktywnym `migrations/`. To użyteczny szkic lease/run, ale nie należy stosować go wprost: `vehicle_sources.vehicle_key` wiąże źródło z legacy kluczem `platform:VIN/LOT`, nie oddziela listing identity od physical vehicle identity; zmienia istniejące tabele przez `ALTER`; nie zapewnia scope dla discovery cursoru. Niniejsza propozycja `0004` zastępuje ją koncepcyjnie i ma tworzyć wyłącznie nowe, puste tabele. Nie stosować obu propozycji razem.
 
-## 2. SAFE NOW / REQUIRES PROVIDER PERMISSION
+## 2. SAFE NOW / REQUIRES SEPARATE RIGHTS OR APPROVAL
 
-### SAFE NOW — bez rozszerzenia archiwizacji provider data
+### SAFE NOW — prawa Apibara do factual data potwierdzone po jej stronie
 
+- Według pisemnej odpowiedzi Apibara może Rex.Bid przechowywać vehicle/auction facts, dane historyczne VIN/LOT/status/cena/seller/spec/damage/title, ich zmiany/snapshots oraz derived data; można je wyświetlać publicznie i używać komercyjnie, także w płatnych funkcjach/analytics/alerts. Dane legalnie pobrane w aktywnej subskrypcji mogą pozostać po jej zakończeniu.
 - Testy offline normalizatorów, partial-payload merge, identity collision, cursor replay, budget limiter, 429/timeout i Fake Provider B.
-- Sync orchestration/repository na sztucznych canonical fixtures; D1 schema/prototype w lokalnej SQLite lub izolowanej D1 dopiero po osobnym zatwierdzeniu.
-- Dane operacyjne pierwszej strony sync: run ID, provider/operation, liczba requestów/stron, HTTP class, latency, wynik, retry delay, checkpoint techniczny; bez VIN, e-maila, secretów, request/response body i raw error body.
-- Zachowanie istniejących GET/API, edge TTL i jawnego manual sync. Można dodać pomiar requestów/latency w adapterze bez utrwalania payloadu.
-- Projekt pustych schematów oraz polityki retencji konfigurowanej per data class. Samo utworzenie pustej tabeli nie oznacza zgody na wypełnianie jej danymi dostawcy.
+- Sync orchestration/repository na canonical input oraz bounded factual-data discovery można planować w osobnej zatwierdzonej fazie; techniczna zgoda dostawcy nie zatwierdza wielkości importu, harmonogramu ani wydatku.
+- Operacyjne metryki sync: run ID, provider/operation, liczba requestów/stron, HTTP class, latency, wynik, retry delay i techniczny checkpoint; bez e-maili, sekretów, request/response body i raw error body.
 
-„SAFE NOW” oznacza bezpieczne technicznie przygotowanie, a nie potwierdzenie prawne do nowego przetwarzania danych.
+### REQUIRES SEPARATE RIGHTS / OWNER APPROVAL
 
-### REQUIRES PROVIDER PERMISSION / pisemne rozstrzygnięcie
+- Trwałe archiwum/redystrybucja oryginalnych zdjęć Copart/IAA: odpowiedź nie daje sublicencji copyright. Store URL, wspierane remote display, temporary cache i thumbnails są dozwolone po stronie Apibara; watermark nie zmienia praw.
+- Długoterminowy raw provider payload nie jest w odpowiedzi wyraźnie wymieniony; nie zakładać, że zgoda na normalized/derived factual fields obejmuje nieograniczone raw JSON.
+- Niezależne Copart/IAA platform terms, privacy/retention obligations, request quota/price, automatyczne discovery limits oraz uprawnienia każdego przyszłego Provider B wymagają osobnej weryfikacji.
+- Pełny backfill, szeroki harmonogram, production cutover, publiczny API rate/egress budget, D1 capacity, backup/restore i rollback wymagają osobnej operacyjnej zgody.
 
-- Trwałe zapisywanie lub wydłużanie retencji rekordów katalogowych, cen, statusu, seller, title, damage, VIN/LOT i lokalizacji z Apibara.
-- Utrwalanie pełnej historii, kolejnych eventów, wieloletnich snapshots lub raw payloadów.
-- Utrwalanie URL/treści zdjęć, miniaturek, video/360, ich cache, transformowanie, redystrybucja i prezentowanie z D1.
-- Wystawianie do publicznego UI danych dostawcy po upływie dozwolonego cache/retention, ich pochodnych, eksportów i wyszukiwania.
-- Backfill wszystkich rekordów/historii, Provider B cross-source reconciliation i obowiązki usunięcia/takedown.
-- Potwierdzenie, czy plan/umowa Apibara pozwala na request rate, zautomatyzowane discovery, persistence, display, caching oraz history archive.
-
-Publiczne warunki Apibara opisują limity/zakaz obchodzenia limitów i obowiązki klienta, ale nie dają jednoznacznej, wystarczającej odpowiedzi dla powyższego zakresu retencji/redystrybucji. Do czasu pisemnej odpowiedzi nie traktować dostępności API jako licencji. [Regulamin Apibara](https://apibara.tech/en/terms)
+Podsumowanie pisemnej odpowiedzi i provenance: `docs/APIBARA_DATA_RIGHTS.md`. Publiczne warunki Apibara nadal opisują limity/zakaz obchodzenia limitów i obowiązki klienta: [Regulamin Apibara](https://apibara.tech/en/terms).
 
 ## 3. Docelowe warstwy i canonical data
 
@@ -254,7 +249,7 @@ W opublikowanej tabeli limitów sprawdzonej na 2026-09-28 D1 podaje limit rozmia
 
 ## 7. Retention / provider outage behavior
 
-Per-data-class retention is deployment configuration/versioned policy: `listing_summary_ttl`, `detail_ttl`, `history_ttl`, `snapshot_ttl`, `media_reference_ttl`, `raw_payload_ttl`. Use null/disabled to prohibit a class; no implicit infinite retention. Each has `effective_from`, `reviewed_at`, `source/permission reference`, and `max_age`. Expired data is hidden/deleted only according to contractual policy; deletion audit records counts, not payload. **Do not enable these retention periods until provider terms specify permitted duration/rights.**
+Per-data-class retention is deployment configuration/versioned policy: `listing_summary_ttl`, `detail_ttl`, `history_ttl`, `snapshot_ttl`, `media_reference_ttl`, `raw_payload_ttl`. Use null/disabled to prohibit a class; no implicit infinite retention. Each has `effective_from`, `reviewed_at`, `source/permission reference`, and `max_age`. Expired data is hidden/deleted only according to contractual policy; deletion audit records counts, not payload. Apibara factual-data storage permission is recorded in `docs/APIBARA_DATA_RIGHTS.md`; set each factual-data retention class to an explicit reviewed value under that permission and applicable platform/privacy requirements. Permission for raw provider payload and permanent original-photo archive is not granted by the response.
 
 | Provider state | Rex.Bid behavior |
 |---|---|
@@ -270,21 +265,21 @@ Per-data-class retention is deployment configuration/versioned policy: `listing_
 |---|---|---|---|---:|
 | A — contract, identity & offline repository | **IMPLEMENTED OFFLINE**: `sync/core.js`, `sync/planning.js`, `tests/d1-sync-phase-a.test.cjs`; no public UI or D1 | Fake B/Apibara canonical parity, identity collision/relist, partial merge, cursor replay/crash, repeated cursor, leases, request budget, freshness tiers | Low; offline/unreferenced modules can be disabled; no DB effect | 0 live |
 | B — repository + empty additive schema | **OFFLINE VERIFIED**: `sync/d1-repository.js`, disposable SQLite, proposal 0004; actual Cloudflare D1 not verified | atomic page batch, replay/cursor, leases, merge, budget, query plans and unchanged legacy rows; staging D1 validation requires separate approval | Medium; repository is not connected to Worker/API; disable by not invoking it; no persistent DB changed | 0 provider; SQLite only |
-| C — bounded manual discovery shadow run | protected staging operator route/queue, one page per job, write only after permission/retention policy | same page replay idempotent, D1 writes count, compare D1 summary vs adapter, injected crash/429 | Medium; turn off trigger; retain no data beyond permitted TTL | fixed cap e.g. ≤20 calls/run; no production |
+| C — bounded manual discovery shadow run | protected staging operator route/queue, one page per job, write only the approved canonical subset under configured retention | same page replay idempotent, D1 writes count, compare D1 summary vs adapter, injected crash/429 | Medium; turn off trigger; retain no data beyond configured policy | fixed cap e.g. ≤20 calls/run; no production |
 | D — read-only D1 shadow catalog | add D1 repository behind disabled flag; compare output to upstream/cache without exposing to user | contract DTO parity, paging/filter correctness, EXPLAIN, response-time and staleness | Low-medium; flag off returns existing upstream path | normal user page 0 D1 shadow may still use provider only for comparison; cap comparison |
 | E — D1-first staging cutover & refresh | enable D1 reads on staging; queue/Cron refresh, no UI redesign | outage simulation, stale fields, category/filters, cold miss, exact VIN/LOT ambiguity | Medium; instant feature flag back to known read path; no cleanup | normal page 0, bounded async budget |
 | F — selective detail/history | schedule detail/history separately; first-page demand, cursor continuation | event dedupe/relist, seller event scope, incomplete history, retention expiry | High legal/storage risk; disable jobs and stop new writes, preserve/delete according to agreement | independently capped; no mass history fetch |
-| G — production cutover | after written provider rights, plan quota, verified backup/restore, migration review, performance and ops review | staged rollout, API compatibility, D1 cost budgets, rollback rehearsal | High; dark launch/read shadow then feature flag | hard daily cap set below written quota |
+| G — production cutover | after documented factual-data permission (recorded), confirmed plan quota, verified backup/restore, migration review, performance and ops review | staged rollout, API compatibility, D1 cost budgets, rollback rehearsal | High; dark launch/read shadow then feature flag | hard daily cap set below written quota |
 
 ### Migration/rollback
 
-`0004_d1_sync_2.sql` contains only `CREATE TABLE/INDEX` for new tables; no changes to legacy primary keys/data and no DML/backfill. It supersedes conceptually `0002`; **do not apply both**. Proposal is not in Wrangler’s configured `migrations/`. Rollback for pre-data schema is feature disable then drop only newly introduced empty tables in an explicitly reviewed non-production rollback script; do not add automatic DROP to migration. Once rows exist, rollback is disable writes + restore from verified backup/retention-compliant export; never silently delete or remap. Migration first gets tested on disposable SQLite and isolated staging DB; production target name/ID and pending migrations require independent confirmation and approval. No one-shot mass import; crawl bounded cursor pages over time only after rights.
+`0004_d1_sync_2.sql` contains only `CREATE TABLE/INDEX` for new tables; no changes to legacy primary keys/data and no DML/backfill. It supersedes conceptually `0002`; **do not apply both**. Proposal is not in Wrangler’s configured `migrations/`. Rollback for pre-data schema is feature disable then drop only newly introduced empty tables in an explicitly reviewed non-production rollback script; do not add automatic DROP to migration. Once rows exist, rollback is disable writes + restore from verified backup/retention-compliant export; never silently delete or remap. Migration first gets tested on disposable SQLite and isolated staging DB; production target name/ID and pending migrations require independent confirmation and approval. No one-shot mass import; crawl bounded cursor pages only within the documented factual-data permission, after quota/operations approval. Original-photo archive is excluded unless separately licensed.
 
 ## 9. Open gates and first implementation step
 
 Before coding persistent data path:
 
-1. Written Apibara response for cache, long-term storage, derived values, customer display/redelivery, history/media, retention, removal/takedown, and permitted request quota. Public terms alone are ambiguous.
+1. Apibara factual-data permission is recorded in `docs/APIBARA_DATA_RIGHTS.md`; preserve the original written response in controlled records. Still confirm plan quota/counting/retry semantics with Apibara. Independently review Copart/IAA platform terms, privacy obligations, and original-photo copyright/storage; no permanent original-photo archive without separate rights.
 2. Current plan quota semantics: requests per day/hour, page calls counting, burst/concurrency, 429 retry policy, available delta/update endpoint and cursor lifetime.
 3. Provider listing/vehicle/event ID guarantees and LOT reuse/relisting semantics for both Copart and IAAI; acceptable matching/conflict/retention rules.
 4. Owner-approved target freshness SLA and maximum daily request budget derived from plan and estimated operating cost.
@@ -324,10 +319,10 @@ Po cleanup: wszystkie 11 tabel Sync = 0; `users=1`, `user_favorites=1`; legacy `
 
 **Status:** Phase A **DONE**; Phase B **D1 VERIFIED**; Phase C **SHADOW VERIFIED** (jedna strona, jeden live request; staging D1 odczytana bezpośrednio i cleanup potwierdzony); Phase D **NOT STARTED**. Proposal 0004 pozostaje w `docs/proposals/`, poza aktywnym katalogiem migracji i nie została zastosowana do produkcji. Końcowy staging Worker bez tymczasowej trasy: `c3137145-5d14-4cb6-b888-51c092b25938`.
 
-**Następny krok:** nie rozpoczynać Phase D. Przed jakimkolwiek trwałym discovery lub D1-first rollout nadal wymagane są pisemne prawa/retencja od dostawcy oraz osobna zgoda na kolejną fazę. Phase C nie włączyła harmonogramu, queue, publicznego odczytu Sync ani masowego importu.
+**Następny krok:** Phase D pozostaje **NOT STARTED**. Wcześniejszy blocker pisemnej zgody Apibara na factual data/history/snapshots/derived/commercial use został zamknięty odpowiedzią opisaną w `docs/APIBARA_DATA_RIGHTS.md`; nie jest to automatyczna zgoda na dowolny wolumen ani wyłączenie niezależnych praw Copart/IAA. Trwałe archiwum/redistribution oryginalnych zdjęć nadal czeka na osobną zgodę. Przed Phase D wymagane są osobny zakres, request budget/plan limits, retencja konfiguracyjna, backup/rollback i approval. Phase C nie włączyła harmonogramu, queue, publicznego odczytu Sync ani masowego importu.
 
 ## Sources / status
 
 - Apibara Terms, reviewed 2026-09-28: <https://apibara.tech/en/terms>. Public terms do not resolve specific long-term listing/history/media retention rights.
 - Cloudflare D1 batch/transaction API: <https://developers.cloudflare.com/d1/worker-api/d1-database/#batch>; foreign keys: <https://developers.cloudflare.com/d1/sql-api/foreign-keys/>; D1 limits: <https://developers.cloudflare.com/d1/platform/limits/>; Workers limits: <https://developers.cloudflare.com/workers/platform/limits/>; Queues limits: <https://developers.cloudflare.com/queues/platform/limits/>; Cron: <https://developers.cloudflare.com/workers/configuration/cron-triggers/>; D1 metrics: <https://developers.cloudflare.com/d1/observability/metrics-analytics/>. Confirm account plan/current quota before enabling.
-- No Apibara live request was performed for this architecture design. Budget values are mathematical scenarios based on current adapter page cap and stated assumptions.
+- No Apibara live request was performed for this architecture design. Budget values are mathematical scenarios based on current adapter page cap and stated assumptions. The permission status was updated on 2026-09-29 from the owner-reported written response in `docs/APIBARA_DATA_RIGHTS.md`; it supersedes earlier open-permission wording above.

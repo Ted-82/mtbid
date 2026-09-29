@@ -24,6 +24,19 @@
   ],
   "assets": {
     "directory": "./public",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/",
+      "/*.html",
+      "/konto",
+      "/ulubione",
+      "/logowanie",
+      "/rejestracja",
+      "/reset-hasla",
+      "/robots.txt",
+      "/sitemap.xml",
+      "/rexbid-door-estimator.js",
+      "/rexbid-door-estimator-rates.js"
+    ]
   }
 }
