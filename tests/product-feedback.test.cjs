@@ -242,6 +242,21 @@ test('all public product pages use the shared REX.Bid brand and mobile navigatio
   assert.match(brand, /@media \(max-width: 1000px\)/);
 });
 
+test('legacy root HTML copies and project metadata use Rex.Bid without changing favorite migration keys', () => {
+  const legacyPages = ['index.html','car.html','ulubione.html','konto.html','logowanie.html','rejestracja.html','jak-to-dziala.html','kontakt.html','o-nas.html'];
+  for (const page of legacyPages) {
+    const html = fs.readFileSync(path.join(root, page), 'utf8');
+    const visibleMarkup = html.replace(/<script\b[\s\S]*?<\/script>/gi, '').replace(/<style\b[\s\S]*?<\/style>/gi, '').replace(/<!--[\s\S]*?-->/g, '');
+    assert.doesNotMatch(visibleMarkup, /MTBid|MTBID|MT\s+Bid|mtbid\.pl|kontakt@mtbid/i, `${page} has no visible legacy brand/contact`);
+  }
+  const contact = fs.readFileSync(path.join(root, 'kontakt.html'), 'utf8');
+  assert.match(contact, /Adres kontaktowy zostanie opublikowany po konfiguracji domeny\./);
+  assert.match(fs.readFileSync(path.join(root, 'index.html'), 'utf8'), /mtbid_favorites/);
+  assert.match(fs.readFileSync(path.join(root, 'public/rexbid-storage.js'), 'utf8'), /LEGACY_KEY\s*=\s*['"]mtbid_favorites['"]/);
+  assert.equal(require(path.join(root, 'package.json')).name, 'rexbid');
+  assert.equal(require(path.join(root, 'package-lock.json')).name, 'rexbid');
+});
+
 test('IAAI/Copart seller extraction prefers the full source name, maps INS, and ignores masked placeholders', () => {
   const helpers = workerHelpers();
   const vehicle = helpers.normalizeVehicle({ vin: 'TESTVIN', lot_number: 'LOT-1', platform: 'iaai', ...ownerCases.detail_iaai_seller });

@@ -999,7 +999,7 @@ app.listen(PORT, () => {
 
   console.log("");
   console.log("=================================");
-  console.log(" MTBID");
+  console.log(" Rex.Bid");
   console.log(" Serwer działa");
   console.log(" http://localhost:" + PORT);
   console.log("=================================");

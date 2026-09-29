@@ -148,7 +148,7 @@ Keep tests offline: fixtures/mocks must not call production Apibara or D1. Produ
 
 ## Owner UX/product decisions
 
-- Product branding is `REX` white + `.Bid` yellow; “MTBid” is legacy technical naming only, not visible brand.
+- Public product brand is `Rex.Bid` (visual mark: `REX` white + `.Bid` yellow). Legacy technical identifiers are documented in `docs/NAMING_CONVENTIONS.md`; avoid using them as visible branding.
 - Rex.Bid is an independent product, not a copy of Bid.Cars or DreamBid.
 - Prioritize correct source facts and compact information hierarchy over decorative status labels or oversized blocks.
 - No fake prices, auction times, seller names, document certainty, trust scores, bidding ability or import-cost guarantees.
