@@ -8,7 +8,7 @@ Rex.Bid is a Polish-language vehicle-auction discovery and research product for 
 
 - Repository: [Ted-82/mtbid](https://github.com/Ted-82/mtbid)
 - Branch: `main`
-- Current GitHub/base checkpoint: `02c0031` (Accounts staging proof-of-fit); the quality-sprint work described below is local and uncommitted.
+- Current owner-provided checkpoint for this readiness pass: `20eaf49` (D1 Sync Phase C shadow verification). Accounts readiness edits described below are local and uncommitted.
 - Owner-confirmed production Worker release: `241cfe3e-663d-49c3-bd2b-b29e8f20cb80` (Provider Independence)
 - Local Git base when provider-independence work began: `80128cc` (`Document Rex.Bid architecture and production roadmap`)
 - Provider Independence is deployed and production-regression checked at the version above; mark this architecture checkpoint **DONE**.
@@ -17,7 +17,7 @@ Rex.Bid is a Polish-language vehicle-auction discovery and research product for 
 - Wrangler configuration file: `wrangler.jsonc`
 - Cloudflare D1 binding: `REXBID_DB` → `rexbid-db` (`971879fe-04ed-4e8c-9dc6-5306980bb872`)
 - Static asset binding: `ASSETS` → `./public`
-- Current local checkout: `C:/Users/nowic/Desktop/stona_auta-www`, branch `main`, base HEAD `02c0031`; preserve all uncommitted user/product work.
+- Current local checkout: `C:/Users/nowic/Desktop/stona_auta-www`, branch `main`, base HEAD `20eaf49`; preserve all uncommitted user/product work.
 
 The production checkpoint and owner acceptance above are supplied by the owner. Do not infer that a local edit is deployed until a later deploy confirms it.
 
@@ -55,11 +55,11 @@ Unknown non-API paths are served through `ASSETS`. Non-GET requests to normal AP
 - `public/index.html` — Home/discovery sections and full catalog view (`?catalog=1`), search, filters, URL state and load-more pagination.
 - `public/car.html` — vehicle detail, gallery/media, auction module, details, history and import-cost estimate.
 - `public/ulubione.html` — local favorites/watchlist.
-- `public/konto.html`, `public/logowanie.html`, `public/rejestracja.html` — account-related UI. Supabase BFF proof-of-fit passed live E2E on isolated staging. `public/rexbid-auth.js` wires these pages and favorites to the BFF only on the exact staging hostname; normal production host behavior remains dormant pending review/deploy.
+- `public/konto.html`, `public/logowanie.html`, `public/rejestracja.html`, `public/reset-hasla.html` — account-related UI. Supabase BFF proof-of-fit passed live E2E on isolated staging. `public/rexbid-auth.js` obtains availability from same-origin `/api/auth/config`; the server fails closed unless explicitly and completely configured. Normal production remains dormant.
 - `public/jak-to-dziala.html`, `public/kontakt.html`, `public/o-nas.html` — informational pages.
 - `public/rexbid-storage.js` — shared versioned local favorites store, including one-time legacy-key migration and cleanup of retired compare state while preserving favorites. Compare UI/product is removed per owner direction; do not restore it without a new owner decision.
 - `public/rexbid-brand.css`, `public/rexbid-mobile-nav.js` — shared visual brand and mobile navigation.
-- `public/rexbid-auth.js` — staging-host-gated auth/favorite client; it stores no tokens and uses account-scoped curated favorite cache only after `/api/me` verifies the session.
+- `public/rexbid-auth.js` — BFF auth/favorite client gated by server configuration; it stores no tokens and uses account-scoped curated favorite cache only after `/api/me` verifies the session.
 
 The repository root also has legacy copies such as `index.html` and `car.html`; Wrangler serves `public/`, so treat those root copies as non-production unless configuration changes deliberately.
 
@@ -164,7 +164,7 @@ Keep tests offline: fixtures/mocks must not call production Apibara or D1. Produ
 - Apibara availability/rate limits affect uncached reads. Do not add automatic retries or fan-out requests casually.
 - `REXBID_SYNC_TOKEN` is required for the explicit sync POST; verify its Cloudflare configuration before scheduling or manually invoking synchronization.
 - D1 migrations are checked-in SQL. Never apply a migration to production without verifying the target binding/database and reviewing the exact pending migration.
-- Accounts Phase 2A BFF proof-of-fit is **DONE/PASS**. Accounts Phase 3 normal UI is deployed to staging and has **REAL BROWSER PASS** as owner-confirmed for login/account/session/cloud favorites; this sprint also verified guest favorite add/render/remove. Production auth is **NOT DEPLOYED** and `docs/proposals/0003_accounts_foundation.sql` is **NOT APPLIED** to production. The shared client is active only on the exact staging hostname. Before production, add rate limiting, address concurrent refresh rotation, approve final-domain cookie settings/privacy/retention, and review account deletion/export.
+- Accounts Phase 2A BFF proof-of-fit is **DONE/PASS**. Accounts Phase 3 normal UI has earlier owner-confirmed staging real-browser login/account/session/cloud favorites/logout. Current hardening was deployed to staging version `916a2a0c-f5ad-4643-b886-927c8b2849c9`; GET smoke and render of login/reset/resend passed. Real recovery email/callback/password update/export download and cross-tab refresh remain **NOT VERIFIED**. Production auth is **NOT DEPLOYED** and `docs/proposals/0003_accounts_foundation.sql` is **NOT APPLIED** to production.
 - The existing `public/car.html` calculator math/defaults remain illustrative and unchanged. Current auction fees, transport/freight, customs value, duty, VAT base, excise classification and legal FX need dated/versioned inputs before the result is marketed as a current landed cost.
 - Rights to store, retain, derive from, or resell Apibara/history/report data need contract/licensing confirmation.
 
@@ -181,3 +181,17 @@ Keep tests offline: fixtures/mocks must not call production Apibara or D1. Produ
 9. Calculator Phase 2 local checkpoint: dedicated browser/Node engine and versioned configuration are loaded by car.html. Copart covers only the confirmed secured + Pre-Bid profiles after explicit selection; IAA and missing logistics/tax inputs remain unknown. Missing required values are never zero; UI FX is separate from customs/excise FX. New independent calculator tests are included. No commit, push or deploy has occurred.
 10. Continue by obtaining IAA US fee examples, dated shipper quotes, buyer-profile decision, customs-agent validation, and NBP FX adapter requirements. Do not add unsupported fee tiers or call an estimate an official amount.
 11. **CURRENT WORK / CONTINUE HERE — D1 Sync 2 Phase A DONE; Phase B D1 VERIFIED; Phase C SHADOW VERIFIED; Phase D NOT STARTED.** Proposal `docs/proposals/0004_d1_sync_2.sql` is applied only to staging D1 `rexbid-auth-test-db` (`acb3cb8e-69a2-459f-8a46-0f2f5b9004be`); production `rexbid-db` has not been migrated. Phase C request `e62bf910-74b3-4386-a7ab-4a01be9fef6e` returned HTTP 200, `stage=complete`, with exactly one Apibara request: one Copart discovery page, 20 provider records, 20 canonical accepted, 0 rejected/ambiguous. Real D1 readback, replay/idempotency, Fake Provider B, partial update, failure recovery and budget checks passed. No detail/history/media/raw payload was fetched or persisted. Tail recorded `cleanup=true`; the UI’s `cleanup: undefined` was a property-name mismatch (`cleanupPass` vs `verified`), not a cleanup failure. Direct D1 SELECT after cleanup confirmed all 11 Sync tables at 0 rows, `users=1`, `user_favorites=1`, legacy `vehicles=0`, `vehicle_snapshots=0`, `auction_history=0`. The temporary Phase C endpoint/button/flag have been removed from the staging wrapper; clean redeploy Version ID is `c3137145-5d14-4cb6-b888-51c092b25938`. `sync/d1-repository.js` remains unconnected to Worker/API; public `/api/cars`, Home, car page and Accounts did not read shadow data. Production `mtbid`/`rexbid-db`, production migration, commit and push remain untouched. Written provider rights/retention confirmation is still required before durable discovery or rollout. Do not start Phase D.
+
+## Accounts readiness checkpoint — 2026-09-29
+
+- **Staging:** wcześniejszy Auth proof-of-fit i Accounts Phase 3 mają owner-confirmed real-browser PASS dla loginu/konta/sesji/cloud favorites/logout. Bieżący kod wdrożono na `rexbid-auth-test`, Version ID `916a2a0c-f5ad-4643-b886-927c8b2849c9`; smoke GET `/api/auth/config`=200 enabled, `/api/me`=401 anonymous i strony kont=200. W przeglądarce potwierdzono widoki login/reset/resend bez wysyłania maila ani logowania.
+- **Production:** Auth **NOT PRODUCTION DEPLOYED**; proposal `0003_accounts_foundation.sql` **NOT APPLIED** do `rexbid-db`. `AUTH_ENABLED`, canonical origin i rate-limit binding nie są obecne w produkcyjnym `wrangler.jsonc`; brak pełnej konfiguracji oznacza fail closed.
+- Bieżący kod ma jawne `/api/auth/config`, exact canonical/allowed origin, `AUTH_ENABLED`, deklarację `AUTH_D1_SCHEMA_VERSION=0003` ustawianą po ręcznej weryfikacji schematu, staging-bypass ograniczony do test host/flag, `Sec-Fetch-Site` cross-site rejection oraz wymagany Cloudflare limiter w trybie produkcyjnym.
+- Refresh: per-isolate single-flight po refresh tokenie; przy race/niejednoznacznym błędzie BFF sprawdza nadal ważny access token i nie czyści ważnego cookie. To nie jest globalna blokada między isolate/colo; szczegóły i ograniczenie są w `docs/ACCOUNT_PRODUCTION_READINESS.md`.
+- Dodano neutralny recovery/resend z ogólnymi komunikatami, PKCE recovery callback prowadzący do ustawienia nowego hasła, aktualizację hasła z próbą globalnego revoke i JSON export własnego profilu/favorites. Powtórny signup nie potwierdza istnienia konta. Automated flow PASS; prawdziwe recovery/resend email, callback, password update/global revoke, export download i multi-tab concurrency wymagają kontrolowanego staging testu.
+- Konto delete pozostaje gated (brak Supabase service-role i zatwierdzonego procesu). Google OAuth ma adapter PKCE, ale provider credentials/linking nie są skonfigurowane.
+- Dane, retencja, SMTP, produkcyjny validator/checklista i owner configuration: `docs/ACCOUNT_PRODUCTION_READINESS.md`, `docs/ACCOUNT_DATA_PRIVACY.md`.
+
+### CURRENT WORK / CONTINUE HERE
+
+Następny krok: ukończyć full suite, syntax checks i `git -c core.whitespace=cr-at-eol diff --check`; bieżące zmiany wymagają staging deploy i kontrolowanego browser testu recovery/resend/export oraz współbieżnej sesji. Nie aktywować produkcji i nie stosować `0003` do `rexbid-db`. Właściciel musi przed produkcją zapewnić zatwierdzony Supabase production project, canonical origin/callback allowlist, cookie secret, zatwierdzoną i zweryfikowaną D1 0003, Cloudflare Rate Limiting binding/progi, SMTP oraz decyzje privacy/retention/deletion.

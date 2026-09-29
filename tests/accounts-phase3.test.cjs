@@ -12,7 +12,7 @@ function makeResponse(status, body = {}) {
   return { status, ok: status >= 200 && status < 300, headers: new Headers(), json: async () => body };
 }
 
-function setup(fetchImpl, { hostname = 'rexbid-auth-test.tedn828.workers.dev', pathname = '/konto.html', guest = [] } = {}) {
+function setup(fetchImpl, { hostname = 'rexbid-auth-test.tedn828.workers.dev', pathname = '/konto.html', search = '', guest = [] } = {}) {
   const values = new Map();
   if (guest.length) values.set('rex_bid_local_v1', JSON.stringify({ schema:'rex-bid-local', version:1, legacy_migrated:true, favorites:guest }));
   const localStorage = { getItem:key => values.get(key) ?? null, setItem:(key,value) => values.set(key,String(value)), removeItem:key => values.delete(key) };
@@ -30,7 +30,7 @@ function setup(fetchImpl, { hostname = 'rexbid-auth-test.tedn828.workers.dev', p
     async fire(name, event = {}) { for (const fn of this.listeners[name] || []) await fn({ preventDefault(){}, ...event }); }
     async click() { await this.fire('click'); }
   }
-  const ids = ['name','email','password','terms','registerForm','loginForm','message','favoriteCount'];
+  const ids = ['name','email','password','terms','registerForm','loginForm','message','favoriteCount','resendConfirmation'];
   for (const id of ids) elements.set(id,new Element(id));
   elements.get('password').parentElement = new Element('password-group');
   const main = new Element('main'), layout = new Element('layout'), header = new Element('header-inner');
@@ -44,17 +44,21 @@ function setup(fetchImpl, { hostname = 'rexbid-auth-test.tedn828.workers.dev', p
     querySelectorAll() { return []; }
   };
   const listeners = {};
-  const location = { hostname, pathname, search:'', origin:'https://'+hostname, assigned:'', assign(value){this.assigned=value;} };
+  const location = { hostname, pathname, search, origin:'https://'+hostname, assigned:'', assign(value){this.assigned=value;} };
   class CustomEvent { constructor(type,init={}) { this.type=type; this.detail=init.detail; } }
+  let activeFetch = fetchImpl;
+  const pageFetch = async (url, options) => url === '/api/auth/config'
+    ? makeResponse(200, { ok:true, enabled:hostname === 'rexbid-auth-test.tedn828.workers.dev' })
+    : activeFetch(url, options);
   const window = {
-    location, localStorage, document, fetch:fetchImpl, confirm:()=>true,
+    location, localStorage, document, fetch:pageFetch, confirm:()=>true,
     dispatchEvent(event) { for (const fn of listeners[event.type] || []) fn(event); },
     addEventListener(name,fn) { (listeners[name] ||= []).push(fn); }
   };
-  const context = { window, document, location, localStorage, fetch:fetchImpl, CustomEvent, URL, URLSearchParams, Headers, Promise, JSON, String, Number, Date, Error, console };
+  const context = { window, document, location, localStorage, fetch:pageFetch, CustomEvent, URL, URLSearchParams, Headers, Promise, JSON, String, Number, Date, Error, console };
   vm.runInNewContext(storageSource, context);
   vm.runInNewContext(authSource, context);
-  return { window, document, elements, main, layout, header, values, location, ready:window.RexBidAuth.ready };
+  return { window, document, elements, main, layout, header, values, location, ready:window.RexBidAuth.ready, setFetch(fn) { activeFetch=fn; } };
 }
 
 test('normal account pages enable real auth only on the exact isolated staging host', async () => {
@@ -68,7 +72,8 @@ test('normal account pages enable real auth only on the exact isolated staging h
 test('registration UI validates confirmation and submits only email/password to the staging BFF', async () => {
   const calls=[];
   const page=setup(async(url,options={})=>{calls.push([url,options]); return url==='/api/me' ? makeResponse(401) : makeResponse(202,{ok:true,confirmation_required:true});},{pathname:'/rejestracja.html'});
-  await page.ready; page.document.domReady();
+  await page.ready;
+  assert.equal(page.window.RexBidAuth.enabled, true);
   page.elements.get('name').value='Test User'; page.elements.get('terms').checked=true;
   const form=page.elements.get('registerForm');
   page.elements.get('email').value='new@example.invalid'; page.elements.get('password').value='temporary-password';
@@ -77,14 +82,32 @@ test('registration UI validates confirmation and submits only email/password to 
   confirm.value='temporary-password'; await form.fire('submit');
   const signup=calls.find(([url])=>url==='/api/auth/signup'); assert.ok(signup);
   assert.deepEqual(JSON.parse(signup[1].body),{email:'new@example.invalid',password:'temporary-password'});
-  assert.equal(page.elements.get('message').textContent,'Konto utworzone. Sprawdź pocztę i potwierdź adres e-mail.');
+  assert.equal(page.elements.get('message').textContent,'Jeśli można utworzyć konto, wysłaliśmy wiadomość z potwierdzeniem.');
   assert.equal([...page.values.keys()].some(key=>/token|password/i.test(key)),false);
+});
+
+test('login page explains invalid or expired confirmation links without revealing account state', async () => {
+  const page=setup(async()=>makeResponse(401),{pathname:'/logowanie.html',search:'?auth=failed'});
+  assert.match(page.elements.get('message').textContent,/nieprawidłowy lub wygasł/i);
+  assert.doesNotMatch(page.elements.get('message').textContent,/konto (istnieje|nie istnieje)/i);
+});
+
+test('unverified callback state exposes neutral resend action using the shared BFF client', async () => {
+  const calls=[];
+  const page=setup(async(url,options={})=>{calls.push([url,options]);return makeResponse(url==='/api/auth/resend-confirmation'?202:401,{ok:url==='/api/auth/resend-confirmation'});},{pathname:'/logowanie.html',search:'?auth=verify-email'});
+  const resend=page.elements.get('resendConfirmation');
+  assert.equal(resend.hidden,false);
+  assert.match(page.elements.get('message').textContent,/przyciskiem poniżej/i);
+  page.elements.get('email').value='owner@example.test';
+  await resend.click();
+  assert.ok(calls.some(([url,options])=>url==='/api/auth/resend-confirmation'&&options.method==='POST'));
+  assert.match(page.elements.get('message').textContent,/jeśli adres jest powiązany/i);
 });
 
 test('login UI posts to BFF, verifies session via /api/me and redirects only to same-origin path', async () => {
   const calls=[]; let meCount=0;
   const page=setup(async(url,options={})=>{calls.push([url,options]); if(url==='/api/me') return ++meCount===1 ? makeResponse(401) : makeResponse(200,{ok:true,user:{id:'u-1',auth_provider:'email',email_verified:true}}); if(url==='/api/auth/login') return makeResponse(200,{ok:true}); return makeResponse(200,{ok:true,favorites:[]});},{pathname:'/logowanie.html'});
-  await page.ready; page.document.domReady(); page.location.search='?return_to=%2Fulubione.html';
+  await page.ready; page.location.search='?return_to=%2Fulubione.html';
   page.elements.get('email').value='user@example.invalid'; page.elements.get('password').value='temporary-password';
   await page.elements.get('loginForm').fire('submit');
   assert.ok(calls.some(([url,opts])=>url==='/api/auth/login'&&opts.method==='POST'));
@@ -163,18 +186,18 @@ test('switching account discards the prior account cache before loading new favo
   const page=setup(async()=>makeResponse(401));
   page.values.set('rex_bid_auth_cache_owner_v1','acct-old'); page.values.set('rex_bid_cloud_favorites_v1:acct-old','[{"id":"vin:OLD"}]');
   // Simulate the account response changing on a subsequent bootstrap.
-  const originalFetch=page.window.fetch; page.window.fetch=async url=>url==='/api/me'?makeResponse(200,{ok:true,user:{id:'acct-new',auth_provider:'email',email_verified:true}}):makeResponse(200,{ok:true,favorites:[]});
+  page.setFetch(async url=>url==='/api/me'?makeResponse(200,{ok:true,user:{id:'acct-new',auth_provider:'email',email_verified:true}}):makeResponse(200,{ok:true,favorites:[]}));
   await page.window.RexBidAuth.bootstrap();
   assert.equal(page.values.has('rex_bid_cloud_favorites_v1:acct-old'),false);
   assert.equal(page.values.get('rex_bid_auth_cache_owner_v1'),'acct-new');
-  page.window.fetch=originalFetch;
 });
 
 test('normal public HTML references the same gated auth client on the four account surfaces', () => {
   for (const page of ['rejestracja.html','logowanie.html','konto.html','ulubione.html','index.html','car.html']) {
     assert.match(fs.readFileSync(path.join(root,'public',page),'utf8'),/<script src="\/rexbid-auth\.js"><\/script>/,page);
   }
-  assert.match(authSource,/location\?\.hostname\s*===\s*STAGING_HOST/);
+  assert.match(authSource,/\/api\/auth\/config/);
+  assert.doesNotMatch(authSource,/STAGING_HOST/);
   assert.match(authSource,/cache:\s*"no-store"/);
   assert.doesNotMatch(authSource,/access_token|refresh_token|sessionStorage|innerHTML/);
 });

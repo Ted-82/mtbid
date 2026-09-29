@@ -94,10 +94,12 @@ function makePage(fetchImpl, kind = 'login', pathname = '') {
   };
   const windowListeners = {};
   const location = { hostname: 'rexbid-auth-test.tedn828.workers.dev', pathname: pathname || (kind === 'login' ? '/logowanie.html' : '/rejestracja.html'), search: '', origin: 'https://rexbid-auth-test.tedn828.workers.dev', assigned: '', assign(value) { this.assigned = value; } };
-  const window = { location, document, fetch: fetchImpl, localStorage: { getItem: () => null, setItem() {}, removeItem() {} }, confirm: () => false,
+  const pageFetch = async (url, options) => url === '/api/auth/config' ? response(200, { ok:true, enabled:true }) : fetchImpl(url, options);
+  const historyCalls = [];
+  const window = { location, document, fetch: pageFetch, history: { replaceState(_state, _title, url) { historyCalls.push(String(url)); } }, localStorage: { getItem: () => null, setItem() {}, removeItem() {} }, confirm: () => false,
     dispatchEvent(event) { for (const fn of windowListeners[event.type] || []) fn(event); },
     addEventListener(type, fn) { (windowListeners[type] ||= []).push(fn); } };
-  const context = { window, document, location, fetch: fetchImpl, localStorage: window.localStorage, CustomEvent: class { constructor(type, init) { this.type = type; this.detail = init?.detail; } },
+  const context = { window, document, location, fetch: pageFetch, localStorage: window.localStorage, CustomEvent: class { constructor(type, init) { this.type = type; this.detail = init?.detail; } },
     URL, URLSearchParams, Headers, Promise, JSON, String, Number, Date, Error, console };
 
   vm.runInNewContext(authSource, context);
@@ -105,8 +107,42 @@ function makePage(fetchImpl, kind = 'login', pathname = '') {
   const inline = [...html.matchAll(/<script>([\s\S]*?)<\/script>/gi)].map(match => match[1]).find(source => source.includes(`getElementById("${formId}")`));
   assert.ok(inline, 'actual account-page inline fallback is present');
   vm.runInNewContext(inline, context);
-  return { form, name, email, password, terms, message, submit, location, document, auth: window.RexBidAuth, get diagnostic() { return message.afterItem; } };
+  return { form, name, email, password, terms, message, submit, location, document, main, historyCalls, auth: window.RexBidAuth, get diagnostic() { return message.afterItem; } };
 }
+
+test('real auth client consumes callback receipt after redirect and removes only its opaque ID from URL', async () => {
+  const calls=[]; const id='AbCdEf0123456789';
+  const page=makePage(async(url,options={})=>{
+    calls.push([url,options]);
+    if(url==='/api/me')return response(401,{ok:false});
+    if(url===`/api/auth/callback-diagnostic?id=${id}`)return response(200,{ok:true,diagnostic:{id,flow_type:'recovery',state_present:true,state_valid:false,flow_cookie_present:false,verifier_present:false,code_present:true,exchange_attempted:false,upstream_status:null,safe_error_code:'callback_flow_cookie_missing',identity_verified:false,session_created:false,final_redirect_target:'/logowanie.html?auth=failed',failure_stage:'validation'}});
+    return response(404,{});
+  });
+  page.location.search=`?auth=failed&cbdiag=${id}`;
+  await page.auth.ready;
+  await new Promise(resolve=>setImmediate(resolve));
+  const diagCalls=calls.filter(([url])=>url===`/api/auth/callback-diagnostic?id=${id}`);
+  assert.equal(diagCalls.length,1);
+  assert.equal(diagCalls[0][1].method,'GET');
+  assert.equal(diagCalls[0][1].credentials,'same-origin');
+  assert.equal(diagCalls[0][1].cache,'no-store');
+  const details=page.main.children.find(child=>child.tagName==='DETAILS');
+  assert.ok(details,'sanitized outcome is visible on the staging page');
+  assert.match(details.children[1].textContent,/callback_flow_cookie_missing/);
+  assert.doesNotMatch(details.children[1].textContent,/state-secret|code-secret|verifier-secret|access-token|refresh-token|cookie-value/);
+  assert.equal(page.historyCalls.length,1);
+  assert.equal(page.historyCalls[0],'/logowanie.html?auth=failed');
+});
+
+test('callback receipt ID stays available when the one-time diagnostic read fails', async () => {
+  const id='AbCdEf0123456789';
+  const page=makePage(async(url)=>{if(url==='/api/me')return response(401,{});throw new TypeError('network unavailable');});
+  page.location.search=`?auth=failed&cbdiag=${id}`;
+  await page.auth.ready;
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(page.historyCalls.length,0,'do not erase the only retrieval handle on network failure');
+  assert.equal(page.location.search,`?auth=failed&cbdiag=${id}`);
+});
 
 test('normal login browser click reaches one BFF POST with valid email and password', async () => {
   const calls = []; let meCalls = 0;
@@ -173,7 +209,7 @@ test('normal registration uses the same direct action flow and validates require
   assert.ok(confirm, 'signup confirmation input is created by the real auth client'); confirm.value = page.password.value;
   await page.submit.click();
   assert.equal(calls.filter(([url, options]) => url === '/api/auth/signup' && options.method === 'POST').length, 1);
-  assert.match(page.message.textContent, /potwierdź adres e-mail/);
+  assert.match(page.message.textContent, /jeśli można utworzyć konto/i);
   assert.equal(page.location.assigned, '');
 });
 

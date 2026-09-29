@@ -5,6 +5,11 @@
   "compatibility_date": "2026-09-19",
   "workers_dev": true,
   "vars": {
+    "AUTH_ENABLED": "true",
+    "AUTH_D1_SCHEMA_VERSION": "0003",
+    "AUTH_CANONICAL_ORIGIN": "https://rexbid-auth-test.tedn828.workers.dev",
+    "AUTH_ALLOWED_ORIGINS": "https://rexbid-auth-test.tedn828.workers.dev",
+    "AUTH_RATE_LIMITING_MODE": "staging-bypass",
     "REXBID_AUTH_TEST_UI": "enabled",
     "REXBID_AUTH_TEST_HOST": "rexbid-auth-test.tedn828.workers.dev",
     "REXBID_AUTH_DIAGNOSTICS": "enabled"

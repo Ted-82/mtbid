@@ -132,10 +132,11 @@ function makeConfig(env) {
 }
 
 function createSupabaseAuthProvider({ fetchImpl = (...args) => fetch(...args), cryptoImpl = globalThis.crypto, now = nowSeconds, timeoutMs = 7000 } = {}) {
-  async function request(env, operation, { method = "GET", body, accessToken, redirectTo, allowNonOk = false } = {}) {
+  async function request(env, operation, { method = "GET", body, accessToken, redirectTo, scope = "local", allowNonOk = false } = {}) {
     const paths = {
       signup: "/signup", password: "/token?grant_type=password", pkce: "/token?grant_type=pkce",
-      refresh: "/token?grant_type=refresh_token", user: "/user", logout: "/logout?scope=local", connectivity: "/health"
+      refresh: "/token?grant_type=refresh_token", user: "/user", password_update: "/user",
+      recover: "/recover", resend: "/resend", logout: "/logout", connectivity: "/health"
     };
     const path = paths[operation];
     if (!path) throw new AuthProviderError("AUTH_OPERATION_UNSUPPORTED", 500);
@@ -160,7 +161,8 @@ function createSupabaseAuthProvider({ fetchImpl = (...args) => fetch(...args), c
     let endpoint;
     try {
       endpoint = new URL(`${config.baseUrl}${path}`);
-      if (operation === "signup" && redirectTo) endpoint.searchParams.set("redirect_to", redirectTo);
+      if (["signup", "recover", "resend"].includes(operation) && redirectTo) endpoint.searchParams.set("redirect_to", redirectTo);
+      if (operation === "logout") endpoint.searchParams.set("scope", scope);
     } catch {
       clearTimeout(timer);
       logAuthDiagnostic(env, {
@@ -218,7 +220,9 @@ function createSupabaseAuthProvider({ fetchImpl = (...args) => fetch(...args), c
         : response.status >= 500 ? 503 : 502;
       const code = response.status === 429 ? "AUTH_RATE_LIMITED"
         : status === 401 ? "AUTH_REJECTED" : "AUTH_UNAVAILABLE";
-      throw new AuthProviderError(code, status);
+      const error = new AuthProviderError(code, status);
+      error.upstreamStatus = response.status;
+      throw error;
     }
     return { config, payload, status: response.status };
   }
@@ -260,18 +264,31 @@ function createSupabaseAuthProvider({ fetchImpl = (...args) => fetch(...args), c
       const { payload } = await request(env, "password", { method: "POST", body: { email, password } });
       return normalizeSession(payload);
     },
-    async exchangeCode(env, { code, codeVerifier }) {
-      const { payload } = await request(env, "pkce", { method: "POST", body: { auth_code: code, code_verifier: codeVerifier } });
-      return normalizeSession(payload);
+    async exchangeCodeWithStatus(env, { code, codeVerifier }) {
+      const { payload, status } = await request(env, "pkce", { method: "POST", body: { auth_code: code, code_verifier: codeVerifier } });
+      return { session: normalizeSession(payload), upstream_status: status };
+    },
+    async exchangeCode(env, input) {
+      return (await this.exchangeCodeWithStatus(env, input)).session;
     },
     async refresh(env, session) {
       const { payload } = await request(env, "refresh", { method: "POST", body: { refresh_token: session.refresh_token } });
       return normalizeSession(payload);
     },
     async verifyIdentity(env, accessToken) { return resolveIdentity(env, accessToken); },
-    async logout(env, accessToken) {
+    async requestPasswordReset(env, { email, redirectTo, codeChallenge }) {
+      await request(env, "recover", { method:"POST", redirectTo, body:{ email, code_challenge:codeChallenge, code_challenge_method:"s256" } });
+    },
+    async resendConfirmation(env, { email, redirectTo, codeChallenge }) {
+      await request(env, "resend", { method:"POST", redirectTo, body:{ type:"signup", email, code_challenge:codeChallenge, code_challenge_method:"s256" } });
+    },
+    async updatePassword(env, accessToken, password) {
+      await request(env, "password_update", { method:"PUT", accessToken, body:{ password } });
+    },
+    async logout(env, accessToken, scope = "local") {
       if (!accessToken) return;
-      await request(env, "logout", { method: "POST", accessToken });
+      if (!["local", "global", "others"].includes(scope)) throw new AuthProviderError("AUTH_OPERATION_UNSUPPORTED", 400);
+      await request(env, "logout", { method: "POST", accessToken, redirectTo: undefined, body: undefined, scope });
     },
     async healthCheck(env) {
       try {

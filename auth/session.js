@@ -1,6 +1,7 @@
 const utf8 = new TextEncoder();
 const SESSION_COOKIE = "__Host-rexbid_session";
 const FLOW_COOKIE = "__Host-rexbid_auth_flow";
+const CALLBACK_DIAGNOSTIC_COOKIE = "__Host-rexbid_callback_diag";
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 const FLOW_MAX_AGE = 600;
 
@@ -59,10 +60,16 @@ function flowCookie(value, maxAge = FLOW_MAX_AGE) {
   return `${FLOW_COOKIE}=${encodeURIComponent(value)}; Path=/; Max-Age=${Math.max(0, Math.floor(maxAge))}; Secure; HttpOnly; SameSite=Lax`;
 }
 
+function callbackDiagnosticCookie(value, maxAge = 300) {
+  return `${CALLBACK_DIAGNOSTIC_COOKIE}=${encodeURIComponent(value)}; Path=/; Max-Age=${Math.max(0, Math.floor(maxAge))}; Secure; HttpOnly; SameSite=Lax`;
+}
+
 const clearSessionCookie = () => sessionCookie("", 0);
 const clearFlowCookie = () => flowCookie("", 0);
+const clearCallbackDiagnosticCookie = () => callbackDiagnosticCookie("", 0);
 const sessionCookieName = SESSION_COOKIE;
 const flowCookieName = FLOW_COOKIE;
+const callbackDiagnosticCookieName = CALLBACK_DIAGNOSTIC_COOKIE;
 const sessionCookieMaxAge = COOKIE_MAX_AGE;
 const flowCookieMaxAge = FLOW_MAX_AGE;
 
@@ -82,7 +89,7 @@ function safeReturnPath(value, fallback = "/konto.html") {
 }
 
 module.exports = {
-  sealCookiePayload, openCookiePayload, readCookie, sessionCookie, flowCookie,
-  clearSessionCookie, clearFlowCookie, sessionCookieName, flowCookieName,
+  sealCookiePayload, openCookiePayload, readCookie, sessionCookie, flowCookie, callbackDiagnosticCookie,
+  clearSessionCookie, clearFlowCookie, clearCallbackDiagnosticCookie, sessionCookieName, flowCookieName, callbackDiagnosticCookieName,
   sessionCookieMaxAge, flowCookieMaxAge, isSameOriginWrite, safeReturnPath
 };

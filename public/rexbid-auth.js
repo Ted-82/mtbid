@@ -1,12 +1,15 @@
 (function (root) {
   "use strict";
 
-  const STAGING_HOST = "rexbid-auth-test.tedn828.workers.dev";
-  const enabled = root.location?.hostname === STAGING_HOST;
+  // The BFF is the source of truth. A disabled production deployment returns
+  // enabled:false; the browser never infers auth availability from hostnames.
+  let enabled = false;
   const pagePath = () => String(root.location?.pathname || "").replace(/\.html$/, "");
   const CACHE_OWNER = "rex_bid_auth_cache_owner_v1";
   const CACHE_PREFIX = "rex_bid_cloud_favorites_v1:";
   const state = { enabled, status: "anonymous", user: null, cache: [] };
+  const mountedForms = new Set();
+  let recoveryMounted = false;
   const text = value => value == null ? "" : String(value).trim();
   const dispatch = () => {
     root.dispatchEvent?.(new CustomEvent("rexbid:auth-state", { detail: { status: state.status } }));
@@ -86,6 +89,7 @@
     return hydrated;
   }
   async function bootstrap() {
+    await configReady;
     if (!enabled) return { enabled: false, status: "disabled" };
     try {
       const { response, body } = await request("/api/me", { method: "GET" });
@@ -100,6 +104,47 @@
       return { enabled, status: state.status, user };
     } catch { clearPrivate(); return { enabled, status: state.status }; }
   }
+  async function loadAuthConfiguration() {
+    try {
+      const response = await root.fetch("/api/auth/config", { credentials: "same-origin", cache: "no-store" });
+      const body = await response.json();
+      enabled = response.ok && body?.ok === true && body?.enabled === true;
+      state.enabled = enabled;
+      if (enabled) return { enabled, status: state.status };
+    } catch { enabled = false; state.enabled = false; }
+    return { enabled: false, status: "disabled" };
+  }
+  async function consumeCallbackDiagnostic() {
+    const params = new URLSearchParams(root.location?.search || "");
+    const id = params.get("cbdiag") || "";
+    if (!/^[A-Za-z0-9_-]{16}$/.test(id) || !root.document?.querySelector) return;
+    let consumed = false;
+    try {
+      const { response, body } = await request("/api/auth/callback-diagnostic?id=" + encodeURIComponent(id), { method: "GET" });
+      if (response.ok && body?.ok === true && body.diagnostic?.id === id) {
+        const host = root.document.querySelector("main") || root.document.body;
+        if (host) {
+          const details = root.document.createElement("details");
+          const summary = root.document.createElement("summary");
+          const output = root.document.createElement("pre");
+          details.className = "staging-callback-diagnostic";
+          summary.textContent = "Wynik diagnostyczny callbacku stagingowego";
+          output.textContent = JSON.stringify(body.diagnostic, null, 2);
+          details.append(summary, output);
+          host.append(details);
+        }
+        consumed = true;
+      }
+    } catch { /* Diagnostic display must never block the auth page. */ }
+    // Keep the opaque receipt ID in the URL if the one-time read did not
+    // succeed, so the same browser can retry or open the diagnostic endpoint.
+    if (!consumed) return;
+    params.delete("cbdiag");
+    try {
+      const next = root.location.pathname + (params.toString() ? "?" + params.toString() : "") + (root.location.hash || "");
+      root.history?.replaceState?.(null, "", next);
+    } catch {}
+  }
   async function login(email, password, onResponse) {
     const result = await request("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }) });
     onResponse?.({ status: result.response.status, requestId: result.requestId, setCookiePresent: result.setCookiePresent });
@@ -111,6 +156,24 @@
   async function signup(email, password) {
     const result = await request("/api/auth/signup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }) });
     return { ok: result.response.ok && result.body?.ok === true, confirmationRequired: result.body?.confirmation_required === true, status: result.response.status, requestId: result.requestId, setCookiePresent: result.setCookiePresent };
+  }
+  async function requestPasswordReset(email) {
+    const result = await request("/api/auth/recovery", { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ email }) });
+    return { ok:result.response.ok, status:result.response.status };
+  }
+  async function resendConfirmation(email) {
+    const result = await request("/api/auth/resend-confirmation", { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ email }) });
+    return { ok:result.response.ok, status:result.response.status };
+  }
+  async function updatePassword(password) {
+    const result = await request("/api/auth/password", { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ password }) });
+    if (result.response.ok && result.body?.ok === true) clearPrivate();
+    return { ok:result.response.ok && result.body?.ok === true, status:result.response.status, otherSessionsRevoked:result.body?.other_sessions_revoked === true };
+  }
+  async function exportAccount() {
+    const result = await request("/api/me/export", { method:"GET" });
+    if (!result.response.ok || result.body?.ok !== true) return { ok:false, status:result.response.status };
+    return { ok:true, data:result.body };
   }
   async function refreshSession() {
     const result = await request("/api/auth/refresh", { method: "POST" });
@@ -219,10 +282,12 @@
     if (node.style) node.style.display = textValue ? "block" : "none";
   }
   function mountAuthForm(kind) {
-    if (!enabled) return;
+    const formId = kind === "signup" ? "registerForm" : "loginForm";
+    if (mountedForms.has(formId)) return;
     const form = document.getElementById(kind === "signup" ? "registerForm" : "loginForm");
     const message = document.getElementById("message");
     if (!form || !message) return;
+    mountedForms.add(formId);
     // Staging auth uses explicit validation and direct actions rather than native
     // form submission, which can stop before the request handler runs.
     form.noValidate = true;
@@ -244,13 +309,27 @@
     const nameInput = kind === "signup" ? document.getElementById("name") : null;
     const termsInput = kind === "signup" ? document.getElementById("terms") : null;
     let confirm = document.getElementById("passwordConfirm");
+    const resendButton = document.getElementById("resendConfirmation");
     if (kind === "signup" && !confirm) {
       const group = document.createElement("div"); group.className = "group";
       const label = document.createElement("label"); label.htmlFor = "passwordConfirm"; label.textContent = "Powtórz hasło";
       confirm = document.createElement("input"); confirm.id = "passwordConfirm"; confirm.type = "password"; confirm.autocomplete = "new-password"; confirm.required = true;
       group.append(label, confirm); password?.parentElement?.after(group);
     }
+    if (resendButton) resendButton.addEventListener("click", async event => {
+      event.preventDefault?.(); await configReady;
+      try { await resendConfirmation(emailInput?.value?.trim() || ""); setPageMessage(message, "Jeśli adres jest powiązany z niepotwierdzonym kontem, wyślemy wiadomość.", "success"); }
+      catch { setPageMessage(message, "Nie udało się wysłać wiadomości. Spróbuj ponownie później.", "error"); }
+    });
     message.textContent = ""; message.hidden = false; message.style.display = "none"; message.setAttribute("role", "status"); message.setAttribute("aria-live", "polite");
+    if (kind === "login") {
+      const authResult = new URLSearchParams(root.location.search || "").get("auth");
+      const callbackMessage = authResult === "verify-email" ? "Potwierdź adres e-mail, aby dokończyć logowanie. Możesz wysłać wiadomość ponownie przyciskiem poniżej."
+        : authResult === "failed" ? "Link jest nieprawidłowy lub wygasł. Poproś o nową wiadomość i spróbuj ponownie."
+        : authResult === "unavailable" ? "Logowanie jest chwilowo niedostępne. Spróbuj ponownie później." : "";
+      if (callbackMessage) setPageMessage(message, callbackMessage, authResult === "verify-email" ? "success" : "error");
+      if (resendButton && authResult === "verify-email") resendButton.hidden = false;
+    }
     const performAuth = async (operation, event) => {
       event?.preventDefault?.();
       if (busy) return;
@@ -258,6 +337,13 @@
       const action = (operation === "signup" ? "Signup" : "Login") + " #" + (++actionNumber);
       setStage(action + ": preparing");
       setPageMessage(message, "", "");
+      await configReady;
+      if (!enabled) {
+        setPageMessage(message, "Logowanie i rejestracja są obecnie niedostępne.", "error");
+        setStage(action + ": auth unavailable");
+        busy = false;
+        return;
+      }
       const email = emailInput?.value?.trim() || "", pass = password?.value || "";
       const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
       const invalidMessage = !email ? "Wpisz adres e-mail."
@@ -279,7 +365,8 @@
         if (operation === "signup") {
           const result = await signup(email, pass);
           setStage(action + ": response HTTP " + result.status);
-          setPageMessage(message, result.ok ? (result.confirmationRequired ? "Konto utworzone. Sprawdź pocztę i potwierdź adres e-mail." : "Konto zostało utworzone.") : "Rejestracja nie powiodła się. Sprawdź dane lub spróbuj ponownie.", result.ok ? "success" : "error");
+          setPageMessage(message, result.ok ? (result.confirmationRequired ? "Jeśli można utworzyć konto, wysłaliśmy wiadomość z potwierdzeniem." : "Konto zostało utworzone.") : "Rejestracja nie powiodła się. Sprawdź dane lub spróbuj ponownie.", result.ok ? "success" : "error");
+          if (resendButton && result.ok && result.confirmationRequired) resendButton.hidden = false;
         } else {
           const result = await login(email, pass, info => {
             const request = /^[0-9a-f-]{36}$/i.test(info.requestId) ? " · Request: " + info.requestId : "";
@@ -333,10 +420,50 @@
       const link = document.createElement("a"); link.href = "/ulubione.html"; link.textContent = "Otwórz ulubione"; link.className = "btn btn-outline";
       const logoutButton = document.createElement("button"); logoutButton.type = "button"; logoutButton.className = "btn btn-red"; logoutButton.textContent = "Wyloguj";
       logoutButton.addEventListener("click", async () => { try { await logout(); } finally { render(); updateNavigation(); } });
-      host.replaceChildren(title, verified, provider, favorites, link, logoutButton);
+      const exportButton = document.createElement("button"); exportButton.type = "button"; exportButton.className = "btn btn-outline"; exportButton.textContent = "Pobierz moje dane";
+      exportButton.addEventListener("click", async () => {
+        const result = await exportAccount();
+        if (!result.ok) return;
+        const blob = new Blob([JSON.stringify(result.data, null, 2)], { type:"application/json" });
+        const objectUrl = URL.createObjectURL(blob); const download = document.createElement("a"); download.href = objectUrl; download.download = "rex-bid-dane-konta.json"; download.click(); URL.revokeObjectURL(objectUrl);
+      });
+      host.replaceChildren(title, verified, provider, favorites, link, exportButton, logoutButton);
     };
     root.addEventListener?.("rexbid:auth-state", render);
     await ready; render();
+  }
+  async function mountRecoveryPage() {
+    if (recoveryMounted) return;
+    const main = document.querySelector("main"); if (!main) return;
+    recoveryMounted = true;
+    const box = document.createElement("section"); box.className = "account-recovery"; box.setAttribute("aria-live","polite");
+    const title = document.createElement("h1"); title.textContent = "Odzyskiwanie dostępu";
+    const message = document.createElement("p"); message.setAttribute("role","status");
+    const form = document.createElement("form"); form.noValidate = true;
+    const email = document.createElement("input"); email.type="email"; email.autocomplete="email"; email.required=true; email.setAttribute("aria-label","Adres e-mail"); email.placeholder="Adres e-mail";
+    const password = document.createElement("input"); password.type="password"; password.autocomplete="new-password"; password.minLength=8; password.placeholder="Nowe hasło"; password.setAttribute("aria-label","Nowe hasło"); password.hidden=true;
+    const submit = document.createElement("button"); submit.type="submit"; submit.className="btn btn-red";
+    form.append(email,password,submit); box.append(title,message,form); main.append(box);
+    await ready;
+    const recoverySession = state.status === "authenticated" && new URLSearchParams(root.location.search).get("recovery") === "ready";
+    email.hidden = recoverySession; password.hidden = !recoverySession;
+    submit.textContent = recoverySession ? "Ustaw nowe hasło" : "Wyślij link odzyskiwania";
+    form.addEventListener("submit", async event => {
+      event.preventDefault(); submit.disabled=true; message.textContent="";
+      try {
+        if (recoverySession) {
+          if ((password.value || "").length < 8) { message.textContent="Hasło musi mieć co najmniej 8 znaków."; return; }
+          const result = await updatePassword(password.value);
+          message.textContent = result.ok ? "Hasło zmienione. Zaloguj się ponownie." : "Nie udało się zmienić hasła. Spróbuj ponownie.";
+        } else {
+          const value = (email.value || "").trim();
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) { message.textContent="Wpisz prawidłowy adres e-mail."; return; }
+          await requestPasswordReset(value);
+          message.textContent="Jeśli adres jest powiązany z kontem, wyślemy wiadomość z instrukcją.";
+        }
+      } catch { message.textContent="Operacja jest chwilowo niedostępna."; }
+      finally { submit.disabled=false; }
+    });
   }
   async function mountFavoritesPage({ content, counter, storage }) {
     if (!enabled) return false;
@@ -372,18 +499,18 @@
     render();
     return true;
   }
-  const ready = enabled ? bootstrap() : Promise.resolve({ enabled: false, status: "disabled" });
+  const configReady = loadAuthConfiguration();
+  const ready = configReady.then(result => enabled ? bootstrap() : result);
   const api = {
-    enabled, get status() { return state.status; }, get user() { return state.user; }, ready, bootstrap,
+    get enabled() { return enabled; }, get status() { return state.status; }, get user() { return state.user; }, ready, bootstrap,
     getFavorites() { return state.status === "authenticated" ? state.cache.slice() : []; },
     isFavorite(vehicle) { const item = root.RexBidStorage?.snapshotFromVehicle?.(vehicle); return !!item && state.cache.some(saved => saved.id === item.id); },
-    toggleFavorite, addFavoriteIdentity, removeFavorite, logout, refreshSession, mergeFavoriteIdentities, mergeGuestFavorites, mountFavoritesPage, mountAccountPage,
-    async initialize() { updateNavigation(); const path = pagePath(); if (path === "/rejestracja") mountAuthForm("signup"); if (path === "/logowanie") mountAuthForm("login"); if (path === "/konto") await mountAccountPage(); },
+    toggleFavorite, addFavoriteIdentity, removeFavorite, logout, refreshSession, requestPasswordReset, resendConfirmation, updatePassword, exportAccount, mergeFavoriteIdentities, mergeGuestFavorites, mountFavoritesPage, mountAccountPage,
+    async initialize() { await ready; if (!enabled) return; updateNavigation(); const path = pagePath(); if (path === "/konto") await mountAccountPage(); if (path === "/reset-hasla") await mountRecoveryPage(); },
   };
   root.RexBidAuth = api;
-  if (enabled) {
-    ready.then(() => { updateNavigation(); if (state.status === "authenticated") mergeGuestFavorites().catch(() => {}); });
-    root.addEventListener?.("rexbid:auth-state", updateNavigation);
-    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => api.initialize()); else api.initialize();
-  }
+  if (pagePath() === "/rejestracja") mountAuthForm("signup");
+  if (pagePath() === "/logowanie") mountAuthForm("login");
+  root.addEventListener?.("rexbid:auth-state", updateNavigation);
+  ready.then(() => { if (!enabled) return; consumeCallbackDiagnostic(); updateNavigation(); if (state.status === "authenticated") mergeGuestFavorites().catch(() => {}); if (pagePath() === "/konto") mountAccountPage(); if (pagePath() === "/reset-hasla") mountRecoveryPage(); });
 })(typeof window !== "undefined" ? window : globalThis);
