@@ -91,7 +91,7 @@ test('staging stays isolated and delegates all auth/session/favorite operations 
   assert.equal(elements.get('me-facts').textContent,'');
   assert.equal(elements.get('favorite-list-output').children.length,0);
   const directFetches=[...inlineScript.matchAll(/\bfetch\s*\(\s*["']([^"']+)["']/g)].map(match=>match[1]);
-  assert.deepEqual(directFetches,["/__staging/d1-sync-phase-d-discovery"],"test UI may call only its guarded staging-only Phase D endpoint directly");
+  assert.deepEqual(directFetches,["/__staging/d1-sync-phase-d-discovery","/__staging/d1-sync-phase-f-backfill"],"test UI may call only its explicitly guarded staging sync endpoints directly");
   assert.doesNotMatch(inlineScript,/localStorage|sessionStorage|innerHTML|access_token|refresh_token/i);
   assert.match(inlineScript,/auth\.login\(/);assert.match(inlineScript,/auth\.signup\(/);assert.match(inlineScript,/auth\.refreshSession\(/);assert.match(inlineScript,/auth\.mergeFavoriteIdentities\(/);
 });
