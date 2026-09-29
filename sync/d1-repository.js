@@ -161,6 +161,42 @@ function listingUpsertStatement(db, record, now) {
   return db.prepare(sql).bind(...columns.map(column => values[column]));
 }
 
+async function snapshotFingerprint(record) {
+  const vehicle = withoutNonPersistentData(record.vehicle);
+  const snapshot = {
+    auction_state: cleanString(vehicle.auction?.state),
+    auction_at: cleanString(vehicle.auction?.auction_at),
+    timed_end_at: cleanString(vehicle.auction?.timed_end_at),
+    current_bid_usd: Number.isFinite(vehicle.pricing?.current_bid) ? vehicle.pricing.current_bid : null,
+    buy_now_usd: Number.isFinite(vehicle.pricing?.buy_now) ? vehicle.pricing.buy_now : null
+  };
+  const bytes = new TextEncoder().encode(JSON.stringify(snapshot));
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function snapshotInsertStatement(db, record, now, fingerprint) {
+  const vehicle = withoutNonPersistentData(record.vehicle);
+  const values = {
+    listing_id: record.identity.listingId,
+    observed_at: iso(now),
+    auction_state: cleanString(vehicle.auction?.state),
+    auction_at: cleanString(vehicle.auction?.auction_at),
+    timed_end_at: cleanString(vehicle.auction?.timed_end_at),
+    current_bid_usd: Number.isFinite(vehicle.pricing?.current_bid) ? vehicle.pricing.current_bid : null,
+    buy_now_usd: Number.isFinite(vehicle.pricing?.buy_now) ? vehicle.pricing.buy_now : null,
+    fingerprint,
+    normalizer_version: Number.isSafeInteger(vehicle.model_version) ? vehicle.model_version : null
+  };
+  return db.prepare(`INSERT INTO auction_listing_snapshots
+    (listing_id,observed_at,auction_state,auction_at,timed_end_at,current_bid_usd,buy_now_usd,fingerprint,normalizer_version)
+    SELECT ?,?,?,?,?,?,?,?,? WHERE NOT EXISTS (
+      SELECT 1 FROM auction_listing_snapshots WHERE listing_id=? AND fingerprint=?
+    )`).bind(values.listing_id, values.observed_at, values.auction_state, values.auction_at,
+    values.timed_end_at, values.current_bid_usd, values.buy_now_usd, values.fingerprint,
+    values.normalizer_version, values.listing_id, values.fingerprint);
+}
+
 function sourceUpsertStatement(db, identity, vehicle, now) {
   const nowIso = iso(now);
   const sourceIdentityKind = identity.sourceIdentityKind === "source_listing_id" ? "source_id" : identity.sourceIdentityKind;
@@ -403,7 +439,9 @@ class D1SyncRepository {
       scopeKey, runId, cursorHash, nextCursorHash, nextCursorHash, cursorHash, scopeKey, runId, nextCursorHash
     );
     const batch = [guard];
-    for (const record of prepared) {
+    const snapshotFingerprints = await Promise.all(prepared.map(snapshotFingerprint));
+    for (let index = 0; index < prepared.length; index += 1) {
+      const record = prepared[index];
       const {identity, vehicle} = record;
       if (identity.entityId) {
         batch.push(this.db.prepare(`INSERT OR IGNORE INTO vehicle_entities(entity_id,vin_normalized,identity_state,match_basis,created_at,updated_at)
@@ -411,6 +449,7 @@ class D1SyncRepository {
       }
       batch.push(sourceUpsertStatement(this.db, identity, vehicle, now));
       batch.push(listingUpsertStatement(this.db, record, now));
+      batch.push(snapshotInsertStatement(this.db, record, now, snapshotFingerprints[index]));
     }
     batch.push(this.db.prepare(`INSERT INTO sync_page_commits(scope_key,run_id,cursor_hash,next_cursor_hash,committed_at)
       VALUES(?,?,?,?,?)`).bind(scopeKey, runId, cursorHash, nextCursorHash, nowIso));
@@ -427,10 +466,18 @@ class D1SyncRepository {
       .bind(nextCursor ?? null, nowIso, complete ? "complete" : "partial", nowIso,
         Number(complete), nowIso, Number(complete), nowIso, Number(complete), Number(complete),
         Number(complete), Number(complete), nowIso, scopeKey, owner, token));
+    const recordsReceived = Number.isSafeInteger(input.recordsReceived) && input.recordsReceived >= 0 ? input.recordsReceived : prepared.length;
+    const recordsInserted = Number.isSafeInteger(input.recordsInserted) && input.recordsInserted >= 0 ? input.recordsInserted : 0;
+    const recordsUpdated = Number.isSafeInteger(input.recordsUpdated) && input.recordsUpdated >= 0 ? input.recordsUpdated : 0;
+    const recordsSkipped = Number.isSafeInteger(input.recordsSkipped) && input.recordsSkipped >= 0 ? input.recordsSkipped : 0;
+    const latencyMs = Number.isSafeInteger(input.latencyMs) && input.latencyMs >= 0 ? input.latencyMs : null;
     batch.push(this.db.prepare(`UPDATE sync_runs SET
       pages_completed=pages_completed+1,records_received=records_received+?,
+      records_inserted=records_inserted+?,records_updated=records_updated+?,records_skipped=records_skipped+?,
+      latency_ms=COALESCE(?,latency_ms),
       status=?,completed_at=CASE WHEN ?=1 THEN ? ELSE completed_at END
-      WHERE run_id=? AND status='running'`).bind(prepared.length, complete ? "completed" : "running", Number(complete), nowIso, runId));
+      WHERE run_id=? AND status='running'`).bind(recordsReceived, recordsInserted, recordsUpdated, recordsSkipped,
+      latencyMs, complete ? "completed" : "running", Number(complete), nowIso, runId));
     if (crashAt === "before_batch") throw Object.assign(new Error("SIMULATED_CRASH_BEFORE_BATCH"), {code: "SIMULATED_CRASH"});
     if (crashAt === "inside_batch") {
       batch.splice(2, 0, this.db.prepare("INSERT INTO sync_batch_guards(guard_id,allowed) VALUES(?,0)").bind(crypto.randomUUID()));

@@ -12,7 +12,8 @@
     "AUTH_RATE_LIMITING_MODE": "staging-bypass",
     "REXBID_AUTH_TEST_UI": "enabled",
     "REXBID_AUTH_TEST_HOST": "rexbid-auth-test.tedn828.workers.dev",
-    "REXBID_AUTH_DIAGNOSTICS": "enabled"
+    "REXBID_AUTH_DIAGNOSTICS": "enabled",
+    "REXBID_PHASE_D_DISCOVERY": "enabled"
   },
   "d1_databases": [
     {

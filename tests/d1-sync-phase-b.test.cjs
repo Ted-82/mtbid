@@ -193,6 +193,37 @@ test('strona discovery + run progress + opaque cursor zapisują się atomowo; re
   sqlite.close();
 });
 
+test('listing discovery tworzy snapshot bazowy, a snapshot identycznego payloadu nie duplikuje się', async () => {
+  const {sqlite, repo} = setupDisposableDatabase();
+  const v = vehicle();
+  const first = await startScope(repo, {scopeKey:'snapshot-scope', runId:'snapshot-run-1'});
+  const page = {scopeKey:first.scopeKey,provider:first.provider,platform:first.platform,runId:first.runId,owner:first.owner,
+    token:first.token,leaseGeneration:first.leaseGeneration,cursor:null,nextCursor:null,records:[record(v)],now:NOW};
+  await repo.persistDiscoveryPage(page);
+  assert.equal(sqlite.prepare('SELECT COUNT(*) n FROM auction_listing_snapshots').get().n, 1);
+  assert.equal((await repo.persistDiscoveryPage(page)).replayed, true);
+  assert.equal(sqlite.prepare('SELECT COUNT(*) n FROM auction_listing_snapshots').get().n, 1);
+
+  const identical = await startScope(repo, {scopeKey:'snapshot-scope',runId:'snapshot-run-2',owner:'worker-b',token:'lease-token-b',now:NOW+1000});
+  await repo.persistDiscoveryPage({...page,runId:identical.runId,owner:identical.owner,token:identical.token,
+    leaseGeneration:identical.leaseGeneration,now:NOW+1000});
+  assert.equal(sqlite.prepare('SELECT COUNT(*) n FROM auction_listing_snapshots').get().n, 1,
+    'observation time changes do not create a false canonical snapshot');
+
+  const changed = vehicle();
+  changed.auction.state = 'live';
+  changed.pricing.current_bid = 1750;
+  const update = await startScope(repo, {scopeKey:'snapshot-scope',runId:'snapshot-run-3',owner:'worker-c',token:'lease-token-c',now:NOW+2000});
+  await repo.persistDiscoveryPage({...page,runId:update.runId,owner:update.owner,token:update.token,
+    leaseGeneration:update.leaseGeneration,records:[record(changed)],now:NOW+2000});
+  const snapshots = sqlite.prepare('SELECT auction_state,current_bid_usd,fingerprint FROM auction_listing_snapshots ORDER BY snapshot_id').all();
+  assert.equal(snapshots.length, 2);
+  assert.equal(snapshots[1].auction_state, 'live');
+  assert.equal(snapshots[1].current_bid_usd, 1750);
+  assert.notEqual(snapshots[0].fingerprint, snapshots[1].fingerprint);
+  sqlite.close();
+});
+
 test('partial failure i powtarzający się cursor nie awansują checkpointu ani completed run', async () => {
   const {repo} = setupDisposableDatabase();
   const lease = await startScope(repo, {scopeKey: 'partial', runId: 'run-partial'});
@@ -255,7 +286,7 @@ test('strukturalnie inny Provider B przechodzi przez ten sam canonical D1 reposi
   assert.equal(row.timed_end_at, '2026-10-10T15:00:00Z');
   assert.equal('raw_payload' in row, false);
   assert.equal('media_items' in row, false);
-  assert.equal(sqlite.prepare(`SELECT count(*) AS n FROM auction_listing_snapshots`).get().n, 0);
+  assert.equal(sqlite.prepare(`SELECT count(*) AS n FROM auction_listing_snapshots`).get().n, 1, 'one baseline snapshot contains canonical state only');
   sqlite.close();
 });
 

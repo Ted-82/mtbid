@@ -5,6 +5,7 @@ const AUTH_TEST_HTML = String.raw`<!doctype html>
 <section class="card"><h1>Test Supabase Auth / BFF</h1><p>Status: <span id="auth-state" class="status">Anonymous</span></p><p id="auth-message" class="message" role="status" aria-live="polite">Sprawdzam sesję…</p><p id="signup-diagnostic" class="message note" role="status" aria-live="polite">Ready</p><div id="me-facts" class="facts"></div></section>
 <section class="card"><h2>Testowe konto</h2><form id="credentials" autocomplete="off"><div class="row"><label>Testowy e-mail<input id="email" type="email" autocomplete="off" required maxlength="320"></label><label>Testowe hasło<input id="password" type="password" autocomplete="new-password" required minlength="8" maxlength="1024"></label></div><div class="row"><button id="signup" type="button">Sign up</button><button id="login" type="button" class="secondary">Log in</button><button id="refresh" type="button" class="secondary">Refresh session</button><button id="logout" type="button" class="secondary">Log out</button></div></form><p class="note">Hasło jest wysyłane wyłącznie w HTTPS POST do stagingowego BFF. Strona go nie zapisuje ani nie wyświetla.</p></section>
 <section class="card"><h2>Test ulubionych</h2><p class="note">Tworzy wyłącznie sztuczny wpis LOT w testowej D1. Nie jest to rzeczywisty pojazd.</p><div class="row"><label>LOT testowy<input id="favorite-lot" maxlength="80"></label><label>Platforma<select id="favorite-platform"><option value="copart">Copart</option><option value="iaai">IAAI</option></select></label></div><div class="row"><button id="favorite-add" type="button">Dodaj testowe favorite</button><button id="favorite-list" type="button" class="secondary">Pobierz favorites</button><button id="favorite-delete" type="button" class="secondary">Usuń testowe favorite</button><button id="favorite-merge" type="button" class="secondary">Merge test local favorite</button></div><p id="favorite-message" class="message" role="status" aria-live="polite"></p><ul id="favorite-list-output"></ul></section>
+<section id="phase-d-section" class="card" hidden><h2>Phase D — trwałe discovery na stagingu</h2><p class="note">Jeden klik wykonuje maksymalnie jeden request Copart (do 20 listingów) i zapisuje dane kanoniczne w rexbid-auth-test-db. Dane pozostaną po teście; nie zapisujemy raw payloadu ani binarnych zdjęć. Limit kampanii: 5 requestów łącznie, bez automatycznych retry.</p><button id="phase-d-discovery" type="button" class="secondary">Uruchom jedną stronę discovery</button><p id="phase-d-message" class="message" role="status" aria-live="polite"></p><pre id="phase-d-result" class="facts"></pre></section>
 <p class="note">Auth tokens are HttpOnly-cookie-only; this page never reads cookies, tokens or localStorage. Do not share screenshots containing your test e-mail.</p></main>
 <script src="/rexbid-auth.js"></script><script>
 (() => {
@@ -12,32 +13,47 @@ const AUTH_TEST_HTML = String.raw`<!doctype html>
   const byId = id => document.getElementById(id);
   if (location.hostname !== requiredHost) { document.body.textContent = "Ta strona jest dostępna wyłącznie na stagingowym Workerze Rex.Bid."; return; }
   const auth = window.RexBidAuth;
-  if (!auth?.enabled) { byId("auth-message").textContent = "Wspólny klient Auth jest niedostępny."; return; }
+  if (!auth) { byId("auth-message").textContent = "Wspólny klient Auth jest niedostępny."; return; }
   const stateNode=byId("auth-state"), message=byId("auth-message"), diagnostic=byId("signup-diagnostic"), facts=byId("me-facts"), favoriteMessage=byId("favorite-message"), favoriteList=byId("favorite-list-output");
-  const buttons=["signup","login","refresh","logout","favorite-add","favorite-list","favorite-delete","favorite-merge"].map(byId);
+  const controls=["signup","login","refresh","logout","favorite-add","favorite-list","favorite-delete","favorite-merge","phase-d-discovery"].map(byId);
+  const publicButtons=[byId("signup"),byId("login")];
+  const protectedButtons=controls.filter(button=>!publicButtons.includes(button));
+  let pageReady=false, actionRunning=false, uiFailed=false;
+  function syncButtons(){
+    const authenticated=auth.status==="authenticated";
+    publicButtons.forEach(button=>{button.disabled=!pageReady||actionRunning||uiFailed||!auth.enabled;});
+    protectedButtons.forEach(button=>{button.disabled=!pageReady||actionRunning||uiFailed||!auth.enabled||!authenticated;});
+  }
+  controls.forEach(button=>{button.disabled=true;});
   let actionNumber=0, lastFavorite=null;
   const setState=value=>{stateNode.textContent=value;stateNode.dataset.state=value;};
   const clearPrivate=()=>{facts.textContent="";favoriteList.replaceChildren();favoriteMessage.textContent="";};
   function render(){
     if(auth.status!=="authenticated"){
-      setState("Anonymous"); clearPrivate();
+      byId("phase-d-section").hidden=true;
+      setState(auth.enabled?"Anonymous":"Auth unavailable"); clearPrivate(); syncButtons();
       if(message.textContent==="Sprawdzam sesję…") message.textContent="Brak aktywnej sesji.";
       return;
     }
+    byId("phase-d-section").hidden=false;
     setState("Authenticated"); const user=auth.user||{};
     facts.textContent="Rex.Bid user ID: "+String(user.id||"—")+"\nProvider: "+String(user.auth_provider||"—")+"\nE-mail verified: "+String(user.email_verified===true);
-    favoriteList.replaceChildren(); for(const item of auth.getFavorites()){const li=document.createElement("li");li.textContent=String(item.id||"—")+" · "+String(item.platform||"—");favoriteList.append(li);}
+    favoriteList.replaceChildren();
+    const getFavorites=auth.getFavorites;
+    if(typeof getFavorites!=="function") throw Object.assign(new TypeError("Auth client contract mismatch"),{rexStage:"render"});
+    for(const item of getFavorites.call(auth)){const li=document.createElement("li");li.textContent=String(item.id||"—")+" · "+String(item.platform||"—");favoriteList.append(li);}
+    syncButtons();
   }
-  window.addEventListener("rexbid:auth-state",render);
+  window.addEventListener("rexbid:auth-state",()=>{try{render();}catch{uiFailed=true;setState("Auth UI error");clearPrivate();diagnostic.textContent="Auth UI error at render (client_contract_mismatch)";syncButtons();}});
   async function run(label, operation){
-    const n=++actionNumber; diagnostic.textContent=label+" #"+n+": preparing"; message.textContent=""; clearPrivate(); buttons.forEach(b=>b.disabled=true);
-    try{diagnostic.textContent=label+" #"+n+": sending";const result=await operation();diagnostic.textContent=label+" #"+n+": response HTTP "+String(result?.status??"—")+(result?.requestId?" · Request: "+result.requestId:"")+(result?.setCookiePresent?" · Set-Cookie: present":"");render();return result;}
-    catch(error){const stage=/^(before_fetch|fetch|response)$/.test(String(error?.rexStage||""))?" at "+error.rexStage:"";diagnostic.textContent=label+" #"+n+": UI exception"+stage+" ("+( /^[A-Za-z][A-Za-z0-9]{0,39}$/.test(String(error?.name||""))?error.name:"Error")+")";message.textContent="Operacja jest chwilowo niedostępna.";render();return null;}
-    finally{byId("password").value="";buttons.forEach(b=>b.disabled=false);}
+    const n=++actionNumber; let stage="handler"; actionRunning=true; diagnostic.textContent=label+" #"+n+": preparing"; message.textContent=""; clearPrivate(); syncButtons();
+    try{diagnostic.textContent=label+" #"+n+": sending";const result=await operation(value=>{stage=value;diagnostic.textContent=label+" #"+n+": "+value;});stage="render";diagnostic.textContent=label+" #"+n+": response HTTP "+String(result?.status??"—")+(result?.requestId?" · Request: "+result.requestId:"")+(result?.setCookiePresent?" · Set-Cookie: present":"");render();return result;}
+    catch(error){stage=error?.rexStage||stage;uiFailed=true;const safeStage=/^(handler|login-request|login-response|session-bootstrap|guest-merge|render|fetch|response|bootstrap)$/.test(String(stage))?String(stage):"unknown";diagnostic.textContent=label+" #"+n+": UI exception at "+safeStage+" ("+( /^[A-Za-z][A-Za-z0-9]{0,39}$/.test(String(error?.name||""))?error.name:"Error")+")";message.textContent="Operacja jest chwilowo niedostępna.";setState("Auth UI error");clearPrivate();return null;}
+    finally{byId("password").value="";actionRunning=false;syncButtons();}
   }
   byId("credentials").addEventListener("submit",event=>event.preventDefault());
   byId("signup").addEventListener("click",()=>run("Signup",async()=>{const email=byId("email").value.trim(),password=byId("password").value;if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||!password||password.length<8){message.textContent="Wpisz prawidłowy testowy e-mail i hasło (minimum 8 znaków).";return {status:0};}const r=await auth.signup(email,password);message.textContent=r.ok?(r.confirmationRequired?"Sprawdź pocztę i potwierdź adres e-mail.":"Konto zostało utworzone."):"Rejestracja nie powiodła się. Sprawdź ustawienia staging Auth.";if(r.ok&&r.confirmationRequired)setState("Awaiting email confirmation");return r;}));
-  byId("login").addEventListener("click",()=>run("Login",async()=>{const email=byId("email").value.trim(),password=byId("password").value;if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||!password){message.textContent="Wpisz prawidłowy testowy e-mail i hasło.";return {status:0};}const r=await auth.login(email,password);message.textContent=r.ok?"Zalogowano.":"Logowanie nie powiodło się. Potwierdź e-mail i sprawdź dane.";return r;}));
+  byId("login").addEventListener("click",()=>run("Login",async setStage=>{const email=byId("email").value.trim(),password=byId("password").value;if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||!password){message.textContent="Wpisz prawidłowy testowy e-mail i hasło.";return {status:0};}const r=await auth.login(email,password,undefined,setStage);message.textContent=r.ok?"Zalogowano.":"Logowanie nie powiodło się. Potwierdź e-mail i sprawdź dane.";return r;}));
   byId("refresh").addEventListener("click",()=>run("Refresh",async()=>{const r=await auth.refreshSession();message.textContent=r.ok?"Sesja odświeżona.":"Odświeżenie sesji nie powiodło się.";return r;}));
   byId("logout").addEventListener("click",()=>run("Logout",async()=>{await auth.logout();message.textContent="Wylogowano.";return {status:200};}));
   function favoriteInput(){const lot=byId("favorite-lot").value.trim().toUpperCase(),platform=byId("favorite-platform").value;if(!lot)throw new Error("LOT required");return {lot,platform};}
@@ -45,7 +61,11 @@ const AUTH_TEST_HTML = String.raw`<!doctype html>
   byId("favorite-list").addEventListener("click",()=>run("Favorite list",async()=>{await auth.bootstrap();const cars=auth.getFavorites();favoriteMessage.textContent="Liczba wpisów: "+cars.length;render();return {status:200};}));
   byId("favorite-delete").addEventListener("click",()=>run("Favorite delete",async()=>{const item=lastFavorite||favoriteInput();const key="lot:"+item.platform+":"+item.lot;const ok=await auth.removeFavorite(key);favoriteMessage.textContent=ok?"Usunięto testowe favorite.":"Operacja ulubionych nie powiodła się.";return {status:ok?200:400};}));
   byId("favorite-merge").addEventListener("click",()=>run("Favorite merge",async()=>{const item=favoriteInput();const r=await auth.mergeFavoriteIdentities([item]);lastFavorite=item;favoriteMessage.textContent=r.ok?"Merge zakończony. Scalono wpisów: "+String(r.merged):"Operacja ulubionych nie powiodła się.";return {status:r.status|| (r.ok?200:400)};}));
-  auth.ready.then(render).catch(()=>{setState("Anonymous");message.textContent="Nie udało się sprawdzić sesji.";});
+  byId("phase-d-discovery").addEventListener("click",()=>run("Phase D discovery",async()=>{if(!pageReady||uiFailed||auth.status!=="authenticated"){byId("phase-d-message").textContent="Wymagane jest aktywne uwierzytelnienie stagingowe.";return {status:401};}const output=byId("phase-d-result"),status=byId("phase-d-message");output.textContent="";status.textContent="Wysyłam jedną kontrolowaną stronę discovery.";const response=await fetch("/__staging/d1-sync-phase-d-discovery",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:"{}"});const result=await response.json();output.textContent=JSON.stringify(result,null,2);status.textContent=result.ok?"Wynik zapisano trwale w staging D1; cleanup nie został wykonany.":"Operacja staging nie została ukończona. Kod błędu: "+String(result.error||result.error_code||"unknown");return {status:response.status,requestId:result.requestId};}));
+  auth.ready.then(()=>{
+    if(!auth.enabled){setState("Auth unavailable");clearPrivate();message.textContent="Wspólny klient Auth jest niedostępny.";syncButtons();return;}
+    pageReady=true;try{render();}catch{uiFailed=true;setState("Auth UI error");clearPrivate();diagnostic.textContent="Auth UI error at bootstrap (client_contract_mismatch)";}syncButtons();
+  }).catch(()=>{uiFailed=true;setState("Auth UI error");clearPrivate();message.textContent="Nie udało się sprawdzić sesji.";diagnostic.textContent="Auth UI error at bootstrap (bootstrap_failed)";syncButtons();});
 })();
 </script></body></html>`;
 

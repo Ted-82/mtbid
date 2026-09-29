@@ -145,12 +145,15 @@
       root.history?.replaceState?.(null, "", next);
     } catch {}
   }
-  async function login(email, password, onResponse) {
+  async function login(email, password, onResponse, onStage) {
+    onStage?.("login-request");
     const result = await request("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }) });
+    onStage?.("login-response");
     onResponse?.({ status: result.response.status, requestId: result.requestId, setCookiePresent: result.setCookiePresent });
     if (!result.response.ok || result.body?.ok !== true) return { ok: false, status: result.response.status, requestId: result.requestId, setCookiePresent: result.setCookiePresent };
+    onStage?.("session-bootstrap");
     const account = await bootstrap();
-    if (account.status === "authenticated") await mergeGuestFavorites();
+    if (account.status === "authenticated") { onStage?.("guest-merge"); await mergeGuestFavorites(); }
     return { ok: account.status === "authenticated", status: result.response.status, requestId: result.requestId, setCookiePresent: result.setCookiePresent };
   }
   async function signup(email, password) {
@@ -503,6 +506,7 @@
   const ready = configReady.then(result => enabled ? bootstrap() : result);
   const api = {
     get enabled() { return enabled; }, get status() { return state.status; }, get user() { return state.user; }, ready, bootstrap,
+    login, signup,
     getFavorites() { return state.status === "authenticated" ? state.cache.slice() : []; },
     isFavorite(vehicle) { const item = root.RexBidStorage?.snapshotFromVehicle?.(vehicle); return !!item && state.cache.some(saved => saved.id === item.id); },
     toggleFavorite, addFavoriteIdentity, removeFavorite, logout, refreshSession, requestPasswordReset, resendConfirmation, updatePassword, exportAccount, mergeFavoriteIdentities, mergeGuestFavorites, mountFavoritesPage, mountAccountPage,

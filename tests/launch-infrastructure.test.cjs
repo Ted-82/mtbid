@@ -147,11 +147,13 @@ test("staging wrapper applies noindex to every response and serves blocking robo
     .replace('import rexWorker from "./worker.js";', "const rexWorker = globalThis.__baseWorker;")
     .replace('import authTestHtml from "./staging/auth-test-page.js";', 'const authTestHtml = "<!doctype html><html><head><title>Auth test</title></head><body>test</body></html>";')
     .replace('import requestCorrelation from "./staging/request-correlation.cjs";', "const requestCorrelation = globalThis.__correlation;")
+    .replace('import phaseD from "./staging/phase-d-discovery.cjs";', "const phaseD = globalThis.__phaseD;")
     .replace("export default {", "globalThis.__staging = {");
   const context = {
     URL, Request, Response, Headers,
     __baseWorker: { fetch: async () => new Response("ok", { status: 200 }) },
-    __correlation: { authOperation: () => "", correlateRequest: request => ({ request, requestId: "" }), correlateResponse: response => response }
+    __correlation: { authOperation: () => "", correlateRequest: request => ({ request, requestId: "" }), correlateResponse: response => response },
+    __phaseD: { handlePhaseDRequest: async () => null }
   };
   vm.createContext(context); vm.runInContext(stagingSource, context);
   const env = { REXBID_AUTH_TEST_UI: "enabled", REXBID_AUTH_TEST_HOST: "rexbid-auth-test.tedn828.workers.dev" };
