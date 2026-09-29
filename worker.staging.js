@@ -2,6 +2,7 @@ import rexWorker from "./worker.js";
 import authTestHtml from "./staging/auth-test-page.js";
 import requestCorrelation from "./staging/request-correlation.cjs";
 import phaseD from "./staging/phase-d-discovery.cjs";
+import d1Read from "./staging/d1-read-routes.cjs";
 
 const REQUIRED_TEST_HOST = "rexbid-auth-test.tedn828.workers.dev";
 
@@ -57,6 +58,8 @@ export default {
     if (url.pathname === "/auth-test.html") {
       return stagingResponse(enabled ? htmlResponse() : new Response("Not Found", { status: 404, headers: { "Cache-Control": "no-store" } }), request);
     }
+    const d1ReadResponse = await d1Read.handleD1ReadRequest(request, env);
+    if (d1ReadResponse) return stagingResponse(d1ReadResponse, request);
     const phaseDResponse = await phaseD.handlePhaseDRequest(request, env, executionContext, (innerRequest, innerEnv, innerContext) => rexWorker.fetch(innerRequest, innerEnv, innerContext));
     if (phaseDResponse) return stagingResponse(phaseDResponse, request);
     const operation = enabled && env?.REXBID_AUTH_DIAGNOSTICS === "enabled" ? requestCorrelation.authOperation(url.pathname) : "";

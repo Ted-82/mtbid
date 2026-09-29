@@ -1,5 +1,19 @@
 # Rex.Bid D1 Sync 2 — projekt architektury
 
+> **Najnowszy status — Phase E (2026-09-29):** kod provider-neutral read repository, read policy/service oraz staging-only D1 read diagnostics jest zaimplementowany, automated-verified i staging-D1-read-verified. Final Worker `rexbid-auth-test` Version `6e19e605-a9a1-4e69-babe-0e4a515316ee` zwrócił read-only GET-y katalog (20), filtry (15 znanych marek), detail i initial snapshot z rzeczywistego staging D1. Catalog/filter metadata pozostały jawnie niekompletne. Finalny history GET potwierdził kompatybilny envelope, `snapshots_only`, private/no-store i noindex. Końcowy SELECT potwierdził brak zapisów i brak duplikatów. Publiczne API, production Worker/D1, frontend i schema nie zostały przełączone ani zmienione. Live Apibara requests = 0.
+
+### Phase E — staging D1 read model (nie jest publicznym cutoverem)
+
+`sync/d1-read-repository.js` udostępnia odczyt katalogu z filtrami, keyset pagination, lookup listing/source/exact VIN/LOT, snapshots oraz znanego zakresu metadata. Model zwraca canonical RexVehicle wraz z `freshness`, `last_synced_at`, `last_seen_at`, freshness class i coverage. `sync/read-policy.js` rozdziela `d1`, `provider` i `hybrid`: fresh D1 detail nie wywołuje providera; stale/missing detail dopuszcza provider wyłącznie przez jawnie przekazany callback; jeśli provider zawiedzie, zachowany jest ostatni D1 rekord. Katalog/filtry wymagają kompletnego coverage przed etykietą complete; partial scope pozostaje jawnie partial.
+
+`sync/read-service.js` demonstruje bounded detail fallback bez automatycznego requestu. Staging-only routes pod `/__staging/d1-read/{catalog,detail,history,filters}` są włączane wyłącznie przez staging config, dokładny staging host i właściwy D1 target. Zwracają kompatybilny kształt publicznego DTO oraz `read_source`/coverage/freshness; odpowiedzi są `private, no-store`. Nie są podłączone do normalnego `/api/cars` ani frontendów.
+
+History odczytuje wyłącznie zapisane `auction_listing_snapshots`; snapshots są stanami zaobserwowanymi, nie potwierdzonymi wynikami aukcji. `auction_events` nie są fabrykowane. Filtry pochodzą z zapisanych wierszy i mają `metadata_complete=false` przy partial coverage. Obecny Copart scope z cursor nie jest kompletny, a IAAI nie ma ukończonego zakresu — 20 rekordów nie może być przedstawiane jako pełny katalog.
+
+Cache: staging diagnostic read path omija cache aplikacyjny i wysyła `private, no-store`. D1 jest źródłem trwałym; ewentualny public cache dopiero po kompletnym pokryciu i z invalidacją opartą o odświeżenia/version. Private/account routes pozostają poza tym cache.
+
+**Warunki przed przyszłym production cutover:** kompletne discovery scopes dla każdej włączonej platformy i filtrów; testy cursor/paginacji i canonical parity; uzgodniona freshness/SLA oraz provider request budget; brak empty/partial nadpisania; monitoring stale/coverage; staging soak; oddzielna akceptacja migracji produkcyjnej i przełączenia API. Do tego czasu produkcyjne `/api/cars`, detail i history zachowują dotychczasową ścieżkę providera.
+
 **Status: Phase A DONE; Phase B D1 VERIFIED; Phase C SHADOW VERIFIED; Phase D CODE VERIFIED / AUTOMATED VERIFIED / STAGING PERSISTENT DISCOVERY VERIFIED.** Phase B zweryfikowano na disposable SQLite oraz na prawdziwym Cloudflare D1 bindingu `rexbid-auth-test-db`, wyłącznie na danych syntetycznych. Phase C wykonała jeden ograniczony discovery request i usunęła swoje temporary shadow rows. Phase D wykonała jedną stronę persistent Copart discovery na stagingu: 1 live request (limit 5), 20 provider records / 20 accepted, 20 sources, 20 listings, 20 initial snapshots; dane pozostają w D1 zgodnie z celem, bez cleanupu. Odczyt D1 był bezpośredni i wyłącznie read-only. Produkcyjne `rexbid-db`, konfiguracja produkcji i publiczne API pozostały nietknięte. Proposal 0004 nadal leży poza aktywnymi migracjami Wrangler; nie stosować go do produkcji.
 
 Stan wejściowy: repozytorium `main`, checkpoint Phase A `015ee6f`. D1 Sync nie ma schedulera ani wdrożonego modelu produkcyjnego. Zwykłe GET pozostają read-only, a obecny klient Apibara nadal obsługuje większość katalogu.
@@ -319,7 +333,7 @@ Po cleanup: wszystkie 11 tabel Sync = 0; `users=1`, `user_favorites=1`; legacy `
 
 **Status przy zamknięciu Phase C:** Phase A **DONE**; Phase B **D1 VERIFIED**; Phase C **SHADOW VERIFIED** (jedna strona, jeden live request; staging D1 odczytana bezpośrednio i cleanup potwierdzony); Phase D nie była wtedy rozpoczęta. Aktualny status Phase D podano w sekcji poniżej. Proposal 0004 pozostaje w `docs/proposals/`, poza aktywnym katalogiem migracji i nie została zastosowana do produkcji. Końcowy staging Worker bez tymczasowej trasy Phase C: `c3137145-5d14-4cb6-b888-51c092b25938`.
 
-**Następny krok:** Phase E — projekt i walidacja D1 Primary Reads — wymaga osobnej zgody i pozostaje niezaczęta. Factual data/history/snapshots/derived/commercial use objęte są odpowiedzią Apibara opisaną w `docs/APIBARA_DATA_RIGHTS.md`, ale nie oznacza to dowolnego wolumenu ani wyłączenia niezależnych praw Copart/IAA. Trwałe archiwum/redistribution oryginalnych zdjęć nadal nie jest zatwierdzone. Phase D nie włączyła harmonogramu, queue, publicznego odczytu Sync ani masowego importu.
+**Stan w chwili zamknięcia Phase C:** Phase E — projekt i walidacja D1 Primary Reads — nie była wtedy rozpoczęta. Bieżący status Phase E jest podany na początku tego dokumentu. Factual data/history/snapshots/derived/commercial use objęte są odpowiedzią Apibara opisaną w `docs/APIBARA_DATA_RIGHTS.md`, ale nie oznacza to dowolnego wolumenu ani wyłączenia niezależnych praw Copart/IAA. Trwałe archiwum/redistribution oryginalnych zdjęć nadal nie jest zatwierdzone. Phase D nie włączyła harmonogramu, queue, publicznego odczytu Sync ani masowego importu.
 
 ### Phase D — persistent staging discovery (CODE VERIFIED; AUTOMATED VERIFIED; STAGING PERSISTENT DISCOVERY VERIFIED)
 
@@ -339,7 +353,7 @@ Budget D1: normal limit 5, consumed 1, reserved 0; retry limit/consumed/reserved
 
 Publiczne `/api/cars`, Home i karta auta nadal nie korzystają z Sync tables; `sync/d1-repository.js` pozostaje poza publicznym odczytem. Produkcja nie była dotykana. Nie wykonano cleanupu danych Phase D.
 
-**Status:** Phase D persistent discovery na stagingu zweryfikowany dla jednej strony. Nie oznacza to jeszcze kompletnego ingestionu całego scope’u, scheduled sync ani gotowości D1 Primary Reads. Phase E pozostaje poza zakresem i wymaga osobnej decyzji.
+**Status Phase D:** persistent discovery na stagingu zweryfikowany dla jednej strony. Nie oznacza to kompletnego ingestionu całego scope’u ani scheduled sync. Aktualny stan Phase E i jej staging-only read model opisano na początku dokumentu; production D1 Primary Reads pozostaje poza zakresem.
 
 ## Sources / status
 
