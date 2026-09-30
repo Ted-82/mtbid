@@ -48,9 +48,10 @@ test("Worker live/config files keep production and staging bindings isolated and
   assert.equal(stagingConfig.vars?.REXBID_PHASE_G_PREP_BACKFILL, "enabled", "manual continuation is explicitly enabled only on isolated staging");
   for (const configName of ["wrangler.jsonc", "wrangler.staging.jsonc"]) {
     const config = JSON.parse(fs.readFileSync(path.join(ROOT, configName), "utf8"));
-    for (const route of ["/", "/*.html", "/konto", "/ulubione", "/logowanie", "/rejestracja", "/reset-hasla", "/robots.txt", "/sitemap.xml", "/rexbid-door-estimator.js", "/rexbid-door-estimator-rates.js"]) {
+    for (const route of ["/", "/*.html", "/konto", "/ulubione", "/logowanie", "/rejestracja", "/reset-hasla", "/robots.txt", "/sitemap.xml", "/rexbid-door-estimator.js", "/rexbid-door-estimator-rates.js", "/rexbid-transport-rates.js", "/rexbid-transport-engine.js"]) {
       assert.ok(config.assets.run_worker_first.includes(route), `${configName} must invoke Worker before ${route}`);
     }
+    if (configName === "wrangler.jsonc") assert.notEqual(config.vars?.REXBID_TRANSPORT_CALCULATOR_ENABLED, "enabled", "partner calculator must not be activated on production config");
   }
 });
 
@@ -108,23 +109,28 @@ test("HTML gets nonce CSP/security headers; private pages are no-store and noind
   assert.equal(cleanUrlPrivatePage.headers.get("X-Robots-Tag"), "noindex, nofollow");
 });
 
-test("real car HTML receives SEO metadata and hides the unapproved door estimator unless explicitly staging-enabled", async () => {
+test("real car HTML receives SEO metadata and only exposes partner transport calculator behind its staging flag", async () => {
   const carHtml = fs.readFileSync(path.join(ROOT, "public/car.html"), "utf8");
   const context = loadWorker({ assets: { fetch: async () => new Response(carHtml, { status: 200, headers: { "Content-Type": "text/html; charset=utf-8" } }) } });
   const production = await context.__worker.fetch(new Request("https://mtbid.tedn828.workers.dev/car.html?vin=TESTVIN"), context.__env);
   const productionHtml = await production.text();
-  assert.doesNotMatch(productionHtml, /id="estimatedDoorCalculator"|rexbid-door-estimator(?:-rates)?\.js/);
+  assert.doesNotMatch(productionHtml, /id="partnerTransportCalculator"|rexbid-transport-(?:rates|engine)\.js/);
   assert.match(productionHtml, /property="og:title"/);
   assert.match(productionHtml, /name="description"/);
   assert.equal(production.headers.get("Cache-Control"), "no-cache");
-  const staging = await context.__worker.fetch(new Request("https://rexbid-auth-test.tedn828.workers.dev/car.html"), { ...context.__env, REXBID_DOOR_ESTIMATOR_PROTOTYPE: "enabled" });
+  const staging = await context.__worker.fetch(new Request("https://rexbid-auth-test.tedn828.workers.dev/car.html"), { ...context.__env, REXBID_TRANSPORT_CALCULATOR_ENABLED: "enabled" });
   const stagingHtml = await staging.text();
-  assert.match(stagingHtml, /id="estimatedDoorCalculator"/);
-  assert.match(stagingHtml, /rexbid-door-estimator\.js/);
+  assert.match(stagingHtml, /id="partnerTransportCalculator"/);
+  assert.match(stagingHtml, /rexbid-transport-engine\.js/);
+  assert.doesNotMatch(stagingHtml, /id="estimatedDoorCalculator"|rexbid-door-estimator(?:-rates)?\.js/);
   const prototypeAsset = await context.__worker.fetch(new Request("https://mtbid.tedn828.workers.dev/rexbid-door-estimator.js"), context.__env);
   assert.equal(prototypeAsset.status, 404, "prototype bundles must not be publicly fetched in production");
   const stagingAsset = await context.__worker.fetch(new Request("https://rexbid-auth-test.tedn828.workers.dev/rexbid-door-estimator.js"), { ...context.__env, REXBID_DOOR_ESTIMATOR_PROTOTYPE: "enabled" });
   assert.equal(stagingAsset.status, 200, "explicit staging configuration may serve the prototype asset");
+  const productionTransportAsset = await context.__worker.fetch(new Request("https://mtbid.tedn828.workers.dev/rexbid-transport-engine.js"), context.__env);
+  assert.equal(productionTransportAsset.status, 404, "partner transport calculator bundle is disabled on production by default");
+  const stagingTransportAsset = await context.__worker.fetch(new Request("https://rexbid-auth-test.tedn828.workers.dev/rexbid-transport-engine.js"), { ...context.__env, REXBID_TRANSPORT_CALCULATOR_ENABLED: "enabled" });
+  assert.equal(stagingTransportAsset.status, 200);
 });
 
 test("unknown routes return a safe branded 404 rather than a blank/stack page", async () => {
@@ -191,12 +197,13 @@ test("request logs use route templates and never include VIN, auth values, body 
   assert.doesNotMatch(serialized, /1HGCM82633A004352|fixture-key-never-log|private@example\.invalid|provider failure/);
 });
 
-test("production pages mark the door-to-door calculator as a prototype and public SEO files exclude private pages", () => {
+test("car page uses the partner transport model instead of superseded public estimates and SEO excludes private pages", () => {
   const car = fs.readFileSync(path.join(ROOT, "public/car.html"), "utf8");
   const robots = fs.readFileSync(path.join(ROOT, "public/robots.txt"), "utf8");
   const sitemap = fs.readFileSync(path.join(ROOT, "public/sitemap.xml"), "utf8");
-  assert.match(car, /Orientacyjne widełki|Orientacyjna kalkulacja/);
-  assert.match(car, /to nie jest oferta transportowa ani rozliczenie celne/i);
+  assert.match(car, /Stawki partnera Rex\.Bid/);
+  assert.match(car, /nie gwarantowana oferta ani rozliczenie celne/i);
+  assert.doesNotMatch(car, /Orientacyjne widełki dostawy auta|Orientacyjna kalkulacja na podstawie publicznych danych rynkowych/i);
   assert.match(robots, /Disallow: \/konto\.html/);
   assert.doesNotMatch(sitemap, /konto|ulubione|logowanie|rejestracja|reset-hasla/);
   assert.equal(fs.existsSync(path.join(ROOT, "public/auth-test.html")), false);

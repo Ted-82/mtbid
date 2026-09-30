@@ -34,7 +34,9 @@
       "/robots.txt",
       "/sitemap.xml",
       "/rexbid-door-estimator.js",
-      "/rexbid-door-estimator-rates.js"
+      "/rexbid-door-estimator-rates.js",
+      "/rexbid-transport-rates.js",
+      "/rexbid-transport-engine.js"
     ]
   }
 }

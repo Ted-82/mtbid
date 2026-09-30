@@ -1,6 +1,8 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const calc = require("../public/rexbid-calculator.js");
+const transport = require("../public/rexbid-transport-engine.js");
+const partnerRates = require("../public/rexbid-transport-rates.js");
 
 const cleanGolden = [
   { bid: 1000, expected: 473 },
@@ -281,6 +283,56 @@ test("incomplete result has no total, so UI cannot show a complete sum", () => {
   assert.equal(result.complete, false);
   assert.equal(result.total, null);
   assert.equal(result.label, "Kalkulacja niepełna");
+});
+
+test("strict calculator consumes selected partner land/sea inputs without changing its incomplete tax and fee rules", () => {
+  const result = calc.calculate({
+    platform: "copart",
+    purchasePriceUsd: 10000,
+    partnerTransport: { land_amount: 205, sea_amount: 675, currency: "USD", source: "partner" }
+  });
+  const lines = Object.fromEntries(result.lines.map(item => [item.id, item]));
+  assert.equal(lines.usInland.amount, 205);
+  assert.equal(lines.usInland.source_kind, "partner");
+  assert.equal(lines.oceanFreight.amount, 675);
+  assert.equal(lines.oceanFreight.source_kind, "partner");
+  assert.equal(result.known_subtotals.USD, 10880);
+  assert.equal(result.complete, false, "unknown auction fees, import costs and taxes remain blockers");
+  assert.equal(result.total, null);
+  const manualOverride = calc.calculate({ platform:"copart", purchasePriceUsd:10000, usInlandUsd:123, partnerTransport:{land_amount:205,sea_amount:675} });
+  assert.equal(manualOverride.lines.find(item => item.id === "usInland").amount,123);
+});
+
+test("one planned purchase input flows through partner transport selection into the strict calculator", () => {
+  const carHtml = require("node:fs").readFileSync(require("node:path").join(__dirname,"../public/car.html"),"utf8");
+  assert.match(carHtml,/purchasePriceInput:\s*estimateRoot\?\.querySelector\("\[data-transport-purchase\]"\)/);
+  const sharedPurchase = { value:"", handlers:[], addEventListener(type,handler){ if(type==="input") this.handlers.push(handler); } };
+  const transportNodes = new Map();
+  const makeNode = (value="") => ({ value, textContent:"", hidden:false, addEventListener(type,handler){ if(type==="input") this.handlers=handler; } });
+  for (const selector of ["[data-transport-purchase-note]","[data-transport-location]","[data-transport-vehicle-facts]","[data-transport-land-status]","[data-transport-land-value]","[data-transport-sea-value]","[data-transport-combined]","[data-transport-total]","[data-transport-missing]"]) transportNodes.set(selector,makeNode());
+  transportNodes.set("[data-transport-purchase]",sharedPurchase);
+  const transportRoot={querySelector(selector){return transportNodes.get(selector)||null;}};
+  const internalPurchase={value:"",closest(){return this.field={hidden:false};}};
+  const strictRoot={querySelector(selector){return selector==="#calcPurchasePrice"?internalPurchase:null;},addEventListener(){}};
+  const row=partnerRates.landRates[254];
+  let selected=null,lastResult=null;
+  transport.bind({root:transportRoot,vehicle:{platform:row.platform,auction:{location:row.location_name,city:row.city,state:row.state_province,zip:row.postal_code}},prefill:{purchasePrice:2500,purchaseKind:"active-suggestion"},onUpdate(value){selected=value;}});
+  calc.bindCalculator({root:strictRoot,platform:"copart",prefill:{purchasePrice:2500,purchaseKind:"active-suggestion"},purchasePriceInput:sharedPurchase,getPartnerTransport:()=>selected,onUpdate(result){lastResult=result;}});
+  const line=id=>lastResult.lines.find(item=>item.id===id);
+  assert.equal(sharedPurchase.value,"2500");
+  assert.equal(internalPurchase.value,"2500");
+  assert.equal(internalPurchase.field.hidden,true,"the duplicate strict price control stays out of the staging UI when the shared input exists");
+  assert.equal(line("vehiclePrice").amount,2500);
+  assert.equal(line("usInland").amount,205);
+  assert.equal(line("oceanFreight").amount,675);
+
+  sharedPurchase.value="5000";
+  for (const handler of sharedPurchase.handlers) handler();
+  assert.equal(internalPurchase.value,"5000");
+  assert.equal(line("vehiclePrice").amount,5000);
+  assert.equal(line("usInland").amount,205);
+  assert.equal(line("oceanFreight").amount,675);
+  assert.equal(lastResult.complete,false,"unconfigured auction/import/tax/FX inputs keep the strict total incomplete");
 });
 
 test("calculator initialization renders active, finished and no-price vehicle cards without throwing", () => {

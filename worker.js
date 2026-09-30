@@ -1537,6 +1537,10 @@ async function applySecurityHeaders(response, request, { requestId = null, env =
       html = html.replace(/\s*<section class="door-estimator"[\s\S]*?<\/section>/i, "");
       html = html.replace(/\s*<script\s+src="\/rexbid-door-estimator(?:-rates)?\.js"[^>]*><\/script>/gi, "");
     }
+    if (url.pathname === "/car.html" && env?.REXBID_TRANSPORT_CALCULATOR_ENABLED !== "enabled") {
+      html = html.replace(/\s*<section class="partner-transport-calculator"[\s\S]*?<\/section>/i, "");
+      html = html.replace(/\s*<script\s+src="\/rexbid-transport-(?:rates|engine)\.js"[^>]*><\/script>/gi, "");
+    }
     if (PUBLIC_PAGE_DESCRIPTIONS[url.pathname]) {
       const title = (html.match(/<title>([\s\S]*?)<\/title>/i)?.[1] || "REX.Bid").replace(/<[^>]*>/g, "").trim();
       const existingDescription = html.match(/<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i)?.[1];
@@ -2302,6 +2306,9 @@ const rexWorker = {
 
     if (url.pathname === "/rexbid-door-estimator.js" || url.pathname === "/rexbid-door-estimator-rates.js") {
       if (env?.REXBID_DOOR_ESTIMATOR_PROTOTYPE !== "enabled") return errorJson("Nie znaleziono zasobu.", 404);
+    }
+    if (url.pathname === "/rexbid-transport-rates.js" || url.pathname === "/rexbid-transport-engine.js") {
+      if (env?.REXBID_TRANSPORT_CALCULATOR_ENABLED !== "enabled") return errorJson("Nie znaleziono zasobu.", 404);
     }
 
     if (request.method === "GET" && url.pathname === "/health") {

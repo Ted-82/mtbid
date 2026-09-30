@@ -1293,8 +1293,8 @@ main{padding-top:22px}
 @media(max-width:480px){.calc-grid{grid-template-columns:1fr}.import-calc{padding:15px}}
 
 /* Estimated door-to-door range model; isolated from the strict calculator. */
-.door-estimator{margin:0 0 14px;padding:16px;border:1px solid #e3e8ed;border-radius:14px;background:linear-gradient(145deg,#fff 0%,#fbfcfd 100%)}
-.door-estimator h3{margin:0 0 4px;color:#17202a;font-size:17px}.door-est-intro{margin:0 0 12px;color:#697580;font-size:11px;line-height:1.45}
+.door-estimator,.partner-transport-calculator{margin:0 0 14px;padding:16px;border:1px solid #e3e8ed;border-radius:14px;background:linear-gradient(145deg,#fff 0%,#fbfcfd 100%)}
+.door-estimator h3,.partner-transport-calculator h3{margin:0 0 4px;color:#17202a;font-size:17px}.door-est-intro{margin:0 0 12px;color:#697580;font-size:11px;line-height:1.45}
 .door-est-main{display:grid;grid-template-columns:minmax(180px,230px) minmax(0,1fr);gap:16px;align-items:center}
 .door-est-input label{display:block;margin-bottom:5px;color:#475461;font-size:11px;font-weight:800}
 .door-est-input input{width:100%;height:43px;padding:0 10px;border:1px solid #d4dbe2;border-radius:8px;background:#fff;color:#17202a;font-size:18px;font-weight:800}
@@ -1302,13 +1302,14 @@ main{padding-top:22px}
 .door-est-total{min-width:0}.door-est-range{color:#17202a;font-size:clamp(22px,3vw,31px);font-weight:900;letter-spacing:-.035em;line-height:1.1}
 .door-est-expected{margin-top:5px;color:#43515d;font-size:12px;font-weight:750}.door-est-confidence{display:inline-flex;margin-top:7px;padding:3px 8px;border-radius:20px;background:#fff3d4;color:#755500;font-size:10px;font-weight:800}
 .door-est-disclaimer{margin:12px 0 0;color:#77818a;font-size:10px;line-height:1.45}
-.door-est-rows{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-top:12px}
+.door-est-rows{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-top:12px}.partner-transport-rows{grid-template-columns:repeat(3,minmax(0,1fr))}
 .door-est-row{display:flex;min-width:0;flex-direction:column;justify-content:space-between;gap:6px;padding:8px 9px;border:1px solid #ebeff2;border-radius:8px;background:#fff;font-size:10px}
 .door-est-row span{color:#68747f}.door-est-row strong{color:#25323c;font-size:11px;line-height:1.2}
+.partner-transport-rows small{font-size:9px;color:#7b858e}.partner-transport-rows select{width:100%;margin-top:4px;padding:6px;border:1px solid #d4dbe2;border-radius:6px;background:#fff;color:#25323c;font-size:11px}
 .door-est-details{margin-top:10px;border-top:1px solid #e8ecef}.door-est-details>summary{padding:10px 0 2px;color:#46596a;cursor:pointer;font-size:11px;font-weight:800}
 .door-est-detail{padding:8px 0;border-bottom:1px solid #edf0f2}.door-est-detail h4{margin:0 0 4px;color:#354451;font-size:11px}.door-est-detail p,.door-est-details>p{margin:3px 0;color:#74808a;font-size:10px;line-height:1.45;overflow-wrap:anywhere}.door-est-detail ul{margin:4px 0;padding-left:17px;color:#5e6b76;font-size:10px;line-height:1.45}
-@media(max-width:760px){.door-est-main{grid-template-columns:minmax(145px,190px) minmax(0,1fr);gap:11px}.door-est-rows{grid-template-columns:repeat(2,minmax(0,1fr))}.door-est-row:last-child{grid-column:1/-1}}
-@media(max-width:520px){.door-estimator{padding:13px}.door-est-main{grid-template-columns:1fr}.door-est-total{padding:10px;border-radius:9px;background:#f6f8fa}.door-est-range{font-size:25px}.door-est-rows{gap:6px}.door-est-row{padding:7px}.door-est-row:last-child{grid-column:auto}}
+@media(max-width:760px){.door-est-main{grid-template-columns:minmax(145px,190px) minmax(0,1fr);gap:11px}.door-est-rows,.partner-transport-rows{grid-template-columns:repeat(2,minmax(0,1fr))}.door-est-row:last-child{grid-column:1/-1}}
+@media(max-width:520px){.door-estimator,.partner-transport-calculator{padding:13px}.door-est-main{grid-template-columns:1fr}.door-est-total{padding:10px;border-radius:9px;background:#f6f8fa}.door-est-range{font-size:25px}.door-est-rows{gap:6px}.door-est-row{padding:7px}.door-est-row:last-child{grid-column:auto}}
 </style>
 
 <link rel="stylesheet" href="/rexbid-brand.css" />
@@ -1373,8 +1374,8 @@ main{padding-top:22px}
 
 <script src="/rexbid-calculator-rates.js"></script>
 <script src="/rexbid-calculator.js"></script>
-<script src="/rexbid-door-estimator-rates.js"></script>
-<script src="/rexbid-door-estimator.js"></script>
+<script src="/rexbid-transport-rates.js"></script>
+<script src="/rexbid-transport-engine.js"></script>
 <script src="/rexbid-storage.js"></script>
 <script src="/rexbid-auth.js"></script>
 <script>
@@ -2741,16 +2742,25 @@ main{padding-top:22px}
             <div class="info-card-body"><div id="auctionHistory" class="auction-history"></div><button id="loadOlderAuctionHistory" type="button" hidden style="margin-top:12px;padding:9px 13px;border:1px solid #d5dde4;border-radius:8px;background:#fff;color:#203246;font-weight:750;cursor:pointer">Załaduj starsze wydarzenia</button><div class="seller-note" style="margin-top:8px">Historia aukcji; snapshoty REX.Bid nie są mieszane z wydarzeniami sprzedaży.</div></div>
           </section>
 
-          <section class="door-estimator" id="estimatedDoorCalculator" aria-labelledby="doorEstimatorTitle">
-            <h3 id="doorEstimatorTitle">Szacowany koszt pod dom</h3>
-            <p class="door-est-intro">Orientacyjne widełki dostawy auta z USA do Polski. To nie jest oferta transportowa ani rozliczenie celne.</p>
+          <section class="partner-transport-calculator" id="partnerTransportCalculator" aria-labelledby="partnerTransportTitle">
+            <h3 id="partnerTransportTitle">Szacowany koszt transportu</h3>
+            <p class="door-est-intro">Stawki partnera Rex.Bid. To szacunek transportu, nie gwarantowana oferta ani rozliczenie celne.</p>
             <div class="door-est-main">
-              <div class="door-est-input"><label for="doorEstimatePurchase">Planowana cena zakupu (USD)</label><input id="doorEstimatePurchase" data-est-purchase type="number" min="1" step="100" inputmode="decimal" placeholder="Wpisz kwotę"><small data-est-purchase-note>Wpisz planowaną cenę zakupu.</small></div>
-              <div class="door-est-total"><div class="door-est-range" data-est-total aria-live="polite">Wpisz planowaną cenę zakupu</div><div class="door-est-expected" data-est-expected></div><span class="door-est-confidence" data-est-confidence>Pewność: niska</span></div>
+              <div class="door-est-input"><label for="partnerTransportPurchase">Planowana cena zakupu (USD)</label><input id="partnerTransportPurchase" data-transport-purchase type="number" min="1" step="100" inputmode="decimal" placeholder="Wpisz kwotę"><small data-transport-purchase-note>Wpisz planowaną cenę zakupu.</small></div>
+              <div class="door-est-total"><div class="door-est-range" data-transport-total aria-live="polite">Kalkulacja częściowa</div><span class="door-est-confidence">Źródło transportu: Partner Rex.Bid</span></div>
             </div>
-            <div class="door-est-rows" data-est-rows></div>
-            <p class="door-est-disclaimer">Orientacyjna kalkulacja na podstawie publicznych danych rynkowych; dokładna wycena jest ustalana indywidualnie przed zakupem.</p>
-            <details class="door-est-details"><summary>Szczegóły, źródła i założenia</summary><div data-est-details></div></details>
+            <div class="door-est-rows partner-transport-rows">
+              <div class="door-est-row"><span>Lokalizacja aukcji</span><strong data-transport-location>Ładowanie danych auta…</strong></div>
+              <div class="door-est-row"><span>Pojazd</span><strong data-transport-vehicle-facts>Dane auta ładowane automatycznie</strong></div>
+              <div class="door-est-row"><span>Opłaty aukcyjne</span><strong>Wymaga potwierdzenia</strong></div>
+              <div class="door-est-row"><span>Transport lądowy USA</span><strong data-transport-land-value>Wymaga dopasowania</strong><small data-transport-land-status></small></div>
+              <div class="door-est-row"><span>Transport morski 40'HC</span><strong data-transport-sea-value>Wymaga kompletnej stawki trasy</strong></div>
+              <div class="door-est-row"><span>Transport USA + morze</span><strong data-transport-combined>Wymaga wyceny</strong></div>
+              <div class="door-est-row"><span>Podatki i odprawa</span><strong>Wymaga danych</strong></div>
+              <div class="door-est-row"><span>Transport w Polsce</span><strong>Wymaga wyceny</strong></div>
+            </div>
+            <p class="door-est-disclaimer" data-transport-missing>Brak danych nie oznacza kosztu 0. Końcowa kalkulacja wymaga dopasowanej trasy, waluty i pozostałych kosztów.</p>
+            <details class="door-est-details"><summary>Jak czytać szacunek</summary><p>Wariant standardowy zakłada 4 auta w kontenerze 40'HC, a ostrożny 3 auta. System wybiera trasę z najniższą kompletną sumą transportu lądowego i morskiego. Nazwy tras i portów nie są publikowane bez potwierdzenia. Stawki partnera są w USD; końcowa kwota importu pozostaje niepełna, dopóki nie są znane pozostałe opłaty i dane odprawy.</p></details>
           </section>
 
           <section class="panel import-calc" id="importCalculator">
@@ -3187,15 +3197,18 @@ main{padding-top:22px}
 
   function initImportCalculator() {
     const root = document.getElementById("importCalculator");
-    const estimateRoot = document.getElementById("estimatedDoorCalculator");
-    if (estimateRoot && window.RexBidDoorEstimator && window.RexBidCalculator) {
+    const estimateRoot = document.getElementById("partnerTransportCalculator");
+    let partnerTransportSelection = null;
+    if (estimateRoot && window.RexBidTransport && window.RexBidCalculator) {
       try {
-        const estimatePrefill = window.RexBidCalculator.prefillFromVehicle(car, { auctionEnded: auctionPhase() === "ended" });
-        window.RexBidDoorEstimator.bind({ root: estimateRoot, vehicle: car, prefill: estimatePrefill });
+        const transportPrefill = window.RexBidCalculator.prefillFromVehicle(car, { auctionEnded: auctionPhase() === "ended" });
+        window.RexBidTransport.bind({ root: estimateRoot, vehicle: car, prefill: transportPrefill, onUpdate(selection) {
+          partnerTransportSelection = selection;
+        } });
       } catch (error) {
-        console.warn("REX.Bid estimated door calculator initialization:", error);
-        const total = estimateRoot.querySelector("[data-est-total]");
-        if (total) total.textContent = "Estymator chwilowo niedostępny";
+        console.warn("REX.Bid partner transport calculator initialization:", error);
+        const total = estimateRoot.querySelector("[data-transport-total]");
+        if (total) total.textContent = "Kalkulacja transportu chwilowo niedostępna";
       }
     }
     if (!root || !window.RexBidCalculator) return;
@@ -3209,6 +3222,8 @@ main{padding-top:22px}
       ].filter(([,value]) => !isEmpty(value)).map(([label,value]) => `${label}: ${value}`).join(" · ");
       window.RexBidCalculator.bindCalculator({
         root, platform, prefill, context,
+        purchasePriceInput: estimateRoot?.querySelector("[data-transport-purchase]"),
+        getPartnerTransport: () => partnerTransportSelection,
         onUpdate(result) {
           const topForecast = document.getElementById("topForecast");
           if (topForecast) topForecast.textContent = result.complete && result.total

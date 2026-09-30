@@ -19,6 +19,7 @@
     "REXBID_D1_READ_DIAGNOSTICS": "enabled",
     "REXBID_D1_READ_TARGET": "rexbid-auth-test-db",
     "REXBID_D1_READ_MAX_AGE_MS": "86400000",
+    "REXBID_TRANSPORT_CALCULATOR_ENABLED": "enabled",
     "REXBID_SYNC_HOT_INTERVAL_MS": "300000",
     "REXBID_SYNC_WARM_INTERVAL_MS": "21600000",
     "REXBID_SYNC_COLD_INTERVAL_MS": "604800000",
@@ -47,7 +48,9 @@
       "/robots.txt",
       "/sitemap.xml",
       "/rexbid-door-estimator.js",
-      "/rexbid-door-estimator-rates.js"
+      "/rexbid-door-estimator-rates.js",
+      "/rexbid-transport-rates.js",
+      "/rexbid-transport-engine.js"
     ]
   }
 }

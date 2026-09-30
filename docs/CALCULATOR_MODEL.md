@@ -1,18 +1,28 @@
 # Rex.Bid — model kalkulatora importu USA → Polska
 
+## Calculator V2 — weryfikacja stagingowa 2026-09-30
+
+- **CODE VERIFIED:** partner rate importer/config/engine działa dla 610 lokalizacji; USD; expected 4 auta i conservative 3 auta; trasa minimalizuje pełne land+sea.
+- **AUTOMATED VERIFIED:** `node --test` 259/259 PASS, generator `--check`, składnia i diff-check PASS.
+- **STAGING VERIFIED:** wdrożenie wyłącznie `rexbid-auth-test` / `rexbid-auth-test-db`, Version ID `00b55a4e-9389-453b-8153-5621f3bc4c7b`.
+- **REAL BROWSER VERIFIED:** Copart LOT 97885965 renderuje kalkulator; match `fallback_zip`, land $295, sea $575 standard / $650 ostrożny, total transport $870 / $945 USD. Błąd lokalizacji-obiektu `[object Object]` naprawiono i staging zweryfikowano ponownie.
+- **NOT VERIFIED:** pełny viewport mobilny, wszystkie statusy matcherów w realnym UI oraz pełny koszt pod dom. Brakujące auction fee, import/tax, prawnie właściwy FX i transport w Polsce blokują total; niczego nie traktujemy jako 0.
+
 ## Aktualizacja: stawki transportowe partnera (2026-09-30)
 
 Właściciel Rex.Bid otrzymał od partnera/importera realne tabele transportowe. Zgodnie z jego decyzją są one od teraz **autorytatywnym roboczym źródłem stawek transportowych Rex.Bid** do czasu przekazania aktualizacji przez partnera. Wcześniejsze publiczne estymacje/benchmarki transportu opisane niżej są **superseded**: pozostają historycznym zapisem researchu, nie źródłem cen dla kalkulatora.
 
 Docelowy przepływ kosztów: `auction location → land transport rate → route/hub → sea freight → remaining import costs → door-to-door estimate`. Stawki przechowujemy w wersjonowanych danych konfiguracyjnych (później opcjonalnie D1/admin), nie w kodzie matematycznym ani `car.html`; aktualizacja cennika nie powinna wymagać zmiany algorytmu.
 
-### Tabela lądowa — struktura przekazana przez właściciela
+### Tabela lądowa — zaimportowana z cennika partnera
 
-Tabela obejmuje lokalizację aukcji, platformę (`Copart`, `IAAI`, `Manheim`, `Adesa`), miasto, stan, ZIP i do sześciu kolumn stawek. W tej informacji nie przekazano nazw tras/portów ani liczbowych wierszy tabeli. Do czasu otrzymania pełnego źródła używamy wyłącznie neutralnych identyfikatorów `route_1`…`route_6`; nie zgadujemy ich oficjalnych nazw ani mapowania na porty.
+Oryginalne źródło znajduje się w `data/partner/land_transport_rates.md` (TSV z 11 kolumnami: lokalizacja, platforma, miasto, stan/prowincja, ZIP i sześć route columns). Importer `scripts/partner-transport-rates.cjs` wygenerował 610 rekordów: Copart 252, IAAI 202, Manheim 90, Adesa 66; 585 USA i 25 Kanada. W 14 rekordach brak ZIP i w 14 brak miasta; 718 route cells są puste; żaden wiersz nie ma wszystkich sześciu stawek pustych. Wszystkie 2942 niepuste kwoty w tej tabeli mają znak `$`, zatem robocza waluta zestawu to USD. Szczegółowy audyt i kolizje fallbacków opisuje `docs/TRANSPORT_RATE_MODEL.md`.
+
+Puste komórki pozostają null. Route IDs pozostają neutralne; nazwy portów nie zostały dostarczone.
 
 ### Fracht morski 40'HC — stawki przekazane przez właściciela
 
-Stawki są per vehicle, w kolejności sześciu neutralnych tras. Waluty nie określono, zatem kwot nie wolno przed potwierdzeniem interpretować jako USD/EUR ani używać w obliczeniu.
+Stawki są per vehicle, w kolejności sześciu neutralnych tras. Oryginalne źródło `data/partner/sea_transport_rates.md` oznacza każdą kwotę znakiem `$`; zgodnie z decyzją właściciela cały rate set ma walutę USD.
 
 | Liczba aut w kontenerze 40'HC | route_1 | route_2 | route_3 | route_4 | route_5 | route_6 |
 |---:|---:|---:|---:|---:|---:|---:|
@@ -21,17 +31,20 @@ Stawki są per vehicle, w kolejności sześciu neutralnych tras. Waluty nie okre
 | 3 | 650 | 650 | 850 | 1515 | 850 | 1485 |
 | 4 | 575 | 575 | 675 | 1175 | 675 | 1050 |
 
-**Proweniencja i status:** źródło biznesowe: partner/importer Rex.Bid, na podstawie informacji właściciela; data przekazania do projektu: 2026-09-30; `effective_from`: do potwierdzenia; waluta: do potwierdzenia; nazwy tras/portów: do potwierdzenia. Roboczo są to autorytatywne stawki partnera, ale brakujące metadane blokują ich bezpieczne użycie jako kwot w UI. Nie podano konkretnych liczbowych wierszy tabeli lądowej, więc ich nie dopisujemy.
+**Proweniencja i status:** źródło: partner/importer Rex.Bid; waluta: USD; `effective_from`: null, bo cennik nie podaje daty; nazwy tras/portów: nieznane. Są to autorytatywne robocze stawki transportowe, status danych `configurable` do potwierdzenia daty/zakresu.
 
 ### Konsekwencje dla implementacji
 
 - Door-to-door estimator pozostaje **PROTOTYPE**, nie jest zatwierdzoną ofertą ani źródłem cen. Stare publiczne widełki transportowe są superseded jako źródło stawek.
-- Nie zmieniaj jeszcze silnika, stawek produkcyjnych ani UI. Przed implementacją pozyskaj tabelę lądową wraz z wierszami, walutę frachtu, mapowanie `route_n` do hubu/portu, datę obowiązywania, warunki 40'HC oraz dopłaty/wyłączenia (m.in. non-runner i oversize).
+- Calculator V2 importuje obie tabele z plików źródłowych; parser, generator, audyt i procedura aktualizacji są w `scripts/partner-transport-rates.cjs` i `docs/TRANSPORT_RATE_MODEL.md`. Matcher jest deterministyczny, bez fuzzy matching; trasy expected i conservative wybierane są osobno po najniższej kompletnej sumie land+sea.
+- Strict engine i tax/excise logic pozostają zachowane. Wybrany standardowy transport partnera trafia do jego pól transportowych, gdy użytkownik nie wprowadził ręcznego override. Brakujące auction/import/tax/FX inputs nadal blokują pełny total; widoczne są known subtotals i missing components.
+- Staging UI w `public/car.html` jest gated flagą i nie jest wdrożone. Automatycznie pobiera dostępny kontekst auta. Nie pokazuje technical route IDs klientowi.
+- Poprzedni door-to-door engine z publicznymi zakresami rynku pozostaje w repo wyłącznie jako historyczny prototype/test fixture, ale został odłączony od karty auta. Nie może zasilać nowej kalkulacji ani być traktowany jako aktualne źródło cen.
 - Docelowa konfiguracja powinna przechowywać m.in. `rate_id`, `mode`, `platform`, `facility/ZIP` lub `state/city`, `route_id`, `vehicle_count`, `amount`, `currency`, `source`, `received_at`, `effective_from`, `effective_to`, `checked_at`, `confidence` oraz jawne pozycje included/excluded. Algorytm wybiera właściwy rekord po wymiarach; nie zawiera tabeli stawek.
 - Aktualizacje dodają nową wersję/okres obowiązywania i nie zmieniają po cichu stawek użytych w historycznych kalkulacjach.
 
-**Stan researchu: 2026-09-26**  
-**Zakres:** model i źródła; żadna stawka ani formuła produkcyjnego kalkulatora nie została zmieniona.
+**Stan researchu: 2026-09-26; partner rate import: 2026-09-30**
+**Zakres:** badanie stawek aukcyjnych/podatków oraz późniejszy import roboczego cennika partnera. Produkcja nie została zmieniona.
 
 ## Decyzja na tę fazę
 
@@ -280,14 +293,14 @@ Konfiguracje muszą wykrywać nakładające się zakresy effective dates i braku
 4. Uzgodniony profil klienta Rex.Bid. Bez tego Copart też nie ma jednego właściwego cennika.
 5. Polityka odświeżania/versioningu: monitorowanie zmian Copart/TARIC/stawek podatkowych/FX i przechowywanie wersji użytej do historycznego estimate.
 
-**Wniosek po Fazie 2:** fundament techniczny i UI są zaimplementowane, ale pełnego kosztu importu nie wolno prezentować jako potwierdzonego. Brakujące pozycje pozostają unknown i blokują sumę. Suma orientacyjna jest możliwa dopiero po wypełnieniu wszystkich pozycji oraz podaniu jawnego kursu UI ze źródłem i datą; wtedy status wyniku pozostaje estimated/configurable.
+**Wniosek Fazy 2 (historyczny):** fundament techniczny i UI są zaimplementowane, ale pełnego kosztu importu nie wolno prezentować jako potwierdzonego. Calculator V2 poniżej zastępuje wcześniejsze założenie, że partner land/sea rates nie istnieją. Brakujące pozycje nadal pozostają unknown i blokują sumę.
 ## 11. Faza 2 — zaimplementowany fundament (lokalnie)
 
 - Silnik obliczeń znajduje się w public/rexbid-calculator.js, a wersjonowane dane stawek w public/rexbid-calculator-rates.js. Moduły działają w przeglądarce i są eksportowalne do testów Node; nie zmieniają API, Workera ani D1.
 - Każda pozycja wyniku ma kwotę/null, walutę, status confirmed | configurable | estimated | unknown, źródło, checked_at i effective_from. Dla stawek Copart effective_from pozostaje null, bo publiczne źródło nie określiło tej daty.
 - Copart zawiera wyłącznie jawnie wybierane wartości z publicznej strony Standard Pricing dla standardowego pojazdu + clean/non-clean + secured + Pre-Bid oraz udokumentowane przedziały 1,000–1,199.99, 5,000–5,499.99, 10,000–14,999.99 oraz co najmniej 15,000 USD. Kwoty i składniki są widoczne w źródle, ale ich mapowanie na Schedule A/B/C/D nie zostało potwierdzone. Oficjalna strona Schedule A–D pokazuje inne wartości (np. clean przy $5,000: Schedule A $525, podczas gdy Standard Pricing pokazuje $750), a wybór zależy od profilu konta/licencji, wolumenu, liczby bidder accounts oraz płatności. Dlatego nie nazywamy tych pozycji Schedule A: użytkownik może wybrać wariant tylko do orientacyjnego sprawdzenia, linie mają status `configurable`, a kalkulacja nie jest potwierdzoną wyceną opłaty Copart. Nieznany profil lub nieobsługiwany przedział pozostaje unknown. Pojazdy heavy/industrial nie są objęte wariantem. Title group nie jest rozpoznawany automatycznie z opisu dokumentu.
 - IAA fee pozostaje unknown z komunikatem „Wymaga aktualnego cennika IAA”; można wpisać kwotę z indywidualnej, aktualnej wyceny jako configurable.
-- Inland USA, ocean freight, port/docelowa obsługa, ubezpieczenie i pozostałe pozycje są puste/unknown; ręczne wartości są configurable, a jawne zero różni się od pustego pola.
+- Partner land/sea stawki są importowane według nowszego modelu opisanego w `docs/TRANSPORT_RATE_MODEL.md`; inne niepotwierdzone koszty pozostają unknown, a ręczne wartości są configurable.
 - Cło liczy się tylko z podanej podstawy oraz stawki TARIC; status confirmed wymaga potwierdzonego źródła i daty. Akcyza wymaga prawnej kategorii, podstawy i pojemności tam, gdzie ma zastosowanie. Zwolnień nie wyprowadza się z fuel_type; niepotwierdzone kategorie pozostają unknown. VAT 23% jest regułą potwierdzoną, ale wynik pozostaje configurable, gdy podstawa VAT wymaga potwierdzenia.
 - Kurs orientacyjny UI wymaga jawnej wartości, źródła i daty; interfejsy getIndicativeRate/getCustomsRate/getExciseRate są przygotowane, ale nie wykonują requestów i zwracają unknown. Kurs UI nie jest używany do podstaw celnych/akcyzowych.
 - Suma nie jest zwracana, gdy choć jedno wymagane pole jest unknown. Po uzupełnieniu wszystkich składników i kursu UI zwracana suma ma status estimated, jeśli nie wszystkie dane mają potwierdzoną proweniencję. To nadal nie jest oficjalne rozliczenie.

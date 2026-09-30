@@ -131,12 +131,13 @@ test("door estimate prefills the planned price input and renders safely with veh
   } finally { global.document = original; }
 });
 
-test("car page loads estimate modules separately from the unchanged strict calculator and exposes details", () => {
+test("legacy market estimator remains isolated from the partner V2 UI and strict calculator", () => {
   const car = fs.readFileSync(path.join(__dirname, "../public/car.html"), "utf8");
-  assert.ok(car.includes('<script src="/rexbid-door-estimator-rates.js"></script>'));
-  assert.ok(car.includes('<script src="/rexbid-door-estimator.js"></script>'));
-  assert.ok(car.includes('id="estimatedDoorCalculator"'));
-  assert.ok(car.includes('data-est-purchase'));
-  assert.ok(car.includes("Szczegóły, źródła i założenia"));
+  assert.ok(car.includes('<script src="/rexbid-transport-rates.js"></script>'));
+  assert.ok(car.includes('<script src="/rexbid-transport-engine.js"></script>'));
+  assert.ok(car.includes('id="partnerTransportCalculator"'));
+  assert.ok(car.includes('data-transport-purchase'));
+  assert.ok(!car.includes('<script src="/rexbid-door-estimator.js"></script>'));
+  assert.ok(!car.includes('id="estimatedDoorCalculator"'));
   assert.ok(car.includes('id="importCalculator"'), "strict/confirmed calculator remains available");
 });
