@@ -1,5 +1,35 @@
 # Rex.Bid — model kalkulatora importu USA → Polska
 
+## Aktualizacja: stawki transportowe partnera (2026-09-30)
+
+Właściciel Rex.Bid otrzymał od partnera/importera realne tabele transportowe. Zgodnie z jego decyzją są one od teraz **autorytatywnym roboczym źródłem stawek transportowych Rex.Bid** do czasu przekazania aktualizacji przez partnera. Wcześniejsze publiczne estymacje/benchmarki transportu opisane niżej są **superseded**: pozostają historycznym zapisem researchu, nie źródłem cen dla kalkulatora.
+
+Docelowy przepływ kosztów: `auction location → land transport rate → route/hub → sea freight → remaining import costs → door-to-door estimate`. Stawki przechowujemy w wersjonowanych danych konfiguracyjnych (później opcjonalnie D1/admin), nie w kodzie matematycznym ani `car.html`; aktualizacja cennika nie powinna wymagać zmiany algorytmu.
+
+### Tabela lądowa — struktura przekazana przez właściciela
+
+Tabela obejmuje lokalizację aukcji, platformę (`Copart`, `IAAI`, `Manheim`, `Adesa`), miasto, stan, ZIP i do sześciu kolumn stawek. W tej informacji nie przekazano nazw tras/portów ani liczbowych wierszy tabeli. Do czasu otrzymania pełnego źródła używamy wyłącznie neutralnych identyfikatorów `route_1`…`route_6`; nie zgadujemy ich oficjalnych nazw ani mapowania na porty.
+
+### Fracht morski 40'HC — stawki przekazane przez właściciela
+
+Stawki są per vehicle, w kolejności sześciu neutralnych tras. Waluty nie określono, zatem kwot nie wolno przed potwierdzeniem interpretować jako USD/EUR ani używać w obliczeniu.
+
+| Liczba aut w kontenerze 40'HC | route_1 | route_2 | route_3 | route_4 | route_5 | route_6 |
+|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 1850 | 1850 | 2400 | 4400 | 2400 | 4200 |
+| 2 | 950 | 950 | 1250 | 2250 | 1250 | 2100 |
+| 3 | 650 | 650 | 850 | 1515 | 850 | 1485 |
+| 4 | 575 | 575 | 675 | 1175 | 675 | 1050 |
+
+**Proweniencja i status:** źródło biznesowe: partner/importer Rex.Bid, na podstawie informacji właściciela; data przekazania do projektu: 2026-09-30; `effective_from`: do potwierdzenia; waluta: do potwierdzenia; nazwy tras/portów: do potwierdzenia. Roboczo są to autorytatywne stawki partnera, ale brakujące metadane blokują ich bezpieczne użycie jako kwot w UI. Nie podano konkretnych liczbowych wierszy tabeli lądowej, więc ich nie dopisujemy.
+
+### Konsekwencje dla implementacji
+
+- Door-to-door estimator pozostaje **PROTOTYPE**, nie jest zatwierdzoną ofertą ani źródłem cen. Stare publiczne widełki transportowe są superseded jako źródło stawek.
+- Nie zmieniaj jeszcze silnika, stawek produkcyjnych ani UI. Przed implementacją pozyskaj tabelę lądową wraz z wierszami, walutę frachtu, mapowanie `route_n` do hubu/portu, datę obowiązywania, warunki 40'HC oraz dopłaty/wyłączenia (m.in. non-runner i oversize).
+- Docelowa konfiguracja powinna przechowywać m.in. `rate_id`, `mode`, `platform`, `facility/ZIP` lub `state/city`, `route_id`, `vehicle_count`, `amount`, `currency`, `source`, `received_at`, `effective_from`, `effective_to`, `checked_at`, `confidence` oraz jawne pozycje included/excluded. Algorytm wybiera właściwy rekord po wymiarach; nie zawiera tabeli stawek.
+- Aktualizacje dodają nową wersję/okres obowiązywania i nie zmieniają po cichu stawek użytych w historycznych kalkulacjach.
+
 **Stan researchu: 2026-09-26**  
 **Zakres:** model i źródła; żadna stawka ani formuła produkcyjnego kalkulatora nie została zmieniona.
 

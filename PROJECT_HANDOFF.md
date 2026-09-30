@@ -1,5 +1,13 @@
 # Rex.Bid — Project Handoff
 
+## Aktualizacja stawek transportowych partnera (2026-09-30)
+
+- Właściciel Rex.Bid wskazał realne tabele partnera/importera jako **autorytatywne robocze źródło stawek transportowych Rex.Bid** do chwili aktualizacji przez partnera. Wcześniejsze publiczne estymacje/benchmarki transportu są **superseded** i nie mogą być traktowane jako źródło cen.
+- Docelowy przepływ: `auction location → land transport rate → route/hub → sea freight → remaining import costs → door-to-door estimate`. Stawki mają być wersjonowanymi danymi konfiguracyjnymi, oddzielonymi od algorytmu; później można rozważyć tabelę D1/panel admina.
+- Tabela lądowa zawiera platformę (`Copart`, `IAAI`, `Manheim`, `Adesa`), miasto, stan, ZIP i do sześciu stawek. Nie przekazano jawnych nazw tras/portów ani konkretnych wierszy liczbowych; używać wyłącznie identyfikatorów `route_1`…`route_6`, bez zgadywania mapowania.
+- Tabela morska 40'HC podaje per vehicle: 1 auto `[1850, 1850, 2400, 4400, 2400, 4200]`; 2 auta `[950, 950, 1250, 2250, 1250, 2100]`; 3 auta `[650, 650, 850, 1515, 850, 1485]`; 4 auta `[575, 575, 675, 1175, 675, 1050]`. Waluta i porty nie zostały potwierdzone, więc kwot nie wolno interpretować jako USD/EUR ani wykorzystywać w obliczeniu przed uzupełnieniem metadanych.
+- Door-to-door estimator pozostaje **PROTOTYPE**, a nie źródło cen. Kolejnym krokiem kalkulatora będzie wersja oparta na tabelach partnera. W tej aktualizacji nie zmieniono kodu, matematyki ani UI.
+
 ## Bieżąca kontynuacja backfillu / przygotowanie Phase G (2026-09-30)
 
 - **Końcowy readback po kontynuacji Phase F:** właściciel zgłosił ostatni run: listings 180→220, +40 rekordów i +40 snapshotów, 0 duplikatów, scope partial z cursorem; trwały budżet kampanii wynosi 8/10. Read-only SELECT na staging D1 potwierdził: `vehicle_sources=220`, `auction_listings=220`, `auction_listing_snapshots=220`, `vehicle_entities=0`, `auction_events=0`; scope Copart `partial`, cursor obecny, `last_complete_at=NULL`, `page_commits=11`; 220 unikalnych listing IDs i 220 unikalnych source keys; budżet 10/8, reserved 0, retry 0/0. `users=1`, `user_favorites=1`; legacy `vehicles/vehicle_snapshots/auction_history=0/0/0`. Wszystkie kontrole były SELECT-only (`changed_db=false`, `rows_written=0`). W tej weryfikacji wykonano **0 requestów Apibara**; łączny budżet kampanii pozostał 8/10. Nie uruchamiać dalszych requestów na podstawie tego checkpointu.
