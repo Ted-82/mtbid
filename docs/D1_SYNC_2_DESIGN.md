@@ -1,5 +1,22 @@
 # Rex.Bid D1 Sync 2 — projekt architektury
 
+## Kontynuacja backfillu / przygotowanie Phase G — staging wdrożony, 2026-09-30
+
+Staging Worker `rexbid-auth-test` Version `862a11a4-9761-4491-90c9-d64cf367e69d` zawiera manual route `/__staging/d1-sync-phase-g-backfill`, chronioną staging host/config, POST, same-origin, istniejącą zweryfikowaną sesję oraz staging D1 binding. Dry-run i deploy z `wrangler.staging.jsonc` pokazały wyłącznie `rexbid-auth-test` → `rexbid-auth-test-db` (`acb3cb8e-69a2-459f-8a46-0f2f5b9004be`). Produkcyjny Worker/config nie były użyte.
+
+### Kampania i stan przed jej uruchomieniem
+
+- Nowa trwała kampania `apibara-phase-g-preparation` / `campaign-controlled-backfill-2026-09-30` ma limit 10 requestów w całym sprincie, 0 retry; nie podnosi ani nie zeruje budżetu Phase F (2/5). Każda ręczna akcja przetwarza najwyżej 2 strony po 20 listingów i wznowi zapisany cursor Copart. Runner nie ma trybu IAAI, dlatego platformy i cursorów nie miesza. Nie włączono Cron/Queue.
+- **Live Apibara requests in this pass: 0.** Nowa kampania nie została jeszcze uruchomiona, więc jej trwały budget row powstanie/da się odczytać po pierwszej autoryzowanej akcji.
+- Bezpośredni staging D1 readback: sources/listings/snapshots = 60/60/60, `vehicle_entities=0`, events=0, scope `partial`, cursor obecny, `last_complete_at=NULL`; `users=1`, favorites=1, legacy vehicles/snapshots/history=0/0/0. Duplikaty listing/source = 0; poprzednie budżety: Phase D 1/5 i Phase F 2/5. Wszystkie zapytania readback miały `changed_db=false`, `rows_written=0`.
+- Zakres katalogu: wyłącznie Copart, 60 listingów, 31 znanych marek, lata 1963–2025, 42 z Buy Now, 0 timed i 0 dat aukcji późniejszych niż bieżąca data kalendarzowa. Scope nadal jest partial.
+- Jednorazowe D1 SQL durations uzyskane przez Wrangler: catalog 0.606 ms, exact detail 0.279 ms, snapshot history 0.184 ms, filter metadata 0.156 ms. Są to czasy SQL z metadanych D1, nie pełna latencja HTTP/Worker.
+- Staging `/auth-test.html` zwrócił 200 i zawiera nowy runner/limit. Publiczne `/api/cars`, frontend, produkcja oraz D1 Sync read cutover pozostają bez zmian.
+
+**Przyszła Phase G:** cutover nadal nieaktywny. Domyślny read mode ma pozostać dotychczasowy provider; D1 catalog/filter read można przełączyć dopiero przy kompletnym, świeżym scope każdej udostępnianej platformy i potwierdzonej semantyce paginacji. Partial D1 musi pozostać jawnie partial albo obsłużony pełnym provider fallbackiem; nigdy nie może wyglądać na pełny katalog. Rollback to natychmiastowy powrót do dotychczasowego provider path przez wyłączenie stagingowego przełącznika.
+
+**Instrukcja kontrolowanego backfillu:** na stagingu zalogować istniejące konto i klikać `Wznów maksymalnie 2 strony` najwyżej 5 razy, łącznie nie więcej niż 10 requestów. Po każdym kliknięciu sprawdzić `liveRequests`/`campaignBudget` i D1 readback. Zatrzymać wcześniej, gdy scope stanie się complete; brak automatycznych retry. IAAI pozostaje poza kampanią.
+
 > **Najnowszy status — Phase E (2026-09-29):** kod provider-neutral read repository, read policy/service oraz staging-only D1 read diagnostics jest zaimplementowany, automated-verified i staging-D1-read-verified. Final Worker `rexbid-auth-test` Version `6e19e605-a9a1-4e69-babe-0e4a515316ee` zwrócił read-only GET-y katalog (20), filtry (15 znanych marek), detail i initial snapshot z rzeczywistego staging D1. Catalog/filter metadata pozostały jawnie niekompletne. Finalny history GET potwierdził kompatybilny envelope, `snapshots_only`, private/no-store i noindex. Końcowy SELECT potwierdził brak zapisów i brak duplikatów. Publiczne API, production Worker/D1, frontend i schema nie zostały przełączone ani zmienione. Live Apibara requests = 0.
 
 ### Phase E — staging D1 read model (nie jest publicznym cutoverem)
@@ -400,3 +417,22 @@ This conservative model treats discovery as a complete listing sweep each day be
 5. Dead-letter/429/5xx pauses the affected scope with safe `retry_after_at`; no automatic retry in Phase F. Later backoff must remain inside a distinct configured retry reserve and must not consume the normal pool.
 
 No Cron trigger, Queue binding, consumer, production schedule or automatic provider sync is enabled in Phase F. The owner performed one authenticated manual run on staging and it succeeded for two pages: **2 real Apibara requests**, 40 returned/accepted records, 40 inserts, 0 updates, 0 duplicates, 40 initial snapshots, no events, raw payload/media not stored, and a next cursor remains. The persistent data is intentionally retained; no cleanup was performed. Direct read-only verification of `rexbid-auth-test-db` (`acb3cb8e-69a2-459f-8a46-0f2f5b9004be`) confirmed 60 sources/listings/snapshots, 0 entities/events, 1 partial scope, 2 runs, 3 page commits, Phase F campaign budget 2/5 consumed with 0 reserved and retry disabled, 60 distinct listing IDs/source keys with no duplicates, `users=1`, `user_favorites=1`, legacy tables 0/0/0. Scope `last_complete_at` is NULL; the saved cursor permits later resumption. SELECT metadata confirmed no writes during verification. Phase E's persisted model remains compatible by identity and storage contract; the Phase F runner uses the same repository upserts/page checkpoint and does not alter the public API/read path. No Cron/Queue, public API cutover or production change was made. The current 60-row partial scope is not enough for a public API cutover. More backfill and a coverage/operational decision are required before Phase G.
+
+### Phase F later bounded campaign continuation — readback 2026-09-30
+
+This later owner-approved campaign supersedes the earlier 60-listing/budget snapshot above; those values remain as historical checkpoints. No new provider operation was run for this readback. The owner's last run advanced the Copart scope from 180 to 220 listings: 40 provider records accepted, 40 inserts, 40 initial snapshots, zero duplicates, and a next cursor. Direct read-only SELECT against staging D1 `rexbid-auth-test-db` (`acb3cb8e-69a2-459f-8a46-0f2f5b9004be`) confirmed:
+
+| Data | Readback |
+| --- | ---: |
+| `vehicle_sources` / `auction_listings` / `auction_listing_snapshots` | 220 / 220 / 220 |
+| `vehicle_entities` / `auction_events` | 0 / 0 |
+| Copart scope | 1, `partial`, opaque cursor present, `last_complete_at=NULL` |
+| `sync_page_commits` for scope | 11 |
+| Distinct listing IDs / source keys | 220 / 220; duplicate count 0 |
+| `users` / `user_favorites` | 1 / 1 |
+| Legacy `vehicles` / `vehicle_snapshots` / `auction_history` | 0 / 0 / 0 |
+| Campaign budget | 8 consumed / 10 limit; 0 reserved; retry 0 |
+
+Wrangler reported the verification queries as read-only (`changed_db=false`, `rows_written=0`). Live Apibara requests during this verification: **0**; campaign total remains **8/10**. The owner-directed stop at 8/10 is in force; no further backfill was run. The stored next cursor and 11 page commits show resumable progress, not completion. No IAAI scope is included in this sample.
+
+**Phase G assessment:** 220 rows are adequate for bounded diagnostic tests of the D1 read model (known-row listing/detail/snapshot queries and observed filter distributions). They are not sufficient for a public catalog cutover: the only scope is partial Copart, pagination has not reached its end, and IAAI coverage is absent. Do not present those rows as the complete catalog or activate public API cutover. Recommendation: **more backfill first**, subject to a separately approved request budget; the current campaign is stopped.

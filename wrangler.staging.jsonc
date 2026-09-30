@@ -15,6 +15,7 @@
     "REXBID_AUTH_DIAGNOSTICS": "enabled",
     "REXBID_PHASE_D_DISCOVERY": "enabled",
     "REXBID_PHASE_F_BACKFILL": "enabled",
+    "REXBID_PHASE_G_PREP_BACKFILL": "enabled",
     "REXBID_D1_READ_DIAGNOSTICS": "enabled",
     "REXBID_D1_READ_TARGET": "rexbid-auth-test-db",
     "REXBID_D1_READ_MAX_AGE_MS": "86400000",

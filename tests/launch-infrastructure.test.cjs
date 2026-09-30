@@ -42,6 +42,10 @@ test("Worker live/config files keep production and staging bindings isolated and
   assert.equal(result.staging.worker, "rexbid-auth-test");
   assert.equal(result.staging.database, "rexbid-auth-test-db");
   assert.equal(result.staging.prototype_enabled, false);
+  const productionConfig = JSON.parse(fs.readFileSync(path.join(ROOT, "wrangler.jsonc"), "utf8"));
+  const stagingConfig = JSON.parse(fs.readFileSync(path.join(ROOT, "wrangler.staging.jsonc"), "utf8"));
+  assert.notEqual(productionConfig.vars?.REXBID_PHASE_G_PREP_BACKFILL, "enabled", "Phase G preparation runner must remain unavailable in production");
+  assert.equal(stagingConfig.vars?.REXBID_PHASE_G_PREP_BACKFILL, "enabled", "manual continuation is explicitly enabled only on isolated staging");
   for (const configName of ["wrangler.jsonc", "wrangler.staging.jsonc"]) {
     const config = JSON.parse(fs.readFileSync(path.join(ROOT, configName), "utf8"));
     for (const route of ["/", "/*.html", "/konto", "/ulubione", "/logowanie", "/rejestracja", "/reset-hasla", "/robots.txt", "/sitemap.xml", "/rexbid-door-estimator.js", "/rexbid-door-estimator-rates.js"]) {

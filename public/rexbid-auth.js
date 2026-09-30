@@ -7,6 +7,7 @@
   const pagePath = () => String(root.location?.pathname || "").replace(/\.html$/, "");
   const CACHE_OWNER = "rex_bid_auth_cache_owner_v1";
   const CACHE_PREFIX = "rex_bid_cloud_favorites_v1:";
+  const AUTH_REQUEST_TIMEOUT_MS = 10000;
   const state = { enabled, status: "anonymous", user: null, cache: [] };
   const mountedForms = new Set();
   let recoveryMounted = false;
@@ -25,11 +26,30 @@
     } catch {}
     dispatch();
   }
+  async function requestJson(path, options = {}) {
+    const controller = typeof root.AbortController === "function" ? new root.AbortController() : null;
+    let timer;
+    let rejectTimeout;
+    const timeout = new Promise((_, reject) => { rejectTimeout = reject; });
+    const timeoutError = Object.assign(new Error("AUTH_REQUEST_TIMEOUT"), { code: "AUTH_REQUEST_TIMEOUT" });
+    const setTimer = typeof root.setTimeout === "function" ? root.setTimeout.bind(root) : setTimeout;
+    const clearTimer = typeof root.clearTimeout === "function" ? root.clearTimeout.bind(root) : clearTimeout;
+    timer = setTimer(() => { controller?.abort(); rejectTimeout(timeoutError); }, AUTH_REQUEST_TIMEOUT_MS);
+    try {
+      const responsePromise = root.fetch(path, {
+        credentials: "same-origin", cache: "no-store", ...options,
+        ...(controller ? { signal: controller.signal } : {})
+      });
+      const response = await Promise.race([responsePromise, timeout]);
+      let body = null;
+      try { body = await Promise.race([response.json(), timeout]); }
+      catch (error) { if (error?.code === "AUTH_REQUEST_TIMEOUT") throw error; }
+      return { response, body };
+    } finally { clearTimer(timer); }
+  }
   async function request(path, options = {}) {
-    const response = await root.fetch(path, { credentials: "same-origin", cache: "no-store", ...options });
+    const { response, body } = await requestJson(path, options);
     if (response.status === 401) clearPrivate();
-    let body = null;
-    try { body = await response.json(); } catch {}
     return {
       response, body,
       requestId: response.headers?.get?.("X-RexBid-Request-ID") || "",
@@ -106,8 +126,7 @@
   }
   async function loadAuthConfiguration() {
     try {
-      const response = await root.fetch("/api/auth/config", { credentials: "same-origin", cache: "no-store" });
-      const body = await response.json();
+      const { response, body } = await requestJson("/api/auth/config");
       enabled = response.ok && body?.ok === true && body?.enabled === true;
       state.enabled = enabled;
       if (enabled) return { enabled, status: state.status };

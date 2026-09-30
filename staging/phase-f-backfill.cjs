@@ -8,11 +8,14 @@ const {freshnessPolicyFromEnv,classifyScopeState}=require("../sync/backfill-poli
 
 const PHASE_D_SCOPE = "rexbid-phase-d:persistent-discovery:copart";
 const PAGE_SIZE = 20;
-const MAX_PHASE_F_REQUESTS = 5;
+// This is a new, sprint-scoped campaign. The original Phase F campaign remains
+// capped at five and is never raised/reset; this separate row charges only new
+// calls authorized for the 2026-09-30 backfill continuation.
+const MAX_PHASE_G_PREP_REQUESTS = 10;
 const MAX_PAGES_PER_RUN = 3;
 const DEFAULT_PAGES_PER_RUN = 2;
-const BUDGET_PROVIDER = "apibara-phase-f";
-const BUDGET_CAMPAIGN = "campaign-phase-f-controlled-backfill";
+const BUDGET_PROVIDER = "apibara-phase-g-preparation";
+const BUDGET_CAMPAIGN = "campaign-controlled-backfill-2026-09-30";
 const STAGING_HOST = "rexbid-auth-test.tedn828.workers.dev";
 
 function safeJson(data, status = 200, id = null, extraHeaders = []) {
@@ -31,7 +34,7 @@ async function budgetState(db) {
 async function runControlledBackfill({db,env,requestId,maxPages=DEFAULT_PAGES_PER_RUN,now=()=>Date.now(),provider=createApibaraProvider()}) {
   const started=now();
   const result={ok:false,stage:"preflight",requestId,platform:"copart",pageSize:PAGE_SIZE,pagesRequested:maxPages,
-    pagesProcessed:0,liveRequests:0,maxLiveRequests:MAX_PHASE_F_REQUESTS,providerRecords:0,accepted:0,rejected:0,
+    pagesProcessed:0,liveRequests:0,maxLiveRequests:MAX_PHASE_G_PREP_REQUESTS,providerRecords:0,accepted:0,rejected:0,
     ambiguous:0,inserts:0,updates:0,duplicates:0,snapshotsCreated:0,replayVerified:true,readback:true,
     rawOrMediaStored:false,stopReason:null,elapsedMs:0};
   const repo=new D1SyncRepository(db);
@@ -58,15 +61,15 @@ async function runControlledBackfill({db,env,requestId,maxPages=DEFAULT_PAGES_PE
     result.runId=runId;
 
     result.stage="budget";
-    await repo.initializeBudget({provider:BUDGET_PROVIDER,budgetDay:BUDGET_CAMPAIGN,normalLimit:MAX_PHASE_F_REQUESTS,retryLimit:0,now:start});
+    await repo.initializeBudget({provider:BUDGET_PROVIDER,budgetDay:BUDGET_CAMPAIGN,normalLimit:MAX_PHASE_G_PREP_REQUESTS,retryLimit:0,now:start});
     await db.prepare(`UPDATE provider_request_budgets SET normal_limit=MIN(normal_limit,?),retry_limit=0,updated_at=?
-      WHERE provider=? AND budget_day=?`).bind(MAX_PHASE_F_REQUESTS,new Date(start).toISOString(),BUDGET_PROVIDER,BUDGET_CAMPAIGN).run();
+      WHERE provider=? AND budget_day=?`).bind(MAX_PHASE_G_PREP_REQUESTS,new Date(start).toISOString(),BUDGET_PROVIDER,BUDGET_CAMPAIGN).run();
     let cursor=scope.cursor;
     const seenCursors=new Set([String(cursor)]);
 
     for(let pageNumber=0;pageNumber<maxPages;pageNumber+=1){
       const budget=await budgetState(db);
-      if(!budget||Number(budget.normal_consumed)+Number(budget.normal_reserved)>=MAX_PHASE_F_REQUESTS){
+      if(!budget||Number(budget.normal_consumed)+Number(budget.normal_reserved)>=MAX_PHASE_G_PREP_REQUESTS){
         result.stopReason="request_budget_exhausted";break;
       }
       result.stage="budget_reserve";
@@ -145,11 +148,11 @@ async function runControlledBackfill({db,env,requestId,maxPages=DEFAULT_PAGES_PE
 }
 
 async function handlePhaseFRequest(request,env,executionContext,dispatch,provider=createApibaraProvider()){
-  const url=new URL(request.url);const path="/__staging/d1-sync-phase-f-backfill";
+  const url=new URL(request.url);const path="/__staging/d1-sync-phase-g-backfill";
   if(url.pathname!==path)return null;
   const id=crypto.randomUUID();
   const hostAllowed=url.protocol==="https:"&&url.hostname===STAGING_HOST&&env?.REXBID_AUTH_TEST_UI==="enabled"
-    &&env?.REXBID_AUTH_TEST_HOST===STAGING_HOST&&env?.REXBID_PHASE_F_BACKFILL==="enabled"
+    &&env?.REXBID_AUTH_TEST_HOST===STAGING_HOST&&env?.REXBID_PHASE_G_PREP_BACKFILL==="enabled"
     &&env?.REXBID_D1_READ_TARGET==="rexbid-auth-test-db";
   if(!hostAllowed)return safeJson({ok:false,error:"not_found"},404,id);
   if(request.method!=="POST")return safeJson({ok:false,error:"method_not_allowed"},405,id);
@@ -171,4 +174,4 @@ async function handlePhaseFRequest(request,env,executionContext,dispatch,provide
   return safeJson(result,result.ok?200:503,id,setCookies);
 }
 
-module.exports={PHASE_D_SCOPE,PAGE_SIZE,MAX_PHASE_F_REQUESTS,MAX_PAGES_PER_RUN,DEFAULT_PAGES_PER_RUN,BUDGET_PROVIDER,BUDGET_CAMPAIGN,runControlledBackfill,handlePhaseFRequest};
+module.exports={PHASE_D_SCOPE,PAGE_SIZE,MAX_PHASE_G_PREP_REQUESTS,MAX_PAGES_PER_RUN,DEFAULT_PAGES_PER_RUN,BUDGET_PROVIDER,BUDGET_CAMPAIGN,runControlledBackfill,handlePhaseFRequest};

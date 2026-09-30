@@ -96,7 +96,7 @@ function makePage(fetchImpl, kind = 'login', pathname = '') {
   const location = { hostname: 'rexbid-auth-test.tedn828.workers.dev', pathname: pathname || (kind === 'login' ? '/logowanie.html' : '/rejestracja.html'), search: '', origin: 'https://rexbid-auth-test.tedn828.workers.dev', assigned: '', assign(value) { this.assigned = value; } };
   const pageFetch = async (url, options) => url === '/api/auth/config' ? response(200, { ok:true, enabled:true }) : fetchImpl(url, options);
   const historyCalls = [];
-  const window = { location, document, fetch: pageFetch, history: { replaceState(_state, _title, url) { historyCalls.push(String(url)); } }, localStorage: { getItem: () => null, setItem() {}, removeItem() {} }, confirm: () => false,
+  const window = { location, document, fetch: pageFetch, AbortController, setTimeout:(fn,ms)=>setTimeout(fn,Math.min(ms,10)), clearTimeout, history: { replaceState(_state, _title, url) { historyCalls.push(String(url)); } }, localStorage: { getItem: () => null, setItem() {}, removeItem() {} }, confirm: () => false,
     dispatchEvent(event) { for (const fn of windowListeners[event.type] || []) fn(event); },
     addEventListener(type, fn) { (windowListeners[type] ||= []).push(fn); } };
   const context = { window, document, location, fetch: pageFetch, localStorage: window.localStorage, CustomEvent: class { constructor(type, init) { this.type = type; this.detail = init?.detail; } },

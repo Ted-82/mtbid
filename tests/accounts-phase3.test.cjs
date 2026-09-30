@@ -51,7 +51,7 @@ function setup(fetchImpl, { hostname = 'rexbid-auth-test.tedn828.workers.dev', p
     ? makeResponse(200, { ok:true, enabled:hostname === 'rexbid-auth-test.tedn828.workers.dev' })
     : activeFetch(url, options);
   const window = {
-    location, localStorage, document, fetch:pageFetch, confirm:()=>true,
+    location, localStorage, document, fetch:pageFetch, AbortController, setTimeout:(fn,ms)=>setTimeout(fn,Math.min(ms,10)), clearTimeout, confirm:()=>true,
     dispatchEvent(event) { for (const fn of listeners[event.type] || []) fn(event); },
     addEventListener(name,fn) { (listeners[name] ||= []).push(fn); }
   };

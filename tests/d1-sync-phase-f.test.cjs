@@ -7,7 +7,7 @@ const {createApibaraProvider}=require('../providers/apibara.js');
 const {D1SyncRepository}=require('../sync/d1-repository.js');
 const {D1ReadRepository}=require('../sync/d1-read-repository.js');
 const {freshnessPolicyFromEnv,classifyScopeState}=require('../sync/backfill-policy.js');
-const {runControlledBackfill,handlePhaseFRequest,PHASE_D_SCOPE,MAX_PHASE_F_REQUESTS,MAX_PAGES_PER_RUN,DEFAULT_PAGES_PER_RUN,BUDGET_PROVIDER,BUDGET_CAMPAIGN}=require('../staging/phase-f-backfill.cjs');
+const {runControlledBackfill,handlePhaseFRequest,PHASE_D_SCOPE,MAX_PHASE_G_PREP_REQUESTS,MAX_PAGES_PER_RUN,DEFAULT_PAGES_PER_RUN,BUDGET_PROVIDER,BUDGET_CAMPAIGN}=require('../staging/phase-f-backfill.cjs');
 
 const ROOT=path.join(__dirname,'..');
 const NOW=Date.parse('2026-09-29T20:00:00.000Z');
@@ -29,12 +29,12 @@ function database(){
 }
 
 function pageRecords(page){return Array.from({length:20},(_,i)=>{const raw=structuredClone(seed.response.data[0]);const n=page*20+i+1;raw.vehicle_id=`phase-f-listing-${n}`;raw.lot_number=`PHASEF-${n}`;raw.vin=`PHASEFVIN${String(n).padStart(8,'0')}`;return raw;});}
-function providerFor(calls,{failAt=null,repeated=false,empty=false}={}){
+function providerFor(calls,{failAt=null,repeated=false,empty=false,endAfter=4}={}){
   return createApibaraProvider({timeoutMs:500,console:{warn(){},error(){}},fetch:async(url,options)=>{
     const parsed=new URL(url);const cursor=parsed.searchParams.get('cursor');calls.push({method:options.method,cursor});
     if(calls.length===failAt)throw new TypeError('sensitive provider failure detail');
     const match=String(cursor||'saved-cursor-1').match(/saved-cursor-(\d+)/);const cursorIndex=Number(match?.[1]||1);const page=cursorIndex-1;
-    const nextCursor=repeated?cursor:(page>=4?null:`saved-cursor-${page+2}`);
+    const nextCursor=repeated?cursor:(page>=endAfter?null:`saved-cursor-${page+2}`);
     const data=empty?[]:pageRecords(page);
     return new Response(JSON.stringify({response:{data,meta:{next_cursor:nextCursor}}}),{status:200,headers:{'content-type':'application/json'}});
   }});
@@ -77,7 +77,7 @@ test('Phase F stops on empty/invalid page before checkpoint; max-pages and reque
   assert.equal(failed.ok,false);assert.equal(failed.error,'no_valid_canonical_records');assert.equal(failed.liveRequests,1);assert.equal(calls.length,1);
   assert.equal(sqlite.prepare('SELECT cursor FROM provider_sync_scopes WHERE scope_key=?').get(PHASE_D_SCOPE).cursor,'saved-cursor-1');
   assert.equal(sqlite.prepare('SELECT COUNT(*) n FROM sync_page_commits').get().n,0);
-  assert.equal(MAX_PHASE_F_REQUESTS,5);assert.equal(MAX_PAGES_PER_RUN,3);assert.equal(DEFAULT_PAGES_PER_RUN,2);
+  assert.equal(MAX_PHASE_G_PREP_REQUESTS,10);assert.equal(MAX_PAGES_PER_RUN,3);assert.equal(DEFAULT_PAGES_PER_RUN,2);
   const invalid=await runControlledBackfill({db:d1,env:{APIBARA_API_KEY:'mock-only'},requestId:'phase-f-invalid-limit',maxPages:4,now:()=>NOW+1,provider});
   assert.equal(invalid.error,'invalid_page_limit');assert.equal(calls.length,1);
   sqlite.close();
@@ -96,22 +96,22 @@ test('Phase F lease conflict and repeated cursor stop without another page or cu
 });
 
 test('Phase F manual endpoint is staging-host, flag, POST, same-origin and authenticated only',async()=>{
-  const{sqlite,d1}=database();const env={REXBID_AUTH_TEST_UI:'enabled',REXBID_AUTH_TEST_HOST:'rexbid-auth-test.tedn828.workers.dev',REXBID_PHASE_F_BACKFILL:'enabled',REXBID_D1_READ_TARGET:'rexbid-auth-test-db',REXBID_DB:d1,APIBARA_API_KEY:'mock-only'};
+  const{sqlite,d1}=database();const env={REXBID_AUTH_TEST_UI:'enabled',REXBID_AUTH_TEST_HOST:'rexbid-auth-test.tedn828.workers.dev',REXBID_PHASE_G_PREP_BACKFILL:'enabled',REXBID_D1_READ_TARGET:'rexbid-auth-test-db',REXBID_DB:d1,APIBARA_API_KEY:'mock-only'};
   let providerCalls=0;const provider=providerFor([]);const wrapped={...provider,listVehicles:async(...args)=>{providerCalls++;return provider.listVehicles(...args);}};
   const dispatch=async()=>new Response('{"user":{"id":"synthetic-auth-user"}}',{status:200});
-  const request=(host='rexbid-auth-test.tedn828.workers.dev',method='POST',origin=`https://${host}`,site='same-origin')=>new Request(`https://${host}/__staging/d1-sync-phase-f-backfill`,{method,headers:{Origin:origin,'Sec-Fetch-Site':site,Cookie:'opaque',"Content-Type":"application/json"},body:method==='POST'?'{"max_pages":1}':undefined});
+  const request=(host='rexbid-auth-test.tedn828.workers.dev',method='POST',origin=`https://${host}`,site='same-origin')=>new Request(`https://${host}/__staging/d1-sync-phase-g-backfill`,{method,headers:{Origin:origin,'Sec-Fetch-Site':site,Cookie:'opaque',"Content-Type":"application/json"},body:method==='POST'?'{"max_pages":1}':undefined});
   assert.equal((await handlePhaseFRequest(request('evil.invalid'),env,null,dispatch,wrapped)).status,404);
   assert.equal((await handlePhaseFRequest(request(undefined,'GET',undefined,undefined),env,null,dispatch,wrapped)).status,405);
   assert.equal((await handlePhaseFRequest(request('rexbid-auth-test.tedn828.workers.dev','POST','https://attacker.invalid'),env,null,dispatch,wrapped)).status,403);
-  assert.equal((await handlePhaseFRequest(request(),{...env,REXBID_PHASE_F_BACKFILL:'disabled'},null,dispatch,wrapped)).status,404);
+  assert.equal((await handlePhaseFRequest(request(),{...env,REXBID_PHASE_G_PREP_BACKFILL:'disabled'},null,dispatch,wrapped)).status,404);
   assert.equal((await handlePhaseFRequest(request(),env,null,async()=>new Response('{}',{status:401}),wrapped)).status,401);
   assert.equal(providerCalls,0);sqlite.close();
 });
 
 test('Phase F authorized staging route calls the manual runner once and returns safe bounded metrics',async()=>{
-  const{sqlite,d1}=database();const env={REXBID_AUTH_TEST_UI:'enabled',REXBID_AUTH_TEST_HOST:'rexbid-auth-test.tedn828.workers.dev',REXBID_PHASE_F_BACKFILL:'enabled',REXBID_D1_READ_TARGET:'rexbid-auth-test-db',REXBID_DB:d1,APIBARA_API_KEY:'mock-only'};
+  const{sqlite,d1}=database();const env={REXBID_AUTH_TEST_UI:'enabled',REXBID_AUTH_TEST_HOST:'rexbid-auth-test.tedn828.workers.dev',REXBID_PHASE_G_PREP_BACKFILL:'enabled',REXBID_D1_READ_TARGET:'rexbid-auth-test-db',REXBID_DB:d1,APIBARA_API_KEY:'mock-only'};
   let providerCalls=0;const provider=providerFor([]);const wrapped={...provider,listVehicles:async(...args)=>{providerCalls++;return provider.listVehicles(...args);}};
-  const response=await handlePhaseFRequest(new Request('https://rexbid-auth-test.tedn828.workers.dev/__staging/d1-sync-phase-f-backfill',{method:'POST',headers:{Origin:'https://rexbid-auth-test.tedn828.workers.dev','Sec-Fetch-Site':'same-origin',Cookie:'opaque-session','Content-Type':'application/json'},body:'{"max_pages":1}'}),env,null,
+  const response=await handlePhaseFRequest(new Request('https://rexbid-auth-test.tedn828.workers.dev/__staging/d1-sync-phase-g-backfill',{method:'POST',headers:{Origin:'https://rexbid-auth-test.tedn828.workers.dev','Sec-Fetch-Site':'same-origin',Cookie:'opaque-session','Content-Type':'application/json'},body:'{"max_pages":1}'}),env,null,
     async()=>new Response('{"user":{"id":"synthetic-user"}}',{status:200}),wrapped);
   const body=await response.json();
   assert.equal(response.status,200);assert.match(response.headers.get('X-RexBid-Request-ID'),/^[0-9a-f-]{36}$/);
@@ -131,15 +131,44 @@ test('Phase F scope stale state and HOT/WARM/COLD refresh intervals are explicit
   assert.equal(classifyScopeState({status:'complete',last_complete_at:new Date(NOW-1000).toISOString()},{now:NOW,staleAfterMs:60000}),'complete');
 });
 
-test('Phase F exhausted persistent budget schedules zero new provider calls',async()=>{
+test('Phase G preparation exhausted persistent budget schedules zero new provider calls',async()=>{
   const{sqlite,d1}=database();const repo=new D1SyncRepository(d1);
-  await repo.initializeBudget({provider:BUDGET_PROVIDER,budgetDay:BUDGET_CAMPAIGN,normalLimit:MAX_PHASE_F_REQUESTS,retryLimit:0,now:NOW});
+  await repo.initializeBudget({provider:BUDGET_PROVIDER,budgetDay:BUDGET_CAMPAIGN,normalLimit:MAX_PHASE_G_PREP_REQUESTS,retryLimit:0,now:NOW});
   sqlite.prepare(`UPDATE provider_request_budgets SET normal_consumed=?,normal_limit=?,retry_limit=0 WHERE provider=? AND budget_day=?`)
-    .run(MAX_PHASE_F_REQUESTS,MAX_PHASE_F_REQUESTS,BUDGET_PROVIDER,BUDGET_CAMPAIGN);
+    .run(MAX_PHASE_G_PREP_REQUESTS,MAX_PHASE_G_PREP_REQUESTS,BUDGET_PROVIDER,BUDGET_CAMPAIGN);
   const calls=[];const result=await runControlledBackfill({db:d1,env:{APIBARA_API_KEY:'mock-only'},requestId:'phase-f-exhausted',maxPages:2,now:()=>NOW,provider:providerFor(calls)});
   assert.equal(result.ok,true);assert.equal(result.liveRequests,0);assert.equal(result.stopReason,'request_budget_exhausted');assert.equal(calls.length,0);
   assert.equal(sqlite.prepare('SELECT cursor FROM provider_sync_scopes WHERE scope_key=?').get(PHASE_D_SCOPE).cursor,'saved-cursor-1');
-  assert.equal(sqlite.prepare('SELECT normal_consumed,normal_reserved FROM provider_request_budgets WHERE provider=? AND budget_day=?').get(BUDGET_PROVIDER,BUDGET_CAMPAIGN).normal_consumed,MAX_PHASE_F_REQUESTS);
+  assert.equal(sqlite.prepare('SELECT normal_consumed,normal_reserved FROM provider_request_budgets WHERE provider=? AND budget_day=?').get(BUDGET_PROVIDER,BUDGET_CAMPAIGN).normal_consumed,MAX_PHASE_G_PREP_REQUESTS);
+  sqlite.close();
+});
+
+test('new backfill campaign has a separate durable ten-request cap and does not raise the prior Phase F budget',async()=>{
+  const{sqlite,d1}=database();
+  sqlite.prepare(`INSERT INTO provider_request_budgets(provider,budget_day,normal_limit,retry_limit,normal_consumed,updated_at)
+    VALUES('apibara-phase-f','campaign-phase-f-controlled-backfill',5,0,2,?)`).run(new Date(NOW).toISOString());
+  const calls=[];
+  const result=await runControlledBackfill({db:d1,env:{APIBARA_API_KEY:'mock-only'},requestId:'phase-g-new-budget',maxPages:1,now:()=>NOW,provider:providerFor(calls)});
+  assert.equal(result.ok,true);assert.equal(result.liveRequests,1);assert.equal(result.campaignBudget.limit,10);assert.equal(result.campaignBudget.consumed,1);
+  const old=sqlite.prepare(`SELECT normal_limit,normal_consumed FROM provider_request_budgets WHERE provider='apibara-phase-f' AND budget_day='campaign-phase-f-controlled-backfill'`).get();
+  assert.deepEqual({...old},{normal_limit:5,normal_consumed:2});
+  sqlite.close();
+});
+
+test('new sprint hard cap stops at ten requests across resumed runs, with no implicit retry',async()=>{
+  const{sqlite,d1}=database();const calls=[];const provider=providerFor(calls,{endAfter:999});
+  let totalPages=0;
+  for(let run=0;run<4;run+=1){
+    const result=await runControlledBackfill({db:d1,env:{APIBARA_API_KEY:'mock-only'},requestId:`phase-g-cap-${run}`,maxPages:run===3?1:3,now:()=>NOW+run*1000,provider});
+    assert.equal(result.ok,true,JSON.stringify(result));totalPages+=result.pagesProcessed;
+    if(run<3)assert.equal(result.scopeStatus,'partial');
+  }
+  assert.equal(totalPages,10);assert.equal(calls.length,10);
+  const finalBudget=sqlite.prepare('SELECT normal_limit,normal_consumed,normal_reserved,retry_limit,retry_consumed FROM provider_request_budgets WHERE provider=? AND budget_day=?').get(BUDGET_PROVIDER,BUDGET_CAMPAIGN);
+  assert.deepEqual({...finalBudget},{normal_limit:10,normal_consumed:10,normal_reserved:0,retry_limit:0,retry_consumed:0});
+  const blocked=await runControlledBackfill({db:d1,env:{APIBARA_API_KEY:'mock-only'},requestId:'phase-g-cap-blocked',maxPages:1,now:()=>NOW+5000,provider});
+  assert.equal(blocked.ok,true);assert.equal(blocked.liveRequests,0);assert.equal(blocked.stopReason,'request_budget_exhausted');assert.equal(calls.length,10);
+  assert.equal(sqlite.prepare('SELECT COUNT(DISTINCT listing_id) n FROM auction_listings').get().n,200);
   sqlite.close();
 });
 

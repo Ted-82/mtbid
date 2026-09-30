@@ -47,7 +47,7 @@ function stagingPageWithRealAuth(fetchImpl, hostname = 'rexbid-auth-test.tedn828
   const location={hostname,pathname:'/auth-test.html',search:'',origin:`https://${hostname}`,hash:''};
   const storageMap=new Map();
   const localStorage={getItem:key=>storageMap.get(key)||null,setItem:(key,value)=>storageMap.set(key,String(value)),removeItem:key=>storageMap.delete(key)};
-  const window={location,localStorage,fetch:fetchImpl,addEventListener(type,fn){(windowListeners[type] ||= []).push(fn);},dispatchEvent(event){for(const fn of windowListeners[event.type]||[])fn(event);},confirm:()=>false};
+  const window={location,localStorage,fetch:fetchImpl,AbortController,setTimeout:(fn,ms)=>setTimeout(fn,Math.min(ms,10)),clearTimeout,addEventListener(type,fn){(windowListeners[type] ||= []).push(fn);},dispatchEvent(event){for(const fn of windowListeners[event.type]||[])fn(event);},confirm:()=>false};
   const document={body:new Element('body'),getElementById:id=>elements.get(id)||null,createElement:tag=>new Element(tag),querySelectorAll:()=>[],querySelector:()=>null};window.document=document;
   class CustomEvent {constructor(type,init){this.type=type;this.detail=init?.detail;}}
   const context={window,document,location,localStorage,fetch:fetchImpl,CustomEvent,URL,URLSearchParams,Headers,Promise,Error,JSON,String,Number,Date,console};
@@ -91,7 +91,7 @@ test('staging stays isolated and delegates all auth/session/favorite operations 
   assert.equal(elements.get('me-facts').textContent,'');
   assert.equal(elements.get('favorite-list-output').children.length,0);
   const directFetches=[...inlineScript.matchAll(/\bfetch\s*\(\s*["']([^"']+)["']/g)].map(match=>match[1]);
-  assert.deepEqual(directFetches,["/__staging/d1-sync-phase-d-discovery","/__staging/d1-sync-phase-f-backfill"],"test UI may call only its explicitly guarded staging sync endpoints directly");
+  assert.deepEqual(directFetches,["/__staging/d1-sync-phase-d-discovery","/__staging/d1-sync-phase-g-backfill"],"test UI may call only its explicitly guarded staging sync endpoints directly");
   assert.doesNotMatch(inlineScript,/localStorage|sessionStorage|innerHTML|access_token|refresh_token/i);
   assert.match(inlineScript,/auth\.login\(/);assert.match(inlineScript,/auth\.signup\(/);assert.match(inlineScript,/auth\.refreshSession\(/);assert.match(inlineScript,/auth\.mergeFavoriteIdentities\(/);
 });
@@ -144,6 +144,29 @@ test('real Auth client + staging page bootstrap then click login, handle respons
   assert.equal(page.elements.get('phase-d-discovery').disabled,false);
   assert.equal(page.elements.get('phase-d-section').hidden,false);
   assert.match(page.elements.get('signup-diagnostic').textContent,/response HTTP 200/);
+});
+
+test('real staging page bootstrap settles after a hung /api/me fetch and leaves login available',async()=>{
+  const calls=[];let aborted=false;
+  const page=stagingPageWithRealAuth((url,options={})=>{
+    calls.push(url);
+    if(url==='/api/auth/config')return Promise.resolve(jsonResponse(200,{ok:true,enabled:true}));
+    if(url==='/api/me'){
+      options.signal?.addEventListener('abort',()=>{aborted=true;});
+      return new Promise(()=>{});
+    }
+    throw new Error('unexpected request');
+  });
+  page.elements.get('auth-message').textContent='Sprawdzam sesję…';
+  await Promise.race([page.auth.ready,new Promise((_,reject)=>setTimeout(()=>reject(new Error('bootstrap remained pending')),250))]);
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.deepEqual(calls,['/api/auth/config','/api/me']);
+  assert.equal(aborted,true,'the timed-out same-origin fetch is aborted');
+  assert.equal(page.auth.enabled,true,'a failed session bootstrap does not disable configured Auth');
+  assert.equal(page.elements.get('login').disabled,false,'login remains available after session lookup timeout');
+  assert.equal(page.elements.get('signup').disabled,false);
+  assert.equal(page.elements.get('phase-f-backfill').disabled,true,'a failed/anonymous bootstrap cannot expose backfill');
+  assert.equal(page.elements.get('auth-message').textContent,'Brak aktywnej sesji.');
 });
 
 test('staging Auth login TypeError is attributed to request stage and can never unlock Phase D',async()=>{
