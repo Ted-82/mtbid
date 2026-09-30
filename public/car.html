@@ -1373,6 +1373,7 @@ main{padding-top:22px}
 </div>
 
 <script src="/rexbid-calculator-rates.js"></script>
+<script src="/rexbid-calculator-v3-rates.js"></script>
 <script src="/rexbid-calculator.js"></script>
 <script src="/rexbid-transport-rates.js"></script>
 <script src="/rexbid-transport-engine.js"></script>
@@ -2763,6 +2764,13 @@ main{padding-top:22px}
             <details class="door-est-details"><summary>Jak czytać szacunek</summary><p>Wariant standardowy zakłada 4 auta w kontenerze 40'HC, a ostrożny 3 auta. System wybiera trasę z najniższą kompletną sumą transportu lądowego i morskiego. Nazwy tras i portów nie są publikowane bez potwierdzenia. Stawki partnera są w USD; końcowa kwota importu pozostaje niepełna, dopóki nie są znane pozostałe opłaty i dane odprawy.</p></details>
           </section>
 
+          <section class="panel import-calc calculator-v3-summary" id="calculatorV3Summary" data-calculator-v3-only hidden>
+            <h2>Szacowany koszt importu</h2>
+            <p class="calc-sub">Wariant standardowy zakłada 4 auta w kontenerze 40'HC, a ostrożny 3 auta. Brakujące stawki i dane pozostają do potwierdzenia — kalkulator nie pokazuje niepełnej sumy jako kosztu końcowego.</p>
+            <div class="calc-summary" id="calcV3Summary" aria-live="polite"></div>
+            <a class="jump-links" href="#importCalculator">Uzupełnij dane kosztowe i podatkowe</a>
+          </section>
+
           <section class="panel import-calc" id="importCalculator">
             <details class="strict-estimate-mode"><summary>Kalkulator ścisły — tylko po potwierdzeniu stawek i danych</summary>
             <h2>Ścisły kalkulator kosztów</h2>
@@ -2780,9 +2788,15 @@ main{padding-top:22px}
                   <div class="calc-field"><label for="calcAuctionFeeOverride">Opłata aukcyjna z aktualnej wyceny (USD)</label><input id="calcAuctionFeeOverride" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Opcjonalnie, jeśli znasz"></div>
                   <div class="calc-field"><label for="calcUsInland">Transport facility → port USA (USD)</label><input id="calcUsInland" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Wymaga oferty"></div>
                   <div class="calc-field"><label for="calcOceanFreight">Fracht morski (USD)</label><input id="calcOceanFreight" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Wymaga oferty"></div>
-                  <div class="calc-field"><label for="calcDestinationCosts">Port docelowy / obsługa (USD)</label><input id="calcDestinationCosts" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Wymaga oferty"></div>
+                  <div class="calc-field"><label for="calcDestinationCosts">Port / handling w kraju odprawy (USD)</label><input id="calcDestinationCosts" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Do potwierdzenia"></div>
                   <div class="calc-field"><label for="calcInsurance">Ubezpieczenie transportu (USD)</label><input id="calcInsurance" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Wpisz ofertę lub 0"></div>
-                  <div class="calc-field"><label for="calcOtherCosts">Broker / pozostałe koszty (USD)</label><input id="calcOtherCosts" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Wpisz ofertę lub 0"></div>
+                  <div class="calc-field"><label for="calcOtherCosts">Broker / odprawa celna (USD)</label><input id="calcOtherCosts" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Do potwierdzenia"></div>
+                  <details class="calc-detail-group" data-calculator-v3-only><summary>Dodatkowe koszty importu i dostawy</summary>
+                  <div class="calc-field"><label for="calcUnloadingContainerUsd">Rozładunek / obsługa kontenera (USD)</label><input id="calcUnloadingContainerUsd" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Do potwierdzenia"></div>
+                  <div class="calc-field"><label for="calcDocumentationUsd">Dokumentacja importowa (USD)</label><input id="calcDocumentationUsd" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Do potwierdzenia"></div>
+                  <div class="calc-field"><label for="calcOtherImportUsd">Pozostałe koszty importowe (USD)</label><input id="calcOtherImportUsd" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Do potwierdzenia"></div>
+                  <div class="calc-field"><label for="calcPolandDeliveryPln">Transport w Polsce (PLN)</label><input id="calcPolandDeliveryPln" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Do potwierdzenia — cennik strefowy/kilometrowy"></div>
+                  </details>
                 </div>
                 <details class="calc-detail-group">
                   <summary>Dane celne, podatki i waluty</summary>
@@ -2800,6 +2814,7 @@ main{padding-top:22px}
                     <div class="calc-field"><label for="calcUiFxRate">Orientacyjny kurs UI USD → PLN</label><input id="calcUiFxRate" type="number" min="0" step="0.0001" inputmode="decimal" placeholder="Wpisz kurs i wskaż źródło"></div>
                     <div class="calc-field"><label for="calcUiFxSource">Źródło kursu orientacyjnego</label><input id="calcUiFxSource" type="text" placeholder="Np. NBP Table A"></div>
                     <div class="calc-field"><label for="calcUiFxCheckedAt">Data kursu orientacyjnego</label><input id="calcUiFxCheckedAt" type="date"></div>
+                    <p class="calc-sub">Kurs prezentacyjny USD/PLN służy wyłącznie do pokazania orientacyjnego wyniku. Kurs celny i kurs używany do akcyzy wymagają osobnych, datowanych danych; kalkulator nie podstawia kursu UI do podstaw podatkowych.</p>
                   </div>
                 </details>
                 <h3 class="calc-detail-heading">Rozbicie i status danych</h3>
@@ -3198,11 +3213,15 @@ main{padding-top:22px}
   function initImportCalculator() {
     const root = document.getElementById("importCalculator");
     const estimateRoot = document.getElementById("partnerTransportCalculator");
+    const v3SummarySection = document.getElementById("calculatorV3Summary");
+    const v3Enabled = window.RexBidCalculatorV3Enabled === true;
+    if (v3Enabled && v3SummarySection) v3SummarySection.hidden = false;
     let partnerTransportSelection = null;
+    let partnerTransportVariants = null;
     if (estimateRoot && window.RexBidTransport && window.RexBidCalculator) {
       try {
         const transportPrefill = window.RexBidCalculator.prefillFromVehicle(car, { auctionEnded: auctionPhase() === "ended" });
-        window.RexBidTransport.bind({ root: estimateRoot, vehicle: car, prefill: transportPrefill, onUpdate(selection) {
+        window.RexBidTransport.bind({ root: estimateRoot, vehicle: car, prefill: transportPrefill, onOptions(options) { partnerTransportVariants = options; }, onUpdate(selection) {
           partnerTransportSelection = selection;
         } });
       } catch (error) {
@@ -3221,9 +3240,11 @@ main{padding-top:22px}
         ["Napęd", prefill.drivetrain], ["Pojemność silnika", prefill.engineCc ? `${prefill.engineCc} cm³` : null]
       ].filter(([,value]) => !isEmpty(value)).map(([label,value]) => `${label}: ${value}`).join(" · ");
       window.RexBidCalculator.bindCalculator({
-        root, platform, prefill, context,
+        root, platform, prefill, context, enableV3: v3Enabled,
+        summaryRoot: v3Enabled ? document.getElementById("calcV3Summary") : null,
         purchasePriceInput: estimateRoot?.querySelector("[data-transport-purchase]"),
         getPartnerTransport: () => partnerTransportSelection,
+        getPartnerTransportVariants: () => partnerTransportVariants,
         onUpdate(result) {
           const topForecast = document.getElementById("topForecast");
           if (topForecast) topForecast.textContent = result.complete && result.total
@@ -3233,7 +3254,7 @@ main{padding-top:22px}
       });
     } catch (error) {
       console.warn("REX.Bid calculator initialization:", error);
-      const summary = root.querySelector("#calcSummary");
+      const summary = v3Enabled ? document.getElementById("calcV3Summary") : root.querySelector("#calcSummary");
       if (summary) summary.textContent = "Kalkulator chwilowo niedostępny. Dane pojazdu pozostają dostępne.";
       const forecast = document.getElementById("topForecast");
       if (forecast) forecast.textContent = "Kalkulator chwilowo niedostępny";

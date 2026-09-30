@@ -1507,6 +1507,10 @@ function operationForPath(pathname) {
   return "http";
 }
 
+function isCarPagePath(pathname) {
+  return pathname === "/car.html" || pathname === "/car";
+}
+
 function responseErrorCode(response) {
   if (response.status < 400) return null;
   if (response.status === 404) return "not_found";
@@ -1533,11 +1537,20 @@ async function applySecurityHeaders(response, request, { requestId = null, env =
     globalThis.crypto.getRandomValues(nonceBytes);
     const nonce = Array.from(nonceBytes, byte => byte.toString(16).padStart(2, "0")).join("");
     let html = await response.text();
-    if (url.pathname === "/car.html" && env?.REXBID_DOOR_ESTIMATOR_PROTOTYPE !== "enabled") {
+    if (isCarPagePath(url.pathname)) {
+      if (env?.REXBID_CALCULATOR_V3_ENABLED === "enabled" && url.hostname === "rexbid-auth-test.tedn828.workers.dev") {
+        html = html.replace(/<\/head>/i, `<script>window.RexBidCalculatorV3Enabled=true;</script></head>`);
+      } else {
+        html = html.replace(/\s*<script\s+src="\/rexbid-calculator-v3-rates\.js"[^>]*><\/script>/gi, "");
+        html = html.replace(/\s*<section[^>]*data-calculator-v3-only[^>]*>[\s\S]*?<\/section>/i, "");
+        html = html.replace(/\s*<details[^>]*data-calculator-v3-only[^>]*>[\s\S]*?<\/details>/i, "");
+      }
+    }
+    if (isCarPagePath(url.pathname) && env?.REXBID_DOOR_ESTIMATOR_PROTOTYPE !== "enabled") {
       html = html.replace(/\s*<section class="door-estimator"[\s\S]*?<\/section>/i, "");
       html = html.replace(/\s*<script\s+src="\/rexbid-door-estimator(?:-rates)?\.js"[^>]*><\/script>/gi, "");
     }
-    if (url.pathname === "/car.html" && env?.REXBID_TRANSPORT_CALCULATOR_ENABLED !== "enabled") {
+    if (isCarPagePath(url.pathname) && env?.REXBID_TRANSPORT_CALCULATOR_ENABLED !== "enabled") {
       html = html.replace(/\s*<section class="partner-transport-calculator"[\s\S]*?<\/section>/i, "");
       html = html.replace(/\s*<script\s+src="\/rexbid-transport-(?:rates|engine)\.js"[^>]*><\/script>/gi, "");
     }
@@ -2309,6 +2322,9 @@ const rexWorker = {
     }
     if (url.pathname === "/rexbid-transport-rates.js" || url.pathname === "/rexbid-transport-engine.js") {
       if (env?.REXBID_TRANSPORT_CALCULATOR_ENABLED !== "enabled") return errorJson("Nie znaleziono zasobu.", 404);
+    }
+    if (url.pathname === "/rexbid-calculator-v3-rates.js" && (env?.REXBID_CALCULATOR_V3_ENABLED !== "enabled" || url.hostname !== "rexbid-auth-test.tedn828.workers.dev")) {
+      return errorJson("Nie znaleziono zasobu.", 404);
     }
 
     if (request.method === "GET" && url.pathname === "/health") {

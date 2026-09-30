@@ -25,6 +25,7 @@
     "binding": "ASSETS",
     "run_worker_first": [
       "/",
+      "/car*",
       "/*.html",
       "/konto",
       "/ulubione",
@@ -36,7 +37,8 @@
       "/rexbid-door-estimator.js",
       "/rexbid-door-estimator-rates.js",
       "/rexbid-transport-rates.js",
-      "/rexbid-transport-engine.js"
+      "/rexbid-transport-engine.js",
+      "/rexbid-calculator-v3-rates.js"
     ]
   }
 }

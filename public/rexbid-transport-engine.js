@@ -150,7 +150,7 @@
   }
   function selectTransportOptions(match, rates = RATES) {
     function choose(vehicleCount, seaCount) {
-      if (!match || !match.matched || !Array.isArray(match.routes_available)) return { status: STATUSES.unknown, selected_route: null, land_amount: null, sea_amount: null, combined_transport_amount: null, currency: rates?.currency || null, source: "partner", match_status: match?.match_status || "unmatched" };
+      if (!match || !match.matched || !Array.isArray(match.routes_available)) return { status: STATUSES.unknown, selected_route: null, land_amount: null, sea_amount: null, combined_transport_amount: null, currency: rates?.currency || null, source: "partner", rate_version: rates?.version || null, effective_from: rates?.source?.effective_from || null, checked_at: rates?.source?.generated_at || null, match_status: match?.match_status || "unmatched" };
       const candidates = match.routes_available.flatMap(route => {
         const land = route.amount;
         const sea = rates?.seaFreight40HC?.[String(seaCount)]?.[route.route_id];
@@ -158,8 +158,8 @@
         return [{ selected_route: route.route_id, land_amount: land, sea_amount: Number(sea), combined_transport_amount: land + Number(sea) }];
       }).sort((a, b) => a.combined_transport_amount - b.combined_transport_amount || String(a.selected_route).localeCompare(String(b.selected_route)));
       const best = candidates[0];
-      return best ? { ...best, status: rates?.currency ? STATUSES.configurable : STATUSES.unknown, currency: rates?.currency || null, source: "partner", match_status: match.match_status, container: "40'HC", sea_vehicle_count: seaCount, assumptions: [`Stawka morska na pojazd przy ${seaCount} autach w 40'HC.`, "Wybrano trasę o najniższej sumie ląd + morze spośród kompletnych tras."] }
-        : { status: STATUSES.unknown, selected_route: null, land_amount: null, sea_amount: null, combined_transport_amount: null, currency: rates?.currency || null, source: "partner", match_status: match.match_status, reason: "Brak trasy z kompletną stawką lądową i morską." };
+      return best ? { ...best, status: rates?.currency ? STATUSES.configurable : STATUSES.unknown, currency: rates?.currency || null, source: "partner", rate_version: rates?.version || null, effective_from: rates?.source?.effective_from || null, checked_at: rates?.source?.generated_at || null, match_status: match.match_status, container: "40'HC", sea_vehicle_count: seaCount, assumptions: [`Stawka morska na pojazd przy ${seaCount} autach w 40'HC.`, "Wybrano trasę o najniższej sumie ląd + morze spośród kompletnych tras."] }
+        : { status: STATUSES.unknown, selected_route: null, land_amount: null, sea_amount: null, combined_transport_amount: null, currency: rates?.currency || null, source: "partner", rate_version: rates?.version || null, effective_from: rates?.source?.effective_from || null, checked_at: rates?.source?.generated_at || null, match_status: match.match_status, reason: "Brak trasy z kompletną stawką lądową i morską." };
     }
     return { expected: choose(4, 4), conservative: choose(3, 3) };
   }
@@ -212,6 +212,7 @@
     }
     const update = () => {
       const transportOptions = selectTransportOptions(match);
+      options.onOptions?.(transportOptions);
       const standard = transportOptions.expected;
       const conservative = transportOptions.conservative;
       const landValue = root.querySelector("[data-transport-land-value]");

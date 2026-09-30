@@ -214,3 +214,22 @@ Lokalny diff dodaje `/health`, `/ready`, sanitizowane logi, security/cache heade
 7. Przejść `docs/PRODUCTION_DEPLOY_CHECKLIST.md`; każdy krytyczny punkt nierozstrzygnięty oznacza STOP.
 
 Statusy launch: `docs/LAUNCH_READINESS.md`; backup/restore: `docs/BACKUP_RECOVERY.md`.
+
+
+## Calculator V3 — status implementacji lokalnej (2026-09-30)
+
+- **DONE in code:** rozszerzenie V2 o trzy poziomy (transport, import subtotal, door-to-door), nieznane koszty jako brak danych, osobne currency/provenance/status i warianty standard/ostrożny. Staging-only gate jest domyślnie wyłączony w production.
+- **AUTOMATED VERIFIED:** V3 testy i pełny test suite; szczegóły w `docs/DOOR_TO_DOOR_COST_MODEL.md`.
+- **NOT STAGING VERIFIED / NOT REAL BROWSER VERIFIED:** nie wykonano deployu w tym etapie; nie pobrano auta ani nie wykonano requestu Apibara.
+- **Nadal blokuje pełny koszt pod dom:** potwierdzony profil Copart dla Rex.Bid, właściwy cennik IAA, import agent inputs/TARIC/origin, udokumentowane customs/excise/VAT bases, datowane odrębne UI/customs/excise FX, oferty port/broker/unloading/documentation/insurance/other import oraz dostawa w Polsce.
+- Następny krok: checkpoint kodu po review, a potem osobno zatwierdzony staging deploy i browser verification bez żądań providera (np. używając istniejących, już pobranych danych albo lokalnego fixture). Produkcja i produkcyjna migracja nie wchodzą w zakres.
+
+## Calculator V3 — końcowa weryfikacja stagingowa (2026-09-30)
+
+- **CODE VERIFIED / AUTOMATED VERIFIED / STAGING VERIFIED:** Version `c34f0aa5-eefb-43be-85ea-6cd4ee161868`, tylko `rexbid-auth-test` + `rexbid-auth-test-db`; 268/268 testów, generator, składnia i diff-check PASS.
+- **REAL BROWSER DESKTOP VERIFIED / MOBILE VERIFIED:** Copart LOT 97885965; 12 zdjęć, 20 history events, dane auta i lokalny favorite bez regresji. Dla location `Long Island (NY)`, ZIP match: $295 land; standard $575 sea = $870, ostrożnie $650 sea = $945. Viewport 1366×900 i 390×844 bez poziomego scrolla; szczegóły działają; console errors = 0.
+- Widoczne V3 rozdziela składniki i nie pokazuje pełnej sumy, gdy brakuje danych. Po jawnych syntetycznych QA inputs pełny stan pokazał orientacyjnie 48 706 PLN / 48 987,25 PLN; po teście wyczyszczono wartości.
+- **NOT VERIFIED:** real-browser IAAI; automatyczny kurs FX; właściwy profil konta Copart; realne podstawy podatkowe; port/broker/obsługa/dokumentacja i transport w Polsce; cloud Auth/favorites w tej sesji. Pełny koszt pod dom wciąż zależy od tych danych.
+- Usunięto regresję widoczności V3 na extensionless `/car`, podsumowanie V3 przeniesiono do widocznej części strony, a opłata Copart ma jawny opis publicznej tabeli z niepotwierdzonym profilem Rex.Bid.
+- Brak bezpośrednich requestów, discovery lub backfill Apibara. Zwykłe browser detail/history load może użyć providera; dokładnego upstream countu nie instrumentowano. Produkcja nietknięta.
+- Rekomendacja: checkpoint Calculator V3 po review. Nie oznacza to gotowości pełnej wyceny ani produkcyjnego włączenia.

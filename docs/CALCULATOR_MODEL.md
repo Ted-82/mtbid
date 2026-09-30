@@ -357,3 +357,20 @@ Zakresy pomiędzy opublikowanymi/zaimplementowanymi przedziałami pozostają `un
 - [DreamBid public calculator](https://dreambid.pl/en/calculator) — wejście VIN/LOT/location, offer amount i publiczny breakdown sprawdzony 2026-09-26.
 - [DreamBid homepage](https://dreambid.pl/en) — deklarowana opłata usługowa i zakres usługi.
 - [Copart US Member Fees](https://www.copart.com/content/us/en/member-fees) oraz [Copart Schedule A–D fee information](https://www.copart.com/Content/us/en/premier-member-fees-demo) — jedyne właściwe źródła do potwierdzania tabel Rex.Bid; konkurencja pozostaje benchmarkiem.
+
+
+## Calculator V3 — pełny model kosztowy (kod lokalny)
+
+V3 jest rozszerzeniem istniejącego silnika. Szczegółowy model, wzory/statusy, oficjalne źródła, przykłady $1k/$5k/$10k/$25k/$50k oraz jawne braki znajdują się w `docs/DOOR_TO_DOOR_COST_MODEL.md`. Partner rates pozostają autorytatywną roboczą konfiguracją transportową USD, natomiast door-estimator public market data jest superseded.
+
+Staging-only `REXBID_CALCULATOR_V3_ENABLED` wybiera V3 UI/engine oraz dokładny host stagingu `rexbid-auth-test.tedn828.workers.dev`; bez flagi Worker usuwa V3-only configuration/inputs i zachowuje starszy calculator path. Copart profile są configurable (zastosowanie do konta niepotwierdzone); IAA, FX automat, port/broker, import handling i Poland delivery są unknown do czasu podania źródeł/stawek. Wymagane unknown blokuje total. Nie wykonano staging deployu ani requestu Apibara; production nietknięta.
+
+## Calculator V3 — status stagingowy (2026-09-30, zastępuje wcześniejszy status lokalny)
+
+**CODE VERIFIED / AUTOMATED VERIFIED / STAGING VERIFIED / REAL BROWSER DESKTOP VERIFIED / REAL BROWSER MOBILE VERIFIED.** Końcowy staging Version `c34f0aa5-eefb-43be-85ea-6cd4ee161868`. Pełny run: 268/268 PASS; generator 610 lokalizacji i sea rates USD PASS; składnia oraz diff-check PASS.
+
+Realna karta Copart LOT 97885965 dopasowała lokalizację przez `fallback_zip`: $295 land, $575 fracht standard (4 auta), $650 ostrożnie (3 auta), razem $870/$945. Opłaty Copart bez wybranego profilu są `Do potwierdzenia`; po wyborze publicznego wariantu etykieta jawnie mówi, że profil Rex.Bid wymaga potwierdzenia. IAAI pozostaje unknown. Pełny koszt jest kompletny wyłącznie po wprowadzeniu wszystkich wymaganych pól; bez nich znany subtotal i `Kalkulacja niepełna` nie udają sumy końcowej.
+
+Na desktop 1366×900 i mobile 390×844 nie było poziomego scrolla; widoczna galeria, historia, vehicle details, seller/title/damage, local favorite oraz kalkulator. Brak JS errors w dostępnych logach. IAAI real-browser, auth/cloud favorites w tej sesji, oficjalnie właściwe profile/opłaty, tax bases/FX i koszty importowe/dostawy pozostają **NOT VERIFIED**. Production nie wdrożono; `mtbid`/`rexbid-db` nietknięte.
+
+Apibara: brak ręcznie wysłanych requestów ani discovery/backfill. Karta korzysta z normalnej ścieżki provider-backed; faktycznej liczby upstream reads nie mierzono.

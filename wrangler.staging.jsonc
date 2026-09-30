@@ -20,6 +20,7 @@
     "REXBID_D1_READ_TARGET": "rexbid-auth-test-db",
     "REXBID_D1_READ_MAX_AGE_MS": "86400000",
     "REXBID_TRANSPORT_CALCULATOR_ENABLED": "enabled",
+    "REXBID_CALCULATOR_V3_ENABLED": "enabled",
     "REXBID_SYNC_HOT_INTERVAL_MS": "300000",
     "REXBID_SYNC_WARM_INTERVAL_MS": "21600000",
     "REXBID_SYNC_COLD_INTERVAL_MS": "604800000",
@@ -39,6 +40,7 @@
     "binding": "ASSETS",
     "run_worker_first": [
       "/",
+      "/car*",
       "/*.html",
       "/konto",
       "/ulubione",
@@ -50,7 +52,8 @@
       "/rexbid-door-estimator.js",
       "/rexbid-door-estimator-rates.js",
       "/rexbid-transport-rates.js",
-      "/rexbid-transport-engine.js"
+      "/rexbid-transport-engine.js",
+      "/rexbid-calculator-v3-rates.js"
     ]
   }
 }

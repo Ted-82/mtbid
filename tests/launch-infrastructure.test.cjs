@@ -48,10 +48,12 @@ test("Worker live/config files keep production and staging bindings isolated and
   assert.equal(stagingConfig.vars?.REXBID_PHASE_G_PREP_BACKFILL, "enabled", "manual continuation is explicitly enabled only on isolated staging");
   for (const configName of ["wrangler.jsonc", "wrangler.staging.jsonc"]) {
     const config = JSON.parse(fs.readFileSync(path.join(ROOT, configName), "utf8"));
-    for (const route of ["/", "/*.html", "/konto", "/ulubione", "/logowanie", "/rejestracja", "/reset-hasla", "/robots.txt", "/sitemap.xml", "/rexbid-door-estimator.js", "/rexbid-door-estimator-rates.js", "/rexbid-transport-rates.js", "/rexbid-transport-engine.js"]) {
+    for (const route of ["/", "/car*", "/*.html", "/konto", "/ulubione", "/logowanie", "/rejestracja", "/reset-hasla", "/robots.txt", "/sitemap.xml", "/rexbid-door-estimator.js", "/rexbid-door-estimator-rates.js", "/rexbid-transport-rates.js", "/rexbid-transport-engine.js", "/rexbid-calculator-v3-rates.js"]) {
       assert.ok(config.assets.run_worker_first.includes(route), `${configName} must invoke Worker before ${route}`);
     }
     if (configName === "wrangler.jsonc") assert.notEqual(config.vars?.REXBID_TRANSPORT_CALCULATOR_ENABLED, "enabled", "partner calculator must not be activated on production config");
+    if (configName === "wrangler.jsonc") assert.notEqual(config.vars?.REXBID_CALCULATOR_V3_ENABLED, "enabled", "Calculator V3 must remain disabled in production config");
+    if (configName === "wrangler.staging.jsonc") assert.equal(config.vars?.REXBID_CALCULATOR_V3_ENABLED, "enabled", "Calculator V3 is explicitly enabled for staging verification only");
   }
 });
 
@@ -109,20 +111,32 @@ test("HTML gets nonce CSP/security headers; private pages are no-store and noind
   assert.equal(cleanUrlPrivatePage.headers.get("X-Robots-Tag"), "noindex, nofollow");
 });
 
-test("real car HTML receives SEO metadata and only exposes partner transport calculator behind its staging flag", async () => {
+test("real car HTML gates partner transport and Calculator V3 behind explicit staging flags", async () => {
   const carHtml = fs.readFileSync(path.join(ROOT, "public/car.html"), "utf8");
   const context = loadWorker({ assets: { fetch: async () => new Response(carHtml, { status: 200, headers: { "Content-Type": "text/html; charset=utf-8" } }) } });
-  const production = await context.__worker.fetch(new Request("https://mtbid.tedn828.workers.dev/car.html?vin=TESTVIN"), context.__env);
+  const production = await context.__worker.fetch(new Request("https://mtbid.tedn828.workers.dev/car.html?vin=TESTVIN"), { ...context.__env, REXBID_CALCULATOR_V3_ENABLED: "enabled" });
   const productionHtml = await production.text();
-  assert.doesNotMatch(productionHtml, /id="partnerTransportCalculator"|rexbid-transport-(?:rates|engine)\.js/);
+  assert.doesNotMatch(productionHtml, /id="partnerTransportCalculator"|rexbid-transport-(?:rates|engine)\.js|rexbid-calculator-v3-rates\.js|data-calculator-v3-only|RexBidCalculatorV3Enabled=true/);
   assert.match(productionHtml, /property="og:title"/);
   assert.match(productionHtml, /name="description"/);
   assert.equal(production.headers.get("Cache-Control"), "no-cache");
-  const staging = await context.__worker.fetch(new Request("https://rexbid-auth-test.tedn828.workers.dev/car.html"), { ...context.__env, REXBID_TRANSPORT_CALCULATOR_ENABLED: "enabled" });
+  const staging = await context.__worker.fetch(new Request("https://rexbid-auth-test.tedn828.workers.dev/car.html"), { ...context.__env, REXBID_TRANSPORT_CALCULATOR_ENABLED: "enabled", REXBID_CALCULATOR_V3_ENABLED: "enabled" });
   const stagingHtml = await staging.text();
   assert.match(stagingHtml, /id="partnerTransportCalculator"/);
   assert.match(stagingHtml, /rexbid-transport-engine\.js/);
+  assert.match(stagingHtml, /rexbid-calculator-v3-rates\.js/);
+  assert.match(stagingHtml, /RexBidCalculatorV3Enabled=true/);
+  assert.match(stagingHtml, /data-calculator-v3-only/);
+  assert.match(stagingHtml, /id="calculatorV3Summary"/);
   assert.doesNotMatch(stagingHtml, /id="estimatedDoorCalculator"|rexbid-door-estimator(?:-rates)?\.js/);
+  const stagingExtensionless = await context.__worker.fetch(new Request("https://rexbid-auth-test.tedn828.workers.dev/car?vin=TESTVIN"), { ...context.__env, REXBID_TRANSPORT_CALCULATOR_ENABLED: "enabled", REXBID_CALCULATOR_V3_ENABLED: "enabled" });
+  const stagingExtensionlessHtml = await stagingExtensionless.text();
+  assert.match(stagingExtensionlessHtml, /rexbid-calculator-v3-rates\.js/);
+  assert.match(stagingExtensionlessHtml, /RexBidCalculatorV3Enabled=true/);
+  assert.match(stagingExtensionlessHtml, /data-calculator-v3-only/);
+  const productionExtensionless = await context.__worker.fetch(new Request("https://mtbid.tedn828.workers.dev/car?vin=TESTVIN"), { ...context.__env, REXBID_TRANSPORT_CALCULATOR_ENABLED: "enabled", REXBID_CALCULATOR_V3_ENABLED: "enabled" });
+  const productionExtensionlessHtml = await productionExtensionless.text();
+  assert.doesNotMatch(productionExtensionlessHtml, /rexbid-calculator-v3-rates\.js|data-calculator-v3-only|RexBidCalculatorV3Enabled=true/);
   const prototypeAsset = await context.__worker.fetch(new Request("https://mtbid.tedn828.workers.dev/rexbid-door-estimator.js"), context.__env);
   assert.equal(prototypeAsset.status, 404, "prototype bundles must not be publicly fetched in production");
   const stagingAsset = await context.__worker.fetch(new Request("https://rexbid-auth-test.tedn828.workers.dev/rexbid-door-estimator.js"), { ...context.__env, REXBID_DOOR_ESTIMATOR_PROTOTYPE: "enabled" });
@@ -131,6 +145,10 @@ test("real car HTML receives SEO metadata and only exposes partner transport cal
   assert.equal(productionTransportAsset.status, 404, "partner transport calculator bundle is disabled on production by default");
   const stagingTransportAsset = await context.__worker.fetch(new Request("https://rexbid-auth-test.tedn828.workers.dev/rexbid-transport-engine.js"), { ...context.__env, REXBID_TRANSPORT_CALCULATOR_ENABLED: "enabled" });
   assert.equal(stagingTransportAsset.status, 200);
+  const productionV3Rates = await context.__worker.fetch(new Request("https://mtbid.tedn828.workers.dev/rexbid-calculator-v3-rates.js"), { ...context.__env, REXBID_CALCULATOR_V3_ENABLED: "enabled" });
+  assert.equal(productionV3Rates.status, 404, "V3 rate config cannot be fetched from production unless explicitly enabled");
+  const stagingV3Rates = await context.__worker.fetch(new Request("https://rexbid-auth-test.tedn828.workers.dev/rexbid-calculator-v3-rates.js"), { ...context.__env, REXBID_CALCULATOR_V3_ENABLED: "enabled" });
+  assert.equal(stagingV3Rates.status, 200);
 });
 
 test("unknown routes return a safe branded 404 rather than a blank/stack page", async () => {

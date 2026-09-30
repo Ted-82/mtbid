@@ -272,3 +272,24 @@ Rzeczywista weryfikacja wykryła Cloudflare asset-first: bez `assets.run_worker_
 ### CURRENT WORK / CONTINUE HERE — infrastruktura launchu
 
 Staging smoke po selektywnym routingu Worker-first zakończył się PASS na Version `9ce6f2ab-b7f4-4ab2-b31d-663089bd1f0b`: root i HTML przechodzą przez Worker, robots blokuje cały staging host, sitemap zwraca 404, prototype bundles zwracają 404, health/readiness i private API mają właściwe nagłówki. Nie wykonano browser GUI testu ani żadnego Apibara requestu. Nie deployuj `mtbid`, nie migruj `rexbid-db`, nie uruchamiaj Auth produkcyjnie i nie rozpoczynaj Phase D bez osobnej zgody. Najbliższe zależności: domena, SMTP, limiter, backup/restore, monitoring i dokumenty prawne.
+
+
+## Calculator V3 — rozszerzenie modelu door-to-door (2026-09-30)
+
+- Calculator V3 rozszerza V2, nie usuwa transportowego engine, rate parsera, strict tax/fee logic ani matcherów. `calculateV3` udostępnia transport estimate, import subtotal i door-to-door; kompletna suma jest tworzona wyłącznie, gdy jawne są wszystkie wymagane kwoty, podstawy i datowany kurs prezentacyjny. Brak nie jest zerem.
+- Partner transport pozostaje USD i configurable; wersja rate set jest przenoszona do danych linii. Profile Copart mają jawny wybór i status configurable, bo nie potwierdzono profilu konta Rex.Bid; IAA pozostaje unknown. Import/port/broker/dostawa PL i kursy są admin-ready, ale bez wartości domyślnych.
+- V3 jest odseparowany przez `REXBID_CALCULATOR_V3_ENABLED`: staging config włącza tę funkcję, a Worker dodatkowo wymaga dokładnego hostu `rexbid-auth-test.tedn828.workers.dev`; Worker usuwa V3 asset/advanced fields i odmawia bezpośredniego pobrania V3 rates bez flagi. Dotychczasowy strict calculator pozostaje zachowaniem domyślnym.
+- **CODE VERIFIED / AUTOMATED VERIFIED:** testy V3 sprawdzają profiles, unknown-vs-zero, tax bases, osobne FX, transport wariantów, pełny/niepełny stan i staging gate. **STAGING NOT DEPLOYED / REAL BROWSER NOT VERIFIED** w tym etapie. **Apibara requests = 0; produkcja nietknięta.**
+- Szczegółowe założenia, urzędowe źródła i przykładowe subtotal w `docs/DOOR_TO_DOOR_COST_MODEL.md`; konfiguracja i aktualizacja stawek w `docs/TRANSPORT_RATE_MODEL.md`. Koszt pod dom nie jest jeszcze dostępny bez potwierdzonego profilu aukcji, wartości customs/VAT/excise, kursów i kosztów importowych/dostawy.
+
+### Calculator V3 — końcowa weryfikacja stagingowa (2026-09-30)
+
+- **CODE VERIFIED / AUTOMATED VERIFIED:** 268/268 testów, generator stawek `--check`, składnia modułów i `git diff --check` PASS. Generator potwierdza 610 lokalizacji oraz stawki morskie 1–4 auta w USD.
+- **STAGING VERIFIED:** dry-run i deploy wskazywały wyłącznie Worker `rexbid-auth-test` oraz D1 `rexbid-auth-test-db`; końcowy Version ID `c34f0aa5-eefb-43be-85ea-6cd4ee161868`. Flaga V3 jest w staging config; Worker wymaga także dokładnego staging hosta. Konfiguracja produkcyjna nie ma flag V2/V3, a test potwierdza, że sama flaga na hoście produkcyjnym nie aktywuje V3.
+- **REAL BROWSER DESKTOP VERIFIED:** istniejąca karta Copart LOT `97885965` / VIN `1N4AA6CV7LC367904`; render auta, 12 zdjęć, historia 20 zdarzeń, dane/title/seller/damage/Run & Drive/keys, lokalny favorite i widoczny panel V3. Partner match `fallback_zip`: ląd 295 USD, standard 4 auta: morze 575 USD, razem 870 USD; ostrożny 3 auta: morze 650 USD, razem 945 USD. Route ID nie jest wyświetlany. Brak JS errors w dostępnych logach konsoli.
+- **REAL BROWSER MOBILE VERIFIED:** viewport 390×844; szerokość dokumentu 375 px, panel 355 px, bez poziomego przewijania/overflowu; szczegóły zamykają się i ponownie rozwijają.
+- Stany A–D pozostały niekompletne przy brakach; stan E po jawnie wprowadzonych syntetycznych wartościach QA pokazał wyłącznie orientacyjny total 48 706 PLN standard / 48 987,25 PLN ostrożnie. Wartości testowe wyczyszczono; to nie jest oferta ani podatkowa wycena. Formularz wrócił do `Kalkulacja niepełna`.
+- Naprawiono Worker-first dla extensionless `/car` (wymagany przez realne linki), dodano widoczne podsumowanie V3 poza zwiniętym kalkulatorem ścisłym i doprecyzowano źródło opłat: `Publiczna tabela Copart — profil konta Rex.Bid do potwierdzenia`.
+- IAAI na realnej karcie nie zweryfikowano; automatycznie pozostaje `unknown` bez kwoty. W tej sesji nie logowano się, więc cloud favorites/Auth nie były ponownie testowane; wcześniejszy stagingowy login/konto/favorites pozostaje osobnym wynikiem. Podatki, kursy, port/broker i dostawa PL nadal wymagają rzeczywistych potwierdzonych danych.
+- **APIBARA:** brak ręcznie wywołanych endpointów Apibara, discovery i backfill. Zwykłe załadowanie istniejącej karty jest provider-backed; przejścia/odświeżenia mogły wygenerować detail/history reads, ale dokładnej liczby upstream nie instrumentowano. Nie deklarować `0` całkowitych provider reads.
+- **PRODUCTION:** `mtbid`, `rexbid-db` i migracje produkcyjne nietknięte; brak produkcyjnego deployu oraz brak commit/push.

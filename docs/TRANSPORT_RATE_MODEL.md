@@ -108,3 +108,10 @@ Komponent i assety są dostępne tylko z jawną flagą `REXBID_TRANSPORT_CALCULA
 W tej weryfikacji znaleziono przypadek, w którym frontend przekazywał lokalizację jako obiekt, co dawało tekst `[object Object]` i wyłączało match. Engine pobiera teraz jawne pola tekstowe oraz ustrukturyzowane city/state/ZIP; pole statusu aukcji (np. `open`) nie jest traktowane jako stan geograficzny. Regression fixture obejmuje ten kształt danych.
 
 **NOT VERIFIED:** mobilny viewport w prawdziwej przeglądarce, exact/unmatched/ambiguous bezpośrednio w UI oraz konsola JS. Matchery exact/fallback/unmatched/ambiguous i brak fałszywych kwot są objęte testami/offline.
+
+
+## Użycie w Calculator V3
+
+Calculator V3 zachowuje ten sam generated partner rate set i matcher. Dla standardowego wariantu (4 cars / 40'HC) i ostrożnego (3 cars / 40'HC) route selection minimalizuje kompletną sumę land + sea niezależnie dla każdego wariantu. Wybrane land/sea values niosą wersję rate setu; route IDs są wewnętrzne. Niekompletna trasa daje unknown.
+
+Wyniki przykładowe i model importu są w `docs/DOOR_TO_DOOR_COST_MODEL.md`. Aktualizacja źródeł i generatora nadal przebiega przez `scripts/partner-transport-rates.cjs --audit/--write/--check`; algorytm nie wymaga edycji przy zmianie rate data.
