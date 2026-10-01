@@ -123,3 +123,4 @@ header nav.rex-primary-nav [data-rexbid-count="favorites"] {
   header .auth { display: none !important; }
   header a.back { display: none; }
 }
+.rexbid-d1-partial-badge{position:fixed;z-index:1000;right:12px;bottom:12px;padding:5px 9px;border:1px solid #d9ad57;border-radius:999px;background:#fff7df;color:#5e4614;font:600 11px/1.3 system-ui,sans-serif;box-shadow:0 2px 8px #0002}

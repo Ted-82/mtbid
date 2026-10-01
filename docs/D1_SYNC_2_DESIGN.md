@@ -462,3 +462,35 @@ This later owner-approved campaign supersedes the earlier 60-listing/budget snap
 Wrangler reported the verification queries as read-only (`changed_db=false`, `rows_written=0`). Live Apibara requests during this verification: **0**; campaign total remains **8/10**. The owner-directed stop at 8/10 is in force; no further backfill was run. The stored next cursor and 11 page commits show resumable progress, not completion. No IAAI scope is included in this sample.
 
 **Phase G assessment:** 220 rows are adequate for bounded diagnostic tests of the D1 read model (known-row listing/detail/snapshot queries and observed filter distributions). They are not sufficient for a public catalog cutover: the only scope is partial Copart, pagination has not reached its end, and IAAI coverage is absent. Do not present those rows as the complete catalog or activate public API cutover. Recommendation: **more backfill first**, subject to a separately approved request budget; the current campaign is stopped.
+# Phase G — staging public API D1-first wrapper (2026-10-01)
+
+## Status
+
+**Status: STAGING VERIFIED / AUTOMATED VERIFIED.** Final Worker `rexbid-auth-test` Version `a6569e87-47be-4039-af7c-cd36374afdde`, D1 `rexbid-auth-test-db`. The cutover is mounted only by `worker.staging.js`; `worker.js` and production `wrangler.jsonc` are unchanged. No sync, discovery, backfill, or provider call is performed by D1 list/filter reads.
+
+## Switch and isolation
+
+`REXBID_D1_PRIMARY_READS=true` is configured only in `wrangler.staging.jsonc`. Activation also requires HTTPS, the exact hostname `rexbid-auth-test.tedn828.workers.dev`, the existing staging UI/host guard, and `REXBID_D1_READ_TARGET=rexbid-auth-test-db`. Production has neither the wrapper import nor this flag. Any failed guard delegates to the existing Worker route.
+
+Rollback is immediate at the configuration level: set the staging flag to `false`, verify `wrangler.staging.jsonc` still names `rexbid-auth-test` and D1 `rexbid-auth-test-db`, then redeploy only that config. The original provider-backed route handles the public API; stored D1 data remains untouched. Re-enable by setting `true` and redeploying staging.
+
+## Read and completeness rules
+
+- `/api/cars`: D1 known rows, with the established `{ok,data,meta}` envelope and existing cursor pagination over only stored rows. `meta.read_source=d1`, `catalog_complete=false`, `known_rows_only=true`, and global platform coverage remain explicit. A platform filter does not conceal the other platform's scope.
+- `/api/filters`: values are computed only from known D1 rows. `metadata_complete=false` and `known_rows_only=true` prevent partial values from appearing market-complete.
+- Detail: exact unique listing/source identifier and usable fresh record (24h default) returns D1 without provider access. Missing, ambiguous, incomplete, or stale records delegate to the existing provider endpoint. A stale record is `hybrid`; non-null provider values enrich it while null/empty fields do not erase known D1 values. Fallback reason and `read_source` are attached to the response and structured log.
+- History: D1 returns `observed_snapshot` rows separately from `confirmed_auction_event` rows. An initial snapshot never means sold or an auction event. The 6h default freshness threshold controls whether D1 history suffices; missing/stale history delegates to the existing provider path, without inserting fabricated events.
+- D1 errors/schema mismatch fall back to the pre-existing provider API and are logged with a safe reason. If that provider path itself is unavailable, its established safe response is preserved.
+- All cutover API responses currently use `private, no-store` while being validated; no shared cache can mask stale D1 data. Auth/account stays private/no-store.
+- Real smoke verified list/filter and IAAI detail/history as D1 responses. Current client-visible HTTP round trips were roughly 470–1,100 ms; Worker-side D1 operation logs were 0–2 ms. A stale Copart detail used hybrid fallback (~728 ms client round trip; ~237 ms Worker route). These are smoke samples only.
+- One real staging rollback check set the flag OFF, called `/api/cars` once, and observed the original provider-backed envelope; the flag was then restored ON and the final D1-first deployment completed. This plus the stale Copart detail accounts for **2 provider-backed reads** during this verification; no discovery/backfill occurred.
+- Real browser showed Home/catalog, the partial badge and an IAAI car page with D1 detail, empty-photo state and snapshot/event distinction. The browser-control surface did not expose DevTools console/network panels; Wrangler tail captured the stale-detail request and safe route/source/freshness/fallback timing logs.
+- Filter query mapping now translates `lot_sub_status=Open`, `lot_status=Buy Now|Timed`, `upcoming=only|without` to canonical D1 predicates. Behavioral tests cover these cases and assert they never call the provider.
+
+## Observability
+
+Structured staging logs include safe route template, random request ID, `read_source` (`d1`, `provider`, `hybrid`), D1 hit/miss, freshness, fallback reason, cache behavior and elapsed milliseconds. They do not include VIN, email, cookies, tokens, or request bodies. The staging HTML partial badge is shown only on the exact guarded staging host while the flag is enabled.
+
+## Current D1 scope and production gates
+
+Starting data: 220 Copart and 80 IAAI sources/listings/snapshots; both scopes partial with separate cursors; zero events/entities; users/favorites 1/1; legacy tables empty. These 300 known rows are not the full catalog. Before production D1-first: complete/accepted scope for every advertised catalog segment (or product-approved explicit partial semantics), verified production schema/migration and backup/restore, freshness/cost budget, provider outage/fallback behavior, monitored rollback, and separately approved production migration/deploy. No production setting is enabled here.

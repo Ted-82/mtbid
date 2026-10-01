@@ -1,5 +1,21 @@
 # Rex.Bid — Project Handoff
 
+## Staging public API D1-first cutover — 2026-10-01
+
+- **STAGING VERIFIED.** Final Worker `rexbid-auth-test` Version `a6569e87-47be-4039-af7c-cd36374afdde` is bound only to `rexbid-auth-test-db` (`acb3cb8e-69a2-459f-8a46-0f2f5b9004be`) with `REXBID_D1_PRIMARY_READS=true`. Production `worker.js` and `wrangler.jsonc` remain provider-backed and contain no enable flag.
+- `staging/d1-primary-reads.cjs` handles staging `/api/cars`, `/api/filters`, `/api/car/:identifier`, and history. Activation requires exact HTTPS host `rexbid-auth-test.tedn828.workers.dev`, staging UI/host/D1-target guards, and the flag.
+- Listing and filter responses expose known D1 rows only and explicitly mark `catalog_complete=false`, `metadata_complete=false`, `known_rows_only=true`, plus global Copart/IAAI scope coverage. A platform query does not hide the other platform's partial scope.
+- A fresh usable detail is served from D1; missing, ambiguous, stale, or incomplete detail delegates to the existing provider API. Stale detail is merged with provider fields without replacing known D1 values with null/empty values. History returns observed snapshots separately from confirmed auction events; stale/missing history delegates rather than inventing events.
+- Current D1 freshness defaults: detail 24 hours, history 6 hours. These are staging controls, not production SLA. Responses bypass shared caching (`private, no-store`) while the cutover is being validated; account/auth responses remain private/no-store.
+- Immediate rollback: set `REXBID_D1_PRIMARY_READS=false` in `wrangler.staging.jsonc` and redeploy only with `wrangler.staging.jsonc`; the wrapper then delegates to the original provider-backed `rexWorker`. No D1 data deletion is required. To restore D1-first, set it to `true` and redeploy staging after verifying target name/ID.
+- Staging D1 starting inventory remains Copart 220 and IAAI 80 listings/sources/snapshots, both partial with independent cursors; events/entities 0; users/favorites 1/1; legacy tables 0. The 300 rows are a known subset, never a claim of full market coverage.
+- `/api/cars` D1 read, `/api/filters`, IAAI detail, and fresh IAAI snapshot history returned HTTP 200 from D1. Responses identified both scopes as partial, kept `catalog_complete=false` and `metadata_complete=false`, and stayed `private, no-store`. The car page and Home rendered in the real browser; the exact-host badge showed `D1 catalog: partial`.
+- Filter smoke after fixing query mapping returned D1-only results for Open, Buy Now, Timed and upcoming/without filters. No completeness claim is made; current scopes remain Copart 220 and IAAI 80, both partial with separate cursors.
+- One stale Copart detail (age above 24h) used `hybrid` with `fallback_reason=d1_detail_stale`; fresh IAAI detail/history stayed D1-only. Provider fallback was not used for ordinary Home/list/filter reads.
+- Rollback was deployed and checked on staging: with flag `false`, one `/api/cars` request returned the original provider-backed response; then the flag was restored to `true` and D1-first was redeployed. Total controlled provider-backed reads in this verification: **2** (Copart detail fallback and rollback list read); no discovery/backfill.
+- External staging HTTP timings were ~470–1,100 ms for D1 list/filter/detail/history and ~728 ms for the stale Copart hybrid request. Worker-side logged duration was ~0–2 ms for D1 list/detail/history and ~237 ms for the hybrid route. These are a few smoke observations, not a benchmark. Browser console internals were not exposed by the available browser-control surface; no visible page failure was observed.
+- Offline cutover tests cover guards, partial lists/filters, frontend filter semantics, both platform details, missing/stale fallback, snapshot/event distinction, D1 error fallback, and flag-off rollback. Full suite: **285/285 PASS**; syntax checks, partner data `--check`, and `git diff --check` pass.
+
 ## Latest multi-platform staging readback — 2026-10-01
 
 - Staging Worker `rexbid-auth-test` is Version `5c887ebe-9477-47d1-92b6-5e36f638d40d`, bound only to `rexbid-auth-test-db` (`acb3cb8e-69a2-459f-8a46-0f2f5b9004be`). Production was not targeted.

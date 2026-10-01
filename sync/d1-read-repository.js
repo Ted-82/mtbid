@@ -139,7 +139,8 @@ class D1ReadRepository {
   }
 
   async listCatalog({platform = null, make = null, model = null, yearFrom = null, yearTo = null,
-    timed = null, buyNow = false, auctionState = null, limit = 20, cursor = null} = {}) {
+    timed = null, buyNow = false, auctionState = null, upcoming = null, nowIso = new Date(this.now()).toISOString(),
+    limit = 20, cursor = null} = {}) {
     if (!Number.isInteger(limit) || limit < 1 || limit > MAX_PAGE_SIZE) throw new RangeError("D1 page size must be 1..50.");
     const afterId = decodeCursor(cursor);
     const where = [];
@@ -152,6 +153,8 @@ class D1ReadRepository {
     if (timed !== null) { where.push("l.is_timed=?"); values.push(timed ? 1 : 0); }
     if (buyNow) where.push("l.buy_now_usd>0");
     if (auctionState) { where.push("lower(l.auction_state)=lower(?)"); values.push(String(auctionState).trim()); }
+    if (upcoming === "only") { where.push("l.auction_at IS NOT NULL AND datetime(l.auction_at)>datetime(?)"); values.push(nowIso); }
+    if (upcoming === "without") { where.push("(l.auction_at IS NULL OR datetime(l.auction_at)<=datetime(?))"); values.push(nowIso); }
     if (afterId) {
       const after = await this.db.prepare("SELECT last_seen_at,listing_id FROM auction_listings WHERE listing_id=?").bind(afterId).first();
       if (!after) throw new TypeError("Cursor D1 wskazuje nieznany listing.");
@@ -207,6 +210,39 @@ class D1ReadRepository {
     const matches = rows.results || [];
     if (matches.length > 1) return {ambiguous: true, matches: matches.length};
     return matches.length ? listingFromRow(matches[0], this.now(), this.maxAgeMs) : null;
+  }
+
+  async getListingByIdentifier(identifier, {platform = null} = {}) {
+    const value = clean(identifier);
+    if (!value || value.length > 512) return null;
+    const rows = await this.db.prepare(`SELECT l.*,s.provider,s.provider_vehicle_id FROM auction_listings l
+      JOIN vehicle_sources s ON s.source_key=l.source_key
+      WHERE (upper(l.vin_normalized)=upper(?) OR upper(l.lot)=upper(?) OR upper(l.source_listing_id)=upper(?))
+      ${platform ? "AND lower(l.platform)=lower(?)" : ""}
+      ORDER BY l.last_seen_at DESC,l.listing_id ASC LIMIT 2`)
+      .bind(...(platform ? [value,value,value,String(platform)] : [value,value,value])).all();
+    const matches = rows.results || [];
+    if (matches.length > 1) return {ambiguous: true, matches: matches.length};
+    return matches.length ? listingFromRow(matches[0], this.now(), this.maxAgeMs) : null;
+  }
+
+  async getConfirmedEvents({listingId, limit = 50} = {}) {
+    if (!listingId || !Number.isInteger(limit) || limit < 1 || limit > 100) throw new TypeError("Nieprawidłowe parametry event history.");
+    const result = await this.db.prepare(`SELECT event_id,provider,provider_event_id,event_key,vin_normalized,platform,lot,
+      auction_date,sale_date,source_status,canonical_status,current_bid_usd,buy_now_usd,source_price_usd,final_price_usd,
+      seller_name,seller_type,observed_at FROM auction_events WHERE listing_id=?
+      ORDER BY COALESCE(sale_date,auction_date,observed_at) DESC,event_id ASC LIMIT ?`).bind(listingId,limit).all();
+    return (result.results || []).map(row => ({
+      kind: "confirmed_auction_event", event_id: row.event_id, provider: row.provider,
+      provider_event_id: clean(row.provider_event_id), event_key: clean(row.event_key),
+      vin: clean(row.vin_normalized), platform: clean(row.platform), lot: clean(row.lot),
+      auction_date: clean(row.auction_date), sale_date: clean(row.sale_date),
+      source_status: clean(row.source_status), status: clean(row.canonical_status),
+      current_bid: numberOrNull(row.current_bid_usd), buy_now: numberOrNull(row.buy_now_usd),
+      source_price: numberOrNull(row.source_price_usd), final_price: numberOrNull(row.final_price_usd),
+      seller: row.seller_name ? {name: row.seller_name, type: clean(row.seller_type)} : null,
+      observed_at: clean(row.observed_at)
+    }));
   }
 
   async getSnapshotPage({listingId, limit = 20, cursor = null} = {}) {

@@ -3,6 +3,7 @@ import authTestHtml from "./staging/auth-test-page.js";
 import requestCorrelation from "./staging/request-correlation.cjs";
 import phaseG from "./staging/phase-g-multiplatform-backfill.cjs";
 import d1Read from "./staging/d1-read-routes.cjs";
+import d1Primary from "./staging/d1-primary-reads.cjs";
 
 const REQUIRED_TEST_HOST = "rexbid-auth-test.tedn828.workers.dev";
 
@@ -51,6 +52,19 @@ function stagingResponse(response, request) {
   return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }
 
+async function addPartialCatalogBadge(response, request, env) {
+  const url = new URL(request.url);
+  if (env?.REXBID_D1_PRIMARY_READS !== "true" || url.hostname !== REQUIRED_TEST_HOST
+      || !["/", "/index.html", "/car.html", "/car"].includes(url.pathname)
+      || !response.headers.get("Content-Type")?.toLowerCase().includes("text/html")) return response;
+  const html = await response.text();
+  const badge = '<aside class="rexbid-d1-partial-badge" role="status">D1 catalog: partial</aside>';
+  const updated = /<body\b[^>]*>/i.test(html) ? html.replace(/<body\b[^>]*>/i, match => `${match}${badge}`) : html;
+  const headers = new Headers(response.headers);
+  headers.delete("Content-Length");
+  return new Response(updated, {status: response.status, statusText: response.statusText, headers});
+}
+
 export default {
   async fetch(request, env, executionContext) {
     const url = new URL(request.url);
@@ -62,10 +76,14 @@ export default {
     if (d1ReadResponse) return stagingResponse(d1ReadResponse, request);
     const phaseGResponse = await phaseG.handlePhaseGRequest(request, env, executionContext, (innerRequest, innerEnv, innerContext) => rexWorker.fetch(innerRequest, innerEnv, innerContext));
     if (phaseGResponse) return stagingResponse(phaseGResponse, request);
+    const primaryReadResponse = await d1Primary.handlePrimaryRead(request, env, executionContext,
+      (innerRequest, innerEnv, innerContext) => rexWorker.fetch(innerRequest, innerEnv, innerContext));
+    if (primaryReadResponse) return stagingResponse(primaryReadResponse, request);
     const operation = enabled && env?.REXBID_AUTH_DIAGNOSTICS === "enabled" ? requestCorrelation.authOperation(url.pathname) : "";
     const correlated = requestCorrelation.correlateRequest(request, operation);
     if (correlated.requestId) console.info("Rex.Bid staging auth request", JSON.stringify({ operation, stage: "request_received", request_id: correlated.requestId }));
     const response = await rexWorker.fetch(correlated.request, env, executionContext);
-    return stagingResponse(requestCorrelation.correlateResponse(response, correlated.requestId, operation), request);
+    const stagedResponse = stagingResponse(requestCorrelation.correlateResponse(response, correlated.requestId, operation), request);
+    return addPartialCatalogBadge(stagedResponse, request, env);
   }
 };

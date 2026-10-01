@@ -248,3 +248,12 @@ Statusy launch: `docs/LAUNCH_READINESS.md`; backup/restore: `docs/BACKUP_RECOVER
 - Usunięto regresję widoczności V3 na extensionless `/car`, podsumowanie V3 przeniesiono do widocznej części strony, a opłata Copart ma jawny opis publicznej tabeli z niepotwierdzonym profilem Rex.Bid.
 - Brak bezpośrednich requestów, discovery lub backfill Apibara. Zwykłe browser detail/history load może użyć providera; dokładnego upstream countu nie instrumentowano. Produkcja nietknięta.
 - Rekomendacja: checkpoint Calculator V3 po review. Nie oznacza to gotowości pełnej wyceny ani produkcyjnego włączenia.
+# Staging public API D1-first — 2026-10-01
+
+- **STAGING VERIFIED** on final Worker Version `a6569e87-47be-4039-af7c-cd36374afdde`, bound only to `rexbid-auth-test-db`; the staging D1-first flag is restored to `true`.
+- Exact staging host + staging UI flag + expected D1 target + `REXBID_D1_PRIMARY_READS=true` are all required. Production config/code remain provider-backed and cannot activate this path by copying the flag alone.
+- Partial listing/filter results are allowed only as explicitly incomplete known-row data. Current scopes are Copart partial (220) and IAAI partial (80), each with its own cursor; neither yields a complete-catalog claim.
+- Real staging smoke verified D1 catalog/filters, IAAI detail/history, and one stale Copart hybrid fallback. Rollback with the flag OFF restored the existing provider-backed list response and was followed by redeploy with the flag ON. Two provider-backed reads total; no discovery/backfill.
+- Browser Home/catalog and IAAI detail rendered with the `D1 catalog: partial` badge. Timed/Buy Now/upcoming route semantics were tested after query mapping was fixed. Console internals were not accessible through the browser-control API.
+- Full suite **285/285 PASS**; production remains unchanged.
+- Production cutover remains blocked on complete/operationally accepted scopes, verified rollback/monitoring and a separately approved production migration/deploy plan.
