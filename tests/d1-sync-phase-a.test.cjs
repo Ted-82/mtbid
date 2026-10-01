@@ -157,7 +157,9 @@ test('Apibara i strukturalnie inny Provider B przechodzą przez ten sam provider
   assert.equal([...repo.listings.values()].some(row => row.vehicle.provider === 'apibara'), true);
   assert.equal([...repo.listings.values()].some(row => row.vehicle.provider === 'provider-b'), true);
   assert.equal([...repo.listings.values()].every(row => row.vehicle.raw_payload === undefined), true);
-  assert.deepEqual([...repo.listings.values()].map(row => row.vehicle.media.items), [[], []]);
+  assert.deepEqual([...repo.listings.values()].map(row => row.vehicle.media.items), [
+    ['https://img.example/car.jpg'], ['https://example.test/photo.jpg']
+  ]);
 });
 
 test('partial merge distinguishes missing, null and explicit values; source-confirmed clear is opt-in', () => {
@@ -210,7 +212,7 @@ test('partial merge distinguishes missing, null and explicit values; source-conf
   assert.deepEqual(cleared.clearedFields, ['seller.name', 'document.name']);
 });
 
-test('discovery page jest idempotent, a relisting tworzy nowy listing, a repository nie zachowuje raw/media', () => {
+test('discovery page jest idempotent, relisting tworzy nowy listing, bez raw payloadów i z bezpiecznymi URL mediów', () => {
   const repo = new InMemorySyncRepository();
   const vehicle = canonicalVehicle();
   vehicle.catalog_metadata = {items: ['retained non-media data']};
@@ -220,7 +222,7 @@ test('discovery page jest idempotent, a relisting tworzy nowy listing, a reposit
   assert.equal(repo.completeDiscoveryPage(firstPage).replayed, true);
   assert.equal(repo.listings.size, 1);
   assert.equal(repo.listings.get(firstIdentity.listingId).vehicle.raw_payload, undefined);
-  assert.deepEqual(repo.listings.get(firstIdentity.listingId).vehicle.media.items, []);
+  assert.deepEqual(repo.listings.get(firstIdentity.listingId).vehicle.media.items, ['https://img.example/car.jpg']);
   assert.deepEqual(repo.listings.get(firstIdentity.listingId).vehicle.catalog_metadata.items, ['retained non-media data']);
 
   const relistIdentity = identity(vehicle, {listingGeneration: 2});

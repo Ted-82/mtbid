@@ -4,7 +4,9 @@
 -- Do NOT apply both proposals. Do NOT run against rexbid-db/production.
 --
 -- This creates new empty structures only: no ALTER/DML/backfill, no legacy PK
--- changes and no raw payload/media columns. Schema creation does not grant
+-- changes, raw payload, or binary media columns. Safe source media URL
+-- references are permitted separately from original image bytes.
+-- Schema creation does not grant
 -- rights to populate it with Apibara/Provider B data. Provider data ingestion,
 -- derived data, history, snapshots, and public redisplay remain gated on
 -- written provider permission and approved retention policy.
@@ -107,6 +109,8 @@ CREATE TABLE IF NOT EXISTS auction_listings (
   location_postal_code TEXT,
   has_video INTEGER CHECK (has_video IN (0, 1) OR has_video IS NULL),
   has_360 INTEGER CHECK (has_360 IN (0, 1) OR has_360 IS NULL),
+  media_urls_json TEXT,
+  media_thumbs_json TEXT,
   source_updated_at TEXT,
   first_seen_at TEXT NOT NULL,
   last_seen_at TEXT NOT NULL,

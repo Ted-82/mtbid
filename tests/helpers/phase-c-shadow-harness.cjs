@@ -281,7 +281,8 @@ async function runPhaseCShadow({db, env, requestId = crypto.randomUUID(), now = 
     }
     stage = "readback";
     const columns=(await db.prepare("PRAGMA table_info(auction_listings)").all()).results.map(row=>row.name);
-    const hasNoRawOrMediaUrls=!columns.some(name=>/raw|media_items|media_thumbs|photo_url|image_url/i.test(name));
+    // Safe HTTPS URL references are permitted; raw payload and binary media storage are not.
+    const hasNoRawOrBinaryMedia=!columns.some(name=>/raw_payload|raw_json|media_items|photo_binary|image_binary|binary/i.test(name));
     const readbacks=[];
     for (const record of writeRecords) {
       const stored=await repo.getListing(record.identity.listingId);
@@ -299,7 +300,7 @@ async function runPhaseCShadow({db, env, requestId = crypto.randomUUID(), now = 
     const scopeReadback=await repo.getScope(scopeKey);
     const cursorReadback=(scopeReadback?.cursor??null)===(page.nextCursor??null)
       && scopeReadback?.status===(persisted.complete?"complete":"partial");
-    readbackPass=hasNoRawOrMediaUrls&&readbacks.every(Boolean)&&cursorReadback&&persistMetrics.replayStable;
+    readbackPass=hasNoRawOrBinaryMedia&&readbacks.every(Boolean)&&cursorReadback&&persistMetrics.replayStable;
     if (!readbackPass) throw Object.assign(new Error("D1_READBACK_MISMATCH"),{safeCode:"readback_mismatch"});
     stage = "synthetic_provider_b";
     syntheticChecks=await runSyntheticD1Checks({db,repo,tracked,now:timestamp+5000,suffix:requestId.replace(/-/g,"").slice(0,12)});

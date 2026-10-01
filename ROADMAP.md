@@ -1,5 +1,13 @@
 # Rex.Bid Production Roadmap
 
+## Staging product milestone — lokalne przygotowanie (2026-10-01)
+
+- Backfill offline przygotowany z twardym limitem **20 requestów łącznie, 10 na platformę**, maksymalnie 4 strony × 20 rekordów na run, bez retry. Wspólna rezerwacja kampanii w D1 jest atomowa i testowana przy równoległych runnerach.
+- D1-first katalog otrzymał mapowanie wyszukiwania i advanced filters; wyniki w partial scope pozostają znanymi rekordami, nigdy pełnym rynkiem.
+- Nowa staging-only migracja `migrations-staging/0005_listing_media_urls.sql` pozwala zachować do 24 zweryfikowanych HTTPS media references i thumbnail URLs na listing. Bez archiwizacji binariów/raw payload; pusty partial payload nie kasuje znanych URL.
+- **CODE/AUTOMATED: 290/290 PASS**, generator `--check`, config validator i składnia PASS. Podwyższony staging dry-run PASS i potwierdził bindings `rexbid-auth-test-db` + ASSETS. **STAGING DEPLOY/REAL BROWSER: NOT VERIFIED.** `wrangler whoami` wykrył wygasłą sesję; migracja i deploy nie zostały wykonane. Ostatni historyczny stan D1: Copart 220, IAAI 80, oba partial, wymaga świeżego direct readbacku przed backfill.
+- Po ponownym logowaniu: potwierdzić `rexbid-auth-test` + `rexbid-auth-test-db`, staging dry-run, migracja 0005, staging deploy; potem desktop/mobile Home, Catalog, listing cards, zdjęcia, car page, calculator i Auth/favorites. Nie ruszać produkcji.
+
 ## Latest multi-platform staging readback — 2026-10-01
 
 - Staging `rexbid-auth-test` Version `5c887ebe-9477-47d1-92b6-5e36f638d40d` remains bound exclusively to `rexbid-auth-test-db`. No production deployment or Apibara call occurred in this readback.
@@ -257,3 +265,19 @@ Statusy launch: `docs/LAUNCH_READINESS.md`; backup/restore: `docs/BACKUP_RECOVER
 - Browser Home/catalog and IAAI detail rendered with the `D1 catalog: partial` badge. Timed/Buy Now/upcoming route semantics were tested after query mapping was fixed. Console internals were not accessible through the browser-control API.
 - Full suite **285/285 PASS**; production remains unchanged.
 - Production cutover remains blocked on complete/operationally accepted scopes, verified rollback/monitoring and a separately approved production migration/deploy plan.
+# Staging Product Milestone — media pipeline final pass (2026-10-01)
+
+- **DONE:** staging migration `0005_listing_media_urls.sql` and Worker `rexbid-auth-test` deployment remain staging-only. Latest D1 readback: Copart 260, IAAI 120, 380 snapshots, 0 events/entities, users/favorites 1/1, duplicate identities 0; scopes partial with cursors.
+- **DONE:** media references persist and read back for 40 Copart + 40 IAAI listings (80 total). The adapter and persistence path already handled URL references; misleading `rawOrMediaStored=false` diagnostics treated “no raw/binary storage” as “no media.” Local diagnostics now report raw payload, binary image, and persisted URL counts separately.
+- **REAL BROWSER VERIFIED (pre-fix observation):** selected fresh D1 media records showed 26 gallery entries for Copart (13 full URLs plus 13 thumbnails) and 17 for IAAI (17 full URLs plus 16 thumbs, deduplicated by image key). This exposed gallery normalization conflating parallel thumbnail/full URLs. The fix pairs variants by index in shared `public/rexbid-media.js`; post-fix verification is pending.
+- **NOT VERIFIED:** 300 older listings have no media references and were not enriched; catalog thumbnail visual confirmation, desktop viewport, browser console/Network, and exact provider-fallback count remain unverified. No new Apibara discovery/backfill or media detail enrichment requests were initiated in this pass.
+- **TESTS:** media persistence regression added; final full suite and generators/config/syntax/diff checks are reported for this pass. No commit/push; production remains untouched.
+
+## Product Milestone — final staging media/gallery QA (2026-10-01)
+
+- **STAGING VERIFIED:** Worker `rexbid-auth-test` Version `d86cef66-7683-42d6-8c75-32566f828a81`, bound only to `rexbid-auth-test-db`. Production not deployed or migrated.
+- **Direct D1:** Copart 260, IAAI 120, sources/listings 380, snapshots 380, events/entities 0; media URL/thumb arrays on 80 listings (40 per platform); `users/favorites=1/1`; duplicate provider identities 0. Read-only query; no writes.
+- **REAL BROWSER VERIFIED:** Copart gallery corrected from 26 to 13 images; IAAI remains 17. Home/catalog render known D1 cards and loaded thumbnails. IAAI lightbox/navigation and guest favorite add/remove passed. Desktop and mobile viewports showed no horizontal overflow. Timed Auction was empty in the bounded sample.
+- Fixed two browser issues: thumbnails were counted as extra gallery images, and extracting the media normalizer removed a shared `isHttpUrl` helper still used elsewhere on `car.html`. Canonical pairing/deduplication and shared HTTPS validation are covered by regressions.
+- **AUTOMATED:** 299/299 PASS; rates generator, config validator, syntax and diff checks pass. No discovery/backfill/enrichment; 0 intentional Apibara requests. Exact browser-triggered fallback count and DevTools console/Network remain NOT VERIFIED. Authenticated cloud favorites were not retested in the anonymous session.
+- The 300 listings without URL refs were not enriched. Production D1-first cutover remains separate and gated.

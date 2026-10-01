@@ -6,7 +6,7 @@ const {DatabaseSync}=require('node:sqlite');
 const {createApibaraProvider}=require('../providers/apibara.js');
 const {D1SyncRepository}=require('../sync/d1-repository.js');
 const {D1ReadRepository}=require('../sync/d1-read-repository.js');
-const {runPlatformBackfill,handlePhaseGRequest,PLATFORMS,PER_PLATFORM_LIMIT,TOTAL_CAMPAIGN_LIMIT,BUDGET_PROVIDER,budgetKey}=require('../staging/phase-g-multiplatform-backfill.cjs');
+const {runPlatformBackfill,runProductMilestoneBackfill,handlePhaseGRequest,PLATFORMS,PER_PLATFORM_LIMIT,TOTAL_CAMPAIGN_LIMIT,BUDGET_PROVIDER,budgetKey,campaignBudgetKey}=require('../staging/phase-g-multiplatform-backfill.cjs');
 
 const ROOT=path.join(__dirname,'..');
 const NOW=Date.parse('2026-10-01T12:00:00.000Z');
@@ -28,18 +28,21 @@ function database({copartCursor='copart-cursor-1'}={}){
   sqlite.prepare(`INSERT INTO user_favorites(user_id,favorite_key,platform,lot,created_at,updated_at) VALUES('synthetic-user','lot:copart:SAFE-FAV','copart','SAFE-FAV',?,?)`).run(new Date(NOW).toISOString(),new Date(NOW).toISOString());
   return{sqlite,d1};
 }
-function providerFor({failPlatform=null,nextCursorByPlatform={},sameVin=false,recordsPerPage=1}={}){
+function providerFor({failPlatform=null,nextCursorByPlatform={},cursorSequencesByPlatform={},sameVin=false,recordsPerPage=1,withMedia=false}={}){
   const calls=[];
   const provider=createApibaraProvider({timeoutMs:500,console:{warn(){},error(){}},fetch:async(url,options)=>{
     const parsed=new URL(url),platform=parsed.searchParams.get('platform'),cursor=parsed.searchParams.get('cursor');
     calls.push({platform,cursor,method:options.method});
     if(platform===failPlatform)throw new TypeError('synthetic provider outage');
+    const pageIndex=calls.filter(call=>call.platform===platform).length-1;
     const rows=Array.from({length:recordsPerPage},(_,index)=>{
       const raw=structuredClone(seed.response.data[0]);const suffix=platform==='copart'?'C':'I';
-      raw.platform=platform;raw.vehicle_id=`shared-source-${platform}-${index}`;raw.lot_number=`MULTI-${suffix}-${index}`;
-      raw.vin=sameVin?'SHAREDVIN00000001':`VIN-${platform}-${index}`;raw.media={items:[],thumbs:[]};return raw;
+      raw.platform=platform;raw.vehicle_id=`shared-source-${platform}-${pageIndex}-${index}`;raw.lot_number=`MULTI-${suffix}-${pageIndex}-${index}`;
+      raw.vin=sameVin?'SHAREDVIN00000001':`VIN-${platform}-${pageIndex}-${index}`;
+      raw.media=withMedia?{items:[`https://images.example.invalid/${platform}-${pageIndex}-${index}.jpg`],thumbs:[`https://images.example.invalid/${platform}-${pageIndex}-${index}-small.jpg`]}:{items:[],thumbs:[]};return raw;
     });
-    const next=Object.hasOwn(nextCursorByPlatform,platform)?nextCursorByPlatform[platform]:null;
+    const sequence=cursorSequencesByPlatform[platform];
+    const next=Array.isArray(sequence)?(sequence[pageIndex]??null):(Object.hasOwn(nextCursorByPlatform,platform)?nextCursorByPlatform[platform]:null);
     return new Response(JSON.stringify({response:{data:rows,meta:{next_cursor:next}}}),{status:200,headers:{'content-type':'application/json'}});
   }});
   return{provider,calls};
@@ -66,7 +69,7 @@ test('Copart i IAAI synchronizują równolegle do niezależnych scope/cursor/lea
   assert.equal(sqlite.prepare('SELECT COUNT(*) n FROM auction_events').get().n,0);
   assert.equal(sqlite.prepare('SELECT COUNT(*) n FROM sync_page_commits WHERE scope_key=?').get(COPART_SCOPE).n,1);
   assert.equal(sqlite.prepare('SELECT COUNT(*) n FROM sync_page_commits WHERE scope_key=?').get(PLATFORMS.iaai.scopeKey).n,1);
-  assert.equal(sqlite.prepare('SELECT COUNT(*) n FROM provider_request_budgets WHERE provider=?').get(BUDGET_PROVIDER).n,2);
+  assert.equal(sqlite.prepare('SELECT COUNT(*) n FROM provider_request_budgets WHERE provider=?').get(BUDGET_PROVIDER).n,3);
   assert.equal(copart.campaignBudget.consumed,2);assert.equal(iaai.campaignBudget.consumed,2);
   assert.equal(sqlite.prepare('SELECT COUNT(*) n FROM users').get().n,1);assert.equal(sqlite.prepare('SELECT COUNT(*) n FROM user_favorites').get().n,1);
   sqlite.close();
@@ -115,6 +118,17 @@ test('page replay is idempotent; identical canonical payload creates no second s
   sqlite.close();
 });
 
+test('persistent discovery reports stored HTTPS media references separately from raw payloads and binary images',async()=>{
+  const{sqlite,d1}=database();const upstream=providerFor({nextCursorByPlatform:{copart:'media-next'},recordsPerPage:2,withMedia:true});
+  const result=await runPlatformBackfill({db:d1,env,requestId:'media-reporting',platform:'copart',maxPages:1,now:()=>NOW,provider:upstream.provider});
+  assert.equal(result.ok,true,JSON.stringify(result));assert.equal(result.rawPayloadStored,false);assert.equal(result.binaryMediaStored,false);
+  assert.equal(result.mediaListingsPersisted,2);assert.equal(result.mediaUrlReferencesPersisted,4);
+  const rows=sqlite.prepare('SELECT media_urls_json,media_thumbs_json FROM auction_listings ORDER BY listing_id').all();
+  assert.equal(rows.length,2);for(const row of rows){assert.equal(JSON.parse(row.media_urls_json).length,1);assert.equal(JSON.parse(row.media_thumbs_json).length,1);}
+  assert.equal(sqlite.prepare("SELECT COUNT(*) n FROM auction_listings WHERE media_urls_json LIKE '%raw_payload%' OR media_urls_json LIKE '%data:image/%'").get().n,0);
+  sqlite.close();
+});
+
 test('D1 batch failure after provider response leaves cursor/page/listing uncommitted and scope recoverable',async()=>{
   const{sqlite,d1}=database();const source=providerFor({nextCursorByPlatform:{copart:'c-next'}});d1.failNextBatch=true;
   const result=await runPlatformBackfill({db:d1,env,requestId:'crash-before-page-commit',platform:'copart',maxPages:1,now:()=>NOW,provider:source.provider});
@@ -127,18 +141,63 @@ test('D1 batch failure after provider response leaves cursor/page/listing uncomm
   sqlite.close();
 });
 
-test('per-platform budgets enforce six each and the campaign hard ceiling twelve without automatic provider calls',async()=>{
+test('per-platform budgets enforce ten each and the campaign hard ceiling twenty without automatic provider calls',async()=>{
   const{sqlite,d1}=database();const repo=new D1SyncRepository(d1);
   for(const platform of ['copart','iaai'])await repo.initializeBudget({provider:BUDGET_PROVIDER,budgetDay:budgetKey(platform),normalLimit:PER_PLATFORM_LIMIT,retryLimit:0,now:NOW});
-  sqlite.prepare('UPDATE provider_request_budgets SET normal_consumed=normal_limit WHERE provider=?').run(BUDGET_PROVIDER);
+  await repo.initializeBudget({provider:BUDGET_PROVIDER,budgetDay:campaignBudgetKey(),normalLimit:TOTAL_CAMPAIGN_LIMIT,retryLimit:0,now:NOW});
+  sqlite.prepare('UPDATE provider_request_budgets SET normal_consumed=normal_limit WHERE provider=? AND budget_day=?').run(BUDGET_PROVIDER,campaignBudgetKey());
   const source=providerFor();
   const [c,i]=await Promise.all(['copart','iaai'].map(platform=>runPlatformBackfill({db:d1,env,requestId:'cap-'+platform,platform,maxPages:2,now:()=>NOW,provider:source.provider})));
-  assert.equal(PER_PLATFORM_LIMIT,6);assert.equal(TOTAL_CAMPAIGN_LIMIT,12);
+  assert.equal(PER_PLATFORM_LIMIT,10);assert.equal(TOTAL_CAMPAIGN_LIMIT,20);
   assert.equal(c.liveRequests,0);assert.equal(i.liveRequests,0);assert.equal(source.calls.length,0);
   assert.equal(c.stopReason,'request_budget_exhausted');assert.equal(i.stopReason,'request_budget_exhausted');
-  assert.equal(c.campaignBudget.consumed,12);assert.equal(c.campaignBudget.reserved,0);
-  assert.equal(sqlite.prepare('SELECT SUM(normal_consumed) n FROM provider_request_budgets WHERE provider=?').get(BUDGET_PROVIDER).n,12);
+  assert.equal(c.campaignBudget.consumed,20);assert.equal(c.campaignBudget.reserved,0);
+  assert.equal(sqlite.prepare('SELECT SUM(normal_consumed) n FROM provider_request_budgets WHERE provider=?').get(BUDGET_PROVIDER).n,20);
   assert.equal(sqlite.prepare('SELECT SUM(retry_consumed+retry_reserved) n FROM provider_request_budgets WHERE provider=?').get(BUDGET_PROVIDER).n,0);
+  sqlite.close();
+});
+
+test('shared campaign reservation prevents concurrent platforms from exceeding the global hard cap',async()=>{
+  const{sqlite,d1}=database();const repo=new D1SyncRepository(d1),source=providerFor();
+  await repo.initializeBudget({provider:BUDGET_PROVIDER,budgetDay:campaignBudgetKey(),normalLimit:1,retryLimit:0,now:NOW});
+  const [copart,iaai]=await Promise.all(['copart','iaai'].map(platform=>runPlatformBackfill({
+    db:d1,env,requestId:'global-cap-'+platform,platform,maxPages:1,now:()=>NOW,provider:source.provider
+  })));
+  assert.equal(source.calls.length,1);
+  assert.equal([copart,iaai].filter(result=>result.liveRequests===1).length,1);
+  assert.equal([copart,iaai].filter(result=>result.stopReason==='request_budget_exhausted').length,1);
+  const global=sqlite.prepare('SELECT normal_limit,normal_consumed,normal_reserved FROM provider_request_budgets WHERE provider=? AND budget_day=?').get(BUDGET_PROVIDER,campaignBudgetKey());
+  assert.equal(global.normal_limit,1);assert.equal(global.normal_consumed,1);assert.equal(global.normal_reserved,0);
+  sqlite.close();
+});
+
+test('one Product Milestone action resumes both independent scopes, max two pages each, and stays within four live requests',async()=>{
+  const{sqlite,d1}=database();
+  sqlite.prepare("INSERT INTO provider_sync_scopes(scope_key,provider,platform,operation,status,cursor,last_attempt_at,updated_at) VALUES(?,'apibara','iaai','discovery','partial','iaai-cursor-1',?,?)")
+    .run(PLATFORMS.iaai.scopeKey,new Date(NOW-1000).toISOString(),new Date(NOW-1000).toISOString());
+  const source=providerFor({cursorSequencesByPlatform:{copart:['copart-cursor-2','copart-cursor-3'],iaai:['iaai-cursor-2','iaai-cursor-3']}});
+  const result=await runProductMilestoneBackfill({db:d1,env,requestId:'one-click-product-milestone',now:()=>NOW,provider:source.provider});
+  assert.equal(result.ok,true,JSON.stringify(result));assert.equal(result.liveRequests,4);assert.equal(result.maxLiveRequests,4);
+  assert.deepEqual(source.calls.map(call=>[call.platform,call.cursor]),[['copart','copart-cursor-1'],['copart','copart-cursor-2'],['iaai','iaai-cursor-1'],['iaai','iaai-cursor-2']]);
+  assert.equal(sqlite.prepare('SELECT count(*) n FROM auction_listings WHERE platform=\'copart\'').get().n,2);
+  assert.equal(sqlite.prepare('SELECT count(*) n FROM auction_listings WHERE platform=\'iaai\'').get().n,2);
+  const copartScope=sqlite.prepare('SELECT status,cursor FROM provider_sync_scopes WHERE scope_key=?').get(COPART_SCOPE);
+  const iaaiScope=sqlite.prepare('SELECT status,cursor FROM provider_sync_scopes WHERE scope_key=?').get(PLATFORMS.iaai.scopeKey);
+  assert.equal(copartScope.status,'partial');assert.equal(copartScope.cursor,'copart-cursor-3');
+  assert.equal(iaaiScope.status,'partial');assert.equal(iaaiScope.cursor,'iaai-cursor-3');
+  assert.equal(sqlite.prepare('SELECT count(*) n FROM auction_listing_snapshots').get().n,4);
+  assert.equal(sqlite.prepare('SELECT count(*) n FROM auction_events').get().n,0);
+  assert.equal(sqlite.prepare('SELECT count(*) n FROM vehicle_entities').get().n,0);
+  assert.equal(result.campaignBudget.consumed,4);assert.equal(result.campaignBudget.reserved,0);
+  sqlite.close();
+});
+
+test('one Product Milestone action stops after the first platform failure and does not call the second provider scope',async()=>{
+  const{sqlite,d1}=database();const source=providerFor({failPlatform:'copart'});
+  const result=await runProductMilestoneBackfill({db:d1,env,requestId:'stop-after-error',now:()=>NOW,provider:source.provider});
+  assert.equal(result.ok,false);assert.equal(result.liveRequests,1);assert.equal(result.stopReason,'platform_run_failed');
+  assert.deepEqual(source.calls.map(call=>call.platform),['copart']);
+  assert.equal(sqlite.prepare('SELECT count(*) n FROM provider_request_budgets WHERE provider=? AND budget_day=?').get(BUDGET_PROVIDER,budgetKey('iaai')).n,0);
   sqlite.close();
 });
 
@@ -146,7 +205,7 @@ test('page cap, invalid platform, cursor repetition and provider failures do not
   const{sqlite,d1}=database();const source=providerFor({nextCursorByPlatform:{copart:'copart-cursor-1'}});
   const invalid=await runPlatformBackfill({db:d1,env,requestId:'bad',platform:'manheim',now:()=>NOW,provider:source.provider});
   assert.equal(invalid.error,'invalid_platform');assert.equal(source.calls.length,0);
-  const tooMany=await runPlatformBackfill({db:d1,env,requestId:'pages',platform:'copart',maxPages:3,now:()=>NOW,provider:source.provider});
+  const tooMany=await runPlatformBackfill({db:d1,env,requestId:'pages',platform:'copart',maxPages:5,now:()=>NOW,provider:source.provider});
   assert.equal(tooMany.error,'invalid_page_limit');assert.equal(source.calls.length,0);
   const repeated=await runPlatformBackfill({db:d1,env,requestId:'repeated',platform:'copart',maxPages:2,now:()=>NOW,provider:source.provider});
   assert.equal(repeated.error,'repeated_cursor');assert.equal(repeated.liveRequests,1);assert.equal(source.calls.length,1);
@@ -174,4 +233,22 @@ test('multi-platform staging endpoints require exact staging target, same-origin
   assert.equal(badPlatform.status,400);assert.equal(providerCalls,0);
   const disabled=await handlePhaseGRequest(make('/__staging/d1-sync-multiplatform/status'),{...stageEnv,REXBID_PHASE_G_MULTIPLATFORM:'disabled'},null,dispatch,wrapped);
   assert.equal(disabled.status,404);sqlite.close();
+});
+
+test('single Product Milestone endpoint is authenticated, exact-host guarded, one POST, and caps provider calls at four',async()=>{
+  const{sqlite,d1}=database();
+  const stageEnv={...env,REXBID_AUTH_TEST_UI:'enabled',REXBID_AUTH_TEST_HOST:'rexbid-auth-test.tedn828.workers.dev',REXBID_PHASE_G_MULTIPLATFORM:'enabled',REXBID_D1_READ_TARGET:'rexbid-auth-test-db',REXBID_DB:d1};
+  const source=providerFor({cursorSequencesByPlatform:{copart:['c-next','c-more'],iaai:['i-next','i-more']}});
+  const dispatch=async()=>new Response('{"user":{"id":"verified-user"}}',{status:200});
+  const make=(host='rexbid-auth-test.tedn828.workers.dev',origin=`https://${host}`,body={})=>new Request(`https://${host}/__staging/d1-sync-product-milestone`,{method:'POST',headers:{Cookie:'synthetic-session','Sec-Fetch-Site':'same-origin',Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const denied=await handlePhaseGRequest(make('production.example'),stageEnv,null,dispatch,source.provider);
+  assert.equal(denied.status,404);assert.equal(source.calls.length,0);
+  const badBody=await handlePhaseGRequest(make(undefined,undefined,{max_pages:20}),stageEnv,null,dispatch,source.provider);
+  assert.equal(badBody.status,400);assert.equal(source.calls.length,0);
+  const response=await handlePhaseGRequest(make(),stageEnv,null,dispatch,source.provider);
+  const body=await response.json();
+  assert.equal(response.status,200);assert.equal(body.ok,true);assert.equal(body.liveRequests,4);assert.equal(body.maxLiveRequests,4);
+  assert.deepEqual(body.platforms.map(item=>item.platform),['copart','iaai']);
+  assert.deepEqual(source.calls.map(call=>call.platform),['copart','copart','iaai','iaai']);
+  sqlite.close();
 });

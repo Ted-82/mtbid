@@ -1,6 +1,7 @@
 "use strict";
 
 const contract = require("../providers/contract.js");
+const { safeMediaReferences } = require("./core.js");
 
 const KNOWN_PLATFORMS = Object.freeze(["copart", "iaai"]);
 const MAX_PAGE_SIZE = 50;
@@ -17,6 +18,11 @@ function numberOrNull(value) {
 
 function booleanOrNull(value) {
   return value === null || value === undefined ? null : Number(value) === 1;
+}
+
+function mediaList(value, kind = "image") {
+  if (typeof value !== "string" || value.length > 64_000) return [];
+  try { return safeMediaReferences(JSON.parse(value), kind); } catch { return []; }
 }
 
 function encodeCursor(value) {
@@ -72,7 +78,8 @@ function canonicalVehicle(row) {
       name: clean(row.document_name), type: clean(row.document_type),
       registration: booleanOrNull(row.registration_allowed), export: booleanOrNull(row.export_allowed)
     }),
-    media: contract.createRexMedia({items: [], thumbs: [], has_video: booleanOrNull(row.has_video), has_360: booleanOrNull(row.has_360)}),
+    media: contract.createRexMedia({items: mediaList(row.media_urls_json), thumbs: mediaList(row.media_thumbs_json, "thumb"),
+      has_video: booleanOrNull(row.has_video), has_360: booleanOrNull(row.has_360)}),
     location: row.location_display ? {display: clean(row.location_display), state: clean(row.location_state), postal_code: clean(row.location_postal_code)} : null,
     odometer: row.odometer_value === null || row.odometer_value === undefined ? null : {
       value: numberOrNull(row.odometer_value), unit: clean(row.odometer_unit)
@@ -139,7 +146,11 @@ class D1ReadRepository {
   }
 
   async listCatalog({platform = null, make = null, model = null, yearFrom = null, yearTo = null,
-    timed = null, buyNow = false, auctionState = null, upcoming = null, nowIso = new Date(this.now()).toISOString(),
+    timed = null, buyNow = false, auctionState = null, sourceStatus = null, upcoming = null, search = null,
+    bodyStyle = null, fuelType = null, transmission = null, driveType = null, runCondition = null,
+    damage = null, sellerType = null, saleDocumentType = null, locationState = null,
+    priceMin = null, priceMax = null, odometerFrom = null, odometerTo = null,
+    nowIso = new Date(this.now()).toISOString(),
     limit = 20, cursor = null} = {}) {
     if (!Number.isInteger(limit) || limit < 1 || limit > MAX_PAGE_SIZE) throw new RangeError("D1 page size must be 1..50.");
     const afterId = decodeCursor(cursor);
@@ -148,11 +159,31 @@ class D1ReadRepository {
     if (platform) { where.push("l.platform=?"); values.push(String(platform).toLowerCase()); }
     if (make) { where.push("lower(l.make)=lower(?)"); values.push(String(make).trim()); }
     if (model) { where.push("lower(l.model)=lower(?)"); values.push(String(model).trim()); }
+    if (search) {
+      const term = String(search).trim().slice(0, 120);
+      if (term) {
+        where.push(`(instr(upper(COALESCE(l.vin_normalized,'')),upper(?))>0
+          OR instr(upper(COALESCE(l.lot,'')),upper(?))>0
+          OR instr(upper(COALESCE(l.vehicle_title,'')),upper(?))>0
+          OR instr(upper(COALESCE(l.make,'')||' '||COALESCE(l.model,'')),upper(?))>0)`);
+        values.push(term, term, term, term);
+      }
+    }
     if (yearFrom !== null) { where.push("l.year>=?"); values.push(Number(yearFrom)); }
     if (yearTo !== null) { where.push("l.year<=?"); values.push(Number(yearTo)); }
     if (timed !== null) { where.push("l.is_timed=?"); values.push(timed ? 1 : 0); }
     if (buyNow) where.push("l.buy_now_usd>0");
-    if (auctionState) { where.push("lower(l.auction_state)=lower(?)"); values.push(String(auctionState).trim()); }
+    if (auctionState) { where.push("(lower(l.auction_state)=lower(?) OR lower(COALESCE(l.source_status,''))=lower(?))"); values.push(String(auctionState).trim(), String(auctionState).trim()); }
+    if (sourceStatus) { where.push("lower(COALESCE(l.source_status,''))=lower(?)"); values.push(String(sourceStatus).trim()); }
+    for (const [column, value] of [["body_style",bodyStyle],["fuel_type",fuelType],["transmission",transmission],
+      ["drive_type",driveType],["run_state",runCondition],["primary_damage",damage],["seller_type",sellerType],
+      ["document_type",saleDocumentType],["location_state",locationState]]) {
+      if (value) { where.push(`lower(COALESCE(l.${column},''))=lower(?)`); values.push(String(value).trim()); }
+    }
+    if (priceMin !== null) { where.push("COALESCE(l.current_bid_usd,l.buy_now_usd)>=?"); values.push(Number(priceMin)); }
+    if (priceMax !== null) { where.push("COALESCE(l.current_bid_usd,l.buy_now_usd)<=?"); values.push(Number(priceMax)); }
+    if (odometerFrom !== null) { where.push("l.odometer_value>=?"); values.push(Number(odometerFrom)); }
+    if (odometerTo !== null) { where.push("l.odometer_value<=?"); values.push(Number(odometerTo)); }
     if (upcoming === "only") { where.push("l.auction_at IS NOT NULL AND datetime(l.auction_at)>datetime(?)"); values.push(nowIso); }
     if (upcoming === "without") { where.push("(l.auction_at IS NULL OR datetime(l.auction_at)<=datetime(?))"); values.push(nowIso); }
     if (afterId) {
@@ -311,7 +342,7 @@ function toPublicVehicleDTO(vehicle) {
     sale_document: {name: vehicle.document.name, type: vehicle.document.type,
       registration: vehicle.document.registration, export: vehicle.document.export},
     location: vehicle.location, odometer: vehicle.odometer,
-    media: {items: [], thumbs: [], has_video: vehicle.media.has_video, has_360: vehicle.media.has_360}
+    media: {items: vehicle.media.items, thumbs: vehicle.media.thumbs, has_video: vehicle.media.has_video, has_360: vehicle.media.has_360}
   };
 }
 

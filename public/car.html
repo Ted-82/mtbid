@@ -1379,6 +1379,7 @@ main{padding-top:22px}
 <script src="/rexbid-transport-engine.js"></script>
 <script src="/rexbid-storage.js"></script>
 <script src="/rexbid-auth.js"></script>
+<script src="/rexbid-media.js"></script>
 <script>
   const API_BASE = "/api";
   const params = new URLSearchParams(location.search);
@@ -1692,194 +1693,11 @@ main{padding-top:22px}
     return result;
   }
 
-  function isHttpUrl(v) {
-    return typeof v === "string" && /^https?:\/\//i.test(v.trim());
-  }
-
-  function mediaScore(url, item = {}) {
-    if (!isHttpUrl(url)) return -1;
-
-    const u = String(url).toLowerCase();
-    let score = 0;
-
-    // Prefer original/full-resolution variants.
-    if (/original|orig|full|master|source/.test(u)) score += 80;
-    if (/hd|high|large|big|hires|highres|1920|2048|2560|3000|4000|4096/.test(u)) score += 60;
-    if (/thumb|thumbnail|small|tiny|preview|320x|400x|480x|640x/.test(u)) score -= 70;
-
-    // Explicit object fields are stronger than a generic URL field.
-    if (item.original) score += 50;
-    if (item.hd) score += 45;
-    if (item.large) score += 35;
-    if (item.big) score += 30;
-    if (item.url) score += 10;
-
-    return score;
-  }
-
-  function bestMediaUrl(item) {
-    if (!item) return null;
-
-    if (typeof item === "string") return isHttpUrl(item) ? item : null;
-
-    const candidates = [
-      item.original,
-      item.originalUrl,
-      item.original_url,
-      item.master,
-      item.full,
-      item.fullsize,
-      item.fullSize,
-      item.hd,
-      item.hdUrl,
-      item.hd_url,
-      item.high,
-      item.highres,
-      item.high_res,
-      item.large,
-      item.big,
-      item.imageUrl,
-      item.image_url,
-      item.url,
-      item.src,
-      item.href
-    ].filter(isHttpUrl);
-
-    candidates.sort((a,b) => mediaScore(b,item) - mediaScore(a,item));
-    return candidates[0] || null;
-  }
-
-  function mediaIdentity(url) {
-    if (!url) return "";
-
-    let u = String(url);
-
-    // IAAI imageKeys identify the actual image independently of thumbnail/full-size URL.
-    const imageKeys = u.match(/imageKeys=([^&]+)/i);
-    if (imageKeys) return `iaai:${decodeURIComponent(imageKeys[1])}`;
-
-    // Remove common resizing/query parameters so thumb + full-size become one image.
-    u = u
-      .replace(/[?&](width|height|w|h|size|quality|q|resize|fit|format)=[^&]+/gi, "")
-      .replace(/[?&](thumb|thumbnail|small|medium|large|hd)=true/gi, "")
-      .replace(/[?&]+$/,"");
-
-    // Common CDN suffixes.
-    u = u.replace(/([_-])(thumb|thumbnail|small|medium|large|hd)(?=\.[a-z0-9]+$)/i, "");
-
-    return u;
-  }
-
-  function normalizeMedia(root) {
-    const found = [];
-    const objects = collectObjects(root);
-
-    function addImage(item) {
-      if (!item) return;
-
-      const large = bestMediaUrl(item);
-      const thumb = typeof item === "object"
-        ? first(
-            item.thumb,
-            item.thumbnail,
-            item.thumbnailUrl,
-            item.thumbnail_url,
-            item.small,
-            item.normal,
-            item.medium,
-            large
-          )
-        : large;
-
-      if (large || thumb) {
-        found.push({
-          type:"image",
-          thumb: isHttpUrl(thumb) ? thumb : large,
-          large: large || thumb
-        });
-      }
-    }
-
-    function addArray(arr) {
-      if (!Array.isArray(arr)) return;
-      arr.forEach(x => {
-        if (!x) return;
-
-        if (typeof x === "string") {
-          if (isHttpUrl(x)) addImage(x);
-          return;
-        }
-
-        if (typeof x === "object") {
-          const type = String(x.type || x.mediaType || x.kind || "").toLowerCase();
-          if (/video|vr|360|panorama/.test(type)) return;
-          addImage(x);
-        }
-      });
-    }
-
-    for (const obj of objects) {
-      for (const key of ["items","images","photos","media","imageList","photoList","imageItems"]) {
-        const val = obj[key];
-        if (!val) continue;
-
-        if (Array.isArray(val)) {
-          addArray(val);
-        } else if (typeof val === "object") {
-          addArray(val.items);
-          addArray(val.images);
-          addArray(val.photos);
-          addArray(val.thumbs);
-          addArray(val.normal);
-          addArray(val.medium);
-          addArray(val.large);
-          addArray(val.big);
-
-          // Some APIs store parallel thumbnail/full arrays.
-          if (Array.isArray(val.thumbs)) {
-            val.thumbs.forEach((x,i) => {
-              const full = val.original?.[i] || val.hd?.[i] || val.large?.[i] ||
-                           val.big?.[i] || val.full?.[i] || x;
-              addImage({thumb:x, large:full, hd:val.hd?.[i], original:val.original?.[i]});
-            });
-          }
-          if (Array.isArray(val.normal)) {
-            val.normal.forEach((x,i) => {
-              const full = val.original?.[i] || val.hd?.[i] || val.large?.[i] ||
-                           val.big?.[i] || x;
-              addImage({thumb:x, large:full, hd:val.hd?.[i], original:val.original?.[i]});
-            });
-          }
-        }
-      }
-    }
-
-    const byIdentity = new Map();
-
-    for (const p of found) {
-      const identity = mediaIdentity(p.large || p.thumb);
-      if (!identity) continue;
-
-      const previous = byIdentity.get(identity);
-      if (!previous) {
-        byIdentity.set(identity, p);
-        continue;
-      }
-
-      // Keep the candidate whose full URL looks more like a real HD/original.
-      const oldScore = mediaScore(previous.large, previous);
-      const newScore = mediaScore(p.large, p);
-      if (newScore > oldScore) byIdentity.set(identity, p);
-    }
-
-    return Array.from(byIdentity.values());
-  }
-
   function urlFromValue(value, type) {
     if (!value) return null;
 
     if (typeof value === "string") {
-      return isHttpUrl(value) ? value : null;
+      return window.RexBidMedia.isHttpUrl(value) ? value : null;
     }
 
     if (Array.isArray(value)) {
@@ -1898,7 +1716,7 @@ main{padding-top:22px}
       ];
 
       for (const candidate of candidates) {
-        if (isHttpUrl(candidate)) return candidate;
+        if (window.RexBidMedia.isHttpUrl(candidate)) return candidate;
       }
 
       for (const [k,v] of Object.entries(value)) {
@@ -1963,7 +1781,7 @@ main{padding-top:22px}
     // generic arrays without naming the field "video" or "360".
     for (const obj of objects) {
       for (const value of Object.values(obj)) {
-        if (typeof value !== "string" || !isHttpUrl(value)) continue;
+        if (typeof value !== "string" || !window.RexBidMedia.isHttpUrl(value)) continue;
 
         const v = value.toLowerCase();
 
@@ -1992,7 +1810,7 @@ main{padding-top:22px}
   }
 
   function isConcreteAuctionUrl(url, platform, lot) {
-    if (!isHttpUrl(url)) return false;
+    if (!window.RexBidMedia.isHttpUrl(url)) return false;
     try {
       const u = new URL(url);
       const host = u.hostname.toLowerCase();
@@ -3784,7 +3602,7 @@ main{padding-top:22px}
 
       if (!car) throw new Error("Nie znaleziono samochodu.");
 
-      photos = normalizeMedia(car);
+      photos = window.RexBidMedia.normalizeMedia(car);
       buildPage();
     } catch (error) {
       console.error("REX.Bid car error:",error);

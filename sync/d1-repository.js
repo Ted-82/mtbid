@@ -1,7 +1,7 @@
 "use strict";
 
 const { validateRexVehicle } = require("../providers/contract.js");
-const { withoutNonPersistentData } = require("./core.js");
+const { withoutNonPersistentData, safeMediaReferences } = require("./core.js");
 
 const FIRST_CURSOR = JSON.stringify(["first"]);
 const MAX_DISCOVERY_PAGE_RECORDS = 20;
@@ -25,7 +25,8 @@ const MUTABLE_COLUMNS = Object.freeze([
   ["airbags", "airbags"], ["document_name", "document_name"], ["document_type", "document_type"],
   ["registration_allowed", "registration_allowed"], ["export_allowed", "export_allowed"],
   ["location_display", "location_display"], ["location_state", "location_state"],
-  ["location_postal_code", "location_postal_code"], ["has_video", "has_video"], ["has_360", "has_360"],
+  ["location_postal_code", "location_postal_code"], ["media_urls_json", "media_urls_json"],
+  ["media_thumbs_json", "media_thumbs_json"], ["has_video", "has_video"], ["has_360", "has_360"],
   ["source_updated_at", "source_updated_at"], ["last_seen_at", "last_seen_at"],
   ["summary_synced_at", "summary_synced_at"], ["freshness_class", "freshness_class"],
   ["next_refresh_at", "next_refresh_at"], ["fingerprint", "fingerprint"],
@@ -40,6 +41,11 @@ function cleanString(value) {
 
 function boolSql(value) {
   return value === true ? 1 : value === false ? 0 : null;
+}
+
+function mediaJson(value) {
+  const items = safeMediaReferences(value, "image");
+  return items.length ? JSON.stringify([...new Set(items)]) : null;
 }
 
 function iso(value, label = "now") {
@@ -113,6 +119,8 @@ function canonicalListingValues(record, now) {
     location_display: cleanString(location.display ?? (typeof vehicle.location === "string" ? vehicle.location : null)),
     location_state: cleanString(location.state),
     location_postal_code: cleanString(location.postal_code ?? location.zip),
+    media_urls_json: mediaJson(vehicle.media?.items),
+    media_thumbs_json: mediaJson(vehicle.media?.thumbs),
     has_video: boolSql(vehicle.media?.has_video),
     has_360: boolSql(vehicle.media?.has_360),
     source_updated_at: cleanString(vehicle.source_updated_at),
@@ -141,7 +149,8 @@ function listingUpsertStatement(db, record, now) {
     source_status: "auction.source_status", primary_damage: "condition.primary_damage",
     secondary_damage: "condition.secondary_damage", run_state: "condition.run_state",
     keys_present: "condition.keys_present", airbags: "condition.airbags", odometer_value: "odometer.value",
-    has_video: "media.has_video", has_360: "media.has_360"
+    has_video: "media.has_video", has_360: "media.has_360",
+    media_urls_json: "media.items", media_thumbs_json: "media.thumbs"
   };
   const columns = Object.keys(values);
   const insertSql = `INSERT INTO auction_listings (${columns.join(",")}) VALUES (${columns.map(() => "?").join(",")})`;

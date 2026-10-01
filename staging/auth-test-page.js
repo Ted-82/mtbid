@@ -5,7 +5,7 @@ const AUTH_TEST_HTML = String.raw`<!doctype html>
 <section class="card"><h1>Test Supabase Auth / BFF</h1><p>Status: <span id="auth-state" class="status">Anonymous</span></p><p id="auth-message" class="message" role="status" aria-live="polite">Sprawdzam sesję…</p><p id="signup-diagnostic" class="message note" role="status" aria-live="polite">Ready</p><div id="me-facts" class="facts"></div></section>
 <section class="card"><h2>Testowe konto</h2><form id="credentials" autocomplete="off"><div class="row"><label>Testowy e-mail<input id="email" type="email" autocomplete="off" required maxlength="320"></label><label>Testowe hasło<input id="password" type="password" autocomplete="new-password" required minlength="8" maxlength="1024"></label></div><div class="row"><button id="signup" type="button">Sign up</button><button id="login" type="button" class="secondary">Log in</button><button id="refresh" type="button" class="secondary">Refresh session</button><button id="logout" type="button" class="secondary">Log out</button></div></form><p class="note">Hasło jest wysyłane wyłącznie w HTTPS POST do stagingowego BFF. Strona go nie zapisuje ani nie wyświetla.</p></section>
 <section class="card"><h2>Test ulubionych</h2><p class="note">Tworzy wyłącznie sztuczny wpis LOT w testowej D1. Nie jest to rzeczywisty pojazd.</p><div class="row"><label>LOT testowy<input id="favorite-lot" maxlength="80"></label><label>Platforma<select id="favorite-platform"><option value="copart">Copart</option><option value="iaai">IAAI</option></select></label></div><div class="row"><button id="favorite-add" type="button">Dodaj testowe favorite</button><button id="favorite-list" type="button" class="secondary">Pobierz favorites</button><button id="favorite-delete" type="button" class="secondary">Usuń testowe favorite</button><button id="favorite-merge" type="button" class="secondary">Merge test local favorite</button></div><p id="favorite-message" class="message" role="status" aria-live="polite"></p><ul id="favorite-list-output"></ul></section>
-<section id="phase-g-section" class="card" hidden><h2>Kontrolowany backfill Copart + IAAI</h2><p class="note">Każda platforma ma własny scope, cursor, lease i trwały budżet. Jedno uruchomienie przetwarza najwyżej 2 strony po 20 rekordów; maksymalnie 6 requestów na platformę i 12 łącznie w tej kampanii. Bez automatycznych retry. Dane pozostają w staging D1. Nie pobieramy detail/history, raw payloadów ani mediów. Zakres partial nigdy nie jest prezentowany jako pełny katalog.</p><button id="phase-g-status-refresh" type="button" class="secondary">Odśwież status scope</button><div id="phase-g-status" class="facts" role="status" aria-live="polite">Status dostępny po zalogowaniu.</div><div class="row"><button id="phase-g-copart" type="button" class="secondary">Wznów Copart — maks. 2 strony</button><button id="phase-g-iaai" type="button" class="secondary">Uruchom / wznów IAAI — maks. 2 strony</button></div><p id="phase-g-message" class="message" role="status" aria-live="polite"></p><pre id="phase-g-result" class="facts"></pre></section>
+<section id="phase-g-section" class="card" hidden><h2>Kontrolowany backfill Copart + IAAI</h2><p class="note">Jedna akcja wznawia osobne cursory obu platform: maksymalnie 2 strony Copart i 2 IAAI (do 4 requestów łącznie). Twardy limit kampanii to 20 requestów (maks. 10 na platformę), bez automatycznych retry. Pełne pokrycie rynku wymaga dojścia do końca paginacji; rekordy pozostają w staging D1. Nie pobieramy detail/history ani binarnych zdjęć.</p><button id="phase-g-status-refresh" type="button" class="secondary">Odśwież status katalogu</button><div id="phase-g-status" class="facts" role="status" aria-live="polite">Status dostępny po zalogowaniu.</div><div class="row"><button id="phase-g-product-milestone" type="button">Uruchom Product Milestone Backfill — do 4 stron razem</button></div><p id="phase-g-message" class="message" role="status" aria-live="polite"></p><pre id="phase-g-result" class="facts"></pre></section>
 <p class="note">Auth tokens are HttpOnly-cookie-only; this page never reads cookies, tokens or localStorage. Do not share screenshots containing your test e-mail.</p></main>
 <script src="/rexbid-auth.js"></script><script>
 (() => {
@@ -15,7 +15,7 @@ const AUTH_TEST_HTML = String.raw`<!doctype html>
   const auth = window.RexBidAuth;
   if (!auth) { byId("auth-message").textContent = "Wspólny klient Auth jest niedostępny."; return; }
   const stateNode=byId("auth-state"), message=byId("auth-message"), diagnostic=byId("signup-diagnostic"), facts=byId("me-facts"), favoriteMessage=byId("favorite-message"), favoriteList=byId("favorite-list-output");
-  const controls=["signup","login","refresh","logout","favorite-add","favorite-list","favorite-delete","favorite-merge","phase-g-status-refresh","phase-g-copart","phase-g-iaai"].map(byId);
+  const controls=["signup","login","refresh","logout","favorite-add","favorite-list","favorite-delete","favorite-merge","phase-g-status-refresh","phase-g-product-milestone"].map(byId);
   const publicButtons=[byId("signup"),byId("login")];
   const protectedButtons=controls.filter(button=>!publicButtons.includes(button));
   let pageReady=false, actionRunning=false, uiFailed=false;
@@ -75,18 +75,17 @@ const AUTH_TEST_HTML = String.raw`<!doctype html>
     }catch{status.textContent="Nie udało się pobrać statusu scope. Spróbuj ponownie.";}
   }
   byId("phase-g-status-refresh").addEventListener("click",()=>loadPhaseGStatus());
-  async function runPlatform(platform){
-    return run("Backfill "+platform.toUpperCase(),async()=>{
+  async function runProductMilestone(){
+    return run("Product Milestone Backfill",async()=>{
       if(!pageReady||uiFailed||auth.status!=="authenticated"){byId("phase-g-message").textContent="Wymagane jest aktywne uwierzytelnienie stagingowe.";return {status:401};}
-      byId("phase-g-result").textContent="";byId("phase-g-message").textContent="Uruchamiam "+platform.toUpperCase()+" od własnego zapisanego cursora. Maksymalnie 2 strony, bez retry.";
-      const response=await fetch("/__staging/d1-sync-multiplatform",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({platform,max_pages:2})});
+      byId("phase-g-result").textContent="";byId("phase-g-message").textContent="Uruchamiam oba niezależne scope od zapisanych cursorów. Maksymalnie 2 strony na platformę; bez retry.";
+      const response=await fetch("/__staging/d1-sync-product-milestone",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:"{}"});
       const result=await response.json();byId("phase-g-result").textContent=JSON.stringify(result,null,2);
-      byId("phase-g-message").textContent=result.ok?"Wynik zapisano w staging D1.":"Sync zatrzymany bez automatycznego retry. Kod: "+String(result.error||"unknown");
+      byId("phase-g-message").textContent=result.ok?"Kontrolowany run zakończony. Wyniki obu platform zapisano w staging D1.":"Run zatrzymał się przy błędzie; nie wykonano automatycznego retry. Sprawdź bezpieczny kod w diagnostyce.";
       await loadPhaseGStatus();return {status:response.status,requestId:result.requestId};
     });
   }
-  byId("phase-g-copart").addEventListener("click",()=>runPlatform("copart"));
-  byId("phase-g-iaai").addEventListener("click",()=>runPlatform("iaai"));
+  byId("phase-g-product-milestone").addEventListener("click",()=>runProductMilestone());
   auth.ready.then(()=>{
     if(!auth.enabled){setState("Auth unavailable");clearPrivate();message.textContent="Wspólny klient Auth jest niedostępny.";syncButtons();return;}
     pageReady=true;try{render();if(auth.status==="authenticated")loadPhaseGStatus();}catch{uiFailed=true;setState("Auth UI error");clearPrivate();diagnostic.textContent="Auth UI error at bootstrap (client_contract_mismatch)";}syncButtons();

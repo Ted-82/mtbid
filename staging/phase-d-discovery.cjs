@@ -182,7 +182,8 @@ async function runPersistentDiscovery({db, env, requestId, now = () => Date.now(
     }
     const scope = await repo.getScope(SCOPE_KEY);
     const columns = (await db.prepare("PRAGMA table_info(auction_listings)").all()).results.map(row => row.name);
-    const rawMediaExcluded = !columns.some(name => /raw|media_items|media_thumbs|photo_url|image_url|binary/i.test(name));
+    // HTTPS media URL references are allowed; raw payloads and binary media are not.
+    const rawMediaExcluded = !columns.some(name => /raw_payload|raw_json|media_items|photo_binary|image_binary|binary/i.test(name));
     if (!readbacks.every(Boolean) || !rawMediaExcluded || scope?.cursor !== (page.nextCursor ?? null)) {
       throw Object.assign(new Error(), {safeCode: "d1_readback_mismatch"});
     }

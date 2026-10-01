@@ -6,6 +6,7 @@ const {DatabaseSync} = require('node:sqlite');
 const contract = require('../providers/contract.js');
 const {createSyncIdentity} = require('../sync/core.js');
 const {D1SyncRepository} = require('../sync/d1-repository.js');
+const {D1ReadRepository} = require('../sync/d1-read-repository.js');
 
 const ROOT = path.join(__dirname, '..');
 const NOW = Date.parse('2026-09-29T12:00:00.000Z');
@@ -221,6 +222,33 @@ test('listing discovery tworzy snapshot bazowy, a snapshot identycznego payloadu
   assert.equal(snapshots[1].auction_state, 'live');
   assert.equal(snapshots[1].current_bid_usd, 1750);
   assert.notEqual(snapshots[0].fingerprint, snapshots[1].fingerprint);
+  sqlite.close();
+});
+
+test('D1 przechowuje wyłącznie bezpieczne referencje HTTPS mediów i partial update ich nie kasuje', async () => {
+  const {sqlite,d1,repo}=setupDisposableDatabase();
+  const v=vehicle({media:contract.createRexMedia({
+    items:['https://images.example/vehicle.jpg','http://images.example/insecure.jpg','javascript:alert(1)'],
+    thumbs:['https://images.example/thumb.jpg'],has_video:true
+  }),raw_payload:{private:'must never persist'}});
+  const lease=await startScope(repo,{scopeKey:'media-scope',runId:'media-run-1'});
+  const page={scopeKey:lease.scopeKey,provider:lease.provider,platform:lease.platform,runId:lease.runId,owner:lease.owner,
+    token:lease.token,leaseGeneration:lease.leaseGeneration,cursor:null,nextCursor:'media-next',records:[record(v)],now:NOW};
+  await repo.persistDiscoveryPage(page);
+  const listingId=page.records[0].identity.listingId;
+  let stored=sqlite.prepare('SELECT media_urls_json,media_thumbs_json FROM auction_listings WHERE listing_id=?').get(listingId);
+  assert.deepEqual(JSON.parse(stored.media_urls_json),['https://images.example/vehicle.jpg']);
+  assert.deepEqual(JSON.parse(stored.media_thumbs_json),['https://images.example/thumb.jpg']);
+  assert.equal(JSON.stringify(stored).includes('must never persist'),false);
+  const partial=vehicle({media:contract.createRexMedia({items:[],thumbs:[]})});
+  await repo.persistDiscoveryPage({...page,cursor:'media-next',nextCursor:null,
+    records:[record(partial)],now:NOW+1000});
+  stored=sqlite.prepare('SELECT media_urls_json,media_thumbs_json FROM auction_listings WHERE listing_id=?').get(listingId);
+  assert.deepEqual(JSON.parse(stored.media_urls_json),['https://images.example/vehicle.jpg']);
+  assert.deepEqual(JSON.parse(stored.media_thumbs_json),['https://images.example/thumb.jpg']);
+  const read=await new D1ReadRepository(d1,{now:()=>NOW+1000}).getListingById(listingId);
+  assert.deepEqual(read.vehicle.media.items,['https://images.example/vehicle.jpg']);
+  assert.deepEqual(read.vehicle.media.thumbs,['https://images.example/thumb.jpg']);
   sqlite.close();
 });
 

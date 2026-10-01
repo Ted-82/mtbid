@@ -26,7 +26,7 @@ function setup(){
     sqlite.prepare(`INSERT INTO vehicle_sources(source_key,provider,platform,provider_vehicle_id,identity_kind,identity_state,first_seen_at,last_seen_at,last_attempt_at,last_success_at,sync_status,created_at,updated_at)
       VALUES(?, 'apibara', ?, ?, 'provider_vehicle_id','resolved',?,?,?,?,'idle',?,?)`).run(sourceKey,platform,`provider-${platform}`,seen,seen,seen,seen,seen,seen);
     sqlite.prepare(`INSERT INTO auction_listings(listing_id,source_key,platform,listing_identity_kind,identity_state,source_listing_id,vin_normalized,lot,vehicle_title,make,model,year,auction_state,source_status,auction_at,is_timed,current_bid_usd,buy_now_usd,seller_name,primary_damage,run_state,keys_present,document_name,location_display,location_state,location_postal_code,first_seen_at,last_seen_at,summary_synced_at,freshness_class,fingerprint,created_at,updated_at)
-      VALUES(?,?,?,'source_listing_id','resolved',?,?,?,?,?,?,?,?,?,?,0,?,?,?,?,?,?,?,?,?,?,?,?,?,'warm',?,?,?)`).run(listingId,sourceKey,platform,lot,`TESTVIN00000000000${n}`,lot,'2022 Honda Civic','Honda','Civic',2022,'open','Open','2099-10-05T10:00:00.000Z',1000*n,5000,'Seller','Front End','run_and_drive',1,'Salvage','Houston, TX','TX','77001',seen,seen,seen,'fingerprint-'+platform,seen,seen);
+      VALUES(?,?,?,'source_listing_id','resolved',?,?,?,?,?,?,?,?,?,?,0,?,?,?,?,?,?,?,?,?,?,?,?,?,'warm',?,?,?)`).run(listingId,sourceKey,platform,lot,`TESTVIN00000000000${n}`,lot,'2022 Honda Civic','Honda','Civic',2022,'open','Oct 01, 2026 16:30','2099-10-05T10:00:00.000Z',1000*n,5000,'Seller','Front End','run_and_drive',1,'Salvage','Houston, TX','TX','77001',seen,seen,seen,'fingerprint-'+platform,seen,seen);
     sqlite.prepare(`INSERT INTO auction_listing_snapshots(listing_id,observed_at,auction_state,auction_at,current_bid_usd,fingerprint,normalizer_version) VALUES(?,?,'upcoming','2026-10-05T10:00:00.000Z',?,'snap-'+?,1)`).run(listingId,seen,1000*n,platform);
   }
   return {sqlite,d1};
@@ -58,11 +58,40 @@ test('/api/cars and /api/filters use known D1 data and disclose partial coverage
   assert.deepEqual(calls,[]);assert.equal(sqlite.prepare('SELECT COUNT(*) n FROM auction_listings').get().n,2);sqlite.close();
 });
 
-test('D1 catalog preserves the public Open, Buy Now, Timed and upcoming filter semantics',async()=>{
+test('D1-first catalog applies search and supported vehicle filters to known rows only',async()=>{
+  const {sqlite,d1}=setup(),env=envFor(d1),calls=[],delegate=providerDelegate(calls);
+  sqlite.prepare("UPDATE auction_listings SET run_state='run_and_drive',location_state='TX',body_style='Sedan' WHERE platform='copart'").run();
+  sqlite.prepare("UPDATE auction_listings SET run_state='not_running' WHERE platform='iaai'").run();
+  const cases=[
+    ['/api/cars?s=LOT-COPART',1],
+    ['/api/cars?search=Honda%20Civic',2],
+    ['/api/cars?loc_state=TX&run_cond=run_and_drive',1],
+    ['/api/cars?type=SUV',0],
+    ['/api/cars?price_min=9999',0]
+  ];
+  for(const [path,count] of cases){
+    const response=await handlePrimaryRead(request(path),env,null,delegate),body=await response.json();
+    assert.equal(response.status,200,path);assert.equal(body.data.length,count,path);
+    assert.equal(body.meta.catalog_complete,false,path);assert.equal(body.meta.known_rows_only,true,path);
+  }
+  assert.deepEqual(calls,[]);sqlite.close();
+});
+
+test('D1 listing returns only safe stored media URL references in the canonical DTO',async()=>{
+  const {sqlite,d1}=setup(),env=envFor(d1),calls=[],delegate=providerDelegate(calls);
+  sqlite.prepare("UPDATE auction_listings SET media_urls_json=?,media_thumbs_json=? WHERE platform='copart'")
+    .run(JSON.stringify(['https://images.example/copart.jpg','http://unsafe.example/no.jpg','javascript:alert(1)']),JSON.stringify(['https://images.example/copart-small.jpg']));
+  const response=await handlePrimaryRead(request('/api/car/LOT-COPART'),env,null,delegate),body=await response.json();
+  assert.equal(body.read_source,'d1');assert.deepEqual(body.data.media.items,['https://images.example/copart.jpg']);
+  assert.deepEqual(body.data.media.thumbs,['https://images.example/copart-small.jpg']);assert.deepEqual(calls,[]);sqlite.close();
+});
+
+test('D1 catalog preserves public filters when source_status is a formatted source label/date, not the canonical Open state',async()=>{
   const {sqlite,d1}=setup(),env=envFor(d1),calls=[],delegate=providerDelegate(calls);
   sqlite.prepare("UPDATE auction_listings SET is_timed=1 WHERE platform='iaai'").run();
   const cases=[
     ['/api/cars?lot_sub_status=Open',2],
+    ['/api/cars?lot_status=Open',2],
     ['/api/cars?lot_status=Buy%20Now',2],
     ['/api/cars?platform=iaai&lot_status=Timed',1],
     ['/api/cars?upcoming=only',2],
@@ -104,7 +133,7 @@ test('stale D1 detail becomes hybrid and fills nulls without erasing useful D1 f
 });
 
 test('D1 history separates observed snapshots from confirmed events and does not invent sale history',async()=>{
-  const {sqlite,d1}=setup(),env=envFor(d1),calls=[],delegate=providerDelegate(calls);
+  const {sqlite,d1}=setup(),env={...envFor(d1),REXBID_D1_HISTORY_MAX_AGE_MS:String(365*24*60*60*1000)},calls=[],delegate=providerDelegate(calls);
   let response=await handlePrimaryRead(request('/api/car/LOT-IAAI/history'),env,null,delegate),body=await response.json();
   assert.equal(response.status,200);assert.equal(body.read_source,'d1');assert.equal(body.rex_history.kind,'snapshots_only');
   assert.equal(body.rex_history.snapshots.length,1);assert.equal(body.rex_history.events.length,0);assert.deepEqual(body.history,[]);

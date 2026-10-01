@@ -1,5 +1,13 @@
 # Rex.Bid D1 Sync 2 — projekt architektury
 
+## Staging product milestone — offline preparation (2026-10-01)
+
+- Zmiany lokalne po checkpoint `32533d4`: D1 catalog search oraz advanced filter predicates trafiają do read repository; odpowiedzi nadal opisują wyłącznie known rows, gdy scope jest partial.
+- Przygotowana nowa kampania `campaign-product-milestone-32533d4`: trwały globalny limit 20 requestów wraz z limitami 10 per platformę. Każde uruchomienie jest ograniczone do 4 stron po 20 rekordów, retry=0. Globalny request jest rezerwowany atomowo w osobnym wierszu `provider_request_budgets`, więc równoległe Copart/IAAI runy nie mogą wspólnie przekroczyć cap.
+- Media: `migrations-staging/0005_listing_media_urls.sql` addytywnie dodaje URL-only columns. Canonical repository waliduje HTTPS, usuwa duplikaty i ogranicza liczbę/długość URL-i; raw provider JSON i binary image data nie są zapisywane. Istniejące wiersze pozostają z NULL do czasu aktualizacji canonical listing.
+- W tej pracy wykonano 0 requestów Apibara. Automated suite 290/290, składnia, config validator, generator `--check` i diff-check PASS. Podwyższony staging dry-run PASS i wykazał bindingi wyłącznie `rexbid-auth-test-db` + ASSETS. `wrangler whoami` wskazał wygasły token; brak staging migration/deploy/readback/backfill. Ostatni znany stan pozostaje historyczny 220 Copart + 80 IAAI, oba partial, niepotwierdzony świeżym odczytem.
+- Przed aktywacją: zastosować staging migration 0005 do `rexbid-auth-test-db`, wdrożyć wyłącznie staging, potwierdzić schema/counters, a dopiero potem użyć authenticated panelu. Produkcyjna konfiguracja, D1 i public API nie są zmieniane.
+
 ## Najnowszy stan multi-platform staging — 2026-10-01
 
 - Worker stagingowy `rexbid-auth-test` Version `5c887ebe-9477-47d1-92b6-5e36f638d40d` używa wyłącznie D1 `rexbid-auth-test-db` (`acb3cb8e-69a2-459f-8a46-0f2f5b9004be`). Odczyt nie zmienił danych (`rows_written=0`, `changed_db=false`).
@@ -494,3 +502,26 @@ Structured staging logs include safe route template, random request ID, `read_so
 ## Current D1 scope and production gates
 
 Starting data: 220 Copart and 80 IAAI sources/listings/snapshots; both scopes partial with separate cursors; zero events/entities; users/favorites 1/1; legacy tables empty. These 300 known rows are not the full catalog. Before production D1-first: complete/accepted scope for every advertised catalog segment (or product-approved explicit partial semantics), verified production schema/migration and backup/restore, freshness/cost budget, provider outage/fallback behavior, monitored rollback, and separately approved production migration/deploy. No production setting is enabled here.
+# Staging Product Milestone media/catalog addendum — final readback 2026-10-01
+
+Staging-only migration `migrations-staging/0005_listing_media_urls.sql` adds nullable `auction_listings.media_urls_json` and `media_thumbs_json`; values are validated HTTPS URL references only. Latest direct readback has 260 Copart + 120 IAAI listings/sources, 380 snapshots, 0 events/entities, users/favorites 1/1 and no duplicate source identities. Scopes remain partial with separate cursors. URLs and thumbnails are populated for 40 listings per platform (80 total); 300 older rows still have no stored media references. No binary media was downloaded or stored.
+
+The controlled UI backfill is a bounded authenticated staging operation. The latest owner-reported run advanced Copart 220→260 and IAAI 80→120 using four live discovery requests total, with 80 initial snapshots and no duplicates; no backfill was run in this final media QA pass. Discovery remains partial and no scope is represented as a complete market catalog.
+
+Real-browser catalog QA found and fixed a status mapping defect: `lot_sub_status=Open` must map to `auction_state`; the source's display `source_status` may be a date string and is filtered only when an explicit `source_status` query is supplied. The corrected UI returns known D1 rows while keeping scope metadata partial. Timed/upcoming sections can correctly be empty for this bounded sample.
+
+Media root cause: the adapter maps list record `media.items` and `media.thumbs` to the canonical Rex.Bid media shape; sync sanitizes HTTPS references; the D1 repository persists URL arrays; read repository and public DTO expose them to `car.html`. The real 80 populated rows verify this pipeline for records whose discovery summaries carry media. Original request bodies are not retained, so retrospective inspection of the exact raw records is impossible. The prior `rawOrMediaStored=false` flag only meant no raw payload or binary image was stored; it was an ambiguous diagnostic that incorrectly suggested URL arrays were absent. It is replaced by independent raw-payload, binary-media, and persisted-URL counters.
+
+Real-browser QA loaded fresh media-bearing D1 detail records. Initial Copart rendering exposed a gallery normalization bug: 13 canonical full URLs plus 13 matching thumbnails were counted as 26 images. IAAI showed 17 because its imageKeys permit URL-variant deduplication. `public/rexbid-media.js` now pairs canonical parallel URL/thumb arrays so a thumbnail is a rendition of the same image, not an extra photo; focused behavioral tests cover paired arrays, missing thumbs, HTTPS-only filtering, IAAI identity deduplication, and integration with the real `car.html`. Post-fix staging browser verification remains pending.
+
+Home loaded known D1 cards with the partial badge. A narrow mobile-style viewport had no observed horizontal overflow. Catalog showed vehicle thumbnails but exact sampled card→media-bearing-row correlation is unverified. Desktop viewport, console/Network, and exact fallback-call count remain NOT VERIFIED. No discovery, backfill, or media enrichment request was initiated during this pass. Fresh rows used for gallery QA were within the D1 detail freshness threshold; no provider fallback is required for their stored media.
+
+The 300 rows without media URLs were not enriched. Any later media enrichment must be a separate bounded detail-read operation with per-platform request caps, durable progress, no automatic unlimited retries, and URL-only persistence. Never archive original binary photos. Migration/readbacks did not touch production.
+
+## Final media/gallery verification — 2026-10-01
+
+The pending browser verification above is complete. Final staging Worker Version is `d86cef66-7683-42d6-8c75-32566f828a81`. Direct staging SELECT confirms Copart 260 + IAAI 120 sources/listings, 380 snapshots, 0 events/entities, 80 URL-populated rows and 80 thumb-populated rows (40 per platform), no duplicate provider/platform/provider-vehicle IDs, and Accounts 1/1. The read changed no rows. Both scopes remain partial with separate cursors.
+
+Copart LOT 73650295 rendered 13 unique images; IAAI LOT 44803631 rendered 17. The client treats canonical `media.items` as authoritative and pairs `media.thumbs` by index. Real-browser testing found and fixed an additional extraction regression: `car.html` still needed the shared HTTPS URL predicate for video/360 and source navigation; this now comes from `RexBidMedia.isHttpUrl`. Mobile 375px and desktop 1350×900 viewports had no horizontal overflow; guest favorite add/remove, next image and lightbox open/close passed.
+
+No discovery/backfill/detail enrichment was intentionally run (0 Apibara requests in this pass). The 300 older records without URL refs remain unchanged. Home/catalog and fresh detail readbacks used known D1 rows; exact automatic provider fallback count and browser console/Network capture are NOT VERIFIED. Full suite 299/299 plus generator/config/syntax/diff checks pass. Production was not touched.

@@ -95,7 +95,7 @@ test('canonical discovery page Apibara-shaped → actual repository D1 schema, r
   assert.equal(row.current_bid_usd,4100);assert.equal(row.platform,'copart');assert.equal(row.seller_name,'Synthetic Seller');
   assert.equal(Number(sqlite.prepare('SELECT COUNT(*) n FROM auction_listings').get().n),1);
   const cols=sqlite.prepare('PRAGMA table_info(auction_listings)').all().map(x=>x.name);
-  assert.equal(cols.some(name=>/raw|media_items|media_thumbs|image_url/i.test(name)),false);
+  assert.equal(cols.some(name=>/raw_payload|raw_json|media_items|photo_binary|image_binary|binary/i.test(name)),false);
   assert.equal(Number(sqlite.prepare('SELECT COUNT(*) n FROM users').get().n),1);
   assert.equal(Number(sqlite.prepare('SELECT COUNT(*) n FROM user_favorites').get().n),1);
   sqlite.close();

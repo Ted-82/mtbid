@@ -12,13 +12,14 @@ const PLATFORMS=Object.freeze({
   iaai:Object.freeze({scopeKey:"rexbid-phase-g:persistent-discovery:iaai",label:"IAAI"})
 });
 const PAGE_SIZE=20;
-const MAX_PAGES_PER_RUN=2;
-const DEFAULT_PAGES_PER_RUN=2;
-const PER_PLATFORM_LIMIT=6;
-const TOTAL_CAMPAIGN_LIMIT=12;
+const MAX_PAGES_PER_RUN=4;
+const DEFAULT_PAGES_PER_RUN=4;
+const PER_PLATFORM_LIMIT=10;
+const TOTAL_CAMPAIGN_LIMIT=20;
 const BUDGET_PROVIDER="apibara-phase-g-multiplatform";
-const CAMPAIGN="campaign-multiplatform-4c4e938";
+const CAMPAIGN="campaign-product-milestone-32533d4";
 function budgetKey(platform){return `${CAMPAIGN}-${platform}`;}
+function campaignBudgetKey(){return `${CAMPAIGN}-all-platforms`;}
 
 function json(data,status=200,id=null,extraHeaders=[]){
   const headers=new Headers({"Content-Type":"application/json; charset=UTF-8","Cache-Control":"private, no-store","Pragma":"no-cache","X-Robots-Tag":"noindex, nofollow, noarchive","Referrer-Policy":"no-referrer"});
@@ -29,6 +30,8 @@ function json(data,status=200,id=null,extraHeaders=[]){
 function safeCode(error){return /^[a-z0-9_]{1,64}$/.test(String(error?.safeCode||""))?error.safeCode:"phase_g_failed";}
 async function getBudget(db,platform){return db.prepare(`SELECT normal_limit,normal_consumed,normal_reserved,retry_limit,retry_consumed,retry_reserved
   FROM provider_request_budgets WHERE provider=? AND budget_day=?`).bind(BUDGET_PROVIDER,budgetKey(platform)).first();}
+async function getCampaignBudget(db){return db.prepare(`SELECT normal_limit,normal_consumed,normal_reserved,retry_limit,retry_consumed,retry_reserved
+  FROM provider_request_budgets WHERE provider=? AND budget_day=?`).bind(BUDGET_PROVIDER,campaignBudgetKey()).first();}
 
 async function readPlatformStatus(db,platform,now=Date.now(),staleAfterMs=86_400_000){
   const config=PLATFORMS[platform];
@@ -61,8 +64,8 @@ async function readPlatformStatus(db,platform,now=Date.now(),staleAfterMs=86_400
     db.prepare("SELECT COUNT(*) AS count FROM auction_listing_snapshots s JOIN auction_listings l ON l.listing_id=s.listing_id WHERE l.platform=?").bind(platform).first(),
     db.prepare("SELECT COUNT(*) AS count FROM auction_events WHERE platform=?").bind(platform).first()
   ]);
-  const platformBudgets=await Promise.all(Object.keys(PLATFORMS).map(key=>getBudget(db,key)));
-  const campaignConsumed=platformBudgets.reduce((n,row)=>n+Number(row?.normal_consumed||0)+Number(row?.normal_reserved||0),0);
+  const campaignBudget=await getCampaignBudget(db);
+  const campaignConsumed=Number(campaignBudget?.normal_consumed||0)+Number(campaignBudget?.normal_reserved||0);
   const ownConsumed=Number(budget?.normal_consumed||0)+Number(budget?.normal_reserved||0);
   const readRepo=new D1ReadRepository(db,{now:()=>now});
   const readLatency={unit:"ms",sampled_at:new Date(now).toISOString()};
@@ -80,7 +83,7 @@ async function readPlatformStatus(db,platform,now=Date.now(),staleAfterMs=86_400
     last_attempt_at:scope?.last_attempt_at||null,last_success_at:scope?.last_success_at||null,last_complete_at:scope?.last_complete_at||null,
     catalog_complete:scope?.status==="complete"&&!scope?.cursor,
     budget:{limit:PER_PLATFORM_LIMIT,consumed:ownConsumed,reserved:Number(budget?.normal_reserved||0),retry_limit:0,retry_consumed:0},
-    campaign_budget:{limit:TOTAL_CAMPAIGN_LIMIT,consumed:campaignConsumed,reserved:platformBudgets.reduce((n,row)=>n+Number(row?.normal_reserved||0),0)},
+    campaign_budget:{limit:TOTAL_CAMPAIGN_LIMIT,consumed:campaignConsumed,reserved:Number(campaignBudget?.normal_reserved||0)},
     coverage:{...counts,sources:Number(sources?.count||0),unique_sources:Number(sources?.unique_count||0),
       snapshots:Number(snapshots?.count||0),events:Number(events?.count||0),auction_statuses:facets.results||[],
       metadata_complete:scope?.status==="complete"&&!scope?.cursor},
@@ -94,8 +97,9 @@ async function runPlatformBackfill({db,env,requestId,platform,maxPages=DEFAULT_P
   const result={ok:false,stage:"preflight",requestId,platform,pageSize:PAGE_SIZE,pagesRequested:maxPages,pagesProcessed:0,
     liveRequests:0,maxLiveRequests:PER_PLATFORM_LIMIT,totalCampaignLimit:TOTAL_CAMPAIGN_LIMIT,providerRecords:0,accepted:0,
     rejected:0,ambiguous:0,inserts:0,updates:0,duplicates:0,snapshotsCreated:0,eventsCreated:0,replayVerified:true,
-    readback:true,rawOrMediaStored:false,stopReason:null,elapsedMs:0};
-  const repo=new D1SyncRepository(db);let lease=null;let runId=null;
+    readback:true,rawPayloadStored:false,binaryMediaStored:false,mediaListingsPersisted:0,mediaUrlReferencesPersisted:0,
+    stopReason:null,elapsedMs:0};
+  const repo=new D1SyncRepository(db);let lease=null;let runId=null;const mediaListingIds=new Set();
   try{
     if(!config)throw Object.assign(new Error(),{safeCode:"invalid_platform"});
     if(!Number.isInteger(maxPages)||maxPages<1||maxPages>MAX_PAGES_PER_RUN)throw Object.assign(new Error(),{safeCode:"invalid_page_limit"});
@@ -121,25 +125,36 @@ async function runPlatformBackfill({db,env,requestId,platform,maxPages=DEFAULT_P
     await repo.initializeBudget({provider:BUDGET_PROVIDER,budgetDay:campaignBudgetDay,normalLimit:PER_PLATFORM_LIMIT,retryLimit:0,now:start});
     await db.prepare(`UPDATE provider_request_budgets SET normal_limit=MIN(normal_limit,?),retry_limit=0,updated_at=? WHERE provider=? AND budget_day=?`)
       .bind(PER_PLATFORM_LIMIT,new Date(start).toISOString(),BUDGET_PROVIDER,campaignBudgetDay).run();
+    const sharedBudgetDay=campaignBudgetKey();
+    await repo.initializeBudget({provider:BUDGET_PROVIDER,budgetDay:sharedBudgetDay,normalLimit:TOTAL_CAMPAIGN_LIMIT,retryLimit:0,now:start});
+    await db.prepare(`UPDATE provider_request_budgets SET normal_limit=MIN(normal_limit,?),retry_limit=0,updated_at=? WHERE provider=? AND budget_day=?`)
+      .bind(TOTAL_CAMPAIGN_LIMIT,new Date(start).toISOString(),BUDGET_PROVIDER,sharedBudgetDay).run();
     scope=await repo.getScope(config.scopeKey);
     let cursor=scope.cursor??null;
     const seenCursors=new Set([cursor===null?"<first>":String(cursor)]);
     for(let pageNo=0;pageNo<maxPages;pageNo+=1){
       const budget=await getBudget(db,platform);
-      const total=await Promise.all(Object.keys(PLATFORMS).map(key=>getBudget(db,key)));
-      const totalUsed=total.reduce((n,row)=>n+Number(row?.normal_consumed||0)+Number(row?.normal_reserved||0),0);
+      const total=await getCampaignBudget(db);
+      const totalUsed=Number(total?.normal_consumed||0)+Number(total?.normal_reserved||0);
       if(totalUsed>=TOTAL_CAMPAIGN_LIMIT||!budget||Number(budget.normal_consumed)+Number(budget.normal_reserved)>=PER_PLATFORM_LIMIT){result.stopReason="request_budget_exhausted";break;}
       const reservationId=`phase-g-${platform}-${requestId}-${pageNo+1}`;
+      const campaignReservationId=`${reservationId}-campaign`;
       result.stage="budget_reserve";
+      const campaignReserve=await repo.reserveBudget({reservationId:campaignReservationId,provider:BUDGET_PROVIDER,budgetDay:sharedBudgetDay,bucket:"normal",count:1,now:now()});
+      if(!campaignReserve.allowed){result.stopReason="request_budget_exhausted";break;}
       const reserve=await repo.reserveBudget({reservationId,provider:BUDGET_PROVIDER,budgetDay:campaignBudgetDay,bucket:"normal",count:1,now:now()});
-      if(!reserve.allowed||!await repo.startBudgetReservation({reservationId,now:now()})){result.stopReason="request_budget_exhausted";break;}
+      if(!reserve.allowed){await repo.cancelBudgetReservation({reservationId:campaignReservationId,now:now()});result.stopReason="request_budget_exhausted";break;}
+      if(!await repo.startBudgetReservation({reservationId:campaignReservationId,now:now()})){
+        await repo.cancelBudgetReservation({reservationId,now:now()});result.stopReason="request_budget_exhausted";break;
+      }
+      if(!await repo.startBudgetReservation({reservationId,now:now()})){result.stopReason="request_budget_exhausted";break;}
       result.stage="provider_discovery";
       const fetchStarted=now();result.liveRequests+=1;
       await db.prepare("UPDATE sync_runs SET upstream_requests=upstream_requests+1 WHERE run_id=? AND status='running'").bind(runId).run();
       let upstream;
       try{upstream=await provider.listVehicles(env,{platform,per_page:PAGE_SIZE,...(cursor!==null?{cursor}:{})});}
-      catch(error){await repo.finishBudgetReservation({reservationId,now:now()});throw Object.assign(new Error(),{safeCode:error?.code==="RATE_LIMITED"?"provider_rate_limited":error?.code==="TIMEOUT"?"provider_timeout":error?.status>=500?"provider_5xx":"provider_unavailable"});}
-      const fetchedAt=now();await repo.finishBudgetReservation({reservationId,now:fetchedAt});
+      catch(error){await repo.finishBudgetReservation({reservationId,now:now()});await repo.finishBudgetReservation({reservationId:campaignReservationId,now:now()});throw Object.assign(new Error(),{safeCode:error?.code==="RATE_LIMITED"?"provider_rate_limited":error?.code==="TIMEOUT"?"provider_timeout":error?.status>=500?"provider_5xx":"provider_unavailable"});}
+      const fetchedAt=now();await repo.finishBudgetReservation({reservationId,now:fetchedAt});await repo.finishBudgetReservation({reservationId:campaignReservationId,now:fetchedAt});
       result.providerLatencyMs=(result.providerLatencyMs||0)+Math.max(0,fetchedAt-fetchStarted);
       result.stage="canonicalize";
       const page=canonicalizeDiscoveryPage({provider,response:upstream,scopeKey:config.scopeKey,platform,cursor,now:fetchedAt,freshnessPolicy:freshnessPolicyFromEnv(env)});
@@ -162,7 +177,17 @@ async function runPlatformBackfill({db,env,requestId,platform,maxPages=DEFAULT_P
       result.snapshotsCreated+=Math.max(0,Number((await db.prepare("SELECT COUNT(*) AS n FROM auction_listing_snapshots s JOIN auction_listings l ON l.listing_id=s.listing_id WHERE l.platform=?").bind(platform).first())?.n||0)-beforeSnapshots);
       result.replayVerified=result.replayVerified&&replay.replayed;
       const readRepo=new D1ReadRepository(db);
-      for(const record of unique){const saved=await readRepo.getListingById(record.identity.listingId);if(!saved||saved.vehicle.platform!==platform||saved.vehicle.provider!=="apibara")result.readback=false;}
+      for(const record of unique){
+        const saved=await readRepo.getListingById(record.identity.listingId);
+        if(!saved||saved.vehicle.platform!==platform||saved.vehicle.provider!=="apibara")result.readback=false;
+        else {
+          const media=saved.vehicle.media||{};
+          const references=[...(Array.isArray(media.items)?media.items:[]),...(Array.isArray(media.thumbs)?media.thumbs:[])];
+          if(references.length&&!mediaListingIds.has(record.identity.listingId)){
+            mediaListingIds.add(record.identity.listingId);result.mediaListingsPersisted+=1;result.mediaUrlReferencesPersisted+=references.length;
+          }
+        }
+      }
       if(!result.readback)throw Object.assign(new Error(),{safeCode:"d1_readback_mismatch"});
       cursor=page.nextCursor??null;result.nextCursorPresent=cursor!==null;result.scopeComplete=Boolean(persisted.complete);
       if(persisted.complete){lease=null;result.stopReason="scope_complete";break;}
@@ -186,9 +211,33 @@ async function runPlatformBackfill({db,env,requestId,platform,maxPages=DEFAULT_P
   }finally{
     result.elapsedMs=Math.max(0,now()-started);
     try{result.platformBudget=await getBudget(db,platform);}catch{}
-    try{const budgets=await Promise.all(Object.keys(PLATFORMS).map(key=>getBudget(db,key)));result.campaignBudget={limit:TOTAL_CAMPAIGN_LIMIT,consumed:budgets.reduce((n,row)=>n+Number(row?.normal_consumed||0),0),reserved:budgets.reduce((n,row)=>n+Number(row?.normal_reserved||0),0),retryLimit:0};}catch{}
+    try{const budget=await getCampaignBudget(db);result.campaignBudget={limit:TOTAL_CAMPAIGN_LIMIT,consumed:Number(budget?.normal_consumed||0),reserved:Number(budget?.normal_reserved||0),retryLimit:0};}catch{}
   }
   return result;
+}
+
+// Single authenticated operator action: at most two pages per platform (four provider
+// calls total), with a failure on the first platform stopping the second. The persisted
+// per-platform and shared campaign budgets remain the final hard guard.
+async function runProductMilestoneBackfill({db,env,requestId,now=()=>Date.now(),provider=createApibaraProvider()}){
+  const platforms=[];let liveRequests=0,stoppedOnError=false;
+  for(const platform of ["copart","iaai"]){
+    const config=PLATFORMS[platform];
+    let scope=null;
+    try{scope=await new D1SyncRepository(db).getScope(config.scopeKey);}catch{}
+    if(scope?.status==="complete"&&scope.cursor==null){
+      platforms.push({ok:true,stage:"complete",requestId:`${requestId}-${platform}`,platform,liveRequests:0,pagesProcessed:0,stopReason:"scope_complete",scopeStatus:"complete",nextCursorPresent:false});
+      continue;
+    }
+    const result=await runPlatformBackfill({db,env,requestId:`${requestId}-${platform}`,platform,maxPages:2,now,provider});
+    platforms.push(result);liveRequests+=Number(result.liveRequests||0);
+    if(!result.ok){stoppedOnError=true;break;}
+  }
+  let campaignBudget=null;
+  try{const budget=await getCampaignBudget(db);campaignBudget={limit:TOTAL_CAMPAIGN_LIMIT,consumed:Number(budget?.normal_consumed||0),reserved:Number(budget?.normal_reserved||0),retryLimit:0};}catch{}
+  return {ok:!stoppedOnError,stage:stoppedOnError?"stopped_on_error":"complete",requestId,liveRequests,maxLiveRequests:4,
+    pagesPerPlatform:2,totalCampaignLimit:TOTAL_CAMPAIGN_LIMIT,platformLimit:PER_PLATFORM_LIMIT,platforms,
+    campaignBudget,stopReason:stoppedOnError?"platform_run_failed":platforms.some(item=>item.stopReason==="request_budget_exhausted")?"request_budget_exhausted":null};
 }
 
 async function authorized(request,env,executionContext,dispatch,url){
@@ -207,8 +256,11 @@ async function authorized(request,env,executionContext,dispatch,url){
 }
 async function handlePhaseGRequest(request,env,executionContext,dispatch,provider=createApibaraProvider()){
   const url=new URL(request.url);
-  if(url.pathname!=="/__staging/d1-sync-multiplatform"&&url.pathname!=="/__staging/d1-sync-multiplatform/status")return null;
-  const requestId=crypto.randomUUID(),statusRoute=url.pathname.endsWith("/status");
+  const individualRoute=url.pathname==="/__staging/d1-sync-multiplatform";
+  const milestoneRoute=url.pathname==="/__staging/d1-sync-product-milestone";
+  const statusRoute=url.pathname==="/__staging/d1-sync-multiplatform/status";
+  if(!individualRoute&&!milestoneRoute&&!statusRoute)return null;
+  const requestId=crypto.randomUUID();
   const session=await authorized(request,env,executionContext,dispatch,url);
   if(!session)return json({ok:false,error:"not_found_or_unauthorized"},404,requestId);
   if(statusRoute){if(request.method!=="GET")return json({ok:false,error:"method_not_allowed"},405,requestId);}
@@ -216,9 +268,16 @@ async function handlePhaseGRequest(request,env,executionContext,dispatch,provide
   const db=env?.REXBID_DB;if(!db||typeof db.prepare!=="function"||typeof db.batch!=="function")return json({ok:false,error:"database_unavailable"},503,requestId);
   if(statusRoute){
     const now=Date.now(),staleAfterMs=Number(env?.REXBID_SYNC_SCOPE_STALE_AFTER_MS||86_400_000);const platforms={};for(const platform of Object.keys(PLATFORMS))platforms[platform]=await readPlatformStatus(db,platform,now,staleAfterMs);
-    return json({ok:true,requestId,platforms,campaign_budget:{limit:TOTAL_CAMPAIGN_LIMIT,consumed:Object.values(platforms).reduce((n,p)=>n+p.budget.consumed,0),reserved:Object.values(platforms).reduce((n,p)=>n+p.budget.reserved,0)}},200,requestId,session.setCookies);
+    const campaignBudget=await getCampaignBudget(db);
+    return json({ok:true,requestId,platforms,campaign_budget:{limit:TOTAL_CAMPAIGN_LIMIT,consumed:Number(campaignBudget?.normal_consumed||0),reserved:Number(campaignBudget?.normal_reserved||0)}},200,requestId,session.setCookies);
   }
   let body;try{body=await request.json();}catch{return json({ok:false,error:"invalid_request"},400,requestId);}
+  if(milestoneRoute){
+    if(!body||typeof body!=="object"||Array.isArray(body)||Object.keys(body).length!==0)return json({ok:false,error:"invalid_request"},400,requestId,session.setCookies);
+    const result=await runProductMilestoneBackfill({db,env,requestId,provider});
+    console.info("Rex.Bid staging product milestone",JSON.stringify({request_id:requestId,operation:"bounded_discovery",stage:result.stage,http_status:result.ok?200:503,live_requests:result.liveRequests,platforms:result.platforms.map(item=>({platform:item.platform,stage:item.stage,live_requests:item.liveRequests,pages:item.pagesProcessed,scope_status:item.scopeStatus,error_code:item.error||null})),campaign_budget:result.campaignBudget}));
+    return json(result,result.ok?200:503,requestId,session.setCookies);
+  }
   if(!body||typeof body!=="object"||Array.isArray(body)||Object.keys(body).some(key=>!["platform","max_pages"].includes(key))
     ||!Object.prototype.hasOwnProperty.call(PLATFORMS,String(body.platform))||(body.max_pages!==undefined&&(!Number.isInteger(body.max_pages)||body.max_pages<1||body.max_pages>MAX_PAGES_PER_RUN)))return json({ok:false,error:"invalid_request"},400,requestId,session.setCookies);
   const result=await runPlatformBackfill({db,env,requestId,platform:body.platform,maxPages:body.max_pages??DEFAULT_PAGES_PER_RUN,provider});
@@ -226,4 +285,4 @@ async function handlePhaseGRequest(request,env,executionContext,dispatch,provide
   return json(result,result.ok?200:503,requestId,session.setCookies);
 }
 
-module.exports={STAGING_HOST,PLATFORMS,PAGE_SIZE,MAX_PAGES_PER_RUN,DEFAULT_PAGES_PER_RUN,PER_PLATFORM_LIMIT,TOTAL_CAMPAIGN_LIMIT,BUDGET_PROVIDER,CAMPAIGN,budgetKey,readPlatformStatus,runPlatformBackfill,handlePhaseGRequest};
+module.exports={STAGING_HOST,PLATFORMS,PAGE_SIZE,MAX_PAGES_PER_RUN,DEFAULT_PAGES_PER_RUN,PER_PLATFORM_LIMIT,TOTAL_CAMPAIGN_LIMIT,BUDGET_PROVIDER,CAMPAIGN,budgetKey,campaignBudgetKey,readPlatformStatus,runPlatformBackfill,runProductMilestoneBackfill,handlePhaseGRequest};

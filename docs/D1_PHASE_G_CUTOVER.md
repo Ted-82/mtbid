@@ -1,5 +1,13 @@
 # D1 Sync 2 — Phase G staging cutover gates
 
+## Staging product milestone prep — 2026-10-01
+
+- Offline code now maps catalog text search (VIN/LOT/title/make/model) and supported advanced filter parameters into the D1 repository. Tests require D1-only list requests not to call the provider; partial metadata remains known-rows-only.
+- Media URL support requires the staging-only additive migration `migrations-staging/0005_listing_media_urls.sql` before deploying the updated writer. It stores validated HTTPS URL references only; no raw payload or binary media.
+- Product-milestone backfill cap: 20 requests total, 10 per platform, maximum 4 pages per run at page size 20, retries disabled. A durable shared budget reservation and independent platform reservations protect the global cap under concurrent runners.
+- **Local/offline preparation only:** 290/290 tests, syntax, config validator, rate generator and diff-check pass. Elevated staging dry-run PASS, with only the staging D1 and assets bindings. No migration/deploy or Apibara request occurred because Wrangler authentication expired. Last historical counts remain Copart 220 / IAAI 80, both partial; direct readback is required before any live run.
+- After reauthentication: confirm exact staging account/config/binding, apply only staging 0005, dry-run and deploy only `wrangler.staging.jsonc`, verify D1 schema and counters, then use the authenticated staging panel. Do not start the panel before migration and deployed version are verified.
+
 ## Controlled partial staging mode addendum — 2026-10-01
 
 The older gate text below describes a full-catalog cutover and remains the production/full-catalog gate. This addendum authorizes a **staging-only, explicitly partial** public API experiment: partial scopes may serve only known D1 listing rows and known-row filter values when every response says `catalog_complete=false` / `metadata_complete=false`; it must never advertise a full inventory or market-complete filters.
@@ -65,3 +73,24 @@ This result supersedes the earlier status/count notes above for the current chec
 - Browser verified Home/catalog and IAAI detail with the partial badge; no visual error was present. DevTools console/network panels were unavailable to the current browser-control surface.
 - **Recommendation:** ready for extended staging D1-first testing over known partial rows. The production/full-catalog gate remains closed until coverage and production operational requirements are met.
 - Automated: **285/285 PASS**, CJS syntax checks pass, partner generator check passes, staging Wrangler dry-run passes, and `git -c core.whitespace=cr-at-eol diff --check` passes.
+# Product Milestone staging addendum — final media QA 2026-10-01
+
+Latest staging deployment: `rexbid-auth-test` Version `4ed7d98b-7ab9-41db-9f15-3f1e463b45dc`, bound only to `rexbid-auth-test-db` ID `acb3cb8e-69a2-459f-8a46-0f2f5b9004be`. Staging migration 0005 is applied there only. Production remains on its existing provider-backed configuration.
+
+The real-browser “Aktualne” empty-state defect was caused by filtering `source_status` (which is date-shaped in stored rows) as though it were the canonical auction status. The staging D1 adapter now maps `lot_sub_status` only to `auction_state`. Regression test and real UI verification pass; 20 known open rows are shown without claiming complete market coverage.
+
+Latest direct readback: Copart 260 and IAAI 120 listings/sources, 380 snapshots, 0 events/entities, users/favorites 1/1, 0 duplicate source identities. Both scopes remain partial with cursors. URL/thumb fields are populated for 40 listings per platform (80 total); 300 older rows remain without URLs and were not enriched in this pass. No discovery/backfill/media-enrichment calls were initiated during final QA. Original binary images remain unarchived.
+
+Media path verified on fresh D1 records in the real browser. Initial Copart gallery showed 26 entries for 13 full URLs + 13 matching thumbs, exposing that the previous gallery normalizer treated thumbnail renditions as additional images. IAAI gallery showed 17 entries because its imageKeys permit deduplication. A shared normalizer now pairs URL/thumb arrays; its behavioral test passes, and post-fix staging verification is pending. Diagnostic `rawOrMediaStored=false` was ambiguous: it meant no raw provider payload or binary image storage, not absence of media URL references. The local runner now reports raw payload, binary media, and stored URL counters separately. Raw discovery bodies are not retained, so the exact historical body for each record cannot be inspected.
+
+NOT VERIFIED: desktop browser viewport, browser console/Network inspection and exact provider fallback-call count. A catalog listing card showed a vehicle image in the narrow mobile-style viewport; no broken thumbnail was observed. The older 300 rows with no URL references need separately bounded enrichment only if broader gallery coverage is an accepted goal. Production remains untouched. `node --test` passes 294/294; partner generator/config validator/syntax/diff checks pass. No discovery/backfill was run in this pass; browser-triggered fallback count was not instrumented.
+
+## Final Product Milestone gallery QA — 2026-10-01 (supersedes pending status above)
+
+Final staging deployment: `rexbid-auth-test` Version `d86cef66-7683-42d6-8c75-32566f828a81`; D1 only `rexbid-auth-test-db` (`acb3cb8e-69a2-459f-8a46-0f2f5b9004be`). Production `mtbid`/`rexbid-db` unchanged.
+
+Read-only D1 state: 260 Copart + 120 IAAI listings/sources; 380 snapshots; events/entities 0; media URL and thumb arrays on 80 listings total (40 per platform); duplicate provider IDs 0; Accounts rows 1/1. Both scopes remain partial and results mean known rows only. 300 rows without media refs were not enriched.
+
+Real browser: Copart LOT 73650295 has 13 images after pairing full/thumb variants; IAAI LOT 44803631 has 17. Home/catalog images load from known D1 rows; IAAI navigation/lightbox and temporary guest favorite add/remove pass. Desktop 1350×900 and mobile 375px show no horizontal overflow. Calculator V3 keeps missing charges incomplete. Timed Auction is empty in this bounded sample. Authenticated cloud favorites were not retested.
+
+No discovery/backfill/detail-enrichment request was intentionally made (0 Apibara requests this pass). Exact automatic fallback count and DevTools console/Network remain NOT VERIFIED. `node --test` 299/299, rates generator/config validator/syntax/diff checks PASS. No production deploy or migration.

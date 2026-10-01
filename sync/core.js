@@ -211,6 +211,32 @@ function mergeCanonical(previous, patch, options = {}) {
   return { value, missingFields: [...new Set(missingFields)], nullFields: [...new Set(nullFields)], updatedFields: [...new Set(updatedFields)], clearedFields: [...new Set(clearedFields)] };
 }
 
+function safeMediaReferences(items, kind = "image") {
+  if (!Array.isArray(items)) return [];
+  const output = [];
+  const seen = new Set();
+  for (const item of items) {
+    const candidates = typeof item === "string" ? [item] : item && typeof item === "object"
+      ? kind === "thumb" ? [item.thumb, item.small, item.url, item.src, item.image]
+        : [item.large, item.url, item.src, item.medium, item.image, item.thumb]
+      : [];
+    for (const candidate of candidates) {
+      if (typeof candidate !== "string" || candidate.length > 2048) continue;
+      try {
+        const url = new URL(candidate.trim());
+        if (url.protocol !== "https:" || !url.hostname || url.username || url.password) continue;
+        const normalized = url.toString();
+        if (seen.has(normalized)) continue;
+        seen.add(normalized);
+        output.push(normalized);
+        break;
+      } catch {}
+    }
+    if (output.length >= 24) break;
+  }
+  return output;
+}
+
 function withoutNonPersistentData(value, path = []) {
   if (Array.isArray(value)) return value.map(item => withoutNonPersistentData(item, path));
   if (!value || typeof value !== "object") return value;
@@ -218,10 +244,14 @@ function withoutNonPersistentData(value, path = []) {
   for (const [key, child] of Object.entries(value)) {
     const childPath = [...path, key];
     const pathName = childPath.join(".");
-    if (["raw_payload", "raw_json", "raw", "media.items", "media.thumbs"].includes(pathName)) continue;
+    if (["raw_payload", "raw_json", "raw"].includes(pathName)) continue;
+    if (pathName === "media.items") { result[key] = safeMediaReferences(child, "image"); continue; }
+    if (pathName === "media.thumbs") { result[key] = safeMediaReferences(child, "thumb"); continue; }
     result[key] = withoutNonPersistentData(child, childPath);
   }
-  if (result.media) result.media = { ...result.media, items: [], thumbs: [] };
+  if (result.media) result.media = { ...result.media,
+    items: safeMediaReferences(result.media.items, "image"),
+    thumbs: safeMediaReferences(result.media.thumbs, "thumb") };
   return result;
 }
 
@@ -377,6 +407,7 @@ module.exports = {
   createSyncIdentity,
   createHistoryEventIdentity,
   mergeCanonical,
+  safeMediaReferences,
   withoutNonPersistentData,
   InMemorySyncRepository
 };
