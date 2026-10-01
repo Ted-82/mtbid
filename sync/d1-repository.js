@@ -457,14 +457,14 @@ class D1SyncRepository {
     batch.push(this.db.prepare(`UPDATE provider_sync_scopes SET cursor=?,cursor_updated_at=?,status=?,
       last_attempt_at=?,last_error_code=NULL,
       last_complete_at=CASE WHEN ?=1 THEN ? ELSE last_complete_at END,
-      last_success_at=CASE WHEN ?=1 THEN ? ELSE last_success_at END,
+      last_success_at=?,
       consecutive_failures=CASE WHEN ?=1 THEN 0 ELSE consecutive_failures END,
       lease_owner=CASE WHEN ?=1 THEN NULL ELSE lease_owner END,
       lease_token=CASE WHEN ?=1 THEN NULL ELSE lease_token END,
       lease_expires_at=CASE WHEN ?=1 THEN NULL ELSE lease_expires_at END,updated_at=?
       WHERE scope_key=? AND lease_owner=? AND lease_token=?`)
       .bind(nextCursor ?? null, nowIso, complete ? "complete" : "partial", nowIso,
-        Number(complete), nowIso, Number(complete), nowIso, Number(complete), Number(complete),
+        Number(complete), nowIso, nowIso, Number(complete), Number(complete),
         Number(complete), Number(complete), nowIso, scopeKey, owner, token));
     const recordsReceived = Number.isSafeInteger(input.recordsReceived) && input.recordsReceived >= 0 ? input.recordsReceived : prepared.length;
     const recordsInserted = Number.isSafeInteger(input.recordsInserted) && input.recordsInserted >= 0 ? input.recordsInserted : 0;

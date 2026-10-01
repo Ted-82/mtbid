@@ -44,8 +44,8 @@ test("Worker live/config files keep production and staging bindings isolated and
   assert.equal(result.staging.prototype_enabled, false);
   const productionConfig = JSON.parse(fs.readFileSync(path.join(ROOT, "wrangler.jsonc"), "utf8"));
   const stagingConfig = JSON.parse(fs.readFileSync(path.join(ROOT, "wrangler.staging.jsonc"), "utf8"));
-  assert.notEqual(productionConfig.vars?.REXBID_PHASE_G_PREP_BACKFILL, "enabled", "Phase G preparation runner must remain unavailable in production");
-  assert.equal(stagingConfig.vars?.REXBID_PHASE_G_PREP_BACKFILL, "enabled", "manual continuation is explicitly enabled only on isolated staging");
+  assert.notEqual(productionConfig.vars?.REXBID_PHASE_G_MULTIPLATFORM, "enabled", "Phase G runner must remain unavailable in production");
+  assert.equal(stagingConfig.vars?.REXBID_PHASE_G_MULTIPLATFORM, "enabled", "multi-platform continuation is explicitly enabled only on isolated staging");
   for (const configName of ["wrangler.jsonc", "wrangler.staging.jsonc"]) {
     const config = JSON.parse(fs.readFileSync(path.join(ROOT, configName), "utf8"));
     for (const route of ["/", "/car*", "/*.html", "/konto", "/ulubione", "/logowanie", "/rejestracja", "/reset-hasla", "/robots.txt", "/sitemap.xml", "/rexbid-door-estimator.js", "/rexbid-door-estimator-rates.js", "/rexbid-transport-rates.js", "/rexbid-transport-engine.js", "/rexbid-calculator-v3-rates.js"]) {
@@ -175,16 +175,14 @@ test("staging wrapper applies noindex to every response and serves blocking robo
     .replace('import rexWorker from "./worker.js";', "const rexWorker = globalThis.__baseWorker;")
     .replace('import authTestHtml from "./staging/auth-test-page.js";', 'const authTestHtml = "<!doctype html><html><head><title>Auth test</title></head><body>test</body></html>";')
     .replace('import requestCorrelation from "./staging/request-correlation.cjs";', "const requestCorrelation = globalThis.__correlation;")
-    .replace('import phaseD from "./staging/phase-d-discovery.cjs";', "const phaseD = globalThis.__phaseD;")
-    .replace('import phaseF from "./staging/phase-f-backfill.cjs";', "const phaseF = globalThis.__phaseF;")
+    .replace('import phaseG from "./staging/phase-g-multiplatform-backfill.cjs";', "const phaseG = globalThis.__phaseG;")
     .replace('import d1Read from "./staging/d1-read-routes.cjs";', "const d1Read = globalThis.__d1Read;")
     .replace("export default {", "globalThis.__staging = {");
   const context = {
     URL, Request, Response, Headers,
     __baseWorker: { fetch: async () => new Response("ok", { status: 200 }) },
     __correlation: { authOperation: () => "", correlateRequest: request => ({ request, requestId: "" }), correlateResponse: response => response },
-    __phaseD: { handlePhaseDRequest: async () => null },
-    __phaseF: { handlePhaseFRequest: async () => null },
+    __phaseG: { handlePhaseGRequest: async () => null },
     __d1Read: { handleD1ReadRequest: async () => null }
   };
   vm.createContext(context); vm.runInContext(stagingSource, context);

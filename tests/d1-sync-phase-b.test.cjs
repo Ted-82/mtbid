@@ -242,7 +242,8 @@ test('partial failure i powtarzający się cursor nie awansują checkpointu ani 
   assert.equal((await repo.getRun(lease.runId)).status, 'running');
   await repo.failRun({...lease, errorCode: 'PARTIAL_PAGE_FAILURE', now: NOW + 3});
   assert.equal((await repo.getScope(lease.scopeKey)).status, 'failed');
-  assert.equal((await repo.getScope(lease.scopeKey)).last_success_at, null);
+  assert.equal((await repo.getScope(lease.scopeKey)).last_success_at, new Date(NOW + 1).toISOString(),
+    'awaria kolejnej strony zachowuje timestamp ostatniej strony poprawnie zapisanej');
   assert.equal((await repo.getRun(lease.runId)).status, 'failed');
 });
 

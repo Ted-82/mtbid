@@ -1,8 +1,7 @@
 import rexWorker from "./worker.js";
 import authTestHtml from "./staging/auth-test-page.js";
 import requestCorrelation from "./staging/request-correlation.cjs";
-import phaseD from "./staging/phase-d-discovery.cjs";
-import phaseF from "./staging/phase-f-backfill.cjs";
+import phaseG from "./staging/phase-g-multiplatform-backfill.cjs";
 import d1Read from "./staging/d1-read-routes.cjs";
 
 const REQUIRED_TEST_HOST = "rexbid-auth-test.tedn828.workers.dev";
@@ -61,10 +60,8 @@ export default {
     }
     const d1ReadResponse = await d1Read.handleD1ReadRequest(request, env);
     if (d1ReadResponse) return stagingResponse(d1ReadResponse, request);
-    const phaseDResponse = await phaseD.handlePhaseDRequest(request, env, executionContext, (innerRequest, innerEnv, innerContext) => rexWorker.fetch(innerRequest, innerEnv, innerContext));
-    if (phaseDResponse) return stagingResponse(phaseDResponse, request);
-    const phaseFResponse = await phaseF.handlePhaseFRequest(request, env, executionContext, (innerRequest, innerEnv, innerContext) => rexWorker.fetch(innerRequest, innerEnv, innerContext));
-    if (phaseFResponse) return stagingResponse(phaseFResponse, request);
+    const phaseGResponse = await phaseG.handlePhaseGRequest(request, env, executionContext, (innerRequest, innerEnv, innerContext) => rexWorker.fetch(innerRequest, innerEnv, innerContext));
+    if (phaseGResponse) return stagingResponse(phaseGResponse, request);
     const operation = enabled && env?.REXBID_AUTH_DIAGNOSTICS === "enabled" ? requestCorrelation.authOperation(url.pathname) : "";
     const correlated = requestCorrelation.correlateRequest(request, operation);
     if (correlated.requestId) console.info("Rex.Bid staging auth request", JSON.stringify({ operation, stage: "request_received", request_id: correlated.requestId }));

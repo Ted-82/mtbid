@@ -22,7 +22,7 @@ function stagingPage(auth, hostname = 'rexbid-auth-test.tedn828.workers.dev') {
     replaceChildren(...items) { this.children=[...items]; }
   }
   for(const [,id] of html.matchAll(/\bid="([^"]+)"/g)) elements.set(id,new Element());
-  elements.get('phase-d-section').hidden=true;
+  elements.get('phase-g-section').hidden=true;
   const document={body:new Element('body'),getElementById:id=>elements.get(id)||null,createElement:tag=>new Element(tag),querySelectorAll:()=>[],querySelector:()=>null};
   const windowListeners={};
   const window={RexBidAuth:auth,addEventListener(type,fn){(windowListeners[type] ||= []).push(fn);}};
@@ -42,7 +42,7 @@ function stagingPageWithRealAuth(fetchImpl, hostname = 'rexbid-auth-test.tedn828
     setAttribute(name,value){this.attributes[name]=String(value);}
   }
   for(const [,id] of html.matchAll(/\bid="([^"]+)"/g))elements.set(id,new Element());
-  elements.get('phase-d-section').hidden=true;
+  elements.get('phase-g-section').hidden=true;
   const windowListeners={};
   const location={hostname,pathname:'/auth-test.html',search:'',origin:`https://${hostname}`,hash:''};
   const storageMap=new Map();
@@ -63,7 +63,7 @@ test('staging wrapper, test page and correlation helper parse; page loads shared
   require('node:child_process').execFileSync(process.execPath,['--check',path.join(root,'staging/request-correlation.cjs')],{stdio:['pipe','pipe','pipe']});
   assert.match(html,/<script src="\/rexbid-auth\.js"><\/script><script>/);
   assert.match(wrapper,/script-src 'self' 'unsafe-inline'/);
-  assert.match(html,/<section id="phase-d-section" class="card" hidden>/);
+  assert.match(html,/<section id="phase-g-section" class="card" hidden>/);
 });
 
 test('staging stays isolated and delegates all auth/session/favorite operations to the shared RexBidAuth client', async () => {
@@ -91,7 +91,7 @@ test('staging stays isolated and delegates all auth/session/favorite operations 
   assert.equal(elements.get('me-facts').textContent,'');
   assert.equal(elements.get('favorite-list-output').children.length,0);
   const directFetches=[...inlineScript.matchAll(/\bfetch\s*\(\s*["']([^"']+)["']/g)].map(match=>match[1]);
-  assert.deepEqual(directFetches,["/__staging/d1-sync-phase-d-discovery","/__staging/d1-sync-phase-g-backfill"],"test UI may call only its explicitly guarded staging sync endpoints directly");
+  assert.deepEqual(directFetches,["/__staging/d1-sync-multiplatform/status","/__staging/d1-sync-multiplatform"],"test UI may call only its explicitly guarded staging sync endpoints directly");
   assert.doesNotMatch(inlineScript,/localStorage|sessionStorage|innerHTML|access_token|refresh_token/i);
   assert.match(inlineScript,/auth\.login\(/);assert.match(inlineScript,/auth\.signup\(/);assert.match(inlineScript,/auth\.refreshSession\(/);assert.match(inlineScript,/auth\.mergeFavoriteIdentities\(/);
 });
@@ -112,11 +112,11 @@ test('staging UI waits for async auth bootstrap and gates Phase D on authenticat
   const auth={enabled:false,status:'anonymous',user:null,getFavorites:()=>[],ready:new Promise(resolve=>{resolveReady=resolve;})};
   const {elements}=stagingPage(auth);
   elements.get('auth-message').textContent='Sprawdzam sesję…';
-  assert.equal(elements.get('phase-d-discovery').disabled,true);
+  assert.equal(elements.get('phase-g-copart').disabled,true);
   assert.equal(elements.get('auth-message').textContent,'Sprawdzam sesję…');
   auth.enabled=true;resolveReady();await auth.ready;await Promise.resolve();
-  assert.equal(elements.get('phase-d-discovery').disabled,true,'an anonymous session cannot start Phase D');
-  assert.equal(elements.get('phase-d-section').hidden,true,'Phase D action stays invisible to anonymous users');
+  assert.equal(elements.get('phase-g-copart').disabled,true,'anonymous users cannot start a platform sync');
+  assert.equal(elements.get('phase-g-section').hidden,true,'sync controls stay invisible to anonymous users');
   assert.equal(elements.get('login').disabled,false,'login remains available after anonymous bootstrap');
   await new Promise(resolve=>setTimeout(resolve,0));
   assert.equal(elements.get('auth-message').textContent,'Brak aktywnej sesji.');
@@ -135,15 +135,44 @@ test('real Auth client + staging page bootstrap then click login, handle respons
   const page=stagingPageWithRealAuth(fetchImpl);
   await page.auth.ready;await new Promise(resolve=>setImmediate(resolve));
   assert.equal(page.elements.get('login').disabled,false);
-  assert.equal(page.elements.get('phase-d-discovery').disabled,true);
-  assert.equal(page.elements.get('phase-d-section').hidden,true);
+  assert.equal(page.elements.get('phase-g-copart').disabled,true);
+  assert.equal(page.elements.get('phase-g-section').hidden,true);
   page.elements.get('email').value='test@example.invalid';page.elements.get('password').value='synthetic-password';
   await page.elements.get('login').click();
   assert.equal(calls.filter(([url,method])=>url==='/api/auth/login'&&method==='POST').length,1);
   assert.equal(page.elements.get('auth-state').textContent,'Authenticated');
-  assert.equal(page.elements.get('phase-d-discovery').disabled,false);
-  assert.equal(page.elements.get('phase-d-section').hidden,false);
+  assert.equal(page.elements.get('phase-g-copart').disabled,false);
+  assert.equal(page.elements.get('phase-g-section').hidden,false);
   assert.match(page.elements.get('signup-diagnostic').textContent,/response HTTP 200/);
+});
+
+test('authenticated staging panel reads both scopes and posts only the selected platform with a two-page cap',async()=>{
+  const calls=[];
+  const auth={enabled:true,status:'authenticated',user:{id:'synthetic-user',auth_provider:'supabase',email_verified:true},getFavorites:()=>[],ready:Promise.resolve(),async bootstrap(){return{status:'authenticated'};}};
+  const statusBody={ok:true,campaign_budget:{consumed:0,limit:12,reserved:0},platforms:{
+    copart:{scope_status:'partial',scope_freshness:'partial',cursor_present:true,catalog_complete:false,budget:{consumed:0,limit:6},coverage:{listings:220,sources:220,snapshots:220,events:0,makes:31,models:80,min_year:1963,max_year:2025,buy_now:42,timed:0,upcoming:0,sold_ended:0,with_zip:210,with_vin:200,missing_status:1,missing_seller:8}},
+    iaai:{scope_status:'not_started',scope_freshness:'stale',cursor_present:false,catalog_complete:false,budget:{consumed:0,limit:6},coverage:{listings:0,sources:0,snapshots:0,events:0}}
+  }};
+  const page=stagingPageWithRealAuth(async(url,options={})=>{
+    calls.push({url,method:options.method||'GET',body:options.body||null});
+    if(url==='/api/auth/config')return jsonResponse(200,{ok:true,enabled:true});
+    if(url==='/api/me')return jsonResponse(200,{ok:true,user:auth.user});
+    if(url==='/api/me/favorites')return jsonResponse(200,{ok:true,favorites:[]});
+    if(url==='/__staging/d1-sync-multiplatform/status')return jsonResponse(200,statusBody);
+    if(url==='/__staging/d1-sync-multiplatform')return jsonResponse(200,{ok:true,requestId:'synthetic-request',liveRequests:2,scopeStatus:'partial'});
+    throw new Error('unexpected fetch '+url);
+  });
+  page.window.RexBidAuth.status='authenticated';page.window.RexBidAuth.user=auth.user;
+  await page.auth.ready;await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(page.elements.get('phase-g-section').hidden,false);
+  assert.match(page.elements.get('phase-g-status').textContent,/COPART: scope=partial \(świeżość=partial\), list=220/);
+  assert.match(page.elements.get('phase-g-status').textContent,/IAAI: scope=not_started/);
+  assert.match(page.elements.get('phase-g-status').textContent,/0 \/ 12/);
+  page.window.RexBidAuth.status='authenticated';
+  await page.elements.get('phase-g-iaai').click();
+  const post=calls.filter(call=>call.url==='/__staging/d1-sync-multiplatform'&&call.method==='POST');
+  assert.equal(post.length,1);assert.deepEqual(JSON.parse(post[0].body),{platform:'iaai',max_pages:2});
+  assert.equal(calls.filter(call=>call.url==='/__staging/d1-sync-multiplatform/status').length,2,'status read occurs on bootstrap and after the single operation');
 });
 
 test('real staging page bootstrap settles after a hung /api/me fetch and leaves login available',async()=>{
@@ -165,7 +194,7 @@ test('real staging page bootstrap settles after a hung /api/me fetch and leaves 
   assert.equal(page.auth.enabled,true,'a failed session bootstrap does not disable configured Auth');
   assert.equal(page.elements.get('login').disabled,false,'login remains available after session lookup timeout');
   assert.equal(page.elements.get('signup').disabled,false);
-  assert.equal(page.elements.get('phase-f-backfill').disabled,true,'a failed/anonymous bootstrap cannot expose backfill');
+  assert.equal(page.elements.get('phase-g-iaai').disabled,true,'a failed/anonymous bootstrap cannot expose backfill');
   assert.equal(page.elements.get('auth-message').textContent,'Brak aktywnej sesji.');
 });
 
@@ -183,8 +212,8 @@ test('staging Auth login TypeError is attributed to request stage and can never 
   await page.elements.get('login').click();
   assert.match(page.elements.get('signup-diagnostic').textContent,/UI exception at login-request \(TypeError\)/);
   assert.equal(page.elements.get('auth-state').textContent,'Auth UI error');
-  assert.equal(page.elements.get('phase-d-discovery').disabled,true);
-  assert.equal(calls.filter(([url])=>url==='/__staging/d1-sync-phase-d-discovery').length,0);
+  assert.equal(page.elements.get('phase-g-copart').disabled,true);
+  assert.equal(calls.filter(([url])=>url==='/__staging/d1-sync-multiplatform').length,0);
 });
 
 test('staging page refuses to expose controls on production hostname', () => {

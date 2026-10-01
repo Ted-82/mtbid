@@ -1,5 +1,31 @@
 # Rex.Bid D1 Sync 2 — projekt architektury
 
+## Najnowszy stan multi-platform staging — 2026-10-01
+
+- Worker stagingowy `rexbid-auth-test` Version `5c887ebe-9477-47d1-92b6-5e36f638d40d` używa wyłącznie D1 `rexbid-auth-test-db` (`acb3cb8e-69a2-459f-8a46-0f2f5b9004be`). Odczyt nie zmienił danych (`rows_written=0`, `changed_db=false`).
+- Readback: Copart sources/listings/snapshots **220/220/220**; IAAI **80/80/80**; duplikaty obu identity **0**; events/entities **0/0**; konta 1/1; legacy vehicles/snapshots/history 0/0/0.
+- Scope są rozdzielone: Copart `rexbid-phase-d:persistent-discovery:copart` i IAAI `rexbid-phase-g:persistent-discovery:iaai`. Oba `partial`, oba mają cursor; 11 i 4 page commits. Cursor jest przechowywany per scope i nie został odczytany w jawnej postaci.
+- IAAI: `last_success_at=2026-10-01T08:55:47.280Z`, `last_complete_at=NULL`. To oczekiwane po poprawce: sukces atomowo zapisanej strony aktualizuje `last_success_at`, a `last_complete_at` wyłącznie po faktycznym końcu paginacji.
+- Budżet kampanii bieżącej 4/12, IAAI 4/6, zero rezerwacji/ponowień; Copart nie zużył budżetu platformowego tej kampanii. Brak nowych requestów Apibara w readbacku. Phase G public API cutover nadal wyłączony.
+
+## Multi-platform continuation and Phase G preparation — 2026-10-01
+
+### Status
+
+- **CODE PREPARED:** one shared staging runner supports Copart and IAAI; platform behavior is selected by an allowlisted parameter, not duplicated implementations.
+- **AUTOMATED VERIFIED:** offline SQLite behavioral tests cover independent scopes/cursors/leases/budgets, shared VIN without entity reconciliation, per-platform failure isolation, first-page snapshots without auction events, idempotent replay, rollback before page/checkpoint commit, and hard campaign limits.
+- **STAGING RUNNER VERIFIED / IAAI PERSISTENT RUN NOT YET VERIFIED.** Staging deployment Version `dcfc17fa-fc43-4234-b450-335e8d0b7c03`; exact binding `rexbid-auth-test-db` ID `acb3cb8e-69a2-459f-8a46-0f2f5b9004be`. Direct D1 readback confirms Copart sources/listings/snapshots 220/220/220, events/entities 0/0, 11 commits, partial scope with cursor; IAAI 0/0/0 and no scope. No duplicate listing/source rows; Accounts 1/1; legacy 0/0/0.
+- Existing budgets read from D1: Phase D 1/5, Phase F 2/5, prior Phase G preparation campaign 8/10. New campaign `campaign-multiplatform-4c4e938` has not reserved/consumed a request: **0/12**. Live Apibara requests in this continuation: **0**. Database queries were read-only (`changed_db=false`, `rows_written=0`).
+- Browser confirmed the staging Auth test page loads, but session status is Anonymous; authenticated IAAI/Copart controls are unavailable until the owner signs in. No provider call occurred.
+
+### Shared runner invariants
+
+- Copart keeps `rexbid-phase-d:persistent-discovery:copart`; IAAI uses `rexbid-phase-g:persistent-discovery:iaai`. Cursors, status, leases, timestamps and checkpoint commits remain scope-local. No cross-platform VIN merge or implicit physical entity creation.
+- Campaign `campaign-multiplatform-4c4e938` is durable and separate from the previous Phase F campaign. The ceiling is 12 new calls total (6 per platform), at most two pages per click, page size 20, zero retry reserve. Failed provider attempts consume their reserved call; no hidden retries. Stop when a scope reaches actual terminal pagination.
+- New listings create only an initial observed snapshot; discovery does not create a confirmed auction event. Identical replay creates no new listing/snapshot/event. Canonical page records plus cursor/checkpoint use repository batch semantics.
+- The authenticated exact-host staging panel reports per-platform status/freshness, counts/facets, cursor presence only, durable budget, and sampled D1 read timings. Public endpoints do not consume Sync rows; no API contract changes, schedule/queue, raw payload or binary image storage.
+- Phase G public API cutover remains disabled. Partial/stale/incomplete scopes may not be described as complete. See `docs/D1_PHASE_G_CUTOVER.md` for cutover gates and rollback conditions.
+
 ## Kontynuacja backfillu / przygotowanie Phase G — staging wdrożony, 2026-09-30
 
 Staging Worker `rexbid-auth-test` Version `862a11a4-9761-4491-90c9-d64cf367e69d` zawiera manual route `/__staging/d1-sync-phase-g-backfill`, chronioną staging host/config, POST, same-origin, istniejącą zweryfikowaną sesję oraz staging D1 binding. Dry-run i deploy z `wrangler.staging.jsonc` pokazały wyłącznie `rexbid-auth-test` → `rexbid-auth-test-db` (`acb3cb8e-69a2-459f-8a46-0f2f5b9004be`). Produkcyjny Worker/config nie były użyte.

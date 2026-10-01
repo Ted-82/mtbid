@@ -1,5 +1,20 @@
 # Rex.Bid Production Roadmap
 
+## Latest multi-platform staging readback — 2026-10-01
+
+- Staging `rexbid-auth-test` Version `5c887ebe-9477-47d1-92b6-5e36f638d40d` remains bound exclusively to `rexbid-auth-test-db`. No production deployment or Apibara call occurred in this readback.
+- Read-only D1: Copart 220 listings/sources/snapshots; IAAI 80/80/80; duplicates 0; events/entities 0; users/favorites 1/1; legacy tables 0. Independent Copart/IAAI scopes are both partial and both have cursors; commits 11 and 4 respectively.
+- IAAI `last_success_at` is populated while `last_complete_at` is null, which is correct for successful committed pages in a partial scope. Current campaign budget 4/12, IAAI 4/6, reservations/retries 0. Phase G API cutover is still OFF.
+- **Next:** checkpoint this state, then resume IAAI at most 2 pages; verify D1 before any Copart resume. Full offline suite **277/277 PASS**; syntax and diff checks pass.
+
+## D1 Sync multi-platform staging — 2026-10-01
+
+- **CODE / AUTOMATED VERIFIED; staging runner deployed (Version `dcfc17fa-fc43-4234-b450-335e8d0b7c03`); IAAI live run NOT VERIFIED.** Shared manual runner supports independent Copart and IAAI scopes; no production API cutover or scheduled sync is enabled.
+- New campaign is hard-limited to 12 calls total, at most 6 per platform; each click handles at most 2 pages; retries are disabled. This continuation has used 0 live Apibara requests. Prior Copart budget 8/10 remains historical and unchanged.
+- Fresh direct staging readback: Copart 220 listings/sources/snapshots, partial with cursor and 11 page commits; IAAI 0 and scope not started; no duplicate listing/source keys; events/entities 0; accounts 1/1; legacy tables 0. New campaign budget is 0/12; prior Copart campaign budget remains 8/10. No live request was issued.
+- Browser session is anonymous, so the protected IAAI action requires the owner to sign in to the existing test account and click once. Production Worker/D1 remain untouched.
+- Before Phase G public API cutover, verify both platform reads and completeness explicitly. A partial or stale scope cannot be represented as a complete catalog; see `docs/D1_PHASE_G_CUTOVER.md`.
+
 ## Aktualizacja: robocze stawki transportowe partnera (2026-09-30)
 
 - Właściciel potwierdził, że przekazane tabele partnera/importera są autorytatywnym roboczym źródłem stawek transportowych Rex.Bid do czasu ich aktualizacji. Wcześniejsze publiczne estymacje i benchmarki transportu są **superseded** i nie są źródłem cen produktu.

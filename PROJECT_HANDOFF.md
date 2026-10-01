@@ -1,5 +1,23 @@
 # Rex.Bid — Project Handoff
 
+## Latest multi-platform staging readback — 2026-10-01
+
+- Staging Worker `rexbid-auth-test` is Version `5c887ebe-9477-47d1-92b6-5e36f638d40d`, bound only to `rexbid-auth-test-db` (`acb3cb8e-69a2-459f-8a46-0f2f5b9004be`). Production was not targeted.
+- Direct read-only D1 results: Copart sources/listings/snapshots **220/220/220**; IAAI **80/80/80**. Duplicate listing/source groups **0/0**; events/entities **0/0**; `users/user_favorites=1/1`; legacy vehicles/snapshots/history **0/0/0**.
+- Copart and IAAI retain distinct discovery scopes and opaque cursors. Both are `partial`, with cursor present. Page commits: Copart **11**, IAAI **4**. IAAI `last_success_at` is set (`2026-10-01T08:55:47.280Z`) while `last_complete_at=NULL`, correctly reflecting committed pages without complete pagination.
+- Budgets: current campaign **4/12**, IAAI **4/6**, no reserved/retry calls; previous campaigns remain separate (including prior Copart 8/10). No Apibara requests were made during this verification.
+- Tests: **277/277 PASS**; syntax checks and `git diff --check` pass. Phase G public API cutover remains OFF. Recommended next step: checkpoint, then one IAAI resume (maximum 2 pages) before considering Copart.
+
+## Multi-platform staging backfill / Phase G preparation — 2026-10-01
+
+- **CODE / AUTOMATED VERIFIED; staging runner DEPLOYED, IAAI live run NOT YET VERIFIED.** Worker `rexbid-auth-test` now runs Version ID `dcfc17fa-fc43-4234-b450-335e8d0b7c03`, bound only to `rexbid-auth-test-db`. The provider-neutral Copart/IAAI runner uses independent durable scopes, cursors, leases and request budgets. Existing Copart scope key is preserved; IAAI receives its own new scope. Each operator action is capped at two 20-record pages, with no automatic retries.
+- New campaign key `campaign-multiplatform-4c4e938`: hard ceiling **12 new Apibara requests total**, split into max 6 per platform. Before this continuation, live ledger = **0/12**. The earlier Copart campaign count 8/10 remains historical and is not reset or included in the new budget. Stop each platform when pagination completes.
+- The authenticated staging panel exposes each platform's scope state/freshness, cursor presence (not cursor value), request consumption, counts/facets, and bounded D1 catalog/detail/history/filter timing. The panel and routes are exact-host + staging-flag + staging-D1 gated. Public production routes are unchanged.
+- Offline behavioral tests cover parallel scopes with shared VIN, independent failure/budget/cursor, replay, batch rollback/recovery, page/campaign caps, and staging-route auth/origin. Full suite after the latest code and UI changes: **277/277 PASS**; partner rate generator `--check`, touched-module syntax checks, and `git diff --check` also pass.
+- Staging dry-run and deployment used `wrangler.staging.jsonc`; its only Worker/D1 targets were `rexbid-auth-test` and `rexbid-auth-test-db` (`acb3cb8e-69a2-459f-8a46-0f2f5b9004be`). Production was not targeted.
+- Fresh direct D1 readback (read-only, `changed_db=false`, `rows_written=0`): Copart `sources/listings/snapshots=220/220/220`; IAAI `0/0/0`; events/entities `0/0`; duplicates `0`; Copart scope `partial`, cursor present, 11 page commits, `last_complete_at=NULL`; no IAAI discovery scope yet. `users=1`, `user_favorites=1`; legacy vehicles/snapshots/history `0/0/0`. Old durable budgets remain Phase D `1/5`, Phase F `2/5`, and previous Copart campaign `8/10`. New campaign `campaign-multiplatform-4c4e938` has no budget rows/reservations yet, i.e. **0/12 used**.
+- Browser opened `/auth-test.html` after deployment, but current browser session is `Anonymous`; protected status/action controls remain unavailable. No Apibara call was made. **Next owner action:** sign in with the existing staging account (do not share credentials), then click the IAAI action once. That run is capped at 2 pages; perform direct readback before deciding whether to resume Copart. Phase G public API cutover remains OFF; production is untouched.
+
 ## Aktualizacja stawek transportowych partnera (2026-09-30)
 
 - Właściciel Rex.Bid wskazał realne tabele partnera/importera jako **autorytatywne robocze źródło stawek transportowych Rex.Bid** do chwili aktualizacji przez partnera. Wcześniejsze publiczne estymacje/benchmarki transportu są **superseded** i nie mogą być traktowane jako źródło cen.
