@@ -1,5 +1,12 @@
 # Gotowość kont Rex.Bid do produkcji
 
+## Aktualizacja blocker-closure — 2026-10-03
+
+- Status bez zmian: **STAGING VERIFIED / NOT PRODUCTION DEPLOYED**. Nie utworzono produkcyjnego Supabase projektu ani sekretów, nie zastosowano 0003 na production.
+- Recovery implementation/UI pozostaje przygotowane do testu po SMTP; default Supabase mailer ma ograniczenia adresów i bieżący limit 2 wiadomości/h. Nie wykonano nowej próby mailowej.
+- Production provider budgets w trybie `required` również pozostają fail-closed, dopóki właściciel nie zatwierdzi limitów i 0004 nie będzie bezpiecznie dostępne.
+- Pełny SMTP/domain/migration plan i porównanie dostawców: `docs/PRODUCTION_CUTOVER_RUNBOOK.md`.
+
 ## Uzupełnienie przeglądu launch — 2026-10-03
 
 Accounts nadal jest **STAGING VERIFIED / NOT PRODUCTION DEPLOYED**. Wcześniejszy login/account/cloud favorites E2E pozostaje wiarygodny. W tej sesji browser jest anonymous, więc nie powtórzono login/logout/merge/export/resend. Password recovery nie ponawiano z powodu wcześniejszych problemów z wysyłką i rate limit; wykonaj jeden kontrolowany stagingowy test dopiero po potwierdzeniu SMTP.

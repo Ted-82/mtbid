@@ -113,7 +113,7 @@ async function runPersistentDiscovery({db, env, requestId, now = () => Date.now(
     result.liveRequests = 1;
     await db.prepare("UPDATE sync_runs SET upstream_requests=upstream_requests+1 WHERE run_id=? AND status='running'")
       .bind(lease.runId).run();
-    const providerResponse = await provider.listVehicles(env, {platform: "copart", per_page: PAGE_SIZE, ...(cursor ? {cursor} : {})});
+    const providerResponse = await provider.listVehicles(env, {platform: "copart", per_page: PAGE_SIZE, _budgetClass: "discovery", ...(cursor ? {cursor} : {})});
     const fetchedAt = now();
     result.providerLatencyMs = Math.max(0, fetchedAt - fetchStarted);
     await repo.finishBudgetReservation({reservationId, now: fetchedAt});

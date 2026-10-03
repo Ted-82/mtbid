@@ -2,12 +2,35 @@ import apibaraModule from "./providers/apibara.js";
 import contract from "./providers/contract.js";
 import authProviderModule from "./auth/supabase.js";
 import accountsModule from "./auth/routes.js";
+import providerBudgetModule from "./providers/request-budget.js";
 
 const { createApibaraProvider, ProviderError } = apibaraModule;
 const { createProviderRegistry, validateRexVehicle, validateRexHistoryEvent } = contract;
 const { createSupabaseAuthProvider } = authProviderModule;
 const { createAccountsHandler, isAuthConfigurationComplete } = accountsModule;
+const { createProviderRequestBudget } = providerBudgetModule;
+const providerRequestBudget = createProviderRequestBudget();
 const safeProviderConsole = {
+  info(_label, serialized) {
+    let event = {};
+    try { event = JSON.parse(serialized); } catch {}
+    const platforms = ["copart", "iaai", "manheim", "adesa", "unknown"];
+    const operations = ["listVehicles", "vehicleFilters", "vehicleByIdentifier", "searchVehicles", "vehicleHistory"];
+    const routes = ["/api/cars", "/api/filters", "/api/car/:identifier", "/api/car/:identifier/history", "unknown"];
+    const safe = {
+      request_id: typeof event.request_id === "string" && /^[a-f0-9-]{20,40}$/i.test(event.request_id) ? event.request_id : null,
+      provider: "apibara",
+      operation: operations.includes(event.operation) ? event.operation : "unknown",
+      route: routes.includes(event.route) ? event.route : "unknown",
+      platform: platforms.includes(event.platform) ? event.platform : "unknown",
+      upstream_request: event.upstream_request === true,
+      outcome: event.outcome === "success" ? "success" : "error",
+      status: Number.isInteger(event.status) && event.status >= 100 && event.status <= 599 ? event.status : null,
+      safe_error_code: ["CONFIGURATION", "AUTH", "RATE_LIMITED", "TIMEOUT", "UPSTREAM", "NOT_FOUND", "INVALID_REQUEST", "INVALID_RESPONSE"].includes(event.safe_error_code) ? event.safe_error_code : null,
+      duration_ms: Number.isFinite(event.duration_ms) ? Math.max(0, Math.min(600000, Math.round(event.duration_ms))) : null
+    };
+    console.info("rex.bid.provider_request", JSON.stringify(safe));
+  },
   warn(_label, serialized) {
     let diagnostic = {};
     try { diagnostic = JSON.parse(serialized); } catch {}
@@ -29,6 +52,7 @@ const apibaraProvider = createApibaraProvider({
   fetch: (...args) => fetch(...args),
   setTimeout: (...args) => setTimeout(...args),
   clearTimeout: (...args) => clearTimeout(...args),
+  requestBudget: providerRequestBudget,
   console: safeProviderConsole
 });
 const providerRegistry = createProviderRegistry([apibaraProvider]);

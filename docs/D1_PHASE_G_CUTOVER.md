@@ -102,6 +102,15 @@ Real browser: Copart LOT 73650295 has 13 images after pairing full/thumb variant
 No discovery/backfill/detail-enrichment request was intentionally made (0 Apibara requests this pass). Exact automatic fallback count and DevTools console/Network remain NOT VERIFIED. `node --test` 299/299, rates generator/config validator/syntax/diff checks PASS. No production deploy or migration.
 # Final staging product review — 2026-10-03
 
+## Production blocker closure update — 2026-10-03
+
+- **Remote backup/restore rehearsal PASS (staging-only):** exported staging D1, restored to a separate temporary Cloudflare D1, compared schema/counts/FK integrity, then removed only the temporary DB/export. Source staging and production D1 remained untouched. Details in `docs/BACKUP_RECOVERY.md`.
+- **Local telemetry/budget implementation:** public read events now include route template, D1 hit, provider fallback, platform, freshness, fallback reason, cache and duration. Provider emits one safe event per actual outbound request. No user/vehicle identifier is logged. Not deployed in this sprint.
+- **Budget configuration prepared:** staging proposal 500/day total split into catalog 250, detail 150, history 60, discovery 30 and media enrichment 10. Production has required fail-closed mode but no owner-approved caps. Cron stays off.
+- Existing partial data remains 260 Copart / 120 IAAI. Partial scopes never claim complete catalog/filters. The staging-only `REXBID_D1_PRIMARY_READS` flag and rollback procedure remain as previously documented.
+- Production conditions still include: approved caps and alerts, migrations after separate approval, full population/completeness policy, custom domain and production Auth settings, SMTP, legal review and cutover authorization.
+- Detailed migration/schedule/budget/rollback runbook: `docs/PRODUCTION_CUTOVER_RUNBOOK.md`.
+
 - D1-first remains staging-only on `rexbid-auth-test` / `rexbid-auth-test-db`. Latest Worker Version `6c70674f-c164-404f-afc0-b1984ffe5549`.
 - Current staging data: 260 Copart + 120 IAAI known listings/sources; 380 snapshots; 80 rows with media URL/thumb metadata; 0 events/entities; both scopes partial and independently cursor-backed. This is not a complete catalog and filters are known-metadata only.
 - Browser review confirmed Home/catalog exact VIN and LOT results, Copart/IAAI known detail, gallery/history and D1-backed images. History may use guarded provider fallback; exact fallback count is not instrumented/verified. Do not claim zero provider reads across full browser navigation.

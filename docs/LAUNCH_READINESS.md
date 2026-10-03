@@ -116,10 +116,32 @@ To są wartości startowe do obciążeniowego testu i strojenia, nie zatwierdzon
 - Production is **NOT DEPLOYED**. Production Accounts remain fail-closed; migration 0003 is not applied to production.
 - Canonical domain and DNS/HTTPS/canonical/sitemap/Supabase redirect URLs are not selected or changed.
 - Production Supabase project, cookie secret/origins, custom SMTP and verified sender (SPF/DKIM/DMARC), delivery monitoring and production rate limiter need owner configuration and validation.
-- Separate remote Cloudflare D1 restore rehearsal is still required; the completed SQLite import rehearsal does not prove remote D1 restoration.
+- Remote staging Cloudflare D1 restore rehearsal **PASS**: export was imported into a separate disposable remote D1 and schema/count/FK checks passed. Before production, still define encrypted backup storage/retention and run a production-target rehearsal only under a separately approved plan; never restore over `rexbid-db` during rehearsal.
 - Legal drafts in `docs/legal/` require owner/legal review. Confirm terms for auction-site data independently; Apibara permission does not license permanent redistribution of original Copart/IAA photographs.
-- Scheduled provider sync is not activated. Exact browser-triggered provider fallback count and full DevTools Network evidence remain unverified; history may invoke controlled provider fallback.
+- Scheduled provider sync is not activated. Local fallback/provider telemetry and fail-closed budgets pass automated tests but are **not deployed** in this sprint. Exact browser-triggered fallback count and full DevTools Network evidence remain unverified; history may invoke controlled provider fallback.
 
 ## Production domain checklist
 
 After owner selects the domain: Cloudflare DNS ownership/proxy and HTTPS; Worker custom-domain mapping; canonical and sitemap host; production robots policy (do not inherit staging noindex); Supabase Site URL and exact callback/redirect allowlist; email sending domain with SPF/DKIM/DMARC, From/Reply-To and delivery monitoring; then staging-equivalent smoke and owner approval. Do not buy a domain or change DNS without explicit approval.
+# Zamknięcie blockerów — stan po review 2026-10-03
+
+## DONE
+
+- Staging export → osobna zdalna Cloudflare D1 → schema/count/FK comparison: PASS; testowa baza i pliki tymczasowe usunięte.
+- Lokalny kod bezpiecznej per-request telemetrii providera oraz D1/fallbacków i atomowego globalnego/per-operation request budgetu przechodzi testy; nie wdrożono go w tej turze. Produkcyjne limity nadal wymagają zatwierdzenia.
+- Kolejność migracji i rollback opisano w `docs/PRODUCTION_CUTOVER_RUNBOOK.md`.
+
+## BLOCKED
+
+- Production D1 migracje 0003/0004/0005 nie są zastosowane. Production Auth/D1-first/Cron nie są włączone.
+- Produkcyjne provider budget caps nie zostały wybrane; production config wymaga `required` i fail-closed bez capów/budżetowego schematu.
+- Remote staging restore rehearsal przeszedł. Pozostają szyfrowanie/retencja backupów produkcyjnych oraz zatwierdzona procedura backupu/restore dla `rexbid-db`.
+- Recovery email/custom SMTP, final-domain redirect i delivery monitoring nie są zweryfikowane.
+
+## OWNER DECISION / EXTERNAL / LEGAL
+
+- Wybrać domenę i canonical host; SMTP dostawcę/nadawcę; production Apibara caps i retry policy; aktywację kolejnych migrations/Auth/D1-first/sync.
+- Przejrzeć legal drafts. Danych aukcyjnych nie przedstawiać jako gwarantowanych/oficjalnych Copart/IAA. Kalkulator to niewiążący szacunek; fotografie są third-party media.
+- Apibara zgodziła się na trwałe factual/history/snapshot data i komercyjne wykorzystanie; archiwizacja binarnych oryginałów zdjęć pozostaje niezatwierdzona.
+
+Szczegóły, checklisty i maksymalnie pięć działań właściciela: `docs/PRODUCTION_CUTOVER_RUNBOOK.md`. Ta aktualizacja nie jest zgodą ani rekomendacją na produkcyjny deploy.

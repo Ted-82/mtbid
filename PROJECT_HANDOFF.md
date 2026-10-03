@@ -1,5 +1,16 @@
 # Rex.Bid — Project Handoff
 
+## Production blocker closure sprint — 2026-10-03 (local, not deployed)
+
+- **Current checkout:** `def8b43 Prepare Rex.Bid release candidate staging`; existing local changes were retained. At sprint start the worktree already contained WIP edits to `providers/apibara.js`, `sync/d1-repository.js`, `worker.js`, `providers/request-budget.js`, plus the pre-existing untracked `.codex-wrangler-cache/`. Do not delete/cache-clean that path.
+- **Remote restore rehearsal PASS:** staging D1 export was restored to separate temporary Cloudflare D1 `rexbid-restore-rehearsal-20261003-0809` (`6ed87387-7501-4a1c-8fa8-cdcc02c05779`), schema objects/counts/FKs compared, then only that temporary database and temporary export were removed. Staging source and production D1 remained untouched. See `docs/BACKUP_RECOVERY.md`.
+- **Provider observability/budgets:** local code now emits safe per-real-fetch `rex.bid.provider_request` telemetry and per-public-read D1/fallback telemetry without VIN/PII. Atomic global + operation daily reservations fail closed before outbound fetch. Staging limits are proposed/configured in local Wrangler config: 500 global; catalog 250; detail 150; history 60; discovery 30; media 10. No provider requests were made and these edits were not deployed.
+- Production config sets budget mode `required` without owner-approved cap values; provider traffic therefore intentionally fails closed until production schema/config/quotas are approved. Production Auth stays fail-closed; no production deploy/migration/Cron occurred.
+- `docs/PRODUCTION_CUTOVER_RUNBOOK.md` consolidates restore, migration order, sync scheduler, SMTP comparison, domain cutover, rollback and owner actions. Legal drafts now explicitly identify non-official auction data, non-binding calculator estimates and third-party photos.
+- **Automated verification:** `node --test` **310/310 PASS**; `scripts/partner-transport-rates.cjs --check`, `scripts/validate-worker-config.cjs`, ESM/CJS syntax checks and `git -c core.whitespace=cr-at-eol diff --check` PASS. Production and staging Wrangler dry-runs both built successfully and displayed only their exact configured Worker/D1 target. No staging deploy occurred; current staging remains historical Version `6c70674f-c164-404f-afc0-b1984ffe5549`.
+- **Provider requests in this sprint:** 0 live Apibara requests. No reset mail, Auth live action, discovery, backfill, or scheduled execution was run.
+- **Production status:** NOT DEPLOYED; migration `0003`, `0004`, and production media-column equivalent remain unapplied; provider budgets, final domain, custom SMTP, limiter, legal approval and cutover approval remain blockers.
+
 ## Final staging product review — 2026-10-03
 
 - **Working checkpoint:** `6a69688 Complete Rex.Bid staging product milestone`; preserve local changes. Staging baseline Version `d86cef66-7683-42d6-8c75-32566f828a81`, Worker `rexbid-auth-test`, D1 `rexbid-auth-test-db` (`acb3cb8e-69a2-459f-8a46-0f2f5b9004be`). Production `mtbid`/`rexbid-db` was not targeted.

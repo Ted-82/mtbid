@@ -518,6 +518,136 @@ class D1SyncRepository {
       .bind(provider, budgetDay).first();
   }
 
+  async initializeBudgetPair({globalProvider, operationProvider, budgetDay, globalLimit, operationLimit, now}) {
+    for (const [name, value] of [["globalLimit", globalLimit], ["operationLimit", operationLimit]]) {
+      if (!Number.isSafeInteger(value) || value < 1) throw new TypeError(`${name} musi być dodatnią liczbą całkowitą.`);
+    }
+    const timestamp = iso(now);
+    await this.db.batch([
+      this.db.prepare(`INSERT OR IGNORE INTO provider_request_budgets
+        (provider,budget_day,normal_limit,retry_limit,updated_at) VALUES(?,?,?,0,?)`)
+        .bind(globalProvider, budgetDay, globalLimit, timestamp),
+      this.db.prepare(`INSERT OR IGNORE INTO provider_request_budgets
+        (provider,budget_day,normal_limit,retry_limit,updated_at) VALUES(?,?,?,0,?)`)
+        .bind(operationProvider, budgetDay, operationLimit, timestamp),
+      this.db.prepare(`UPDATE provider_request_budgets SET normal_limit=MIN(normal_limit,?),updated_at=?
+        WHERE provider=? AND budget_day=?`).bind(globalLimit, timestamp, globalProvider, budgetDay),
+      this.db.prepare(`UPDATE provider_request_budgets SET normal_limit=MIN(normal_limit,?),updated_at=?
+        WHERE provider=? AND budget_day=?`).bind(operationLimit, timestamp, operationProvider, budgetDay)
+    ]);
+  }
+
+  async reserveBudgetPair({reservationId, globalProvider, operationProvider, budgetDay, now}) {
+    if (!reservationId || globalProvider === operationProvider) throw new TypeError("Nieprawidłowy budżet requestu providera.");
+    const globalId = `${reservationId}:all`;
+    const operationId = `${reservationId}:operation`;
+    const existing = await this.db.prepare(`SELECT reservation_id,provider,budget_day,state FROM provider_request_reservations
+      WHERE reservation_id IN (?,?) ORDER BY reservation_id`).bind(globalId, operationId).all();
+    if (existing.results?.length) {
+      const byId = new Map(existing.results.map(row => [row.reservation_id, row]));
+      const global = byId.get(globalId);
+      const operation = byId.get(operationId);
+      if (!global || !operation || global.provider !== globalProvider || operation.provider !== operationProvider
+          || global.budget_day !== budgetDay || operation.budget_day !== budgetDay) throw new Error("BUDGET_RESERVATION_ID_COLLISION");
+      return {allowed: global.state === "reserved" && operation.state === "reserved", replayed: true};
+    }
+    const guardId = crypto.randomUUID();
+    const timestamp = iso(now);
+    try {
+      await this.db.batch([
+        this.db.prepare(`INSERT INTO sync_batch_guards(guard_id,allowed) VALUES(?,CASE WHEN
+          EXISTS(SELECT 1 FROM provider_request_budgets WHERE provider=? AND budget_day=? AND normal_consumed+normal_reserved+1<=normal_limit)
+          AND EXISTS(SELECT 1 FROM provider_request_budgets WHERE provider=? AND budget_day=? AND normal_consumed+normal_reserved+1<=normal_limit)
+          THEN 1 ELSE 0 END)`)
+          .bind(guardId, globalProvider, budgetDay, operationProvider, budgetDay),
+        this.db.prepare(`UPDATE provider_request_budgets SET normal_reserved=normal_reserved+1,updated_at=?
+          WHERE provider=? AND budget_day=? AND EXISTS(SELECT 1 FROM sync_batch_guards WHERE guard_id=? AND allowed=1)`)
+          .bind(timestamp, globalProvider, budgetDay, guardId),
+        this.db.prepare(`UPDATE provider_request_budgets SET normal_reserved=normal_reserved+1,updated_at=?
+          WHERE provider=? AND budget_day=? AND EXISTS(SELECT 1 FROM sync_batch_guards WHERE guard_id=? AND allowed=1)`)
+          .bind(timestamp, operationProvider, budgetDay, guardId),
+        this.db.prepare(`INSERT INTO provider_request_reservations
+          (reservation_id,provider,budget_day,bucket,request_count,state,created_at,updated_at)
+          SELECT ?,?,?,'normal',1,'reserved',?,? WHERE EXISTS(SELECT 1 FROM sync_batch_guards WHERE guard_id=? AND allowed=1)`)
+          .bind(globalId, globalProvider, budgetDay, timestamp, timestamp, guardId),
+        this.db.prepare(`INSERT INTO provider_request_reservations
+          (reservation_id,provider,budget_day,bucket,request_count,state,created_at,updated_at)
+          SELECT ?,?,?,'normal',1,'reserved',?,? WHERE EXISTS(SELECT 1 FROM sync_batch_guards WHERE guard_id=? AND allowed=1)`)
+          .bind(operationId, operationProvider, budgetDay, timestamp, timestamp, guardId),
+        this.db.prepare(`DELETE FROM sync_batch_guards WHERE guard_id=?`).bind(guardId)
+      ]);
+      return {allowed: true, replayed: false};
+    } catch (error) {
+      if (String(error?.message || "").includes("allowed = 1")) return {allowed: false, reason: "BUDGET_EXHAUSTED"};
+      throw error;
+    }
+  }
+
+  async startBudgetPair({reservationId, globalProvider, operationProvider, budgetDay, now}) {
+    const globalId = `${reservationId}:all`;
+    const operationId = `${reservationId}:operation`;
+    const guardId = crypto.randomUUID();
+    const timestamp = iso(now);
+    try {
+      await this.db.batch([
+        this.db.prepare(`INSERT INTO sync_batch_guards(guard_id,allowed) VALUES(?,CASE WHEN
+          EXISTS(SELECT 1 FROM provider_request_reservations WHERE reservation_id=? AND provider=? AND budget_day=? AND state='reserved')
+          AND EXISTS(SELECT 1 FROM provider_request_reservations WHERE reservation_id=? AND provider=? AND budget_day=? AND state='reserved')
+          THEN 1 ELSE 0 END)`)
+          .bind(guardId, globalId, globalProvider, budgetDay, operationId, operationProvider, budgetDay),
+        this.db.prepare(`UPDATE provider_request_budgets SET normal_reserved=normal_reserved-1,normal_consumed=normal_consumed+1,updated_at=?
+          WHERE provider=? AND budget_day=? AND EXISTS(SELECT 1 FROM sync_batch_guards WHERE guard_id=? AND allowed=1)`)
+          .bind(timestamp, globalProvider, budgetDay, guardId),
+        this.db.prepare(`UPDATE provider_request_budgets SET normal_reserved=normal_reserved-1,normal_consumed=normal_consumed+1,updated_at=?
+          WHERE provider=? AND budget_day=? AND EXISTS(SELECT 1 FROM sync_batch_guards WHERE guard_id=? AND allowed=1)`)
+          .bind(timestamp, operationProvider, budgetDay, guardId),
+        this.db.prepare(`UPDATE provider_request_reservations SET state='started',updated_at=? WHERE reservation_id IN (?,?) AND state='reserved'`)
+          .bind(timestamp, globalId, operationId),
+        this.db.prepare(`DELETE FROM sync_batch_guards WHERE guard_id=?`).bind(guardId)
+      ]);
+      return true;
+    } catch (error) {
+      if (String(error?.message || "").includes("allowed = 1")) return false;
+      throw error;
+    }
+  }
+
+  async finishBudgetPair({reservationId, now}) {
+    const timestamp = iso(now);
+    await this.db.prepare(`UPDATE provider_request_reservations SET state='finished',updated_at=?
+      WHERE reservation_id IN (?,?) AND state='started'`)
+      .bind(timestamp, `${reservationId}:all`, `${reservationId}:operation`).run();
+  }
+
+  async cancelBudgetPair({reservationId, globalProvider, operationProvider, budgetDay, now}) {
+    const globalId = `${reservationId}:all`;
+    const operationId = `${reservationId}:operation`;
+    const timestamp = iso(now);
+    const guardId = crypto.randomUUID();
+    try {
+      await this.db.batch([
+        this.db.prepare(`INSERT INTO sync_batch_guards(guard_id,allowed) VALUES(?,CASE WHEN
+          EXISTS(SELECT 1 FROM provider_request_reservations WHERE reservation_id=? AND provider=? AND budget_day=? AND state='reserved')
+          AND EXISTS(SELECT 1 FROM provider_request_reservations WHERE reservation_id=? AND provider=? AND budget_day=? AND state='reserved')
+          THEN 1 ELSE 0 END)`)
+          .bind(guardId, globalId, globalProvider, budgetDay, operationId, operationProvider, budgetDay),
+        this.db.prepare(`UPDATE provider_request_budgets SET normal_reserved=normal_reserved-1,updated_at=?
+          WHERE provider=? AND budget_day=? AND EXISTS(SELECT 1 FROM sync_batch_guards WHERE guard_id=? AND allowed=1)`)
+          .bind(timestamp, globalProvider, budgetDay, guardId),
+        this.db.prepare(`UPDATE provider_request_budgets SET normal_reserved=normal_reserved-1,updated_at=?
+          WHERE provider=? AND budget_day=? AND EXISTS(SELECT 1 FROM sync_batch_guards WHERE guard_id=? AND allowed=1)`)
+          .bind(timestamp, operationProvider, budgetDay, guardId),
+        this.db.prepare(`UPDATE provider_request_reservations SET state='cancelled',updated_at=?
+          WHERE reservation_id IN (?,?) AND state='reserved'`).bind(timestamp, globalId, operationId),
+        this.db.prepare(`DELETE FROM sync_batch_guards WHERE guard_id=?`).bind(guardId)
+      ]);
+      return true;
+    } catch (error) {
+      if (String(error?.message || "").includes("allowed = 1")) return false;
+      throw error;
+    }
+  }
+
   async reserveBudget({reservationId, provider, budgetDay, bucket = "normal", count = 1, now}) {
     if (!reservationId || !["normal", "retry"].includes(bucket) || !Number.isSafeInteger(count) || count < 1) {
       throw new TypeError("Nieprawidłowa rezerwacja request budget.");

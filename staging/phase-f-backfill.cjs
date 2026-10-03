@@ -82,7 +82,7 @@ async function runControlledBackfill({db,env,requestId,maxPages=DEFAULT_PAGES_PE
       await db.prepare("UPDATE sync_runs SET upstream_requests=upstream_requests+1 WHERE run_id=? AND status='running'").bind(runId).run();
       let providerResponse;
       try {
-        providerResponse=await provider.listVehicles(env,{platform:"copart",per_page:PAGE_SIZE,cursor});
+        providerResponse=await provider.listVehicles(env,{platform:"copart",per_page:PAGE_SIZE,cursor,_budgetClass:"discovery"});
       } catch(error) {
         await repo.finishBudgetReservation({reservationId,now:now()});
         throw Object.assign(new Error(),{safeCode:error?.code==="RATE_LIMITED"?"provider_rate_limited":error?.code==="TIMEOUT"?"provider_timeout":error?.status>=500?"provider_5xx":"provider_unavailable"});

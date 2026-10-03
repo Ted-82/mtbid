@@ -12,6 +12,14 @@ function validateWorkerConfigs(root = path.resolve(__dirname, "..")) {
   const issues = [];
   const productionDb = production.d1_databases?.find(binding => binding.binding === "REXBID_DB");
   const stagingDb = staging.d1_databases?.find(binding => binding.binding === "REXBID_DB");
+  const budgetKeys = ["CATALOG", "DETAIL", "HISTORY", "DISCOVERY", "MEDIA"];
+  const validLimit = value => /^\d+$/.test(String(value ?? "")) && Number(value) > 0 && Number(value) <= 100000;
+  const stagingBudgetLimits = Object.fromEntries(budgetKeys.map(key => [key.toLowerCase(), staging.vars?.[`REXBID_PROVIDER_BUDGET_${key}_DAILY_LIMIT`] ?? null]));
+  const stagingGlobalBudget = staging.vars?.REXBID_PROVIDER_BUDGET_DAILY_LIMIT ?? null;
+  const stagingBudgetConfigured = staging.vars?.REXBID_PROVIDER_BUDGET_MODE === "required"
+    && validLimit(stagingGlobalBudget) && budgetKeys.every(key => validLimit(staging.vars?.[`REXBID_PROVIDER_BUDGET_${key}_DAILY_LIMIT`]))
+    && budgetKeys.reduce((total, key) => total + Number(staging.vars[`REXBID_PROVIDER_BUDGET_${key}_DAILY_LIMIT`]), 0) <= Number(stagingGlobalBudget);
+  if (!stagingBudgetConfigured) issues.push("staging_provider_budgets_invalid_or_unbounded");
   if (production.name !== "mtbid" || production.main !== "./worker.js") issues.push("production_worker_identity");
   if (productionDb?.database_name !== "rexbid-db" || productionDb?.database_id !== "971879fe-04ed-4e8c-9dc6-5306980bb872") issues.push("production_database_target");
   if (!production.assets || production.assets.directory !== "./public" || production.assets.binding !== "ASSETS") issues.push("production_assets_binding");
@@ -32,7 +40,19 @@ function validateWorkerConfigs(root = path.resolve(__dirname, "..")) {
   for (const route of ["/__staging/d1-sync-phase-b-test", "/__staging/phase-c-shadow"]) {
     if (productionWorker.includes(route)) issues.push(`staging_route_in_production_worker:${route}`);
   }
-  return { ok: issues.length === 0, issues, production: { worker: production.name, database: productionDb?.database_name, database_id: productionDb?.database_id }, staging: { worker: staging.name, database: stagingDb?.database_name, database_id: stagingDb?.database_id, prototype_enabled: staging.vars?.REXBID_DOOR_ESTIMATOR_PROTOTYPE === "enabled" } };
+  const productionBudgetMissing = production.vars?.REXBID_PROVIDER_BUDGET_MODE === "required"
+    && (!validLimit(production.vars?.REXBID_PROVIDER_BUDGET_DAILY_LIMIT)
+      || budgetKeys.some(key => !validLimit(production.vars?.[`REXBID_PROVIDER_BUDGET_${key}_DAILY_LIMIT`])));
+  return { ok: issues.length === 0, issues,
+    production: { worker: production.name, database: productionDb?.database_name, database_id: productionDb?.database_id,
+      provider_budget_mode: production.vars?.REXBID_PROVIDER_BUDGET_MODE || "not_enabled",
+      provider_budget_configured: !productionBudgetMissing,
+      provider_traffic_fail_closed: production.vars?.REXBID_PROVIDER_BUDGET_MODE === "required" && productionBudgetMissing,
+      launch_blockers: productionBudgetMissing ? ["production_provider_daily_budgets_require_owner_approval"] : [] },
+    staging: { worker: staging.name, database: stagingDb?.database_name, database_id: stagingDb?.database_id,
+      prototype_enabled: staging.vars?.REXBID_DOOR_ESTIMATOR_PROTOTYPE === "enabled",
+      provider_budget_mode: staging.vars?.REXBID_PROVIDER_BUDGET_MODE || "not_enabled",
+      provider_budget_configured: stagingBudgetConfigured, provider_daily_limit: stagingGlobalBudget, provider_operation_limits: stagingBudgetLimits } };
 }
 
 if (require.main === module) {

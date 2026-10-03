@@ -61,6 +61,26 @@ test('/api/cars and /api/filters use known D1 data and disclose partial coverage
   assert.deepEqual(calls,[]);assert.equal(sqlite.prepare('SELECT COUNT(*) n FROM auction_listings').get().n,2);sqlite.close();
 });
 
+test('read telemetry counts D1 reads and falls back with route/platform/reason but no vehicle identifier',async()=>{
+  const {sqlite,d1}=setup(),env=envFor(d1),calls=[],delegate=providerDelegate(calls);
+  const entries=[];const original=console.info;console.info=(...args)=>entries.push(args.join(' '));
+  try {
+    await handlePrimaryRead(request('/api/cars?platform=iaai'),env,null,delegate);
+    await handlePrimaryRead(request('/api/car/1HGCM82633A004352?platform=copart'),env,null,delegate);
+  } finally { console.info=original; }
+  assert.equal(entries.length,2);
+  const d1Event=JSON.parse(entries[0].slice(entries[0].indexOf('{')));
+  const fallbackEvent=JSON.parse(entries[1].slice(entries[1].indexOf('{')));
+  assert.deepEqual({route:d1Event.route,source:d1Event.read_source,d1_read:d1Event.d1_read,d1_hit:d1Event.d1_hit,
+    provider_fallback:d1Event.provider_fallback,platform:d1Event.platform},
+  {route:'/api/cars',source:'d1',d1_read:true,d1_hit:true,provider_fallback:false,platform:'iaai'});
+  assert.deepEqual({route:fallbackEvent.route,source:fallbackEvent.read_source,d1_read:fallbackEvent.d1_read,
+    provider_fallback:fallbackEvent.provider_fallback,platform:fallbackEvent.platform,reason:fallbackEvent.fallback_reason},
+  {route:'/api/car/:identifier',source:'provider',d1_read:true,provider_fallback:true,platform:'copart',reason:'d1_record_missing'});
+  assert.doesNotMatch(entries.join('\n'),/1HGCM82633A004352|TESTVIN|@/);
+  assert.equal(calls.length,1);sqlite.close();
+});
+
 test('D1-first catalog applies search and supported vehicle filters to known rows only',async()=>{
   const {sqlite,d1}=setup(),env=envFor(d1),calls=[],delegate=providerDelegate(calls);
   sqlite.prepare("UPDATE auction_listings SET run_state='run_and_drive',location_state='TX',body_style='Sedan' WHERE platform='copart'").run();

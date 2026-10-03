@@ -12,6 +12,7 @@ Ten dokument jest technicznym szkicem opartym na obecnym kodzie. Nie jest porad�
 - Sesja BFF jest przenoszona w szyfrowanym cookie `HttpOnly`, `Secure`, host-only. Cookie PKCE jest krótkotrwałe.
 - Logi techniczne mają pomijać hasła, e-maile, tokeny, cookies i pełne treści formularzy; rzeczywisty okres retencji logów Cloudflare wymaga ustalenia.
 - Dane pojazdów/aukcji są osobnym zbiorem od danych kont. Prawa do danych i zdjęć opisuje `docs/APIBARA_DATA_RIGHTS.md`.
+- Rex.Bid przechowuje referencje URL do części zdjęć/miniatur dla wyświetlenia pojazdu. Są to third-party media; nie przechowujemy tu trwałego archiwum binarnych oryginałów. Retencja URL-i i metadanych wymaga potwierdzenia w polityce retencji.
 
 ## Prawa i ustawienia do ustalenia
 

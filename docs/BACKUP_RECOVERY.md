@@ -35,14 +35,24 @@ Przed publicznym uruchomieniem: wykonaj co najmniej jedną próbę importu ekspo
 
 **Źródła Cloudflare (sprawdzone 2026-09-29):** [D1 export/import](https://developers.cloudflare.com/d1/best-practices/import-export-data/), [D1 Time Travel](https://developers.cloudflare.com/d1/reference/time-travel/), [Wrangler D1 commands and migration backup](https://developers.cloudflare.com/d1/wrangler-commands/).
 
-### Rzeczywisty rehearsal stagingowy — 2026-10-03
+### Wcześniejszy lokalny rehearsal — 2026-10-03 (historyczny, superseded dla remote D1)
 
 - Źródło: wyłącznie `rexbid-auth-test-db` / `acb3cb8e-69a2-459f-8a46-0f2f5b9004be`; eksport tymczasowy poza repo, usunięty po kontroli.
 - Cel: efemeryczna `node:sqlite` in-memory database; nie utworzono nowego zdalnego D1 i nie zmieniono danych źródłowych.
 - Kontrola: 18 tabel, `users=1`, `user_favorites=1`, `vehicle_sources=380`, `auction_listings=380`, snapshots=380, events/entities=0, legacy vehicles/snapshots/history=0.
-- Wynik: **PASS dla eksportu → importu do disposable SQLite i kontroli countów**. To nie dowodzi remote Cloudflare D1 restore ani odtworzenia do nowego Cloudflare D1. Produkcyjny export/restore, retencja, szyfrowanie kopii i dostęp operacyjny nadal wymagają zatwierdzonej procedury.
-# Final review update — 2026-10-03
+- Wynik: **PASS dla eksportu → importu do disposable SQLite i kontroli countów**. Późniejszy remote rehearsal opisany poniżej odrębnie zweryfikował import do Cloudflare D1.
+
+### Korekta — remote Cloudflare D1 restore rehearsal — 2026-10-03
+
+Powyższy zapis dotyczył wcześniejszej próby lokalnej i został uzupełniony późniejszym, pełnym testem zdalnym:
+
+- Źródło pozostało wyłącznie `rexbid-auth-test-db` (`acb3cb8e-69a2-459f-8a46-0f2f5b9004be`). Wykonano remote export, import do osobnej tymczasowej D1 `rexbid-restore-rehearsal-20261003-0809` (`6ed87387-7501-4a1c-8fa8-cdcc02c05779`) i bezpośrednie porównanie.
+- Porównano 41 obiektów CREATE TABLE/INDEX; znormalizowane DDL miało zgodny SHA-256 `84A6DF4978E3D2BBBBBF1429B59BDA2F0921AF213C158E63D58391AA66863291`. `foreign_key_check` pusty po obu stronach.
+- Kluczowe county źródło/cel były równe: users 1, favorites 1, sources/listings/snapshots 380/380/380, events/entities 0/0, scopes 2, runs 10, page commits 19, budgets 7, reservations 23, legacy tables 0, listings z media URL 80.
+- Po walidacji usunięto tylko tymczasową bazę wskazaną nazwą i UUID oraz tymczasowe eksporty. Ponownie potwierdzono, że źródłowy staging D1 i produkcyjny `rexbid-db` zachowały właściwe identyfikatory i nie zostały nadpisane.
+- **Wynik: remote staging restore rehearsal PASS.** Nie dowodzi to jeszcze odtworzenia produkcyjnej bazy ani ustalenia produkcyjnej retencji/szyfrowanego magazynu. Wymagany jest osobny prod-target dry-run/review i właścicielska zgoda.
+# Final review update — 2026-10-03 (historyczny zapis, superseded przez remote rehearsal poniżej)
 
 - Completed staging D1 export followed by import into disposable in-memory SQLite; 18 tables and key account/catalog counts matched. Temporary export was removed. Source staging D1 was read-only.
-- **Limitation:** no new remote Cloudflare D1 was created and no remote D1 import/restore was performed. Mark remote restore rehearsal **NOT VERIFIED**; do not treat SQLite rehearsal as a substitute.
-- Before production: rehearse export/import into a separately named disposable Cloudflare D1, verify schema/foreign keys/counts and account isolation, retain checksums and artifact access controls, then document restore duration and rollback decision. Never restore over `rexbid-auth-test-db` or `rexbid-db` during rehearsal.
+- **Korekta statusu:** ten wpis powstał przed późniejszym remote rehearsal i nie opisuje końcowego stanu.
+- Remote staging rehearsal został później wykonany; patrz sekcja „Korekta — remote Cloudflare D1 restore rehearsal”. Dla produkcji nadal wymagane są zatwierdzone zasady szyfrowania/retencji backupu i osobny plan operacyjny. Nigdy nie odtwarzaj nad `rexbid-auth-test-db` ani `rexbid-db` w trakcie rehearsal.

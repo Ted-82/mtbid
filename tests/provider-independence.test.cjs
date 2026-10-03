@@ -169,6 +169,52 @@ test('provider 429/5xx/timeout errors are controlled and never expose upstream b
   assert.ok(logs.every(line => !line.includes(secret) && !line.includes('secret body marker')));
 });
 
+test('provider request telemetry counts only real upstream fetches and emits no identifier or secret', async () => {
+  const secret = 'PROVIDER_SECRET_TELEMETRY_TEST';
+  const vin = '1HGCM82633A004352';
+  const logs = [];
+  const provider = createApibaraProvider({
+    fetch: async () => new Response('{}', {status: 200}),
+    console: {info: (...args) => logs.push(args.join(' ')), warn() {}, error() {}}
+  });
+  await provider.request({APIBARA_API_KEY: secret}, {operation: 'vehicleByIdentifier', identifier: vin, platform: 'iaai'});
+  assert.equal(logs.length, 1);
+  const event = JSON.parse(logs[0].slice(logs[0].indexOf('{')));
+  assert.deepEqual({provider: event.provider, operation: event.operation, route: event.route, platform: event.platform,
+    upstream_request: event.upstream_request, outcome: event.outcome, status: event.status},
+  {provider: 'apibara', operation: 'vehicleByIdentifier', route: '/api/car/:identifier', platform: 'iaai',
+    upstream_request: true, outcome: 'success', status: 200});
+  assert.doesNotMatch(logs.join('\n'), new RegExp(`${secret}|${vin}`));
+});
+
+test('search telemetry uses the public catalog route template', async () => {
+  const logs = [];
+  const provider = createApibaraProvider({
+    fetch: async () => new Response(JSON.stringify({data: []}), {status: 200}),
+    console: {info: (...args) => logs.push(args.join(' ')), warn() {}, error() {}}
+  });
+  await provider.searchVehicles({APIBARA_API_KEY: 'not-logged'}, 'LOT-123', 20);
+  const event = JSON.parse(logs[0].slice(logs[0].indexOf('{')));
+  assert.equal(event.operation, 'searchVehicles');
+  assert.equal(event.route, '/api/cars');
+  assert.equal(event.upstream_request, true);
+});
+
+test('provider budget rejection prevents fetch and telemetry counts no upstream request', async () => {
+  let calls = 0;
+  const logs = [];
+  const provider = createApibaraProvider({
+    fetch: async () => { calls++; return new Response('{}'); },
+    requestBudget: {begin: async () => { const error = new Error('limited'); error.code = 'RATE_LIMITED'; error.status = 429; throw error; }},
+    console: {info: (...args) => logs.push(args.join(' ')), warn() {}, error() {}}
+  });
+  await assert.rejects(provider.listVehicles({APIBARA_API_KEY: 'not-logged'}, {platform: 'copart', _budgetClass: 'discovery'}), error => error.code === 'RATE_LIMITED');
+  assert.equal(calls, 0);
+  const event = JSON.parse(logs[0].slice(logs[0].indexOf('{')));
+  assert.equal(event.upstream_request, false);
+  assert.equal(event.safe_error_code, 'RATE_LIMITED');
+});
+
 test('Rex.Bid route contract and frontend source remain provider-neutral and unchanged', () => {
   for (const path of ['/api/cars', '/api/car/:identifier', '/api/car/:identifier/history', '/api/filters']) assert.ok(workerSource.includes(path) || path.includes(':identifier'));
   assert.match(workerSource, /"\/api\/cars"/);

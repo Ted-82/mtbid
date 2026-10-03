@@ -8,7 +8,8 @@
 - [ ] Opublikować wyłącznie owner/legal-approved privacy, terms, cookies i auction/calculator disclaimers; `docs/legal/*_DRAFT.md` są szkicami.
 - [ ] Dla Accounts osobno zatwierdzić migration 0003, production Supabase/cookie secret/origins, Cloudflare Auth rate limiter i real-browser E2E. Brak dowolnego wymogu oznacza Auth OFF.
 - [ ] Ustalić limity/alerty provider calls i fallbacków; nie aktywować Cron bez twardego budżetu.
-- [ ] Potwierdzić politykę backup retention. Staging→SQLite rehearsal nie zastępuje production restore rehearsal.
+- [x] Remote staging D1 export/import rehearsal do osobnej tymczasowej Cloudflare D1: schema/count/FK PASS; temporary DB/export removed.
+- [ ] Potwierdzić szyfrowanie/retencję backupu oraz zatwierdzony production backup/restore plan. Staging rehearsal nie jest production restore rehearsal.
 
 Ta lista jest wymaganym runbookiem. Sam fakt przejścia `node --test` nie oznacza zgody na deploy. Konta i D1 Sync nie są częścią zwykłego wdrożenia strony.
 
@@ -43,6 +44,17 @@ Ta lista jest wymaganym runbookiem. Sam fakt przejścia `node --test` nie oznacz
 ## Zatrzymanie wdrożenia
 
 Nie wdrażaj, jeśli target Worker/D1 jest niejednoznaczny, testy nie przechodzą, backup nie jest potwierdzony, wymagane sekrety nie są skonfigurowane, Auth miałoby zostać przypadkowo aktywowane, albo wymagane prawa danych/zgody nadal są otwarte.
+
+## Aktualizacja blocker-closure — 2026-10-03
+
+- [x] Remote staging D1 backup/restore rehearsal do osobnej tymczasowej Cloudflare D1; schema/count/FK PASS; tymczasowy target usunięty po sprawdzeniu dokładnego ID.
+- [ ] Przed produkcją zatwierdzić retencję, access control i szyfrowany storage backupu. Staging rehearsal nie odtwarza `rexbid-db`.
+- [ ] Produkcyjne migracje: backup → proposal `0003` Accounts → proposal `0004` Sync → media fields (odpowiednik 0005, po 0004). Każda migracja w osobnym zatwierdzonym oknie.
+- [ ] Zatwierdzić limity globalne i klas operacji; config ma `REXBID_PROVIDER_BUDGET_MODE=required`, a brak limitów/schema ma blokować fetch przed upstream.
+- [ ] Cron/Queue pozostają wyłączone; najpierw bounded-run review, budgets, leases, failure alerts i rollback kill switch.
+- [x] Provider/fallback telemetry and atomic fail-closed daily budgets: 310 automated tests pass; production/staging Wrangler dry-run builds pass. Changes are not deployed; complete a staging deployment/smoke before relying on runtime telemetry.
+
+Runbook: `docs/PRODUCTION_CUTOVER_RUNBOOK.md`.
 # Final staging review addendum — 2026-10-03
 
 - Last reviewed staging release: `rexbid-auth-test` Version `6c70674f-c164-404f-afc0-b1984ffe5549`; production `mtbid` and `rexbid-db` were not used.

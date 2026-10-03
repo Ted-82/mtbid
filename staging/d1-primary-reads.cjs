@@ -30,9 +30,17 @@ function safeRoute(path) {
   return "/api/car/:identifier";
 }
 
-function logRead({route, source, hit, freshness, fallbackReason, started, cache = "bypass", status}) {
+function safePlatform(value) {
+  const platform = String(value || "").toLowerCase();
+  return ["copart", "iaai", "manheim", "adesa"].includes(platform) ? platform : "unknown";
+}
+
+function logRead({route, source, hit, freshness, fallbackReason, started, cache = "bypass", status, platform = "unknown"}) {
+  const providerFallback = source === "provider" || source === "hybrid";
   console.info("Rex.Bid staging public read", JSON.stringify({
-    request_id: crypto.randomUUID(), route, read_source: source, d1_hit: hit, freshness,
+    request_id: crypto.randomUUID(), route, read_source: source, d1_read: true,
+    d1_hit: hit, provider_fallback: providerFallback, platform: safePlatform(platform),
+    freshness, stale_or_missing: providerFallback && (hit !== true || freshness !== "fresh"),
     fallback_reason: fallbackReason || null, cache,
     duration_ms: Math.max(0, Date.now() - started), status
   }));
@@ -83,10 +91,11 @@ function mergeNonNull(base, newer) {
 }
 
 async function fallback(request, env, executionContext, delegate, {reason, coverage = null, staleDto = null, route, started, hit}) {
+  const fallbackPlatform = new URL(request.url).searchParams.get("platform") || staleDto?.platform || "unknown";
   const response = await delegate(request, env, executionContext);
   let body;
   try { body = await response.clone().json(); } catch {
-    logRead({route, source: "provider", hit, freshness: "unknown", fallbackReason: reason, started, status: response.status});
+    logRead({route, source: "provider", hit, freshness: "unknown", fallbackReason: reason, started, status: response.status, platform: fallbackPlatform});
     return response;
   }
   const meta = providerMeta(reason, coverage);
@@ -97,13 +106,13 @@ async function fallback(request, env, executionContext, delegate, {reason, cover
     body.fallback_reason = reason;
     body.read = {...(body.read || {}), source: "hybrid", freshness: "stale", fallback_reason: reason,
       catalog_complete: meta.catalog_complete, scope_status: meta.scope_status, platform_coverage: meta.platform_coverage};
-    logRead({route, source: "hybrid", hit, freshness: "stale", fallbackReason: reason, started, status: response.status});
+    logRead({route, source: "hybrid", hit, freshness: "stale", fallbackReason: reason, started, status: response.status, platform: staleDto?.platform || fallbackPlatform});
   } else {
     body.read_source = "provider";
     body.fallback_reason = reason;
     body.read = {...(body.read || {}), ...meta};
     if (body.meta && typeof body.meta === "object") body.meta = {...body.meta, ...meta};
-    logRead({route, source: "provider", hit, freshness: "unknown", fallbackReason: reason, started, status: response.status});
+    logRead({route, source: "provider", hit, freshness: "unknown", fallbackReason: reason, started, status: response.status, platform: fallbackPlatform});
   }
   const headers = new Headers(response.headers);
   headers.set("Cache-Control", "private, no-store");
@@ -171,7 +180,7 @@ async function handlePrimaryRead(request, env, executionContext, delegate) {
         meta: {...result.page, ...coverageInfo, read_source: "d1", metadata_complete: false,
           known_rows_only: true, freshness: result.read.freshness}};
       logRead({route, source: "d1", hit: result.records.length > 0, freshness: result.read.freshness.status,
-        started, status: 200});
+        started, status: 200, platform: options.platform});
       return json(body);
     }
 
@@ -180,7 +189,8 @@ async function handlePrimaryRead(request, env, executionContext, delegate) {
       // Filter values are derived from known rows only; global scope coverage
       // remains visible even when metadata is requested for one platform.
       const coverageInfo = coverageMetadata(coverage);
-      logRead({route, source: "d1", hit: result.read.row_count > 0, freshness: "partial_or_unknown", started, status: 200});
+      logRead({route, source: "d1", hit: result.read.row_count > 0, freshness: "partial_or_unknown", started, status: 200,
+        platform: url.searchParams.get("platform")});
       return json({ok: true, data: result.values, meta: {read_source: "d1", ...coverageInfo,
         metadata_complete: false, known_rows_only: true, row_count: result.read.row_count}});
     }
@@ -209,7 +219,7 @@ async function handlePrimaryRead(request, env, executionContext, delegate) {
         read_source: "d1", fallback_reason: null,
         read: {source: "d1", freshness: stored.freshness.status, last_seen_at: stored.freshness.last_seen_at,
           last_synced_at: stored.freshness.last_synced_at, ...coverageMetadata(await repo.getCoverage(vehicle.platform))}};
-      logRead({route, source: "d1", hit: true, freshness: stored.freshness.status, started, status: 200});
+      logRead({route, source: "d1", hit: true, freshness: stored.freshness.status, started, status: 200, platform: vehicle.platform});
       return json(body);
     }
 
@@ -229,7 +239,7 @@ async function handlePrimaryRead(request, env, executionContext, delegate) {
       rex_history: {count: events.length, records: events, events, snapshots: snapshots.snapshots, kind},
       read: {source: "d1", history_kind: kind, freshness: historyFreshness,
         observed_snapshot_count: snapshots.snapshots.length, confirmed_event_count: events.length, ...coverageMetadata(coverage)}};
-    logRead({route, source: "d1", hit: true, freshness: historyFreshness, started, status: 200});
+    logRead({route, source: "d1", hit: true, freshness: historyFreshness, started, status: 200, platform: stored.vehicle.platform});
     return json(body);
   } catch {
     return fallback(request, env, executionContext, delegate, {reason: "d1_query_failed_or_schema_mismatch",

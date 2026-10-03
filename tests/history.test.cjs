@@ -16,12 +16,14 @@ function loadWorker(fetchImpl = async () => { throw new Error('Unexpected networ
     .replace('import contract from "./providers/contract.js";', 'const contract = globalThis.__providerContract;')
     .replace('import authProviderModule from "./auth/supabase.js";', 'const authProviderModule = globalThis.__authProviderModule;')
     .replace('import accountsModule from "./auth/routes.js";', 'const accountsModule = globalThis.__accountsModule;')
+    .replace('import providerBudgetModule from "./providers/request-budget.js";', 'const providerBudgetModule = globalThis.__providerBudgetModule;')
     .replace('export default {', 'globalThis.__worker = {');
   assert.notEqual(source, workerSource, 'Worker module export marker should exist');
   const context = {
     URL, URLSearchParams, Request, Response, Headers, AbortController, crypto: require('node:crypto').webcrypto,
     __apibaraModule: require('../providers/apibara.js'), __providerContract: require('../providers/contract.js'), console: timer.console || console,
     __authProviderModule: require('../auth/supabase.js'), __accountsModule: require('../auth/routes.js'),
+    __providerBudgetModule: require('../providers/request-budget.js'),
     fetch: fetchImpl,
     setTimeout: timer.setTimeout || setTimeout,
     clearTimeout: timer.clearTimeout || clearTimeout,

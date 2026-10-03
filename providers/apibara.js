@@ -83,6 +83,25 @@ function safeText(value, key) {
   return String(value).split(String(key || "\u0000")).join("[REDACTED]").replace(/(x-api-key|authorization)\s*[:=]\s*[^\s,;]+/gi, "$1=[REDACTED]").slice(0, 500);
 }
 
+function providerRoute(operation) {
+  if (operation === "listVehicles") return "/api/cars";
+  if (operation === "searchVehicles") return "/api/cars";
+  if (operation === "vehicleFilters") return "/api/filters";
+  if (operation === "vehicleHistory") return "/api/car/:identifier/history";
+  if (operation === "vehicleByIdentifier") return "/api/car/:identifier";
+  return "unknown";
+}
+
+function providerPlatform(spec) {
+  const value = String(spec?.platform || spec?.params?.platform || "").toLowerCase();
+  return ["copart", "iaai", "manheim", "adesa"].includes(value) ? value : "unknown";
+}
+
+function providerErrorCode(error) {
+  return ["CONFIGURATION", "AUTH", "RATE_LIMITED", "TIMEOUT", "UPSTREAM", "NOT_FOUND", "INVALID_REQUEST", "INVALID_RESPONSE"].includes(error?.code)
+    ? error.code : "UPSTREAM";
+}
+
 function createApibaraProvider(options = {}) {
   const fetchImpl = options.fetch || ((...args) => fetch(...args));
   const setTimer = options.setTimeout || setTimeout;
@@ -100,25 +119,64 @@ function createApibaraProvider(options = {}) {
       throw error;
     }
     const controller = new AbortController();
-    const timer = setTimer(() => controller.abort(), timeoutMs);
+    // Budget reservations may wait on D1. Start the upstream timeout only
+    // when the provider fetch is about to begin, otherwise D1 latency can
+    // manufacture a false timeout before any network request was sent.
+    let timer = null;
+    const requestId = globalThis.crypto?.randomUUID?.() || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+    const started = Date.now();
+    const operation = typeof spec.operation === "string" && /^[A-Za-z]{1,40}$/.test(spec.operation) ? spec.operation : "unknown";
+    const route = providerRoute(operation);
+    const platform = providerPlatform(spec);
+    let budgetReservation = null;
+    let httpStatus = null;
+    let outcome = "error";
+    let errorCode = null;
+    let upstreamRequest = false;
+    const emit = () => {
+      try { logger.info?.("Rex.Bid provider request", JSON.stringify({request_id: requestId, provider: "apibara",
+        operation, route, platform, upstream_request: upstreamRequest, outcome, status: httpStatus,
+        safe_error_code: errorCode, duration_ms: Math.max(0, Date.now() - started)})); } catch {}
+    };
     try {
+      if (options.requestBudget?.begin) budgetReservation = await options.requestBudget.begin(env, spec);
+      else if (typeof options.requestBudget === "function") budgetReservation = await options.requestBudget(env, spec);
+      timer = setTimer(() => controller.abort(), timeoutMs);
+      upstreamRequest = true;
       const response = await fetchImpl(url.toString(), { method: "GET", redirect: "manual", headers: { Accept: "application/json", "X-API-Key": key }, signal: controller.signal });
+      httpStatus = response.status;
       if (!response.ok) {
         const code = response.status === 404 ? "NOT_FOUND" : response.status === 401 || response.status === 403 ? "AUTH" : response.status === 429 ? "RATE_LIMITED" : "UPSTREAM";
+        errorCode = providerErrorCode({code});
         const rawRetry = response.headers.get("Retry-After");
         const retryAfter = rawRetry && /^\d+$/.test(rawRetry) ? Number(rawRetry) : null;
         logger.warn("Provider HTTP response error", JSON.stringify({ provider: "apibara", operation: spec.operation, status: response.status, code, contentType: response.headers.get("Content-Type") || null }));
         try { await response.body?.cancel(); } catch {}
         throw new ProviderError("apibara", code, response.status, retryAfter);
       }
-      try { return await response.json(); } catch { throw new ProviderError("apibara", "INVALID_RESPONSE", response.status); }
+      try {
+        const payload = await response.json();
+        outcome = "success";
+        return payload;
+      } catch {
+        errorCode = "INVALID_RESPONSE";
+        throw new ProviderError("apibara", "INVALID_RESPONSE", response.status);
+      }
     } catch (error) {
+      errorCode = errorCode || providerErrorCode(error);
       if (error instanceof ProviderError) throw error;
+      if (error?.code === "RATE_LIMITED" || error?.code === "CONFIGURATION") {
+        throw new ProviderError("apibara", error.code, error.status || (error.code === "RATE_LIMITED" ? 429 : 503));
+      }
       const cause = error?.cause;
       logger.error("Provider transport diagnostic", JSON.stringify({ provider: "apibara", operation: spec.operation, stage: "fetch", errorName: safeText(error?.name, key), errorMessage: safeText(error?.message, key), causeType: typeof cause, cause: cause && typeof cause === "object" ? { name: safeText(cause.name, key), code: safeText(cause.code, key), errno: safeText(cause.errno, key), syscall: safeText(cause.syscall, key) } : safeText(cause, key) }));
       if (controller.signal.aborted || error?.name === "AbortError") throw new ProviderError("apibara", "TIMEOUT", 504);
       throw new ProviderError("apibara", "UPSTREAM");
-    } finally { clearTimer(timer); }
+    } finally {
+      if (timer !== null) clearTimer(timer);
+      try { await budgetReservation?.finish?.(); } catch {}
+      emit();
+    }
   }
 
 function normalizeApibaraVehicle(vehicle) {
@@ -836,7 +894,12 @@ function normalizeApibaraHistoryRecord(
     responseOk, publicFilterData, publicFilterMeta,
     async fetchVehicle(env, identifier) { return request(env, { operation: "vehicleByIdentifier", identifier }); },
     async searchVehicles(env, search, per_page = 20) { return request(env, { operation: "searchVehicles", search, per_page }); },
-    async listVehicles(env, params = {}) { return request(env, { operation: "listVehicles", params }); },
+    async listVehicles(env, params = {}) {
+      const budgetClass = params?._budgetClass;
+      const apiParams = {...params};
+      delete apiParams._budgetClass;
+      return request(env, { operation: "listVehicles", params: apiParams, ...(budgetClass ? {budgetClass} : {}) });
+    },
     async fetchHistory(env, identifier, { per_page = 20, cursor = null } = {}) {
       const response = await request(env, { operation: "vehicleHistory", identifier, per_page, cursor });
       return { response, records: historyRecords(response), nextCursor: response?.meta?.next_cursor ?? response?.data?.meta?.next_cursor ?? response?.response?.meta?.next_cursor ?? response?.response?.data?.meta?.next_cursor ?? null };

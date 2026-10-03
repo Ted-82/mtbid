@@ -152,7 +152,7 @@ async function runPlatformBackfill({db,env,requestId,platform,maxPages=DEFAULT_P
       const fetchStarted=now();result.liveRequests+=1;
       await db.prepare("UPDATE sync_runs SET upstream_requests=upstream_requests+1 WHERE run_id=? AND status='running'").bind(runId).run();
       let upstream;
-      try{upstream=await provider.listVehicles(env,{platform,per_page:PAGE_SIZE,...(cursor!==null?{cursor}:{})});}
+      try{upstream=await provider.listVehicles(env,{platform,per_page:PAGE_SIZE,_budgetClass:"discovery",...(cursor!==null?{cursor}:{})});}
       catch(error){await repo.finishBudgetReservation({reservationId,now:now()});await repo.finishBudgetReservation({reservationId:campaignReservationId,now:now()});throw Object.assign(new Error(),{safeCode:error?.code==="RATE_LIMITED"?"provider_rate_limited":error?.code==="TIMEOUT"?"provider_timeout":error?.status>=500?"provider_5xx":"provider_unavailable"});}
       const fetchedAt=now();await repo.finishBudgetReservation({reservationId,now:fetchedAt});await repo.finishBudgetReservation({reservationId:campaignReservationId,now:fetchedAt});
       result.providerLatencyMs=(result.providerLatencyMs||0)+Math.max(0,fetchedAt-fetchStarted);

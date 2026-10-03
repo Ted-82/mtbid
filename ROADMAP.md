@@ -5,11 +5,11 @@
 - Target: **RELEASE CANDIDATE — READY FOR FINAL OWNER REVIEW**, not a production release. Staging baseline Worker `rexbid-auth-test` (`d86cef66-7683-42d6-8c75-32566f828a81`) / D1 `rexbid-auth-test-db`; production `mtbid` / `rexbid-db` remains unchanged.
 - Review found stale auction date labels, fabricated/dead account controls, an unconfigured contact form reporting success and old English footer text. Local fixes have regression coverage; Home aisle order is now Current → Timed → Buy Now → Upcoming.
 - Staging D1 remains explicitly partial: Copart 260 + IAAI 120, both with independent cursors; 380 listing snapshots, 0 events/entities; 80 records have media URL/thumb refs; users/favorites 1/1; legacy tables 0. No provider calls were made in this review.
-- Staging backup export → disposable in-memory SQLite rehearsal passed count validation. It did not overwrite staging and does not prove remote Cloudflare D1 restore. Production backup retention and restore rehearsal remain owner-controlled.
+- Remote staging backup export → separate disposable Cloudflare D1 import rehearsal passed schema/count/FK validation; the temporary database/export were removed. Production backup encryption/retention and an approved production restore plan remain owner-controlled.
 - Auth recovery/resend and authenticated export/delete remain unverified in this browser session. Password recovery is blocked pending verified SMTP/delivery. Production Accounts stays fail-closed until SMTP, rate limiter, schema 0003, legal review and owner approval.
 - Scheduled discovery/refresh is **DESIGN ONLY / DISABLED**: separate Copart/IAAI scopes, hard run/campaign budgets, leases/checkpoints, bounded retry/backoff and separate selective media URL enrichment. No Cron/Queue was activated.
 - Five legal notice drafts are in `docs/legal/`, each marked **DRAFT — REQUIRES OWNER/LEGAL REVIEW**. Final domain, DNS, HTTPS, canonical/sitemap/robots and Supabase redirects require owner domain selection.
-- At this update, 300/300 automated tests pass; current UI fixes still need staging deploy/browser verification before marking them staging-verified.
+- At the blocker-closure update, 310/310 automated tests pass; new telemetry/budget code passed local Wrangler dry-run but was not deployed to staging. No production deploy, migration, Cron, or Apibara call occurred.
 
 ## Staging product milestone — lokalne przygotowanie (2026-10-01)
 
@@ -298,3 +298,14 @@ Statusy launch: `docs/LAUNCH_READINESS.md`; backup/restore: `docs/BACKUP_RECOVER
 - **Data scope:** staging D1 remains 260 Copart + 120 IAAI listings/sources, 380 snapshots, 80 media URL/thumb sets, 0 events/entities, 1 user/1 favorite row, no legacy vehicle/history rows. Separate platform scopes remain partial with cursors; D1-first applies only to known rows. Do not present these counts as total-market coverage.
 - **Operations:** health/readiness/private-cache/noindex/error smoke passed. Staging export→disposable in-memory SQLite rehearsal passed; separate remote D1 restore remains open. No schedule/Cron enabled. No discovery/backfill was run in this review. Exact provider fallback count and DevTools Network capture remain unverified; history can use the guarded provider fallback.
 - **Next:** owner review of release candidate; complete production domain, Supabase/SMTP, rate-limiter, backup restore, legal and production migration/deploy gates before any production activation.
+# Produkcyjna bramka launchu — aktualizacja 2026-10-03
+
+- Remote export/restore rehearsal staging → osobna tymczasowa Cloudflare D1: **PASS**, baza ćwiczeniowa usunięta po porównaniu schematu/countów/FK. Produkcyjne `rexbid-db` nietknięte.
+- Lokalna warstwa telemetryczna provider/D1 fallback i atomowe globalne/per-operation budżety jest przygotowana i wymaga pełnej walidacji. Limity staging w configu: 500/doba globalnie; 250 katalog, 150 detail, 60 historia, 30 discovery, 10 media. Produkcyjne wartości wymagają zatwierdzenia właściciela; `required` bez wartości oznacza fail-closed.
+- Cron/Queue nieaktywne. Scheduled Provider Sync ma runbook, niezależne scope Copart/IAAI, lease/cursor/budget, ograniczony retry/backoff i alerty; aktywacja wymaga osobnego rollout planu.
+- Migracje prod w planowanej kolejności: backup → `0003` Accounts (dopiero po konfiguracji Auth) → `0004` Sync → odpowiednik `0005` media. Żadnej nie zastosowano do produkcji.
+- SMTP: brak dostawcy; porównanie Resend/Postmark/SES i aktualne opublikowane koszty w `docs/PRODUCTION_CUTOVER_RUNBOOK.md`. Recovery nie należy ponawiać na domyślnym mailerze.
+- Domena/callbacki, production Supabase + cookie secret, Cloudflare Auth limiter, SPF/DKIM/DMARC, publikacja legal drafts i właścicielska zgoda na cutover pozostają blockerami.
+- Legal drafts zostały doprecyzowane dla nieoficjalnych danych aukcyjnych, niewiążącego kalkulatora i third-party photos; wymagają review ownera/prawnika.
+- Bez produkcyjnego deployu, migracji, Cron, Auth ani requestów Apibara w tym sprincie.
+- Pełna walidacja lokalna po regresji telemetrycznej: **310/310 PASS**; partner-rate generator, config validator, składnia, diff-check oraz produkcyjny i stagingowy Wrangler dry-run PASS. Żadnego z dry-runów nie kontynuowano deployem.

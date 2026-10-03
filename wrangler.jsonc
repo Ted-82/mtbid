@@ -8,7 +8,8 @@
   "compatibility_date": "2026-09-19",
 
   "vars": {
-    "REXBID_CANONICAL_ORIGIN": "https://mtbid.tedn828.workers.dev"
+    "REXBID_CANONICAL_ORIGIN": "https://mtbid.tedn828.workers.dev",
+    "REXBID_PROVIDER_BUDGET_MODE": "required"
   },
 
   "d1_databases": [

@@ -14,12 +14,14 @@ function loadWorker({ assets, db, logs = [], fetchImpl = async () => { throw new
     .replace('import contract from "./providers/contract.js";', "const contract = globalThis.__contract;")
     .replace('import authProviderModule from "./auth/supabase.js";', "const authProviderModule = globalThis.__authProvider;")
     .replace('import accountsModule from "./auth/routes.js";', "const accountsModule = globalThis.__accounts;")
+    .replace('import providerBudgetModule from "./providers/request-budget.js";', "const providerBudgetModule = globalThis.__providerBudget;")
     .replace("export default {", "globalThis.__worker = {");
   const context = {
     URL, URLSearchParams, Request, Response, Headers, AbortController,
     crypto: require("node:crypto").webcrypto,
     __apibara: require("../providers/apibara.js"), __contract: require("../providers/contract.js"),
     __authProvider: require("../auth/supabase.js"), __accounts: require("../auth/routes.js"),
+    __providerBudget: require("../providers/request-budget.js"),
     fetch: fetchImpl,
     console: { info: (...args) => logs.push(args), warn: (...args) => logs.push(args), error: (...args) => logs.push(args) },
     caches: { default: { match: async () => null, put: async () => {} } }
@@ -42,6 +44,10 @@ test("Worker live/config files keep production and staging bindings isolated and
   assert.equal(result.staging.worker, "rexbid-auth-test");
   assert.equal(result.staging.database, "rexbid-auth-test-db");
   assert.equal(result.staging.prototype_enabled, false);
+  assert.equal(result.production.provider_traffic_fail_closed, true);
+  assert.equal(result.production.provider_budget_configured, false);
+  assert.equal(result.staging.provider_budget_configured, true);
+  assert.equal(result.staging.provider_daily_limit, "500");
   const productionConfig = JSON.parse(fs.readFileSync(path.join(ROOT, "wrangler.jsonc"), "utf8"));
   const stagingConfig = JSON.parse(fs.readFileSync(path.join(ROOT, "wrangler.staging.jsonc"), "utf8"));
   assert.notEqual(productionConfig.vars?.REXBID_PHASE_G_MULTIPLATFORM, "enabled", "Phase G runner must remain unavailable in production");
