@@ -344,12 +344,15 @@ function normalizeProviderVehicleList(result, providerId = DEFAULT_PROVIDER) {
 }
 
 function providerErrorResponse(error) {
+  if (error?.name === "ProviderBudgetError" && ["CONFIGURATION", "RATE_LIMITED"].includes(error.code)) {
+    return errorJson(error.code === "RATE_LIMITED" ? "Dzienny limit zapytań do dostawcy został osiągnięty." : "Dostawca danych jest chwilowo niedostępny.", error.code === "RATE_LIMITED" ? 429 : 503);
+  }
   if (!(error instanceof ProviderError)) return errorJson("Nie udało się pobrać danych.", 502);
   const status = error.code === "INVALID_REQUEST" ? 400
     : error.code === "NOT_FOUND" ? 404
     : error.code === "RATE_LIMITED" ? 429
     : error.code === "TIMEOUT" ? 504
-    : error.code === "CONFIGURATION" ? 500 : 502;
+    : error.code === "CONFIGURATION" ? 503 : 502;
   const publicMessage = error.code === "NOT_FOUND" ? "Nie znaleziono pojazdu." : error.code === "RATE_LIMITED" ? "Dane są chwilowo niedostępne. Spróbuj ponownie później." : error.code === "TIMEOUT" ? "Dostawca danych odpowiada zbyt wolno." : error.code === "CONFIGURATION" ? "Dostawca danych jest niedostępny." : "Nie udało się pobrać danych aukcyjnych.";
   const response = errorJson(publicMessage, status);
   if (error.code === "RATE_LIMITED" && error.retryAfter !== null) {
@@ -2426,6 +2429,10 @@ const rexWorker = {
     if (url.pathname.startsWith(syncPrefix)) {
       if (request.method !== "POST") {
         return errorJson("Metoda niedozwolona.", 405);
+      }
+
+      if (env?.REXBID_LEGACY_SYNC_ENABLED !== "true") {
+        return errorJson("Synchronizacja zapisu jest wyłączona.", 503);
       }
 
       const configuredToken = env?.REXBID_SYNC_TOKEN;

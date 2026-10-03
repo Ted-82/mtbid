@@ -8,16 +8,16 @@ const {freshnessPolicyFromEnv,classifyScopeState}=require("../sync/backfill-poli
 
 const STAGING_HOST="rexbid-auth-test.tedn828.workers.dev";
 const PLATFORMS=Object.freeze({
-  copart:Object.freeze({scopeKey:"rexbid-phase-d:persistent-discovery:copart",label:"Copart"}),
-  iaai:Object.freeze({scopeKey:"rexbid-phase-g:persistent-discovery:iaai",label:"IAAI"})
+  copart:Object.freeze({scopeKey:"rexbid-phase-d:persistent-discovery:copart",headScopeKey:"rexbid-catalog-recovery:fresh-head:copart",label:"Copart"}),
+  iaai:Object.freeze({scopeKey:"rexbid-phase-g:persistent-discovery:iaai",headScopeKey:"rexbid-catalog-recovery:fresh-head:iaai",label:"IAAI"})
 });
 const PAGE_SIZE=20;
-const MAX_PAGES_PER_RUN=4;
-const DEFAULT_PAGES_PER_RUN=4;
+const MAX_PAGES_PER_RUN=8;
+const DEFAULT_PAGES_PER_RUN=8;
 const PER_PLATFORM_LIMIT=10;
 const TOTAL_CAMPAIGN_LIMIT=20;
 const BUDGET_PROVIDER="apibara-phase-g-multiplatform";
-const CAMPAIGN="campaign-product-milestone-32533d4";
+const CAMPAIGN="campaign-catalog-recovery-20261003";
 function budgetKey(platform){return `${CAMPAIGN}-${platform}`;}
 function campaignBudgetKey(){return `${CAMPAIGN}-all-platforms`;}
 
@@ -91,7 +91,7 @@ async function readPlatformStatus(db,platform,now=Date.now(),staleAfterMs=86_400
   };
 }
 
-async function runPlatformBackfill({db,env,requestId,platform,maxPages=DEFAULT_PAGES_PER_RUN,now=()=>Date.now(),provider=createApibaraProvider()}){
+async function runPlatformBackfill({db,env,requestId,platform,maxPages=DEFAULT_PAGES_PER_RUN,scopeKeyOverride=null,now=()=>Date.now(),provider=createApibaraProvider()}){
   const started=now();
   const config=PLATFORMS[platform];
   const result={ok:false,stage:"preflight",requestId,platform,pageSize:PAGE_SIZE,pagesRequested:maxPages,pagesProcessed:0,
@@ -99,26 +99,27 @@ async function runPlatformBackfill({db,env,requestId,platform,maxPages=DEFAULT_P
     rejected:0,ambiguous:0,inserts:0,updates:0,duplicates:0,snapshotsCreated:0,eventsCreated:0,replayVerified:true,
     readback:true,rawPayloadStored:false,binaryMediaStored:false,mediaListingsPersisted:0,mediaUrlReferencesPersisted:0,
     stopReason:null,elapsedMs:0};
-  const repo=new D1SyncRepository(db);let lease=null;let runId=null;const mediaListingIds=new Set();
+  const repo=new D1SyncRepository(db);let lease=null;let runId=null;let activeScopeKey=null;const mediaListingIds=new Set();
   try{
     if(!config)throw Object.assign(new Error(),{safeCode:"invalid_platform"});
+    const scopeKey=scopeKeyOverride||config.scopeKey;activeScopeKey=scopeKey;
     if(!Number.isInteger(maxPages)||maxPages<1||maxPages>MAX_PAGES_PER_RUN)throw Object.assign(new Error(),{safeCode:"invalid_page_limit"});
     if(provider?.id!=="apibara"||!provider?.capabilities?.includes("vehicle.list"))throw Object.assign(new Error(),{safeCode:"provider_not_allowed"});
     if(!env?.APIBARA_API_KEY)throw Object.assign(new Error(),{safeCode:"provider_configuration_missing"});
     const start=now();
-    await repo.ensureScope({scopeKey:config.scopeKey,provider:"apibara",platform,operation:"discovery",now:start});
-    let scope=await repo.getScope(config.scopeKey);
+    await repo.ensureScope({scopeKey,provider:"apibara",platform,operation:"discovery",now:start});
+    let scope=await repo.getScope(scopeKey);
     if(scope.status==="complete"&&scope.cursor==null)throw Object.assign(new Error(),{safeCode:"scope_complete"});
     // null cursor is valid only as an initial page (new IAAI scope or explicit replay after a failed first page).
     if(scope.cursor===undefined)throw Object.assign(new Error(),{safeCode:"scope_state_invalid"});
     const beforeCount=Number((await db.prepare("SELECT COUNT(*) AS n FROM auction_listings WHERE platform=?").bind(platform).first())?.n||0);
     const owner=`phase-g-${platform}-${requestId}`,token=crypto.randomUUID();
     result.stage="lease";
-    lease=await repo.acquireLease({scopeKey:config.scopeKey,provider:"apibara",platform,operation:"discovery",owner,token,now:start,ttlMs:20*60_000});
+    lease=await repo.acquireLease({scopeKey,provider:"apibara",platform,operation:"discovery",owner,token,now:start,ttlMs:20*60_000});
     if(!lease.acquired)throw Object.assign(new Error(),{safeCode:"lease_busy"});
     runId=`phase-g-${platform}-${requestId}`;
-    await repo.createRun({runId,scopeKey:config.scopeKey,provider:"apibara",platform,operation:"discovery",triggerKind:"operator",now:start});
-    lease={...lease,scopeKey:config.scopeKey,provider:"apibara",platform,owner,token,runId};
+    await repo.createRun({runId,scopeKey,provider:"apibara",platform,operation:"discovery",triggerKind:"operator",now:start});
+    lease={...lease,scopeKey,provider:"apibara",platform,owner,token,runId};
     result.runId=runId;
     result.stage="budget";
     const campaignBudgetDay=budgetKey(platform);
@@ -129,7 +130,7 @@ async function runPlatformBackfill({db,env,requestId,platform,maxPages=DEFAULT_P
     await repo.initializeBudget({provider:BUDGET_PROVIDER,budgetDay:sharedBudgetDay,normalLimit:TOTAL_CAMPAIGN_LIMIT,retryLimit:0,now:start});
     await db.prepare(`UPDATE provider_request_budgets SET normal_limit=MIN(normal_limit,?),retry_limit=0,updated_at=? WHERE provider=? AND budget_day=?`)
       .bind(TOTAL_CAMPAIGN_LIMIT,new Date(start).toISOString(),BUDGET_PROVIDER,sharedBudgetDay).run();
-    scope=await repo.getScope(config.scopeKey);
+    scope=await repo.getScope(scopeKey);
     let cursor=scope.cursor??null;
     const seenCursors=new Set([cursor===null?"<first>":String(cursor)]);
     for(let pageNo=0;pageNo<maxPages;pageNo+=1){
@@ -157,14 +158,14 @@ async function runPlatformBackfill({db,env,requestId,platform,maxPages=DEFAULT_P
       const fetchedAt=now();await repo.finishBudgetReservation({reservationId,now:fetchedAt});await repo.finishBudgetReservation({reservationId:campaignReservationId,now:fetchedAt});
       result.providerLatencyMs=(result.providerLatencyMs||0)+Math.max(0,fetchedAt-fetchStarted);
       result.stage="canonicalize";
-      const page=canonicalizeDiscoveryPage({provider,response:upstream,scopeKey:config.scopeKey,platform,cursor,now:fetchedAt,freshnessPolicy:freshnessPolicyFromEnv(env)});
+      const page=canonicalizeDiscoveryPage({provider,response:upstream,scopeKey,platform,cursor,now:fetchedAt,freshnessPolicy:freshnessPolicyFromEnv(env)});
       result.providerRecords+=page.providerRecords;result.accepted+=page.accepted;result.rejected+=page.rejected;result.ambiguous+=page.ambiguous;
       if(!page.accepted)throw Object.assign(new Error(),{safeCode:"no_valid_canonical_records"});
       const unique=[],pageIds=new Set();
       for(const record of page.records){if(pageIds.has(record.identity.listingId)){result.duplicates+=1;continue;}pageIds.add(record.identity.listingId);unique.push(record);}
       const existed=[];
       for(const record of unique){const [listing,source]=await Promise.all([repo.getListing(record.identity.listingId),repo.getSource({provider:"apibara",platform,providerVehicleId:record.vehicle.provider_vehicle_id})]);existed.push(Boolean(listing||source));}
-      const pageInput={scopeKey:config.scopeKey,provider:"apibara",platform,runId,owner,token,leaseGeneration:lease.leaseGeneration,cursor,
+      const pageInput={scopeKey,provider:"apibara",platform,runId,owner,token,leaseGeneration:lease.leaseGeneration,cursor,
         nextCursor:page.nextCursor,records:unique,now:fetchedAt,recordsReceived:page.providerRecords,recordsInserted:existed.filter(x=>!x).length,
         recordsUpdated:existed.filter(Boolean).length,recordsSkipped:page.rejected+page.ambiguous,latencyMs:Math.max(0,fetchedAt-fetchStarted)};
       const beforeSnapshots=Number((await db.prepare("SELECT COUNT(*) AS n FROM auction_listing_snapshots s JOIN auction_listings l ON l.listing_id=s.listing_id WHERE l.platform=?").bind(platform).first())?.n||0);
@@ -196,7 +197,7 @@ async function runPlatformBackfill({db,env,requestId,platform,maxPages=DEFAULT_P
       seenCursors.add(cursorKey);result.scopeStatus="partial";
     }
     if(lease){result.stage="release_partial";await repo.finishPartialRun({scopeKey:lease.scopeKey,runId,owner:lease.owner,token:lease.token,leaseGeneration:lease.leaseGeneration,now:now()});lease=null;}
-    const scopeAfter=await repo.getScope(config.scopeKey);
+    const scopeAfter=await repo.getScope(activeScopeKey);
     result.scopeStatus=scopeAfter?.status||"unknown";
     result.scopeFreshnessState=classifyScopeState(scopeAfter,{now:now(),staleAfterMs:Number(env?.REXBID_SYNC_SCOPE_STALE_AFTER_MS||86_400_000)});
     result.nextCursorPresent=!!scopeAfter?.cursor;result.scopeComplete=scopeAfter?.status==="complete";
@@ -207,7 +208,7 @@ async function runPlatformBackfill({db,env,requestId,platform,maxPages=DEFAULT_P
   }catch(error){
     result.error=safeCode(error);result.stopReason=result.error;
     if(lease){try{await repo.failRun({scopeKey:lease.scopeKey,runId,owner:lease.owner,token:lease.token,leaseGeneration:lease.leaseGeneration,errorCode:result.error,now:now()});}catch{}}
-    try{const scope=await repo.getScope(config.scopeKey);result.scopeStatus=scope?.status||"unknown";result.nextCursorPresent=!!scope?.cursor;}catch{}
+    try{const scope=await repo.getScope(activeScopeKey);result.scopeStatus=scope?.status||"unknown";result.nextCursorPresent=!!scope?.cursor;}catch{}
   }finally{
     result.elapsedMs=Math.max(0,now()-started);
     try{result.platformBudget=await getBudget(db,platform);}catch{}
@@ -216,27 +217,37 @@ async function runPlatformBackfill({db,env,requestId,platform,maxPages=DEFAULT_P
   return result;
 }
 
-// Single authenticated operator action: at most two pages per platform (four provider
-// calls total), with a failure on the first platform stopping the second. The persisted
-// per-platform and shared campaign budgets remain the final hard guard.
+// One bounded operator action refreshes the first (current) page in a separate scope,
+// then resumes seven pages from the persistent backfill cursor. Each platform gets at
+// most eight calls and the whole action at most sixteen; the persistent budgets remain
+// the final hard guard.
 async function runProductMilestoneBackfill({db,env,requestId,now=()=>Date.now(),provider=createApibaraProvider()}){
   const platforms=[];let liveRequests=0,stoppedOnError=false;
   for(const platform of ["copart","iaai"]){
     const config=PLATFORMS[platform];
-    let scope=null;
-    try{scope=await new D1SyncRepository(db).getScope(config.scopeKey);}catch{}
-    if(scope?.status==="complete"&&scope.cursor==null){
-      platforms.push({ok:true,stage:"complete",requestId:`${requestId}-${platform}`,platform,liveRequests:0,pagesProcessed:0,stopReason:"scope_complete",scopeStatus:"complete",nextCursorPresent:false});
-      continue;
-    }
-    const result=await runPlatformBackfill({db,env,requestId:`${requestId}-${platform}`,platform,maxPages:2,now,provider});
-    platforms.push(result);liveRequests+=Number(result.liveRequests||0);
-    if(!result.ok){stoppedOnError=true;break;}
+    const repo=new D1SyncRepository(db);
+    let headScope=null,backfillScope=null;
+    try{headScope=await repo.getScope(config.headScopeKey);}catch{}
+    try{backfillScope=await repo.getScope(config.scopeKey);}catch{}
+    const head=headScope?.status==="complete"&&headScope.cursor==null
+      ? {ok:true,stage:"complete",liveRequests:0,pagesProcessed:0,stopReason:"scope_complete",scopeStatus:"complete",nextCursorPresent:false}
+      : await runPlatformBackfill({db,env,requestId:`${requestId}-${platform}-head`,platform,maxPages:1,scopeKeyOverride:config.headScopeKey,now,provider});
+    if(!head.ok){platforms.push({ok:false,stage:"fresh_head_failed",requestId:`${requestId}-${platform}`,platform,liveRequests:head.liveRequests||0,pagesProcessed:head.pagesProcessed||0,freshHead:head,backfill:null});liveRequests+=Number(head.liveRequests||0);stoppedOnError=true;break;}
+    const backfill=backfillScope?.status==="complete"&&backfillScope.cursor==null
+      ? {ok:true,stage:"complete",liveRequests:0,pagesProcessed:0,stopReason:"scope_complete",scopeStatus:"complete",nextCursorPresent:false}
+      : await runPlatformBackfill({db,env,requestId:`${requestId}-${platform}-backfill`,platform,maxPages:7,now,provider});
+    const combined={ok:backfill.ok,stage:backfill.stage,requestId:`${requestId}-${platform}`,platform,
+      liveRequests:Number(head.liveRequests||0)+Number(backfill.liveRequests||0),pagesProcessed:Number(head.pagesProcessed||0)+Number(backfill.pagesProcessed||0),
+      freshHead:{stage:head.stage,liveRequests:Number(head.liveRequests||0),pagesProcessed:Number(head.pagesProcessed||0),scopeStatus:head.scopeStatus||null,nextCursorPresent:head.nextCursorPresent??null},
+      backfill:{stage:backfill.stage,liveRequests:Number(backfill.liveRequests||0),pagesProcessed:Number(backfill.pagesProcessed||0),scopeStatus:backfill.scopeStatus||null,nextCursorPresent:backfill.nextCursorPresent??null},
+      scopeStatus:backfill.scopeStatus,nextCursorPresent:backfill.nextCursorPresent,stopReason:backfill.stopReason||null};
+    platforms.push(combined);liveRequests+=combined.liveRequests;
+    if(!backfill.ok){stoppedOnError=true;break;}
   }
   let campaignBudget=null;
   try{const budget=await getCampaignBudget(db);campaignBudget={limit:TOTAL_CAMPAIGN_LIMIT,consumed:Number(budget?.normal_consumed||0),reserved:Number(budget?.normal_reserved||0),retryLimit:0};}catch{}
-  return {ok:!stoppedOnError,stage:stoppedOnError?"stopped_on_error":"complete",requestId,liveRequests,maxLiveRequests:4,
-    pagesPerPlatform:2,totalCampaignLimit:TOTAL_CAMPAIGN_LIMIT,platformLimit:PER_PLATFORM_LIMIT,platforms,
+  return {ok:!stoppedOnError,stage:stoppedOnError?"stopped_on_error":"complete",requestId,liveRequests,maxLiveRequests:16,
+    pagesPerPlatform:8,freshHeadPagesPerPlatform:1,backfillPagesPerPlatform:7,totalCampaignLimit:TOTAL_CAMPAIGN_LIMIT,platformLimit:PER_PLATFORM_LIMIT,platforms,
     campaignBudget,stopReason:stoppedOnError?"platform_run_failed":platforms.some(item=>item.stopReason==="request_budget_exhausted")?"request_budget_exhausted":null};
 }
 

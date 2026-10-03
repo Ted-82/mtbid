@@ -169,3 +169,11 @@ Szczegóły, checklisty i maksymalnie pięć działań właściciela: `docs/PROD
 - Proposal 0004 już dodaje media columns; migracji 0005 nie wolno dublować bez zmiany/inspekcji schematu.
 
 **Wniosek:** brak zgody ani gotowości do production cutover. Pierwszym krokiem właściciela jest re-auth Wrangler; kolejnym bezpiecznym działaniem będzie wyłącznie read-only D1 audit.
+# Production catalog recovery — 2026-10-03
+
+## Stan potwierdzony
+
+- Produkcyjne `/api/cars` i `/api/filters` zwracają HTTP 500; bezpośredni read-only audit wykazał migracje tylko 0000/0001, brak tabel budżetowych i 0 legacy vehicle/history rows. Runtime wymagający D1-backed provider budgets zamyka publiczny read przed upstream fetch.
+- Minimalny kod naprawczy jest przygotowany lokalnie: migracja addytywna `0002_provider_read_budgets.sql`, read-only caps 500 global/250 catalog/150 detail/60 history/0 discovery/0 media, sync writes jawnie OFF. To nie jest wdrożone. Produkcja pozostaje w aktualnym stanie 500.
+- Do przywrócenia produkcyjnego katalogu wymagane jest zatwierdzenie i zastosowanie 0002 oraz osobny Worker deploy. Produkcyjna D1 i Worker nie zostały zmienione.
+- Staging public read zwraca 200 z D1, ale katalog jest partial/stale (260 Copart + 120 IAAI); bez refresh nie stanowi bieżącego feedu.

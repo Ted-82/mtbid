@@ -41,13 +41,21 @@ function positiveLimit(env, name) {
   return Number.isSafeInteger(value) && value > 0 && value <= HARD_MAX_PER_DAY ? value : null;
 }
 
+function configuredLimit(env, operationClass) {
+  const envName = LIMIT_ENV[operationClass];
+  const raw = envName ? env?.[envName] : null;
+  // A deliberate zero is a hard shutdown for this operation class, never "unlimited".
+  if (String(raw ?? "") === "0") return 0;
+  return positiveLimit(env, envName);
+}
+
 function createProviderRequestBudget({now = () => Date.now(), uuid = () => crypto.randomUUID()} = {}) {
   return {
     async begin(env, spec) {
       if (env?.REXBID_PROVIDER_BUDGET_MODE !== "required") return {enforced: false, finish: async () => {}};
       const operationClass = safeClass(spec);
       const globalLimit = positiveLimit(env, "REXBID_PROVIDER_BUDGET_DAILY_LIMIT");
-      const operationLimit = operationClass ? positiveLimit(env, LIMIT_ENV[operationClass]) : null;
+      const operationLimit = operationClass ? configuredLimit(env, operationClass) : null;
       const db = env?.REXBID_DB;
       if (!operationLimit || !globalLimit || operationLimit > globalLimit || !db || typeof db.prepare !== "function") {
         throw new ProviderBudgetError("CONFIGURATION");
@@ -56,8 +64,9 @@ function createProviderRequestBudget({now = () => Date.now(), uuid = () => crypt
       const globalProvider = "apibara:all";
       const operationProvider = `apibara:${operationClass}`;
       const reservationId = uuid();
-      const repo = new D1SyncRepository(db);
+      let repo;
       try {
+        repo = new D1SyncRepository(db);
         await repo.initializeBudgetPair({globalProvider, operationProvider, budgetDay, globalLimit, operationLimit, now: now()});
         const reservation = await repo.reserveBudgetPair({reservationId, globalProvider, operationProvider, budgetDay, now: now()});
         if (!reservation.allowed) {
@@ -84,4 +93,4 @@ function createProviderRequestBudget({now = () => Date.now(), uuid = () => crypt
   };
 }
 
-module.exports = {OPERATION_CLASS, LIMIT_ENV, HARD_MAX_PER_DAY, ProviderBudgetError, safeClass, positiveLimit, createProviderRequestBudget};
+module.exports = {OPERATION_CLASS, LIMIT_ENV, HARD_MAX_PER_DAY, ProviderBudgetError, safeClass, positiveLimit, configuredLimit, createProviderRequestBudget};

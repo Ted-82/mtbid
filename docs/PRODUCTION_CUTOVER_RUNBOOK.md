@@ -208,3 +208,21 @@ Plik zawiera dane użytkowników i ma być szyfrowany w zatwierdzonym magazynie 
 1. Zatwierdzić canonical domain i oddzielną domenę nadawczą Auth; wybrać Resend i zaakceptować koszt/limity DNS-email.
 2. Utworzyć production Supabase + Resend pod wybraną domeną i wprowadzić ich prywatne wartości bezpiecznym kanałem do odpowiednich dashboardów/secrets; nie przesyłać kluczy w czacie.
 3. Ponownie uwierzytelnić Wrangler. Po read-only audycie produkcyjnej D1 przedstawić właścicielowi gotową listę SQL/checksum/caps; migracje i finalny deploy nadal wymagają osobnej jawnej zgody.
+# Production catalog recovery hotfix — przygotowanie, bez wdrożenia
+
+## Potwierdzony stan produkcyjny
+
+Read-only GET z 2026-10-03: `/api/cars` i `/api/filters` zwracają HTTP 500. Rzeczywista migracja `rexbid-db` (`971879fe-04ed-4e8c-9dc6-5306980bb872`) zawiera wyłącznie `0000_rexbid_base.sql` i `0001_auction_history_events.sql`. Istnieją tylko `_cf_KV`, `d1_migrations`, `sqlite_sequence`, `vehicles`, `vehicle_snapshots`, `auction_history`; legacy county 0/0/0. Brak provider budget tables. Runtime `REXBID_PROVIDER_BUDGET_MODE=required` próbuje przygotować/rezerwować limity w D1, wywołanie kończy się konfiguracją D1 przed fetch providera. To diagnozuje HTTP 500 jako pre-upstream fail-closed.
+
+## Minimalny hotfix (wymaga osobnej zgody właściciela)
+
+1. Backup `rexbid-db`; zachowaj kopię poza repo, timestamp UTC, SHA-256 i wyniki count/schema.
+2. Preflight UUID/name `rexbid-db` oraz potwierdź nadal wyłącznie 0000/0001.
+3. Zastosuj tylko `migrations/0002_provider_read_budgets.sql`: `sync_batch_guards`, `provider_request_budgets`, `provider_request_reservations`. To nie jest Sync 2 listing/scope schema i nie włącza discovery.
+4. Bezpieczny readback tabel/indeksów/FK, `d1_migrations`, legacy row counts i Accounts = brak zmian.
+5. Wdróż provider-backed Worker z `D1_PRIMARY_READS=false`, Auth OFF, Cron OFF, legacy sync OFF, hard budgets global 500/d; catalog 250, detail 150, history 60, discovery 0, media 0. Operacyjne klasy sumują się do 460, zatem 40 pozostaje global headroom; global cap nadal obowiązuje.
+6. Smoke: `/health`, `/ready`, `/api/cars`, `/api/filters`, VIN/LOT search, detail/history. Sprawdź logi safe code i D1 budget counters. Żadnego live testu przez flood; brak klucza albo 429 oznacza bezpieczny, czytelny error, nie unlimited fallback.
+
+Sync/discovery write pozostaje `REXBID_LEGACY_SYNC_ENABLED=false` i bez tabel Sync nie może wystartować. Auth, D1-first i Cron nie wchodzą w ten hotfix. Pełne `0003`/`0004` to osobny cutover.
+
+Rollback: wdróż poprzednią wersję Workera; dla natychmiastowego zatrzymania provider traffic ustaw read limits na 0 lub odłącz provider configuration. Nie usuwaj addytywnego schematu. Przy istniejącej D1 awarii nie uruchamiaj destrukcyjnego restore automatycznie.

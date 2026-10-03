@@ -45,7 +45,9 @@ test("Worker live/config files keep production and staging bindings isolated and
   assert.equal(result.staging.database, "rexbid-auth-test-db");
   assert.equal(result.staging.prototype_enabled, false);
   assert.equal(result.production.provider_traffic_fail_closed, true);
-  assert.equal(result.production.provider_budget_configured, false);
+  assert.equal(result.production.provider_budget_configured, true);
+  assert.equal(result.production.provider_budget_schema_prepared, true);
+  assert.deepEqual(result.production.provider_operation_limits, {catalog:"250",detail:"150",history:"60",discovery:"0",media:"0"});
   assert.equal(result.production.d1_primary_reads_enabled, false);
   assert.equal(result.production.cron_enabled, false);
   assert.equal(result.staging.provider_budget_configured, true);
@@ -54,6 +56,7 @@ test("Worker live/config files keep production and staging bindings isolated and
   const stagingConfig = JSON.parse(fs.readFileSync(path.join(ROOT, "wrangler.staging.jsonc"), "utf8"));
   assert.notEqual(productionConfig.vars?.REXBID_PHASE_G_MULTIPLATFORM, "enabled", "Phase G runner must remain unavailable in production");
   assert.equal(productionConfig.vars?.REXBID_D1_PRIMARY_READS, "false", "production must explicitly default to provider-backed reads");
+  assert.equal(productionConfig.vars?.REXBID_LEGACY_SYNC_ENABLED, "false", "legacy provider-backed writes stay disabled until Sync schema is installed");
   assert.equal(stagingConfig.vars?.REXBID_PHASE_G_MULTIPLATFORM, "enabled", "multi-platform continuation is explicitly enabled only on isolated staging");
   for (const configName of ["wrangler.jsonc", "wrangler.staging.jsonc"]) {
     const config = JSON.parse(fs.readFileSync(path.join(ROOT, configName), "utf8"));
@@ -97,6 +100,64 @@ test("readiness fails closed on missing D1/provider and enabled but incomplete A
   assert.equal(payload.checks.auth.enabled, true);
   assert.equal(payload.checks.auth.configured, false);
   assert.doesNotMatch(JSON.stringify(payload), /private db error|fixture-key/);
+});
+
+test("bounded pre-Sync budget/schema failure is a safe 503 before provider fetch for public reads and sync writes stay disabled", async () => {
+  let upstreamCalls = 0;
+  const logs = [];
+  const context = loadWorker({
+    logs,
+    db: { prepare() { return { first: async () => null, run: async () => ({success:true}) }; } },
+    fetchImpl: async () => { upstreamCalls++; return new Response("unexpected upstream"); }
+  });
+  const env = {
+    ...context.__env,
+    REXBID_PROVIDER_BUDGET_MODE: "required",
+    REXBID_PROVIDER_BUDGET_DAILY_LIMIT: "500",
+    REXBID_PROVIDER_BUDGET_CATALOG_DAILY_LIMIT: "250",
+    REXBID_PROVIDER_BUDGET_DETAIL_DAILY_LIMIT: "150",
+    REXBID_PROVIDER_BUDGET_HISTORY_DAILY_LIMIT: "60",
+    REXBID_PROVIDER_BUDGET_DISCOVERY_DAILY_LIMIT: "0",
+    REXBID_PROVIDER_BUDGET_MEDIA_DAILY_LIMIT: "0",
+    REXBID_LEGACY_SYNC_ENABLED: "false",
+    REXBID_SYNC_TOKEN: "s".repeat(40)
+  };
+  for (const [route, expectedStatus] of [["/api/cars",503],["/api/filters",503],["/api/cars?search=1HGCM82633A004352",503],["/api/cars?search=64693505",503],["/api/car/64693505?platform=copart",503],["/api/car/64693505/history?platform=copart",200]]) {
+    const response = await context.__worker.fetch(new Request(`https://mtbid.tedn828.workers.dev${route}`), env);
+    const body = await response.text();
+    assert.equal(response.status, expectedStatus, `${route}: ${body}; ${JSON.stringify(logs)}`);
+    assert.match(body, /dostępny|chwilowo niedostępny|"error":"Dane historii są chwilowo niedostępne\."/iu);
+  }
+  const sync = await context.__worker.fetch(new Request("https://mtbid.tedn828.workers.dev/api/sync/vehicle/64693505", {
+    method: "POST", headers: {Authorization: `Bearer ${env.REXBID_SYNC_TOKEN}`}
+  }), env);
+  assert.equal(sync.status, 503);
+  assert.equal(upstreamCalls, 0);
+});
+
+test("public provider reads fail safely without an API key before any upstream fetch", async () => {
+  let upstreamCalls = 0;
+  const context = loadWorker({
+    db: { prepare() { return { first: async () => null, run: async () => ({success:true}) }; } },
+    fetchImpl: async () => { upstreamCalls++; return new Response("unexpected upstream body", {status: 200}); }
+  });
+  const env = {
+    ...context.__env,
+    APIBARA_API_KEY: "",
+    REXBID_PROVIDER_BUDGET_MODE: "required",
+    REXBID_PROVIDER_BUDGET_DAILY_LIMIT: "500",
+    REXBID_PROVIDER_BUDGET_CATALOG_DAILY_LIMIT: "250",
+    REXBID_PROVIDER_BUDGET_DETAIL_DAILY_LIMIT: "150",
+    REXBID_PROVIDER_BUDGET_HISTORY_DAILY_LIMIT: "60",
+    REXBID_PROVIDER_BUDGET_DISCOVERY_DAILY_LIMIT: "0",
+    REXBID_PROVIDER_BUDGET_MEDIA_DAILY_LIMIT: "0"
+  };
+  for (const route of ["/api/cars", "/api/filters", "/api/cars?search=64693505"]) {
+    const response = await context.__worker.fetch(new Request(`https://mtbid.tedn828.workers.dev${route}`), env);
+    assert.equal(response.status, 503, route);
+    assert.match(await response.text(), /dostawca danych jest niedostępny/iu);
+  }
+  assert.equal(upstreamCalls, 0, "missing API key must be rejected before upstream fetch");
 });
 
 test("HTML gets nonce CSP/security headers; private pages are no-store and noindex", async () => {

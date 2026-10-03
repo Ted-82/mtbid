@@ -6,6 +6,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const {DatabaseSync} = require("node:sqlite");
 const {createProviderRequestBudget, ProviderBudgetError} = require("../providers/request-budget.js");
+const {D1SyncRepository} = require("../sync/d1-repository.js");
 
 const ROOT = path.join(__dirname, "..");
 
@@ -43,6 +44,15 @@ function database() {
   const sqlite = new DatabaseSync(":memory:");
   sqlite.exec("PRAGMA foreign_keys=ON");
   for (const file of ["migrations/0000_rexbid_base.sql", "migrations/0001_auction_history_events.sql", "docs/proposals/0004_d1_sync_2.sql"]) {
+    sqlite.exec(fs.readFileSync(path.join(ROOT, file), "utf8"));
+  }
+  return {sqlite, d1: new DisposableD1(sqlite)};
+}
+
+function minimalReadBudgetDatabase() {
+  const sqlite = new DatabaseSync(":memory:");
+  sqlite.exec("PRAGMA foreign_keys=ON");
+  for (const file of ["migrations/0000_rexbid_base.sql", "migrations/0001_auction_history_events.sql", "migrations/0002_provider_read_budgets.sql"]) {
     sqlite.exec(fs.readFileSync(path.join(ROOT, file), "utf8"));
   }
   return {sqlite, d1: new DisposableD1(sqlite)};
@@ -98,4 +108,35 @@ test("required provider budgets fail closed when configuration or D1 schema is a
   const disabled = await budget.begin({}, {operation: "listVehicles"});
   assert.equal(disabled.enforced, false);
   await disabled.finish();
+});
+
+test("minimal pre-Sync migration durably budgets public reads while discovery/media and Sync writes stay fail-closed", async () => {
+  const {sqlite, d1} = minimalReadBudgetDatabase();
+  const budget = createProviderRequestBudget({now: () => Date.parse("2026-10-03T12:00:00Z"), uuid: () => "pre-sync-read-1"});
+  const settings = {
+    REXBID_DB: d1,
+    REXBID_PROVIDER_BUDGET_MODE: "required",
+    REXBID_PROVIDER_BUDGET_DAILY_LIMIT: "500",
+    REXBID_PROVIDER_BUDGET_CATALOG_DAILY_LIMIT: "250",
+    REXBID_PROVIDER_BUDGET_DETAIL_DAILY_LIMIT: "150",
+    REXBID_PROVIDER_BUDGET_HISTORY_DAILY_LIMIT: "60",
+    REXBID_PROVIDER_BUDGET_DISCOVERY_DAILY_LIMIT: "0",
+    REXBID_PROVIDER_BUDGET_MEDIA_DAILY_LIMIT: "0"
+  };
+  const read = await budget.begin(settings, {operation: "listVehicles"});
+  assert.equal(read.enforced, true);
+  await read.finish();
+  assert.equal(sqlite.prepare("SELECT normal_consumed FROM provider_request_budgets WHERE provider='apibara:all'").get().normal_consumed, 1);
+  assert.equal(sqlite.prepare("SELECT normal_consumed FROM provider_request_budgets WHERE provider='apibara:catalog'").get().normal_consumed, 1);
+  await assert.rejects(budget.begin(settings, {budgetClass: "discovery"}), error => error instanceof ProviderBudgetError && error.code === "CONFIGURATION");
+  await assert.rejects(budget.begin(settings, {budgetClass: "media_enrichment"}), error => error instanceof ProviderBudgetError && error.code === "CONFIGURATION");
+  assert.equal(sqlite.prepare("SELECT COUNT(*) n FROM provider_request_reservations WHERE state='finished' AND provider='apibara:all'").get().n, 1);
+  assert.equal(sqlite.prepare("SELECT COUNT(*) n FROM sync_batch_guards").get().n, 0);
+  assert.equal(sqlite.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE type='table' AND name IN ('provider_sync_scopes','auction_listings','sync_runs')").get().n, 0);
+  await assert.rejects(new D1SyncRepository(d1).ensureScope({scopeKey:"should-not-exist",provider:"apibara",platform:"copart",now:Date.now()}), /no such table: provider_sync_scopes/);
+  // The later Sync proposal is additive and accepts the already-installed shared budget primitives.
+  sqlite.exec(fs.readFileSync(path.join(ROOT, "docs/proposals/0004_d1_sync_2.sql"), "utf8"));
+  assert.equal(sqlite.prepare("SELECT normal_consumed FROM provider_request_budgets WHERE provider='apibara:all'").get().normal_consumed, 1);
+  assert.equal(sqlite.prepare("SELECT COUNT(*) n FROM provider_request_budgets WHERE provider='apibara:all'").get().n, 1);
+  sqlite.close();
 });

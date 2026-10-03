@@ -329,6 +329,7 @@ test('manual synchronization trigger is authenticated, explicit, and persists on
   const env = {
     APIBARA_API_KEY: 'fixture-key',
     REXBID_SYNC_TOKEN: 's'.repeat(40),
+    REXBID_LEGACY_SYNC_ENABLED: 'true',
     REXBID_DB: db,
     ASSETS: { fetch: async () => new Response('asset') }
   };
@@ -347,6 +348,12 @@ test('manual synchronization trigger is authenticated, explicit, and persists on
 
   const get = await __worker.fetch(new Request(path), env);
   assert.equal(get.status, 405);
+  assert.equal(upstreamCalls, 0);
+
+  const disabledByDefault = await __worker.fetch(new Request(path, {
+    method: 'POST', headers: { Authorization: `Bearer ${env.REXBID_SYNC_TOKEN}` }
+  }), { ...env, REXBID_LEGACY_SYNC_ENABLED: 'false' });
+  assert.equal(disabledByDefault.status, 503);
   assert.equal(upstreamCalls, 0);
 
   const response = await __worker.fetch(new Request(path, {
