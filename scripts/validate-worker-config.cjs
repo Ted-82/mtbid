@@ -46,6 +46,20 @@ function validateWorkerConfigs(root = path.resolve(__dirname, "..")) {
   if (production.vars?.AUTH_ENABLED === "true") issues.push("production_auth_must_remain_disabled");
   if (production.vars?.REXBID_D1_PRIMARY_READS === "true") issues.push("production_d1_primary_reads_must_remain_disabled");
   if (production.vars?.REXBID_LEGACY_SYNC_ENABLED !== "false") issues.push("production_legacy_sync_must_remain_disabled_until_sync_schema");
+  if (production.vars?.REXBID_TRANSPORT_CALCULATOR_ENABLED !== "enabled"
+    || production.vars?.REXBID_TRANSPORT_CALCULATOR_ALLOWED_ORIGINS !== production.vars?.REXBID_CANONICAL_ORIGIN) {
+    issues.push("production_transport_calculator_requires_canonical_origin_allowlist");
+  }
+  if (production.vars?.REXBID_CALCULATOR_V3_ENABLED !== "enabled"
+    || production.vars?.REXBID_CALCULATOR_V3_ALLOWED_ORIGINS !== production.vars?.REXBID_CANONICAL_ORIGIN) {
+    issues.push("production_calculator_v3_requires_canonical_origin_allowlist");
+  }
+  if (staging.vars?.REXBID_TRANSPORT_CALCULATOR_ALLOWED_ORIGINS !== staging.vars?.AUTH_CANONICAL_ORIGIN) {
+    issues.push("staging_transport_calculator_origin_allowlist");
+  }
+  if (staging.vars?.REXBID_CALCULATOR_V3_ALLOWED_ORIGINS !== staging.vars?.AUTH_CANONICAL_ORIGIN) {
+    issues.push("staging_calculator_v3_origin_allowlist");
+  }
   if (production.triggers?.crons?.length) issues.push("production_cron_must_remain_disabled");
   for (const marker of ["AUTH_ENABLED", "AUTH_D1_SCHEMA_VERSION", "REXBID_AUTH_TEST_UI", "REXBID_AUTH_DIAGNOSTICS", "staging-bypass", "rexbid-auth-test-db"]) {
     if (productionText.includes(marker)) issues.push(`staging_flag_in_production:${marker}`);
@@ -69,11 +83,14 @@ function validateWorkerConfigs(root = path.resolve(__dirname, "..")) {
       provider_traffic_fail_closed: true,
       provider_operation_limits: productionBudgetLimits,
       d1_primary_reads_enabled: production.vars?.REXBID_D1_PRIMARY_READS === "true",
+      transport_calculator_enabled: production.vars?.REXBID_TRANSPORT_CALCULATOR_ENABLED === "enabled",
+      calculator_v3_enabled: production.vars?.REXBID_CALCULATOR_V3_ENABLED === "enabled",
       cron_enabled: Boolean(production.triggers?.crons?.length),
       sync_discovery_enabled: Number(production.vars?.REXBID_PROVIDER_BUDGET_DISCOVERY_DAILY_LIMIT) > 0,
       launch_blockers: ["0002_provider_read_budgets_requires_owner_approval_and_application", "provider_budget_values_require_owner_approval"] },
     staging: { worker: staging.name, database: stagingDb?.database_name, database_id: stagingDb?.database_id,
       prototype_enabled: staging.vars?.REXBID_DOOR_ESTIMATOR_PROTOTYPE === "enabled",
+      calculator_v3_enabled: staging.vars?.REXBID_CALCULATOR_V3_ENABLED === "enabled",
       provider_budget_mode: staging.vars?.REXBID_PROVIDER_BUDGET_MODE || "not_enabled",
       provider_budget_configured: stagingBudgetConfigured, provider_daily_limit: stagingGlobalBudget, provider_operation_limits: stagingBudgetLimits } };
 }

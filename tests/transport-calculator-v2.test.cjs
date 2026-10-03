@@ -142,9 +142,11 @@ test("staging vehicle page uses partner V2 UI and production asset guard remains
   assert.match(car, /rexbid-transport-rates\.js/);
   assert.match(car, /rexbid-transport-engine\.js/);
   assert.doesNotMatch(car, /rexbid-door-estimator(?:-rates)?\.js/);
-  assert.match(worker, /REXBID_TRANSPORT_CALCULATOR_ENABLED !== "enabled"/);
+  assert.match(worker, /transportCalculatorEnabledForRequest\(env, url\)/);
+  assert.match(worker, /calculatorV3EnabledForRequest\(env, url\)/);
   assert.match(worker, /rexbid-transport-(?:rates|engine)/);
   assert.match(staging, /"REXBID_TRANSPORT_CALCULATOR_ENABLED": "enabled"/);
+  assert.match(staging, /"REXBID_TRANSPORT_CALCULATOR_ALLOWED_ORIGINS": "https:\/\/rexbid-auth-test\.tedn828\.workers\.dev"/);
   assert.match(car, /id="importCalculator"/, "strict calculator stays separate");
 });
 

@@ -1,3 +1,12 @@
+## Production feature parity — predeploy review (2026-10-03)
+
+- Production is reported by the owner as recovered on Worker `mtbid`, Version `03b73599-1ce9-4c2a-b64e-5ab13e191830`; `/api/cars` and `/api/filters` return 200, detail/history work, provider budgets are active, Auth/D1-first/Cron remain OFF. This sprint did not contact or modify production.
+- Candidate changes enable only the verified Calculator V3 and partner transport calculator on the exact canonical production origin via per-feature HTTPS origin allowlists. Staging keeps its separate exact staging-origin allowlists. Production Auth, D1-first, Sync 2, discovery/media enrichment, Cron, budgets, and staging tools are unchanged.
+- Calculator V3 reuses the 610-location USD partner dataset and existing provider-backed detail context. The real staging IAAI and Copart pages rendered V3, partner transport, gallery, history, vehicle data, and guest favorites; incomplete fees/taxes/import costs remain explicitly unconfirmed and no full total is fabricated.
+- **Real-browser desktop staging:** catalog displayed 20 IAAI records and 20 Copart records; opened one real card from each platform; gallery and history rendered; Copart partner rates showed standard/conservative estimates; local favorite add/remove passed. Browser showed empty Home aisles for the currently stale/partial sample, as expected. Cloud favorites were not tested. Mobile viewport and browser console inspection are NOT VERIFIED.
+- **Automated:** `node --test` 313/313 PASS; rate generator `--check`, config validator, JS syntax checks, and `git -c core.whitespace=cr-at-eol diff --check` PASS. Production Wrangler 4.146.0 dry-run PASS; bindings resolved to `mtbid` + `rexbid-db` and assets, with no deploy. Candidate remains undeployed pending owner approval.
+- **Working tree:** changed `worker.js`, `wrangler.jsonc`, `wrangler.staging.jsonc`, `scripts/validate-worker-config.cjs`, `tests/launch-infrastructure.test.cjs`, `tests/transport-calculator-v2.test.cjs`; existing untracked `.codex-wrangler-cache/` preserved. No commit/push.
+
 ## Full functional stability + vehicle data flow sprint — 2026-10-03
 
 - **Checkout:** repo `C:\Users\nowic\Desktop\stona_auta-www`, HEAD at start `a836b86 Complete Rex.Bid production pre-cutover audit` (newer than requested historical checkpoint `bd88ff1`). Existing untracked `.codex-wrangler-cache/` was preserved. No commit/push.

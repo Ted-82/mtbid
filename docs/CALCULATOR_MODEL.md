@@ -361,9 +361,13 @@ Zakresy pomiędzy opublikowanymi/zaimplementowanymi przedziałami pozostają `un
 
 ## Calculator V3 — pełny model kosztowy (kod lokalny)
 
+### Production feature parity — kandydat lokalny, 2026-10-03
+
+Verified Calculator V3 is prepared for the production canonical HTTPS origin through explicit per-feature origin allowlists in `wrangler.jsonc`; staging retains a separate exact-origin allowlist. The Worker serves/injects V3 only when both the feature flag and the matching HTTPS origin are valid. This does not enable Auth, D1-first, Cron, Sync 2, or staging diagnostics. Staging real-browser desktop QA rendered V3 on one Copart and one IAAI detail page. Automated suite: 313/313 PASS; production Wrangler dry-run PASS. **Not deployed** pending owner approval; mobile viewport is not verified in this pass.
+
 V3 jest rozszerzeniem istniejącego silnika. Szczegółowy model, wzory/statusy, oficjalne źródła, przykłady $1k/$5k/$10k/$25k/$50k oraz jawne braki znajdują się w `docs/DOOR_TO_DOOR_COST_MODEL.md`. Partner rates pozostają autorytatywną roboczą konfiguracją transportową USD, natomiast door-estimator public market data jest superseded.
 
-Staging-only `REXBID_CALCULATOR_V3_ENABLED` wybiera V3 UI/engine oraz dokładny host stagingu `rexbid-auth-test.tedn828.workers.dev`; bez flagi Worker usuwa V3-only configuration/inputs i zachowuje starszy calculator path. Copart profile są configurable (zastosowanie do konta niepotwierdzone); IAA, FX automat, port/broker, import handling i Poland delivery są unknown do czasu podania źródeł/stawek. Wymagane unknown blokuje total. Nie wykonano staging deployu ani requestu Apibara; production nietknięta.
+`REXBID_CALCULATOR_V3_ENABLED` wybiera V3 UI/engine tylko dla jawnie allowlistowanego HTTPS originu danego środowiska; flaga sama nie włącza V3 na innym hoście. Poprzednie ograniczenie wyłącznie do stagingu zostało zastąpione przygotowanym, niezależnym od Auth/D1-first/Cron production gate. Copart profile są configurable (zastosowanie do konta niepotwierdzone); IAAI, automatyczny FX, port/broker, import handling i Poland delivery są unknown do czasu podania źródeł/stawek. Wymagane unknown blokuje total. Produkcyjny rollout nadal wymaga zatwierdzenia właściciela.
 
 ## Calculator V3 — status stagingowy (2026-09-30, zastępuje wcześniejszy status lokalny)
 

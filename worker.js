@@ -1538,6 +1538,30 @@ function isCarPagePath(pathname) {
   return pathname === "/car.html" || pathname === "/car";
 }
 
+function featureAllowedForRequest(env, flagName, originsName, url) {
+  if (env?.[flagName] !== "enabled" || !(url instanceof URL) || url.protocol !== "https:") return false;
+  const allowedOrigins = String(env?.[originsName] || "")
+    .split(",")
+    .map(value => value.trim())
+    .filter(Boolean);
+  return allowedOrigins.some(value => {
+    try {
+      const configured = new URL(value);
+      return configured.protocol === "https:" && configured.origin === value && configured.origin === url.origin;
+    } catch {
+      return false;
+    }
+  });
+}
+
+function calculatorV3EnabledForRequest(env, url) {
+  return featureAllowedForRequest(env, "REXBID_CALCULATOR_V3_ENABLED", "REXBID_CALCULATOR_V3_ALLOWED_ORIGINS", url);
+}
+
+function transportCalculatorEnabledForRequest(env, url) {
+  return featureAllowedForRequest(env, "REXBID_TRANSPORT_CALCULATOR_ENABLED", "REXBID_TRANSPORT_CALCULATOR_ALLOWED_ORIGINS", url);
+}
+
 function responseErrorCode(response) {
   if (response.status < 400) return null;
   if (response.status === 404) return "not_found";
@@ -1565,7 +1589,7 @@ async function applySecurityHeaders(response, request, { requestId = null, env =
     const nonce = Array.from(nonceBytes, byte => byte.toString(16).padStart(2, "0")).join("");
     let html = await response.text();
     if (isCarPagePath(url.pathname)) {
-      if (env?.REXBID_CALCULATOR_V3_ENABLED === "enabled" && url.hostname === "rexbid-auth-test.tedn828.workers.dev") {
+      if (calculatorV3EnabledForRequest(env, url)) {
         html = html.replace(/<\/head>/i, `<script>window.RexBidCalculatorV3Enabled=true;</script></head>`);
       } else {
         html = html.replace(/\s*<script\s+src="\/rexbid-calculator-v3-rates\.js"[^>]*><\/script>/gi, "");
@@ -1577,7 +1601,7 @@ async function applySecurityHeaders(response, request, { requestId = null, env =
       html = html.replace(/\s*<section class="door-estimator"[\s\S]*?<\/section>/i, "");
       html = html.replace(/\s*<script\s+src="\/rexbid-door-estimator(?:-rates)?\.js"[^>]*><\/script>/gi, "");
     }
-    if (isCarPagePath(url.pathname) && env?.REXBID_TRANSPORT_CALCULATOR_ENABLED !== "enabled") {
+    if (isCarPagePath(url.pathname) && !transportCalculatorEnabledForRequest(env, url)) {
       html = html.replace(/\s*<section class="partner-transport-calculator"[\s\S]*?<\/section>/i, "");
       html = html.replace(/\s*<script\s+src="\/rexbid-transport-(?:rates|engine)\.js"[^>]*><\/script>/gi, "");
     }
@@ -2348,9 +2372,9 @@ const rexWorker = {
       if (env?.REXBID_DOOR_ESTIMATOR_PROTOTYPE !== "enabled") return errorJson("Nie znaleziono zasobu.", 404);
     }
     if (url.pathname === "/rexbid-transport-rates.js" || url.pathname === "/rexbid-transport-engine.js") {
-      if (env?.REXBID_TRANSPORT_CALCULATOR_ENABLED !== "enabled") return errorJson("Nie znaleziono zasobu.", 404);
+      if (!transportCalculatorEnabledForRequest(env, url)) return errorJson("Nie znaleziono zasobu.", 404);
     }
-    if (url.pathname === "/rexbid-calculator-v3-rates.js" && (env?.REXBID_CALCULATOR_V3_ENABLED !== "enabled" || url.hostname !== "rexbid-auth-test.tedn828.workers.dev")) {
+    if (url.pathname === "/rexbid-calculator-v3-rates.js" && !calculatorV3EnabledForRequest(env, url)) {
       return errorJson("Nie znaleziono zasobu.", 404);
     }
 

@@ -1,3 +1,10 @@
+## Production feature parity — kandydat do zatwierdzenia (2026-10-03)
+
+- Właściciel potwierdza, że produkcyjny katalog został przywrócony na `mtbid`, Version `03b73599-1ce9-4c2a-b64e-5ab13e191830`; budżety providera aktywne, Auth/D1-first/Cron OFF. Ten sprint nie zmienia ani nie wdraża produkcji.
+- Lokalne zmiany przygotowują wyłącznie Calculator V3 i partner transport z dokładnym origin allowlistem per środowisko. Pozostałe funkcje stagingowe (Auth UI, D1-first, Sync/backfill, diagnostyka) pozostają wyłączone/odizolowane.
+- Predeploy: 313/313 PASS, generator/validator/składnia/diff-check PASS, production Wrangler dry-run PASS. Kandydat nie został wdrożony; wymagane jawne zatwierdzenie właściciela.
+- Desktop staging QA: katalog Copart/IAAI, karta obu platform, galeria, historia, Calculator V3 i lokalny favorite działają. Home pokazuje uczciwe puste sekcje dla nieświeżej częściowej próbki. Mobile i cloud favorites niezweryfikowane.
+
 ## Pełny przegląd stabilności i przepływu danych pojazdów — 2026-10-03
 
 - Zaktualizowano wyłącznie stagingowy Worker `rexbid-auth-test` do Version ID `412cba70-b9dd-46fb-888f-e3784e5a0854`, używający wyłącznie D1 `rexbid-auth-test-db`. Poprawiono filtrowanie wygasłych aukcji na Home: przeterminowane Buy Now/Timed nie są reklamowane, a sekcja Nadchodzące wymaga potwierdzonej przyszłej daty.
