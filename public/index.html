@@ -1369,17 +1369,24 @@
     if (Array.isArray(payload?.data)) cars = payload.data;
     else if (Array.isArray(payload?.response?.data?.data)) cars = payload.response.data.data;
     else if (Array.isArray(payload?.response?.data)) cars = payload.response.data;
-    if (kind !== "current") return cars;
     return cars.filter(car => {
       const auction = car?.auction && typeof car.auction === "object" ? car.auction : {};
       const scheduledAt = auction.auction_at || auction.full_date || car?.auction_at || car?.auction_date || "";
       const scheduledTime = typeof scheduledAt === "string" ? Date.parse(scheduledAt) : NaN;
       const state = String(auction.state || car?.status || "").toLowerCase();
       const outcome = String(auction.outcome_status || auction.last_sold_status || "").toLowerCase();
-      if (!Number.isFinite(scheduledTime) || scheduledTime > now) return true;
-      if (/\blive\b|running|in progress|started/.test(state) || String(auction.lot_sub_status || "").toLowerCase() === "live") return true;
-      if (/sold|not[_ -]?sold|no[_ -]?sale|unsold|closed|ended|complete|cancel/.test(`${state} ${outcome}`)) return false;
-      return false;
+      const isLive = /\blive\b|running|in progress|started/.test(state)
+        || String(auction.lot_sub_status || "").toLowerCase() === "live";
+      const isEnded = /sold|not[_ -]?sold|no[_ -]?sale|unsold|closed|ended|complete|cancel|withdrawn/.test(`${state} ${outcome}`);
+      const hasFutureDate = Number.isFinite(scheduledTime) && scheduledTime > now;
+      const hasPastDate = Number.isFinite(scheduledTime) && scheduledTime <= now;
+
+      // A partial or stale provider-backed sample can contain ended rows under
+      // a broad Buy Now/Timed filter. Never advertise these as current offers.
+      if (isEnded || (hasPastDate && !isLive)) return false;
+      if (kind === "upcoming") return hasFutureDate;
+      if (kind === "current") return !Number.isFinite(scheduledTime) || hasFutureDate || isLive;
+      return true;
     });
   }
 

@@ -1,3 +1,10 @@
+## Pełny przegląd stabilności i przepływu danych pojazdów — 2026-10-03
+
+- Zaktualizowano wyłącznie stagingowy Worker `rexbid-auth-test` do Version ID `412cba70-b9dd-46fb-888f-e3784e5a0854`, używający wyłącznie D1 `rexbid-auth-test-db`. Poprawiono filtrowanie wygasłych aukcji na Home: przeterminowane Buy Now/Timed nie są reklamowane, a sekcja Nadchodzące wymaga potwierdzonej przyszłej daty.
+- Stagingowy katalog ma 260 Copart + 120 IAAI; oba scope są częściowe i nieświeże. Odczyt D1, filtry i wyszukiwanie działają, lecz cztery sekcje Home są prawidłowo puste dla dostępnej próbki. Nie przedstawiamy jej jako całego rynku.
+- Desktop real-browser: katalog, dokładny VIN/LOT, karty Copart/IAAI, obrazy zdalne, lightbox, historia, Calculator V3 i lokalne ulubione gościa — PASS. Cloud favorites w zalogowanej sesji oraz rzeczywisty viewport mobilny nie zostały zweryfikowane w tym przebiegu.
+- Produkcyjne `/api/cars` i `/api/filters` zwracają HTTP 500: tryb provider budget jest `required`, ale nie ma ustawionych limitów, a produkcyjna D1 nie ma schematu Sync/budżetów (zastosowane tylko legacy 0000/0001). Ochrona fail-closed odrzuca żądanie przed upstream. Nie wykonano żadnej zmiany produkcyjnej; przed releasem trzeba zatwierdzić i przygotować konfigurację oraz schemat.
+- Testy automatyczne 310/310 PASS; generator stawek i walidator konfiguracji PASS. Requesty discovery/backfill Apibara: 0. Jedno jawnie kontrolowane sprawdzenie szczegółów wykazało stale D1 i fallback HTTP 200; liczba dodatkowych upstream wywołań uruchomionych przez wcześniejsze wejścia na karty/historię nie została dokładnie zarejestrowana. Diff-check PASS.
 # Rex.Bid Production Roadmap
 
 ## Final technical pre-cutover — 2026-10-03 (stan aktualny)

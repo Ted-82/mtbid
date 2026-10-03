@@ -439,7 +439,7 @@ test('upcoming aisle only shows source-confirmed future date and never substitut
   assert.equal(context.date({ auction: { auction_at: '2000-01-01T00:00:00Z' } }), '');
 });
 
-test('current home aisle excludes expired unresolved open listings but keeps explicit live or confirmed outcomes', () => {
+test('home active aisles exclude expired listings and upcoming requires a future date', () => {
   const block = extractFunctionBlock(indexSource, 'marketAisleCars', 'loadMarketAisle');
   const context = { Date };
   vm.createContext(context);
@@ -449,10 +449,17 @@ test('current home aisle excludes expired unresolved open listings but keeps exp
     { lot: 'old-open', auction: { state: 'open', auction_at: '2026-10-02T12:00:00Z' } },
     { lot: 'future-open', auction: { state: 'open', auction_at: '2026-10-04T12:00:00Z' } },
     { lot: 'confirmed-live', auction: { state: 'live', auction_at: '2026-10-02T12:00:00Z' } },
-    { lot: 'confirmed-ended', auction: { state: 'ended', auction_at: '2026-10-02T12:00:00Z' } }
+    { lot: 'confirmed-ended', auction: { state: 'ended', auction_at: '2026-10-04T12:00:00Z' } },
+    { lot: 'expired-buy-now', auction: { state: 'open', auction_at: '2026-10-02T12:00:00Z', buy_now_usd: 800 } },
+    { lot: 'future-buy-now', auction: { state: 'open', auction_at: '2026-10-04T12:00:00Z', buy_now_usd: 900 } },
+    { lot: 'expired-timed', auction: { state: 'timed', auction_at: '2026-10-02T12:00:00Z', is_timed: true } },
+    { lot: 'future-upcoming', auction: { state: 'upcoming', auction_at: '2026-10-04T12:00:00Z' } },
+    { lot: 'unknown-date', auction: { state: 'open', buy_now_usd: 500 } }
   ] };
-  assert.deepEqual(JSON.parse(JSON.stringify(context.pick(payload, 'current', now).map(car => car.lot))), ['future-open', 'confirmed-live']);
-  assert.equal(context.pick(payload, 'buy-now', now).length, 4, 'other category contract remains unchanged');
+  assert.deepEqual(JSON.parse(JSON.stringify(context.pick(payload, 'current', now).map(car => car.lot))), ['future-open', 'confirmed-live', 'future-buy-now', 'future-upcoming', 'unknown-date']);
+  assert.deepEqual(JSON.parse(JSON.stringify(context.pick(payload, 'buy-now', now).map(car => car.lot))), ['future-open', 'confirmed-live', 'future-buy-now', 'future-upcoming', 'unknown-date']);
+  assert.deepEqual(JSON.parse(JSON.stringify(context.pick(payload, 'timed', now).map(car => car.lot))), ['future-open', 'confirmed-live', 'future-buy-now', 'future-upcoming', 'unknown-date']);
+  assert.deepEqual(JSON.parse(JSON.stringify(context.pick(payload, 'upcoming', now).map(car => car.lot))), ['future-open', 'future-buy-now', 'future-upcoming']);
 });
 
 test('home puts search and aligned primary filters before the four discovery sections, with separated REX.Bid lockup', () => {
