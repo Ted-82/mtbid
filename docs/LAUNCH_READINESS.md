@@ -145,3 +145,19 @@ After owner selects the domain: Cloudflare DNS ownership/proxy and HTTPS; Worker
 - Apibara zgodziła się na trwałe factual/history/snapshot data i komercyjne wykorzystanie; archiwizacja binarnych oryginałów zdjęć pozostaje niezatwierdzona.
 
 Szczegóły, checklisty i maksymalnie pięć działań właściciela: `docs/PRODUCTION_CUTOVER_RUNBOOK.md`. Ta aktualizacja nie jest zgodą ani rekomendacją na produkcyjny deploy.
+# Production build update — 2026-10-03
+
+## DONE
+
+- Production config jawnie trzyma `REXBID_D1_PRIMARY_READS=false`; Cron nie jest skonfigurowany, Auth pozostaje fail-closed, a brak provider capów z `REXBID_PROVIDER_BUDGET_MODE=required` blokuje upstream requesty.
+- Validator offline potwierdza separację `mtbid`/`rexbid-db` i `rexbid-auth-test`/`rexbid-auth-test-db`, flagę D1-first OFF i Cron OFF. To walidacja plików, nie zdalny audyt.
+- Przygotowano Resend/Supabase, domenę, migracje, backup i obserwowalność w `docs/PRODUCTION_CUTOVER_RUNBOOK.md`.
+
+## BLOCKED
+
+- Production D1 read-only schema/migration/count audit **NOT VERIFIED**: Cloudflare Wrangler token wygasł; `whoami` nie przeszedł. Nie wykonano żadnego production SELECT, migration, deploy ani zmiany sekretu.
+- Lokalny production Wrangler dry-run zakończył się PASS i wskazał `mtbid` / `rexbid-db` oraz D1-first OFF. To build/config check, nie zdalna autoryzacja. `whoami` nadal wymaga re-auth; przed remote audit ponownie uwierzytelnić konto.
+- Provider limits, limiter, finalna domena, production Supabase, SMTP i legal review wymagają konfiguracji/zatwierdzeń; przykładowe limity z runbooka są nieaktywne.
+- Proposal 0004 już dodaje media columns; migracji 0005 nie wolno dublować bez zmiany/inspekcji schematu.
+
+**Wniosek:** brak zgody ani gotowości do production cutover. Pierwszym krokiem właściciela jest re-auth Wrangler; kolejnym bezpiecznym działaniem będzie wyłącznie read-only D1 audit.

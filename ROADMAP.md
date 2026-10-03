@@ -309,3 +309,10 @@ Statusy launch: `docs/LAUNCH_READINESS.md`; backup/restore: `docs/BACKUP_RECOVER
 - Legal drafts zostały doprecyzowane dla nieoficjalnych danych aukcyjnych, niewiążącego kalkulatora i third-party photos; wymagają review ownera/prawnika.
 - Bez produkcyjnego deployu, migracji, Cron, Auth ani requestów Apibara w tym sprincie.
 - Pełna walidacja lokalna po regresji telemetrycznej: **310/310 PASS**; partner-rate generator, config validator, składnia, diff-check oraz produkcyjny i stagingowy Wrangler dry-run PASS. Żadnego z dry-runów nie kontynuowano deployem.
+# Production environment build — status 2026-10-03
+
+- Konfiguracja lokalna production jawnie ustawia `REXBID_D1_PRIMARY_READS=false`; produkcyjny Cron i Auth pozostają wyłączone. Provider budget mode jest `required` bez capów, więc upstream ruch fail-closed.
+- Zdalny read-only audyt `rexbid-db` **NOT VERIFIED**: Wrangler token wygasł i nie mógł się odświeżyć. Brak aktualnych potwierdzonych production migration list/schema/counts; żadna zdalna mutacja nie została wykonana.
+- Lokalny production `wrangler deploy --dry-run --config wrangler.jsonc` PASS i wskazał wyłącznie `mtbid`/`rexbid-db` z flagą D1-first OFF. `whoami` nadal wymaga re-auth, więc konto i zdalna D1 pozostają niezweryfikowane. Dry-run nie wdraża.
+- Migration review wykrył, że proposal `0004_d1_sync_2.sql` już zawiera `media_urls_json` i `media_thumbs_json`. Nie stosować dodatkowego `0005_listing_media_urls.sql` po tej wersji 0004; przed planem finalnym sprawdzić zdalne kolumny i zatwierdzić jedną spójną kolejność.
+- Do wykonania po odzyskaniu dostępu: read-only audit D1 → osobny backup/restore rehearsal production do tymczasowego targetu → właścicielski review migracji i capów. Nie uruchamiać produkcji ani migracji na podstawie samego lokalnego configu.

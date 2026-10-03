@@ -111,3 +111,10 @@ Adapter ma PKCE Google authorize/callback, ale UI/credentials i produkcyjna konf
 - Staging anonymous account/login render and `/api/me` 401 no-store response were smoke-checked. Prior owner-run staging login/session/cloud-favorites/logout E2E remains valid evidence; this review did not repeat credentialed login or resend/recovery/export.
 - Production gate remains: production Supabase project and exact canonical origins/callbacks, cookie secret, approved production D1 schema/migration, custom SMTP and SPF/DKIM/DMARC plus delivery monitoring, and production-grade rate limiting. Recovery/resend and multi-tab/concurrent refresh require controlled verification on the final origin before launch.
 - Do not promote staging auth flags, host allowlists, bindings or diagnostic UI to production.
+# Production environment update — 2026-10-03
+
+- Produkcyjny Auth nadal **OFF / fail-closed / NOT DEPLOYED**. Nie ustawiano sekretów, projektu Supabase, origins ani limiter bindingu.
+- `0003_accounts_foundation.sql` pozostaje proposalem dla produkcji. Zastosowanie wymaga osobnego backupu, zdalnego audytu migracji/schematu oraz wyraźnej zgody.
+- Read-only production D1 audit nie został wykonany, ponieważ Wrangler OAuth token wygasł. Nie deklarować aktualnych tabel ani countów.
+- Resend pozostaje preferowanym, ale nieskonfigurowanym SMTP. Po wyborze domeny wymagana jest zweryfikowana domena nadawcza, SPF/DKIM/DMARC, Supabase SMTP credentials, confirmation/reset templates, monitoring dostarczeń i jeden kontrolowany test recovery.
+- Dalsze kroki i konkretne pola konfiguracyjne opisuje `docs/PRODUCTION_CUTOVER_RUNBOOK.md`. Brak limiter bindingu, 0003, exact origin lub SMTP oznacza Auth niedostępny.

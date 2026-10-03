@@ -1,5 +1,36 @@
 # Rex.Bid — Project Handoff
 
+## Production environment build — 2026-10-03 (kontynuacja od bd88ff1)
+
+### CURRENT STATE
+
+- Bazowy HEAD: `bd88ff1 Prepare Rex.Bid production cutover package`. Zachowano istniejące zmiany; `.codex-wrangler-cache/` jest wcześniej istniejącym, nieśledzonym katalogiem i pozostaje nietknięty.
+- Produkcyjny target z lokalnego `wrangler.jsonc`: Worker `mtbid`, D1 `rexbid-db`, ID `971879fe-04ed-4e8c-9dc6-5306980bb872`. Staging target: `rexbid-auth-test` / `rexbid-auth-test-db`, ID `acb3cb8e-69a2-459f-8a46-0f2f5b9004be`.
+- **Nie udało się uwierzytelnić Wrangler**: token Cloudflare wygasł; `whoami`, remote migration list i production D1 SELECT nie zostały ukończone. Nie twierdzić, że aktualne remote schema/county są znane. Żadna zdalna operacja produkcyjna nie została wykonana.
+- `REXBID_D1_PRIMARY_READS=false`, produkcyjny Cron OFF, Auth fail-closed. Provider budgets mają tryb `required`, ale limity nie są ustawione, więc produkcyjny ruch providera fail-closed.
+
+### DONE
+
+- Konfiguracja i testy pilnują produkcyjnego D1-first OFF, Cron OFF oraz izolacji staging routes/identifiers.
+- Przygotowano propozycję produkcyjnych provider caps, Resend/Supabase SMTP i domenowego cutoveru w `docs/PRODUCTION_CUTOVER_RUNBOOK.md`; nie utworzono usług ani sekretów.
+- Lokalny Wrangler `4.145.0` zbudował production config przez `deploy --dry-run`: PASS, wskazując `mtbid`, `rexbid-db`/właściwy UUID i jawne `REXBID_D1_PRIMARY_READS=false`. `whoami` nadal nie działa z powodu wygasłego tokenu, więc konto i dostęp do zdalnej D1 pozostają niezweryfikowane. Dry-run nie wdraża.
+
+### BLOCKED
+
+- Read-only audyt zdalnej produkcyjnej D1, potwierdzenie historii migracji, schematu i countów czeka na re-auth Wrangler.
+- Migration order wymaga ostrożności: proposal 0004 zawiera już `media_urls_json` i `media_thumbs_json`; nie stosować dodatkowo surowej migracji 0005 po takim 0004.
+- Domena, produkcyjny Supabase, Auth limiter, SMTP/DNS, legal approval i uzgodnione provider quotas pozostają nieustawione.
+
+### OWNER ACTION
+
+1. Ponownie zalogować Wrangler w interaktywnym terminalu; po tym wykonać wyłącznie read-only audyt D1 i dry-run.
+2. Wybrać finalną domenę/canonical host oraz zatwierdzić Resend jako SMTP wraz z nadawcą i DNS.
+3. Zatwierdzić po audycie limity providera, strategię backupu/retencji i osobne okno na produkcyjne migracje/deploy.
+
+### PRODUCTION CUTOVER ORDER
+
+Read-only target/schema/migration audit → backup + restore rehearsal do odrębnej bazy → review i osobne zatwierdzenie 0003 → osobne zatwierdzenie 0004 (po sprawdzeniu kolumn mediów, bez duplikowania 0005) → konfiguracja domeny/SMTP/limiter/budżetów → staging E2E → owner approval → produkcyjne wdrożenie/flagowanie. Ta kolejność nie jest zgodą na cutover.
+
 ## Production blocker closure sprint — 2026-10-03 (local, not deployed)
 
 - **Current checkout:** `def8b43 Prepare Rex.Bid release candidate staging`; existing local changes were retained. At sprint start the worktree already contained WIP edits to `providers/apibara.js`, `sync/d1-repository.js`, `worker.js`, `providers/request-budget.js`, plus the pre-existing untracked `.codex-wrangler-cache/`. Do not delete/cache-clean that path.

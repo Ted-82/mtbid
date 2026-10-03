@@ -9,7 +9,8 @@
 
   "vars": {
     "REXBID_CANONICAL_ORIGIN": "https://mtbid.tedn828.workers.dev",
-    "REXBID_PROVIDER_BUDGET_MODE": "required"
+    "REXBID_PROVIDER_BUDGET_MODE": "required",
+    "REXBID_D1_PRIMARY_READS": "false"
   },
 
   "d1_databases": [

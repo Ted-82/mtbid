@@ -29,6 +29,8 @@ function validateWorkerConfigs(root = path.resolve(__dirname, "..")) {
   if (stagingDb?.database_id === productionDb?.database_id || stagingDb?.database_name === productionDb?.database_name) issues.push("database_isolation");
   const productionText = JSON.stringify(production);
   if (production.vars?.AUTH_ENABLED === "true") issues.push("production_auth_must_remain_disabled");
+  if (production.vars?.REXBID_D1_PRIMARY_READS === "true") issues.push("production_d1_primary_reads_must_remain_disabled");
+  if (production.triggers?.crons?.length) issues.push("production_cron_must_remain_disabled");
   for (const marker of ["AUTH_ENABLED", "AUTH_D1_SCHEMA_VERSION", "REXBID_AUTH_TEST_UI", "REXBID_AUTH_DIAGNOSTICS", "staging-bypass", "rexbid-auth-test-db"]) {
     if (productionText.includes(marker)) issues.push(`staging_flag_in_production:${marker}`);
   }
@@ -48,6 +50,8 @@ function validateWorkerConfigs(root = path.resolve(__dirname, "..")) {
       provider_budget_mode: production.vars?.REXBID_PROVIDER_BUDGET_MODE || "not_enabled",
       provider_budget_configured: !productionBudgetMissing,
       provider_traffic_fail_closed: production.vars?.REXBID_PROVIDER_BUDGET_MODE === "required" && productionBudgetMissing,
+      d1_primary_reads_enabled: production.vars?.REXBID_D1_PRIMARY_READS === "true",
+      cron_enabled: Boolean(production.triggers?.crons?.length),
       launch_blockers: productionBudgetMissing ? ["production_provider_daily_budgets_require_owner_approval"] : [] },
     staging: { worker: staging.name, database: stagingDb?.database_name, database_id: stagingDb?.database_id,
       prototype_enabled: staging.vars?.REXBID_DOOR_ESTIMATOR_PROTOTYPE === "enabled",

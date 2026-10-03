@@ -97,7 +97,7 @@ Dokumenty w `docs/legal/` pozostają `DRAFT — REQUIRES OWNER/LEGAL REVIEW`, ni
 ## Dry-run / release order
 
 1. Konfig validator → rate data generator `--check` → testy/składnia/diff-check.
-2. Production `wrangler.jsonc` dry-run tylko po audycie targetu. To nie jest deploy ani dowód dostępności sekretów.
+2. Production `wrangler.jsonc` dry-run tylko po audycie targetu. 2026-10-03 local dry-run PASS wskazał wyłącznie `mtbid`/`rexbid-db` i D1-first OFF; to nie jest deploy ani dowód zdalnego dostępu/sekretów. `whoami` w tej sesji wymaga re-auth.
 3. Zweryfikować backup/export + restore rehearsal i listę zdalnych migracji.
 4. Dodać wymagane production secrets/bindingi dopiero po owner config: Supabase, cookie secret, SMTP, limiter, provider quotas; nic nie wypisywać.
 5. Osobno wdrożyć addytywne migracje z zatwierdzonymi checkpointami. Utrzymać Auth OFF i D1-first OFF.
@@ -111,10 +111,78 @@ Dokumenty w `docs/legal/` pozostają `DRAFT — REQUIRES OWNER/LEGAL REVIEW`, ni
 - Auth: `AUTH_ENABLED=false`, zachować cookie clearing i nie usuwać tabel.
 - Schemat: kod rollback nie cofa addytywnego schematu; nie usuwać tabel/kolumn. Restore jest osobnym zatwierdzanym działaniem.
 
-## Maksymalnie pięć wymaganych działań właściciela
+## Skonsolidowane działania właściciela — maksymalnie trzy
 
-1. Wybrać finalną domenę i canonical host.
-2. Wybrać SMTP z trzech opcji oraz zatwierdzić koszt/nadawcę i DNS SPF/DKIM/DMARC.
-3. Zatwierdzić production daily caps (global + klasy), alerty oraz ewentualną rezerwę retry; do tego czasu provider w produkcji fail-closed.
-4. Zatwierdzić produkcyjny plan włączenia Auth/D1 sync, legal drafts i warunki zewnętrzne platform aukcyjnych/mediów.
-5. W osobnym oknie wydać jawne zatwierdzenie na migracje/deploy produkcji po ukończeniu checklisty i staging E2E.
+1. Ponownie zalogować Wrangler; wtedy wykonać wyłącznie `whoami` i read-only audyt produkcyjnej D1 (target, migracje, schema, FK i county). Nie aplikować migracji.
+2. Wybrać finalną domenę/canonical host i zatwierdzić Resend/nadawcę oraz rekordy SPF/DKIM/DMARC; konto ani subskrypcja nie są tworzone w tym sprincie.
+3. Po audycie D1 zatwierdzić dzienne capy providera, limiter/alerty, legal drafts i kolejność osobnych migracji. Zgoda na deploy lub migrację produkcji musi być osobna i jawna; jej brak pozostawia Auth/Cron/D1-first wyłączone.
+
+## Production Environment Build — 2026-10-03 (bez aktywacji)
+
+Ten dodatek jest aktualnym planem przygotowania środowiska. Nie oznacza wykonania migracji, konfiguracji sekretów, aktywacji flag ani deployu.
+
+### Stan audytu produkcyjnego D1
+
+Target z konfiguracji lokalnej: `rexbid-db` / `971879fe-04ed-4e8c-9dc6-5306980bb872`. Zdalnego audytu schematu, migration history ani countów **nie udało się wykonać**: OAuth Wrangler wygasł, a próba odświeżenia tokenu nie mogła połączyć się z Cloudflare. Żadne zapytanie SELECT do produkcyjnej D1 nie zostało wykonane. Nie wyciągać wniosku o aktualnych remote tables wyłącznie z plików repo.
+
+Po ponownym uwierzytelnieniu pierwszym krokiem jest tylko odczyt: potwierdzenie konta i ID, `wrangler d1 migrations list rexbid-db --remote --config wrangler.jsonc`, `sqlite_schema`, `PRAGMA foreign_key_check` i countów tabel. Jeżeli nazwa/ID odbiegają od targetu powyżej, przerwać.
+
+### Kolejność produkcyjnych migracji
+
+Aktywne `migrations/` zawiera obecnie tylko `0000_rexbid_base.sql` i `0001_auction_history_events.sql`; proposal `0003` i `0004` nie są aktywnymi migracjami produkcyjnymi. Zdalnej historii migracji nie udało się potwierdzić.
+
+1. Backup/export `rexbid-db`, checksum, readback countów i niezależny restore rehearsal do osobnej tymczasowej bazy; nie nadpisywać production.
+2. W review zamrozić SQL proposal `0003_accounts_foundation.sql`; skopiować do aktywnego katalogu migracji jako następny poprawny numer dopiero po porównaniu z remote migration history. Najpierw zastosować ją osobno, potem sprawdzić tabele, PK/FK/indexy i brak zmian legacy rows.
+3. Po osobnym backupie zastosować zatwierdzony `0004_d1_sync_2.sql`, sprawdzić DDL/FK/indexy. Nie wykonywać discovery ani backfillu jako części migracji.
+4. **Uwaga o media columns:** aktualny proposal `0004_d1_sync_2.sql` już tworzy `media_urls_json` i `media_thumbs_json`. Dlatego po zastosowaniu tej dokładnej wersji proposal nie wolno dodatkowo wykonać stagingowego `0005_listing_media_urls.sql` — byłoby to drugie dodanie tych samych kolumn. Zweryfikować `PRAGMA table_info(auction_listings)`. Jeśli review wymaga odrębnej migracji 0005, najpierw przygotować zatwierdzony wariant 0004 bez tych pól i osobny addytywny 0005; nie uruchamiać migracji stagingowej bezpośrednio.
+5. Dla każdej migracji osobny target check, backup, apply, direct SELECT/foreign-key check, smoke kompatybilności i zatrzymanie przed kolejną operacją. Żadna migracja nie wykonuje masowego importu.
+
+Rollback jest aplikacyjny: wyłączyć przyszłą flagę, wrócić do poprzedniego Workera. Schemat pozostaje addytywny; brak automatycznych down migrations. Restore produkcji wymaga odrębnej zgody właściciela.
+
+### Provider caps — propozycja do zatwierdzenia
+
+Nie znamy limitu/request quota planu Apibara ani produkcyjnego baseline ruchu. Poniższe są **proponowanymi początkowymi twardymi limitami canary**, nie wartościami skonfigurowanymi ani gwarancją braku 429: global **2 000/dzień**; katalog **1 000**; detail **650**; history **250**; discovery **80**; media enrichment **20**. Suma klas = limit globalny. Discovery/media nie powinny być wykorzystywane bez osobnego włączenia syncu. Każda rzeczywista próba HTTP zużywa licznik; brak auto-retry; retry bucket pozostaje 0.
+
+Przed zatwierdzeniem porównać z pisemnym limitem planu Apibara i co najmniej 7-dniowym ruchowym pomiarem; globalny cap nie może przekraczać 80% jawnie potwierdzonego dziennego limitu providera, a miesięczny model powinien pozostawić minimum 30% marginesu. Jeżeli plan ma niższy limit, capy trzeba proporcjonalnie obniżyć. Alerty proponowane: 60% informacyjny, 80% ostrzegawczy, 100% hard stop; alarm przy każdym 429, trzech kolejnych błędach provider/transport w 5 minut, 5xx Worker >2% przez 5 minut i stale/fallback ponad 2× 7-dniową medianę. Nie aktywować production Cron.
+
+### Release config, flagi i izolacja
+
+- Produkcja pozostaje provider-backed. `REXBID_D1_PRIMARY_READS=false` jest jawnie wpisane w `wrangler.jsonc`; D1-first nie jest zaimplementowane jako produkcyjna ścieżka w tym buildzie. Przyszłą implementację wolno włączyć tylko po osobnym review. Jednosetting rollback po jej wdrożeniu: ustawić tę flagę z powrotem na `false` i redeployować wyłącznie po odrębnym zatwierdzeniu.
+- `worker.staging.js` i staging routes nie są importowane przez `worker.js`. Config validator blokuje produkcyjne D1-primary flag `true`, cron i staging identifiers. Produkcyjne `triggers.crons` nie występują.
+- Production provider budgets są `required`, ale brak caps i brak zatwierdzonego Sync schema oznaczają fail-closed przed upstream. Proponowane wartości powyżej nie są aktywowane w `wrangler.jsonc`.
+- Auth pozostaje OFF. Nie dodawać `AUTH_ENABLED=true`, `AUTH_D1_SCHEMA_VERSION=0003`, `AUTH_CANONICAL_ORIGIN`, `AUTH_ALLOWED_ORIGINS` ani `AUTH_RATE_LIMITING_MODE=cloudflare` przed wdrożeniem wszystkich zależności. Nie kopiować żadnego staging secret.
+
+### Production Supabase/Auth setup — wartości i kontrola
+
+1. Utworzyć oddzielny production Supabase project Rex.Bid. Zanotować project ref; nie kopiować staging URL/key.
+2. Po zatwierdzeniu domeny ustawić Site URL `https://<canonical-host>/`; allowlista redirectów zawiera dokładny `https://<canonical-host>/api/auth/callback`. Dla linków confirmation/recovery przekierowanie kończy się na callbacku, a callback kieruje recovery do `/reset-hasla.html?recovery=ready`. Bez wildcard origins.
+3. W produkcyjnym Worker secrets/config dopiero po migracji: `SUPABASE_URL` (project root HTTPS), `SUPABASE_PUBLISHABLE_KEY`, `REXBID_AUTH_COOKIE_SECRET` (losowy, co najmniej 43 znaki). Nie logować wartości. `AUTH_CANONICAL_ORIGIN` i `AUTH_ALLOWED_ORIGINS` muszą być identyczne z finalnym HTTPS hostem.
+4. Najpierw utworzyć Cloudflare Rate Limiting binding `AUTH_RATE_LIMITER` i zatwierdzić limity per operation/key; następnie `AUTH_RATE_LIMITING_MODE=cloudflare`. Ograniczać login/signup/recovery po route + klient IP, mutacje favorites po zweryfikowanym Rex.Bid user ID; nie limitować po samym e-mailu. Cloudflare binding jest lokalny do colo i eventual, więc łączyć z Supabase limits i monitoringiem.
+5. Dopiero po odczycie tabelek 0003 ustawić `AUTH_D1_SCHEMA_VERSION=0003`; następnie Auth pozostaje wyłączony aż do osobnej zgody na `AUTH_ENABLED=true` i finalnym staging E2E.
+
+### Supabase + Resend SMTP — przygotowana konfiguracja
+
+Preferowany przez właściciela Resend; nic nie kupiono ani nie skonfigurowano. Po wyborze domeny utworzyć w Resend osobną domenę nadawczą, np. `auth.<canonical-domain>`, i osobny adres `no-reply@auth.<canonical-domain>`. W Resend zweryfikować domenę, następnie skopiować **wygenerowane dla tej domeny** rekordy SPF/DKIM do Cloudflare DNS; nie wpisywać uniwersalnych rekordów z przykładu. Dodać DMARC pod `_dmarc.auth.<domain>` z polityką monitorującą `p=none` i zatwierdzonym adresem raportowym, a dopiero po obserwacji owner/legal może zatwierdzić ostrzejszą politykę. Nie tworzyć drugiego SPF TXT.
+
+W Supabase → Auth → SMTP Settings: host `smtp.resend.com`, port `465` (SSL; alternatywa 587 TLS, po testach), username `resend`, password = Resend API key przechowywany tylko w Supabase SMTP secret field, sender email = zweryfikowany adres `no-reply@auth.<domain>`, sender name `Rex.Bid`. Ograniczyć klucz Resend do wysyłki i nie wkładać go do Cloudflare/Repo. Ustawić confirmation oraz password-reset templates i linki przez callback. Wyłączyć link tracking/rewrite dla wiadomości uwierzytelniających. Po aktywacji wykonać po jednym kontrolowanym confirmation i password-reset E2E, sprawdzić SPF/DKIM/DMARC, bounces i dostarczenie.
+
+Aktualna dokumentacja Supabase wskazuje, że ich domyślna poczta wysyła tylko na adresy zespołu, obecny limit to 2 wiadomości/h bez SLA; po skonfigurowaniu custom SMTP początkowy limit Auth to 30/h. Te limity trzeba sprawdzić ponownie w panelu przed testem.
+
+### Backup production — komenda i retencja
+
+Po odzyskaniu dostępu i przed zmianą, dopiero po sprawdzeniu UUID, operator może wykonać:
+
+```powershell
+$stamp = (Get-Date).ToUniversalTime().ToString('yyyyMMddTHHmmssZ')
+$backup = "<approved-secure-backup-dir>\rexbid-db-$stamp-pre-migration.sql"
+npx wrangler d1 export rexbid-db --remote --config wrangler.jsonc --output $backup
+Get-FileHash -Algorithm SHA256 $backup
+```
+
+Plik zawiera dane użytkowników i ma być szyfrowany w zatwierdzonym magazynie poza repo/komputerem roboczym; nazwa zawiera środowisko, D1, UTC i checkpoint/migrację. Retencja do zatwierdzenia; propozycja startowa: szyfrowane kopie dzienne 30 dni oraz kopia przed każdą migracją do czasu potwierdzenia RPO/RTO i kosztu. Restore zawsze najpierw do nowego, jednoznacznie tymczasowego D1; porównanie schematu, FK i countów. Nie kierować restore do `rexbid-db` w trakcie próby.
+
+## Właścicielskie kroki — maksymalnie trzy grupy
+
+1. Zatwierdzić canonical domain i oddzielną domenę nadawczą Auth; wybrać Resend i zaakceptować koszt/limity DNS-email.
+2. Utworzyć production Supabase + Resend pod wybraną domeną i wprowadzić ich prywatne wartości bezpiecznym kanałem do odpowiednich dashboardów/secrets; nie przesyłać kluczy w czacie.
+3. Ponownie uwierzytelnić Wrangler. Po read-only audycie produkcyjnej D1 przedstawić właścicielowi gotową listę SQL/checksum/caps; migracje i finalny deploy nadal wymagają osobnej jawnej zgody.

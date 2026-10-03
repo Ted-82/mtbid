@@ -46,11 +46,14 @@ test("Worker live/config files keep production and staging bindings isolated and
   assert.equal(result.staging.prototype_enabled, false);
   assert.equal(result.production.provider_traffic_fail_closed, true);
   assert.equal(result.production.provider_budget_configured, false);
+  assert.equal(result.production.d1_primary_reads_enabled, false);
+  assert.equal(result.production.cron_enabled, false);
   assert.equal(result.staging.provider_budget_configured, true);
   assert.equal(result.staging.provider_daily_limit, "500");
   const productionConfig = JSON.parse(fs.readFileSync(path.join(ROOT, "wrangler.jsonc"), "utf8"));
   const stagingConfig = JSON.parse(fs.readFileSync(path.join(ROOT, "wrangler.staging.jsonc"), "utf8"));
   assert.notEqual(productionConfig.vars?.REXBID_PHASE_G_MULTIPLATFORM, "enabled", "Phase G runner must remain unavailable in production");
+  assert.equal(productionConfig.vars?.REXBID_D1_PRIMARY_READS, "false", "production must explicitly default to provider-backed reads");
   assert.equal(stagingConfig.vars?.REXBID_PHASE_G_MULTIPLATFORM, "enabled", "multi-platform continuation is explicitly enabled only on isolated staging");
   for (const configName of ["wrangler.jsonc", "wrangler.staging.jsonc"]) {
     const config = JSON.parse(fs.readFileSync(path.join(ROOT, configName), "utf8"));

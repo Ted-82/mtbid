@@ -56,3 +56,10 @@ Powyższy zapis dotyczył wcześniejszej próby lokalnej i został uzupełniony 
 - Completed staging D1 export followed by import into disposable in-memory SQLite; 18 tables and key account/catalog counts matched. Temporary export was removed. Source staging D1 was read-only.
 - **Korekta statusu:** ten wpis powstał przed późniejszym remote rehearsal i nie opisuje końcowego stanu.
 - Remote staging rehearsal został później wykonany; patrz sekcja „Korekta — remote Cloudflare D1 restore rehearsal”. Dla produkcji nadal wymagane są zatwierdzone zasady szyfrowania/retencji backupu i osobny plan operacyjny. Nigdy nie odtwarzaj nad `rexbid-auth-test-db` ani `rexbid-db` w trakcie rehearsal.
+# Production environment build update — 2026-10-03
+
+- Zdalna produkcyjna D1 `rexbid-db` nie została odczytana w tym sprincie. Próba Wrangler zakończyła się błędem wygasłego OAuth tokenu przed jakimkolwiek SELECT. Nie wykonano exportu, restore ani migracji.
+- Wcześniejszy remote restore rehearsal dotyczył wyłącznie staging export → osobna tymczasowa D1; nie jest dowodem odtwarzalności production.
+- Po ponownym uwierzytelnieniu: potwierdzić konto i UUID; wykonać wyłącznie `wrangler d1 migrations list ... --remote`, read-only schema/counts i następnie zaplanować production export poza repo oraz disposable restore do nowej, jednoznacznie nazwanej D1. Nie importować nad `rexbid-db`.
+- Przed pierwszą produkcyjną zmianą ustalić zatwierdzony, szyfrowany backup storage, dostęp, retencję i checksumy. Aktualna propozycja runbooka (retencja 30 dni) jest nieaktywna i wymaga zatwierdzenia.
+- **Migration prerequisite:** proposal 0004 zawiera już dwie media columns; sprawdzić `PRAGMA table_info(auction_listings)` przed wyborem migracji. Nie aplikować ponownie stagingowego 0005 po 0004 zawierającym te kolumny.
