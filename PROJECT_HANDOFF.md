@@ -1,5 +1,34 @@
 # Rex.Bid — Project Handoff
 
+## Final technical pre-cutover sprint — 2026-10-03 (stan aktualny)
+
+### CURRENT STATE
+
+- Checkout: `4e93be4 Prepare Rex.Bid production environment plan`. Zachowano nieśledzony `.codex-wrangler-cache/`; bez commit/push.
+- **Production D1 READ-ONLY VERIFIED:** konto Tedn828 (`7ff5a57444667c4eda2a6a7f0fc4120d`), `rexbid-db` UUID `971879fe-04ed-4e8c-9dc6-5306980bb872`. Zastosowane dokładnie `0000_rexbid_base.sql` i `0001_auction_history_events.sql`. Tabele: `_cf_KV`, `d1_migrations`, `vehicles`, `vehicle_snapshots`, `auction_history`, `sqlite_sequence`; county legacy odpowiednio `0/0/0`; brak Accounts/Sync/media tables. Indeksy: `idx_vehicles_vin`, `idx_vehicles_lot`, `idx_vehicles_platform`, `idx_snapshots_vehicle`, `idx_history_vehicle`, `idx_history_date`, `idx_history_event_lookup` plus SQLite autoindexes. Legacy tables declare no foreign keys; `PRAGMA foreign_key_check` returned no rows. Żaden production write, migration, export ani deploy nie nastąpił.
+- **Migration gap:** wymagane osobno zatwierdzone `0003_accounts_foundation.sql`, następnie `0004_d1_sync_2.sql`. Obecna proposal 0004 już zawiera `media_urls_json` i `media_thumbs_json`; nie stosować 0005 po niej.
+- Production dry-run PASS: tylko `mtbid` + `rexbid-db`; D1-first=false, Cron brak, Auth settings/binding brak. Odczytano wyłącznie nazwę sekretu `APIBARA_API_KEY`, nie jego wartość. Budżety providera nadal fail-closed bez limitów i schematu Sync.
+- **Staging telemetry/budgets:** `rexbid-auth-test` Version `df92bf78-e348-47bf-8b3a-f1ccf9144165`, wyłącznie D1 `rexbid-auth-test-db` UUID `acb3cb8e-69a2-459f-8a46-0f2f5b9004be`. `/health` i `/ready` 200; katalog/filtry HTTP 200 z `read_source=d1`, `catalog_complete=false`, oba scope partial; tail potwierdził D1 hit i `provider_fallback=false`. Anonimowe `/api/me`=401/no-store. Zero requestów Apibara/discovery/backfill.
+- Staging D1 read-only: 380 sources/listings/snapshots; 80 rekordów ma URL-e i thumbnails; `users=1`, `user_favorites=1`. Wrangler raportuje 0005 pending mimo fizycznie obecnych obu kolumn — **nie uruchamiać `migrations apply`** przed uzgodnieniem historii.
+- Początkowa propozycja produkcyjnych capów: 500/dzień (catalog 250, detail 150, history 60, discovery 30, media 10), suma 500. Nieaktywne; wymagają potwierdzonego quota Apibara i zgody właściciela. Retry off.
+- **Produkcja nietknięta:** bez migracji, eksportu/backup, deployu, Auth, D1-first ani Cron.
+
+### DONE
+
+- Zdalny audit production schema/migration history/counts oraz config dry-run.
+- Telemetry/budget code wdrożony na staging i zweryfikowany D1-only bez provider fallback.
+- Runbooki migracji, backup, Auth i rollback zaktualizowane.
+
+### OWNER ACTION (maks. 3)
+
+1. Wybrać domenę kanoniczną i zatwierdzić domenę nadawcy/Resend.
+2. Skonfigurować produkcyjny Supabase, SMTP/DNS, cookie secret, exact origins i Cloudflare limiter; sekrety wprowadzić wyłącznie w dashboardach.
+3. Potwierdzić quota Apibara i zatwierdzić osobne okno na backup/restore rehearsal, migracje oraz ewentualny release.
+
+### PRODUCTION CUTOVER ORDER
+
+Wybór domeny → SMTP/Supabase/limiter → zaszyfrowany production export i odrębny restore rehearsal → zatwierdzone `0003` i readback → zatwierdzone `0004` i readback (bez 0005) → provider-backed deploy z Auth/D1-first/Cron OFF i zatwierdzonymi budgetami → smoke/monitoring → osobna aktywacja Auth → production D1 backfill/completeness check → osobna aktywacja D1-first → obserwacja → bounded scheduled sync jako ostatni krok.
+
 ## Production environment build — 2026-10-03 (kontynuacja od bd88ff1)
 
 ### CURRENT STATE

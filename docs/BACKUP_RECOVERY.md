@@ -1,6 +1,24 @@
 # Backup i odtwarzanie Rex.Bid
 
-Status: procedura projektowa. **Staging rehearsal wykonano 2026-10-03** przez eksport `rexbid-auth-test-db` i odtworzenie do osobnej, efemerycznej bazy SQLite in-memory; staging i produkcja nie zostały nadpisane.
+## Production D1 pre-cutover audit — 2026-10-03
+
+- Odczytany target: `rexbid-db`, `971879fe-04ed-4e8c-9dc6-5306980bb872` (konto Tedn828).
+- Zastosowane migracje: tylko `0000_rexbid_base.sql` i `0001_auction_history_events.sql`.
+- County: `vehicles=0`, `vehicle_snapshots=0`, `auction_history=0`; brak `users`, `user_favorites`, Sync 2 i media columns. `foreign_key_check` czysty.
+- Audyt był read-only. **Nie wykonano production exportu**: dump może zawierać dane użytkowników i wymaga zatwierdzonego szyfrowanego magazynu. Backup pozostaje warunkiem przed migracją.
+
+### Gotowy export przed 0003 (uruchomić tylko w zatwierdzonym oknie)
+
+```powershell
+$stamp = (Get-Date).ToUniversalTime().ToString('yyyyMMddTHHmmssZ')
+$backup = "<approved-encrypted-dir>\rexbid-db-$stamp-pre-0003.sql"
+npx wrangler d1 export rexbid-db --remote --config wrangler.jsonc --output $backup
+Get-FileHash -Algorithm SHA256 $backup
+```
+
+Zachować checksum, target name/UUID, Wrangler version, migration list i pre-backup counts w manifeście poza repo. Nie commitować dumpu. Restore rehearsal wykonywać wyłącznie do nowej, odrębnie nazwanej D1; porównać schema/indexes/FK i kluczowe county. Usuwanie testowej D1 wymaga sprawdzenia UUID i osobnej zgody; nigdy nie restore'ować próbki na `rexbid-db` ani `rexbid-auth-test-db`.
+
+Status: procedura projektowa. **Staging remote restore rehearsal wykonano 2026-10-03**: export `rexbid-auth-test-db` odtworzono do odrębnej tymczasowej Cloudflare D1 `rexbid-restore-rehearsal-20261003-0809` (`6ed87387-7501-4a1c-8fa8-cdcc02c05779`), porównano schemat/liczniki/FK i następnie usunięto tymczasową D1 oraz plik eksportu. Źródłowy staging i produkcja nie zostały nadpisane.
 
 ## Rozdzielenie środowisk
 

@@ -1,5 +1,27 @@
 # Rex.Bid — runbook przygotowania cutoveru produkcyjnego
 
+## FINAL TECHNICAL PRE-CUTOVER — 2026-10-03 (NADRZĘDNY STAN)
+
+- Potwierdzone konto Cloudflare Tedn828, account ID `7ff5a57444667c4eda2a6a7f0fc4120d`.
+- Produkcyjna D1 `rexbid-db` / `971879fe-04ed-4e8c-9dc6-5306980bb872`: zastosowane dokładnie `0000_rexbid_base.sql` i `0001_auction_history_events.sql`; tabele `_cf_KV`, `d1_migrations`, `vehicles`, `vehicle_snapshots`, `auction_history`, `sqlite_sequence`; county legacy `0/0/0`; brak Accounts/Sync/media. Indeksy: `idx_vehicles_vin`, `idx_vehicles_lot`, `idx_vehicles_platform`, `idx_snapshots_vehicle`, `idx_history_vehicle`, `idx_history_date`, `idx_history_event_lookup` plus autoindexes. Legacy schema nie deklaruje FK; `foreign_key_check` bez naruszeń. Odczyt był read-only; brak exportu, migracji i deployu.
+- Produkcyjny dry-run PASS: tylko `mtbid` / `rexbid-db`, D1-first=false, Auth vars/binding absent, Cron absent. `wrangler secret list` ujawnił wyłącznie nazwę `APIBARA_API_KEY`, bez wartości. Provider calls pozostają fail-closed bez capów oraz Sync schema.
+- Staging telemetrii: Version `df92bf78-e348-47bf-8b3a-f1ccf9144165`, tylko `rexbid-auth-test-db` / `acb3cb8e-69a2-459f-8a46-0f2f5b9004be`. `/health`, `/ready`, katalog i filtry PASS; publiczne odczyty wskazały `read_source=d1`, częściowy scope; tail potwierdził `d1_hit=true`, `provider_fallback=false`. Zero Apibara requests.
+- Produkcyjna luka migracyjna: proposal **0003 Accounts → 0004 Sync 2**. Bieżący SQL 0004 zawiera `media_urls_json` oraz `media_thumbs_json`; nie stosować po nim 0005. Staging migration history nadal zgłasza 0005 pending mimo istniejących kolumn — przed kolejną staging migration uzgodnić tracking, niczego teraz nie aplikować.
+- Limity produkcyjne proponowane jako pierwszy canary: global 500/dzień = catalog 250 + detail 150 + history 60 + discovery 30 + media 10. Nieaktywne; wymagają potwierdzonego quota Apibara i zgody właściciela. Retry off.
+- **Brak produkcyjnych zmian:** bez exportu, D1 mutation, migracji, deployu, Auth, D1-first i Cron.
+
+Poniższa zawartość zawiera starsze notatki historyczne. Gdy różnią się od tego bloku, obowiązuje powyższy, zweryfikowany stan.
+
+### Finalna propozycja budżetów i cutover
+
+Nieznany jest jeszcze pisemny dzienny quota planu Apibara i brak produkcyjnego baseline ruchu. Zamiast wcześniejszego przykładu 2 000/dzień proponuję początkowy twardy cap **500/dzień**: katalog 250, detail 150, history 60, discovery 30, media URL enrichment 10. Suma klas = 500. Retry=0; katalog/detail/history mogą korzystać z D1 bez wydania provider budgetu. Discovery/media pozostają OFF do osobnej zgody. Aktywować cap dopiero po potwierdzeniu przez Apibara co najmniej 625 requestów/dzień i akceptacji właściciela; po 7 dniach zmierzonego ruchu dokonać review. 60% informacyjne, 80% ostrzeżenie, 100% twarde odrzucenie przed upstream; każde 429 alarmować. To propozycja, nie aktywna produkcyjna konfiguracja.
+
+Kolejność, po osobnych zatwierdzeniach: (1) wybór domeny/canonical host; (2) production Supabase + Resend SMTP, DNS SPF/DKIM/DMARC, dokładne callbacki/origins i limiter; (3) szyfrowany export produkcji, SHA-256, niezależny restore rehearsal do odrębnej D1; (4) apply 0003 i direct schema/count/FK readback; (5) apply 0004 i readback — pomiń 0005, bo bieżące 0004 zawiera media URL columns; (6) deploy provider-backed produkcyjnego workera z Auth=false, D1-first=false, Cron=OFF i zatwierdzonymi budżetami; (7) smoke i obserwacja; (8) osobno włączyć Auth; (9) dopiero po produkcyjnym backfillu, kompletności i review włączyć D1-first; (10) na końcu aktywować bounded scheduled sync. Nie zakładać pełnej populacji z częściowego backfillu.
+
+Rollback: provider budget — ustawić twardy global limit 0/fail-closed lub odciąć provider adapter; brak rollbacku schematu. D1-first — flaga false, wrócić do provider-backed, bez D1 restore. Auth — `AUTH_ENABLED=false`; tabele pozostają. Cron — wyłączyć trigger i zatrzymać enqueue; aktywny commit strony może się domknąć, nowe strony nie startują. Worker — wrócić do poprzedniej wersji. Migracje 0003/0004 są addytywne: nie usuwać tabel/kolumn; schema rollback/restore wyłącznie po analizie i osobnej zgodzie.
+
+Owner actions (maks. 3 grupy): (1) wybrać domenę i zatwierdzić sender/Resend; (2) skonfigurować osobny production Supabase, SMTP/DNS, cookie secret, exact origins i limiter; (3) potwierdzić Apibara quota i zatwierdzić osobne okno backupu/restore rehearsal, migracji i release. Wrangler re-auth oraz production D1 read-only audit są już wykonane.
+
 **Status: plan do review. Żaden krok produkcyjny opisany niżej nie został wykonany.**
 
 ## Aktualna bramka

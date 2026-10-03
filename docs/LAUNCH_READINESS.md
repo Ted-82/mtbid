@@ -1,5 +1,13 @@
 # Rex.Bid — gotowość do kontrolowanego publicznego uruchomienia
 
+## Final technical pre-cutover update — 2026-10-03
+
+- **Production D1 READ-ONLY VERIFIED:** Cloudflare Tedn828; `rexbid-db` / `971879fe-04ed-4e8c-9dc6-5306980bb872`; only migrations 0000/0001; legacy counts `vehicles=0`, `vehicle_snapshots=0`, `auction_history=0`; Accounts/Sync/media schemas absent. No production mutation, export or deployment.
+- **Production config preflight PASS:** dry-run targets only `mtbid` and `rexbid-db`; assets present; D1-first false; Auth OFF/fail-closed; Cron absent. Secret-name listing found only `APIBARA_API_KEY`; its value was not accessed. Production provider calls stay fail-closed without caps and Sync schema.
+- **Staging telemetry STAGING VERIFIED:** Version `df92bf78-e348-47bf-8b3a-f1ccf9144165`; health/readiness 200; catalog/filters use D1 and state partial scope; tail confirms D1 hit and no fallback. No Apibara requests.
+- Exact production migration gap is proposal 0003 then proposal 0004. Current 0004 includes media URL columns, so separate 0005 is not required. Staging Wrangler history says 0005 pending despite columns existing; reconcile before a future staging migration.
+- Proposed initial hard cap: 500/day total (250 catalog, 150 detail, 60 history, 30 discovery, 10 media), inactive pending quota and owner approval.
+
 ## Aktualizacja finalnego przeglądu stagingu — 2026-10-03
 
 Cel sprintu to release candidate do przeglądu właściciela, nie publiczny launch. Staging pozostaje `rexbid-auth-test` / `rexbid-auth-test-db`; produkcja jest nietknięta. D1-first, Calculator V3 i Accounts staging mają wcześniejsze weryfikacje opisane w handoffie. Bieżące lokalne poprawki UX mają 300/300 testów, ale muszą być wdrożone i ponownie sprawdzone przed oznaczeniem ich jako staging-verified.

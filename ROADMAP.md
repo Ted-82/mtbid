@@ -1,5 +1,14 @@
 # Rex.Bid Production Roadmap
 
+## Final technical pre-cutover — 2026-10-03 (stan aktualny)
+
+- Production `rexbid-db` (`971879fe-04ed-4e8c-9dc6-5306980bb872`) audited read-only under Tedn828. Exactly migrations 0000/0001 are applied; `vehicles=0`, `vehicle_snapshots=0`, `auction_history=0`; Accounts/Sync/media schemas absent. No production mutation/export/deploy.
+- Migration gap: approved `0003 Accounts` then `0004 Sync 2`; proposal 0004 includes both media URL columns, so no separate 0005 after it.
+- Production config dry-run PASS: `mtbid`/`rexbid-db`, D1-first OFF, Auth OFF/fail-closed, Cron OFF/absent. Only secret name `APIBARA_API_KEY` inspected, never value.
+- Staging telemetry deployed: `rexbid-auth-test` Version `df92bf78-e348-47bf-8b3a-f1ccf9144165`; read-only catalog/filters serve D1 with `catalog_complete=false`, no provider fallback. Staging D1 stays 380 listings/sources/snapshots, users/favorites 1/1.
+- Initial proposed production hard cap: 500/day = catalog 250 + detail 150 + history 60 + discovery 30 + media 10; inactive until quota confirmation and owner approval.
+- Next blockers are owner domain/SMTP/Supabase/limiter decisions, encrypted production backup + restore rehearsal, and separately approved migrations/release. Production remains NOT DEPLOYED.
+
 ## Final staging product review — 2026-10-03
 
 - Target: **RELEASE CANDIDATE — READY FOR FINAL OWNER REVIEW**, not a production release. Staging baseline Worker `rexbid-auth-test` (`d86cef66-7683-42d6-8c75-32566f828a81`) / D1 `rexbid-auth-test-db`; production `mtbid` / `rexbid-db` remains unchanged.

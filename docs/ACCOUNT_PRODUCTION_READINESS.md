@@ -1,5 +1,11 @@
 # Gotowość kont Rex.Bid do produkcji
 
+## Factual pre-cutover update — 2026-10-03
+
+- Production D1 read-only audit: `rexbid-db` / `971879fe-04ed-4e8c-9dc6-5306980bb872`; wyłącznie migracje 0000/0001; tabele `users` i `user_favorites` nie istnieją. Production Auth pozostaje OFF/fail-closed; proposal 0003 nie jest zastosowana.
+- Production dry-run potwierdził brak Auth vars i limiter bindingu. Odczytano tylko nazwę `APIBARA_API_KEY`, nigdy wartość. Nie utworzono produkcyjnego Supabase, cookie secret ani SMTP config.
+- Do późniejszej aktywacji potrzebne są: domena, oddzielny Supabase project, Site URL/exact callback/origin allowlist, nowy cookie secret, custom SMTP z SPF/DKIM/DMARC, Cloudflare rate limiter, zatwierdzone 0003 i kontrolowany E2E na canonical origin. Nigdy nie kopiować staging secrets.
+
 ## Aktualizacja blocker-closure — 2026-10-03
 
 - Status bez zmian: **STAGING VERIFIED / NOT PRODUCTION DEPLOYED**. Nie utworzono produkcyjnego Supabase projektu ani sekretów, nie zastosowano 0003 na production.
