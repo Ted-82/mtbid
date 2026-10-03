@@ -30,7 +30,7 @@ function setup(fetchImpl, { hostname = 'rexbid-auth-test.tedn828.workers.dev', p
     async fire(name, event = {}) { for (const fn of this.listeners[name] || []) await fn({ preventDefault(){}, ...event }); }
     async click() { await this.fire('click'); }
   }
-  const ids = ['name','email','password','terms','registerForm','loginForm','message','favoriteCount','resendConfirmation'];
+  const ids = ['name','email','password','terms','registerForm','loginForm','message','favoriteCount','resendConfirmation','accountAuthMount'];
   for (const id of ids) elements.set(id,new Element(id));
   elements.get('password').parentElement = new Element('password-group');
   const main = new Element('main'), layout = new Element('layout'), header = new Element('header-inner');
@@ -117,14 +117,14 @@ test('login UI posts to BFF, verifies session via /api/me and redirects only to 
 
 test('account page shows only safe authenticated account data and login link for anonymous user', async () => {
   const accountHtml=fs.readFileSync(path.join(root,'public/konto.html'),'utf8');
-  assert.match(accountHtml,/\.layout\[hidden\]\s*\{\s*display:\s*none\s*!important;/,'staging auth must hide the legacy static account layout even when its grid CSS sets display');
+  assert.match(accountHtml,/id="accountAuthMount"/,'account content is rendered from authenticated session state');
+  assert.doesNotMatch(accountHtml,/data-coming-soon|funkcja niedostępna|Użytkownik REX\.Bid|Dostęp po uruchomieniu kont/,'account page must not advertise dead or fabricated controls/data');
   const userPage=setup(async url=>url==='/api/me'?makeResponse(200,{ok:true,user:{id:'u-safe',auth_provider:'email',email_verified:true}}):makeResponse(200,{ok:true,favorites:[]}),{pathname:'/konto.html'});
   await userPage.ready; await userPage.window.RexBidAuth.mountAccountPage();
-  assert.equal(userPage.layout.hidden,true);
-  const rendered=JSON.stringify(userPage.main.children.flatMap(item=>[item.textContent,...(item.children||[]).map(child=>child.textContent)]));
+  const rendered=JSON.stringify(userPage.elements.get('accountAuthMount').children.map(child=>child.textContent));
   assert.match(rendered,/e-mail potwierdzony/); assert.match(rendered,/email/); assert.doesNotMatch(rendered,/access_token|refresh_token/);
   const anonymous=setup(async()=>makeResponse(401),{pathname:'/konto.html'}); await anonymous.ready; await anonymous.window.RexBidAuth.mountAccountPage();
-  assert.ok(anonymous.main.children.some(item=>item.children?.some(child=>child.href==='/logowanie.html?return_to=%2Fkonto.html')));
+  assert.ok(anonymous.elements.get('accountAuthMount').children.some(child=>child.href==='/logowanie.html?return_to=%2Fkonto.html'));
 });
 
 test('authenticated favorite add/remove use cloud API and retain account-scoped cache only', async () => {
@@ -171,10 +171,11 @@ test('401 and logout clear account cache and rendered favorite source before ano
   });
   await page.ready; await page.window.RexBidAuth.mountAccountPage();
   assert.equal(page.window.RexBidAuth.getFavorites().length,1);
-  assert.match(page.main.children.flatMap(item=>[item.textContent,...(item.children||[]).map(child=>child.textContent)]).join(' '),/Status: zalogowano/);
+  const accountHost=page.elements.get('accountAuthMount');
+  assert.match(accountHost.children.map(item=>item.textContent).join(' '),/Status: zalogowano/);
   force401=true; await page.window.RexBidAuth.removeFavorite('vin:1HGCM82633A004352');
   assert.equal(page.window.RexBidAuth.status,'anonymous'); assert.equal(page.window.RexBidAuth.getFavorites().length,0);
-  const accountText=JSON.stringify(page.main.children.flatMap(item=>[item.textContent,...(item.children||[]).map(child=>child.textContent)]));
+  const accountText=JSON.stringify(accountHost.children.map(item=>item.textContent));
   assert.doesNotMatch(accountText,/Status: zalogowano|Ulubione w chmurze/);
   assert.match(accountText,/Zaloguj się do konta/);
   force401=false; await page.window.RexBidAuth.bootstrap?.();

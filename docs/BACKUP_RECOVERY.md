@@ -1,6 +1,6 @@
 # Backup i odtwarzanie Rex.Bid
 
-Status: procedura projektowa; nie wykonano eksportu ani odtwarzania w ramach przeglądu gotowości.
+Status: procedura projektowa. **Staging rehearsal wykonano 2026-10-03** przez eksport `rexbid-auth-test-db` i odtworzenie do osobnej, efemerycznej bazy SQLite in-memory; staging i produkcja nie zostały nadpisane.
 
 ## Rozdzielenie środowisk
 
@@ -34,3 +34,15 @@ Cloudflare D1 oferuje Time Travel; okno zależy od planu i w dokumentacji wynosi
 Przed publicznym uruchomieniem: wykonaj co najmniej jedną próbę importu eksportu do disposable SQLite oraz staging D1, porównaj schemat, liczbę rekordów i kontrolne relacje. Nie wykonuj destructive restore stagingu, dopóki nie potwierdzisz zachowania stagingowego konta i jego ulubionych.
 
 **Źródła Cloudflare (sprawdzone 2026-09-29):** [D1 export/import](https://developers.cloudflare.com/d1/best-practices/import-export-data/), [D1 Time Travel](https://developers.cloudflare.com/d1/reference/time-travel/), [Wrangler D1 commands and migration backup](https://developers.cloudflare.com/d1/wrangler-commands/).
+
+### Rzeczywisty rehearsal stagingowy — 2026-10-03
+
+- Źródło: wyłącznie `rexbid-auth-test-db` / `acb3cb8e-69a2-459f-8a46-0f2f5b9004be`; eksport tymczasowy poza repo, usunięty po kontroli.
+- Cel: efemeryczna `node:sqlite` in-memory database; nie utworzono nowego zdalnego D1 i nie zmieniono danych źródłowych.
+- Kontrola: 18 tabel, `users=1`, `user_favorites=1`, `vehicle_sources=380`, `auction_listings=380`, snapshots=380, events/entities=0, legacy vehicles/snapshots/history=0.
+- Wynik: **PASS dla eksportu → importu do disposable SQLite i kontroli countów**. To nie dowodzi remote Cloudflare D1 restore ani odtworzenia do nowego Cloudflare D1. Produkcyjny export/restore, retencja, szyfrowanie kopii i dostęp operacyjny nadal wymagają zatwierdzonej procedury.
+# Final review update — 2026-10-03
+
+- Completed staging D1 export followed by import into disposable in-memory SQLite; 18 tables and key account/catalog counts matched. Temporary export was removed. Source staging D1 was read-only.
+- **Limitation:** no new remote Cloudflare D1 was created and no remote D1 import/restore was performed. Mark remote restore rehearsal **NOT VERIFIED**; do not treat SQLite rehearsal as a substitute.
+- Before production: rehearse export/import into a separately named disposable Cloudflare D1, verify schema/foreign keys/counts and account isolation, retain checksums and artifact access controls, then document restore duration and rollback decision. Never restore over `rexbid-auth-test-db` or `rexbid-db` during rehearsal.

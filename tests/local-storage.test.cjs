@@ -146,9 +146,10 @@ test('favorite page auth bootstrap may dispatch before mounting and safely falls
   assert.equal(typeof authStateListener, 'function');
 });
 
-test('account favorite counter reads the shared versioned storage module', () => {
+test('account page loads shared storage for auth flows without exposing guest counts as cloud account data', () => {
   assert.match(accountSource, /<script src="\/rexbid-storage\.js"><\/script>/);
-  assert.match(accountSource, /window\.RexBidStorage\?\.getFavorites\?\.\(\)\.length/);
+  assert.match(accountSource, /id="accountAuthMount"/);
+  assert.doesNotMatch(accountSource, /window\.RexBidStorage\?\.getFavorites\?\.\(\)\.length/);
   assert.doesNotMatch(accountSource, /localStorage\.getItem\("mtbid_favorites"/);
 });
 
@@ -178,6 +179,27 @@ test('favorites never show zero Buy Now or infer sale/current price from generic
   assert.deepEqual(JSON.parse(JSON.stringify(context.priceInfo({ auction: { state: 'finished' }, pricing: { sale_price_usd: null, last_sold_price_usd: 2300, current_bid_usd: 1800 } }))), ['Ostatnia cena sprzedaży', 2300]);
   assert.deepEqual(JSON.parse(JSON.stringify(context.priceInfo({ auction: { state: 'open' }, pricing: { current_bid_usd: null, current_bid2_usd: null, buy_now_usd: 0, price: 9900, estimated_cost: 12000 } }))), ['Cena aukcji', null]);
   assert.deepEqual(JSON.parse(JSON.stringify(context.priceInfo({ auction: { state: 'finished', outcome_status: 'Sold on Approval' }, pricing: { sale_price_usd: 950, last_sold_price_usd: 950 } }))), ['Cena sprzedaży niepotwierdzona', null]);
+});
+
+test('favorite cards do not present elapsed unconfirmed auctions as upcoming and format dates for readers', () => {
+  const inline = [...favoritesSource.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)][0][1];
+  const approvalBlock = inline.match(/  const approvalPending = auction => [\s\S]*?;\n/)?.[0];
+  const statusBlock = inline.match(/  const statusLabel = \(auction, now = Date\.now\(\)\) => \{[\s\S]*?\n  \};/)?.[0];
+  const dateBlock = inline.match(/  const auctionDateLabel = value => \{[\s\S]*?\n  \};/)?.[0];
+  assert.ok(approvalBlock);
+  assert.ok(statusBlock);
+  assert.ok(dateBlock);
+  const context = { Date, Intl, Number, String };
+  vm.createContext(context);
+  vm.runInContext(`${approvalBlock}\n${statusBlock}\n${dateBlock}\nglobalThis.statusLabel = statusLabel; globalThis.auctionDateLabel = auctionDateLabel;`, context);
+  const now = Date.parse('2026-10-03T12:00:00Z');
+  assert.equal(context.statusLabel({ state: 'open', date: '2026-10-02T13:30:00Z' }, now), 'Termin minął · wynik do potwierdzenia');
+  assert.equal(context.statusLabel({ state: 'open', date: '2026-10-04T13:30:00Z' }, now), 'Przed licytacją');
+  assert.equal(context.statusLabel({ state: 'live', date: '2026-10-02T13:30:00Z' }, now), 'Trwa');
+  assert.equal(context.statusLabel({ state: 'sold', date: '2026-10-02T13:30:00Z' }, now), 'Sprzedana');
+  assert.equal(context.auctionDateLabel('not-a-date'), '—');
+  assert.doesNotMatch(context.auctionDateLabel('2026-10-02T13:30:00Z'), /^2026-10-02T/);
+  assert.match(favoritesSource, /auctionDateLabel\(car\.auction\?\.date \|\| car\.auction\?\.full_date\)/);
 });
 
 test('inline JavaScript remains syntactically valid across touched pages and storage', () => {

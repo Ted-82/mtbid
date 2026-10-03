@@ -11,6 +11,7 @@
   const state = { enabled, status: "anonymous", user: null, cache: [] };
   const mountedForms = new Set();
   let recoveryMounted = false;
+  let accountPageMounted = false;
   const text = value => value == null ? "" : String(value).trim();
   const dispatch = () => {
     root.dispatchEvent?.(new CustomEvent("rexbid:auth-state", { detail: { status: state.status } }));
@@ -424,19 +425,27 @@
     }
   }
   async function mountAccountPage() {
-    if (!enabled) return;
-    const legacy = document.querySelector("main .layout");
-    if (legacy) legacy.hidden = true;
-    const host = document.createElement("section"); host.className = "section"; host.setAttribute("aria-live", "polite");
-    host.textContent = "Sprawdzam sesję…";
-    const main = document.querySelector("main"); main?.append(host);
+    if (accountPageMounted) return;
+    accountPageMounted = true;
+    let host = document.getElementById("accountAuthMount");
+    if (!host) {
+      host = document.createElement("section"); host.className = "section";
+      document.querySelector("main")?.append(host);
+    }
+    if (!host) return;
+    host.setAttribute("aria-live", "polite");
     const render = () => {
+      if (!enabled) {
+        const title = document.createElement("h2"); title.textContent = "Konto niedostępne";
+        const message = document.createElement("p"); message.textContent = "Logowanie jest obecnie niedostępne.";
+        host.replaceChildren(title, message); return;
+      }
       if (state.status !== "authenticated") {
         host.replaceChildren(); const title = document.createElement("h2"); title.textContent = "Zaloguj się do konta";
         const link = document.createElement("a"); link.href = "/logowanie.html?return_to=%2Fkonto.html"; link.textContent = "Przejdź do logowania"; link.className = "btn btn-red"; host.append(title, link); return;
       }
       const title = document.createElement("h2"); title.textContent = "Konto Rex.Bid";
-      const verified = document.createElement("p"); verified.textContent = "Status: zalogowano · e-mail potwierdzony";
+      const verified = document.createElement("p"); verified.textContent = state.user.email_verified === true ? "Status: zalogowano · e-mail potwierdzony" : "Status: zalogowano";
       const provider = document.createElement("p"); provider.textContent = "Dostawca logowania: " + text(state.user.auth_provider || "—");
       const favorites = document.createElement("p"); favorites.textContent = "Ulubione w chmurze: " + String(state.cache.length);
       const link = document.createElement("a"); link.href = "/ulubione.html"; link.textContent = "Otwórz ulubione"; link.className = "btn btn-outline";
@@ -449,7 +458,10 @@
         const blob = new Blob([JSON.stringify(result.data, null, 2)], { type:"application/json" });
         const objectUrl = URL.createObjectURL(blob); const download = document.createElement("a"); download.href = objectUrl; download.download = "rex-bid-dane-konta.json"; download.click(); URL.revokeObjectURL(objectUrl);
       });
-      host.replaceChildren(title, verified, provider, favorites, link, exportButton, logoutButton);
+      const children = [title, verified];
+      if (state.user.email) { const email = document.createElement("p"); email.textContent = "E-mail: " + text(state.user.email); children.push(email); }
+      children.push(provider, favorites, link, exportButton, logoutButton);
+      host.replaceChildren(...children);
     };
     root.addEventListener?.("rexbid:auth-state", render);
     await ready; render();
@@ -529,11 +541,11 @@
     getFavorites() { return state.status === "authenticated" ? state.cache.slice() : []; },
     isFavorite(vehicle) { const item = root.RexBidStorage?.snapshotFromVehicle?.(vehicle); return !!item && state.cache.some(saved => saved.id === item.id); },
     toggleFavorite, addFavoriteIdentity, removeFavorite, logout, refreshSession, requestPasswordReset, resendConfirmation, updatePassword, exportAccount, mergeFavoriteIdentities, mergeGuestFavorites, mountFavoritesPage, mountAccountPage,
-    async initialize() { await ready; if (!enabled) return; updateNavigation(); const path = pagePath(); if (path === "/konto") await mountAccountPage(); if (path === "/reset-hasla") await mountRecoveryPage(); },
+    async initialize() { await ready; updateNavigation(); const path = pagePath(); if (path === "/konto") await mountAccountPage(); if (enabled && path === "/reset-hasla") await mountRecoveryPage(); },
   };
   root.RexBidAuth = api;
   if (pagePath() === "/rejestracja") mountAuthForm("signup");
   if (pagePath() === "/logowanie") mountAuthForm("login");
   root.addEventListener?.("rexbid:auth-state", updateNavigation);
-  ready.then(() => { if (!enabled) return; consumeCallbackDiagnostic(); updateNavigation(); if (state.status === "authenticated") mergeGuestFavorites().catch(() => {}); if (pagePath() === "/konto") mountAccountPage(); if (pagePath() === "/reset-hasla") mountRecoveryPage(); });
+  ready.then(() => { if (!enabled) { if (pagePath() === "/konto") mountAccountPage(); return; } consumeCallbackDiagnostic(); updateNavigation(); if (state.status === "authenticated") mergeGuestFavorites().catch(() => {}); if (pagePath() === "/konto") mountAccountPage(); if (pagePath() === "/reset-hasla") mountRecoveryPage(); });
 })(typeof window !== "undefined" ? window : globalThis);

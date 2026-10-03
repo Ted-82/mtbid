@@ -6,7 +6,10 @@ const {DatabaseSync} = require('node:sqlite');
 const {handlePrimaryRead, enabledFor} = require('../staging/d1-primary-reads.cjs');
 
 const ROOT = path.join(__dirname, '..');
-const NOW = Date.parse('2026-10-01T12:00:00.000Z');
+// Fixtures must track the host clock: the repository deliberately classifies
+// old persisted rows as stale, so a historical fixed date turns fresh-read
+// contract tests into time-dependent failures.
+const NOW = Date.now();
 class D1Fixture {
   constructor(sqlite) { this.sqlite=sqlite; }
   prepare(sql) { const db=this.sqlite; return {bind(...p){return {

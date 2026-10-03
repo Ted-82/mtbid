@@ -1,5 +1,14 @@
 # Rex.Bid — Project Handoff
 
+## Final staging product review — 2026-10-03
+
+- **Working checkpoint:** `6a69688 Complete Rex.Bid staging product milestone`; preserve local changes. Staging baseline Version `d86cef66-7683-42d6-8c75-32566f828a81`, Worker `rexbid-auth-test`, D1 `rexbid-auth-test-db` (`acb3cb8e-69a2-459f-8a46-0f2f5b9004be`). Production `mtbid`/`rexbid-db` was not targeted.
+- Staging D1 last readback: Copart 260, IAAI 120; 380 sources/listings/snapshots; 0 confirmed events/entities; 80 listings have media URL/thumb references (40/platform); both scopes partial with separate cursors; users/favorites 1/1; legacy vehicle/history rows 0. No discovery/backfill/media enrichment is authorized in this review.
+- Review found stale auction-date labels (generic open status presented as upcoming/live after its scheduled time), fabricated/dead account controls, an unconfigured contact form presenting a success state, and old English footer text. Local fixes are covered by regression tests; Home order is Current → Timed → Buy Now → Upcoming.
+- **AUTOMATED VERIFIED:** `node --test` **300/300 PASS** after the fixes, syntax checks for changed JS, partner-rate generator `--check`, config validator and diff-check. Staging export was restored to disposable in-memory SQLite and counts matched (18 tables; users/favorites 1/1; sources/listings/snapshots 380; events/entities and legacy rows 0). It did not alter remote D1.
+- Browser is anonymous. This pass cannot re-exercise login/logout/cloud merge/resend/export/recovery without owner credentials; earlier real-browser Auth login/account/favorites evidence remains valid. Password recovery is not retried because delivery previously failed/rate-limited; custom SMTP remains a production blocker.
+- **Pending in this review:** staging deploy of these UI fixes and follow-up anonymous desktop/mobile browser checks. No production deploy/schema migration or Apibara calls. Scheduled sync remains disabled; only a bounded design is being prepared.
+
 ## Staging product milestone — przygotowanie lokalne (2026-10-01)
 
 - Bazowy checkout: `32533d4`; staging-only zmiany są lokalne i nie zostały wdrożone. Ostatni znany stan staging D1 to 220 Copart + 80 IAAI listings/sources/snapshots, oba scope partial; counts nie zostały ponownie odczytane w tym przebiegu.
@@ -358,3 +367,37 @@ Staging smoke po selektywnym routingu Worker-first zakończył się PASS na Vers
 - Desktop CSS viewport 1350×900 and mobile 375 px wide had no horizontal overflow. Mobile car card retained all 17 gallery entries and Calculator V3. Authenticated cloud favorites were not retested because the browser session was anonymous. Browser DevTools console/Network and exact automatic provider-fallback count were unavailable; do not claim an exact fallback count. The tested known detail rows were fresh D1 records.
 - No Apibara discovery/backfill/detail-enrichment request was intentionally initiated: **0 intentional Apibara requests in this pass**. Remote URL references only; no original binary media stored. The 300 rows without URLs remain unenriched.
 - **AUTOMATED:** `node --test` 299/299 PASS; partner rates generator `--check`, config validator, syntax checks and `git -c core.whitespace=cr-at-eol diff --check` PASS. No commit/push. Staging media/gallery portion is ready for checkpoint; this does not mean production launch readiness.
+# Final staging release-candidate review — 2026-10-03 (supersedes earlier pending staging QA)
+
+## CURRENT STATE
+
+- Latest staging Worker: `rexbid-auth-test`, Version `6c70674f-c164-404f-afc0-b1984ffe5549`; exact staging D1 binding `rexbid-auth-test-db` (`acb3cb8e-69a2-459f-8a46-0f2f5b9004be`). No production deploy, production D1 migration, discovery, or backfill was performed in this review.
+- Staging D1 read-only counts: Copart 260 and IAAI 120 sources/listings; 380 snapshots; events/entities 0; 80 listings have media URL/thumb metadata; duplicate provider identities 0; users/favorites 1/1; legacy vehicle/history rows 0. Both scopes remain partial with separate cursors. These are known staged records, not a complete market catalog.
+- Health/readiness, staging noindex, private cache headers, safe 404 and anonymous `/api/me` were smoke-checked. `/ready` reported D1/assets/provider configuration and enabled staging Auth without exposing secrets.
+- A staging export imported into disposable in-memory SQLite matched 18 tables and key counts. This verifies export/import semantics only; remote Cloudflare D1 restore to a separate D1 remains unverified.
+- Product UI browser review passed for Home, VIN/LOT search, platform catalog, Copart/IAAI D1 detail, images/gallery, history, guest favorite add/remove, Calculator V3 incomplete-state handling, login form render and anonymous account state. Desktop/mobile widths had no horizontal overflow; no JS console exceptions were observed on reviewed pages. Final browser QA found and fixed the auction-location state selector reading auction state (`finished`) instead of branch state; final IAAI card now shows `PA`.
+- Prior owner-run staging Auth E2E for login/session/cloud favorites/logout remains evidence. This pass did not repeat credentialed login, account export, resend, recovery, or authenticated favorites; those flows are not newly verified here.
+
+## DONE
+
+- Staging D1-first and bounded multi-platform data path remain enabled; Home/catalog/fresh known details were observed using D1. Both platform scopes partial; completeness is not claimed.
+- Calculator V3 displays partner transport estimates with standard/conservative scenarios and leaves unknown costs incomplete rather than zero-filled.
+- Legal policy drafts exist under `docs/legal/` and require owner/legal review.
+- Automated suite and operational validators are to be rerun at this final checkpoint; see current task report.
+
+## BLOCKED / OWNER ACTION
+
+- Do not launch production Accounts until production Supabase project/origins/secrets, custom SMTP and deliverability, production limiter, and migration `0003` are approved and tested. Production `0003` remains unapplied.
+- Select and own the canonical Rex.Bid domain before DNS, canonical/sitemap and Supabase callback changes. No domain/DNS changes were made.
+- Owner/legal review is required for legal drafts, privacy/retention, auction data presentation, and provider/auction-site terms. Apibara permits factual data/history/URL storage; permanent archival of original Copart/IAA photos is not approved.
+- Validate remote Cloudflare D1 restore to a separate test D1; the SQLite rehearsal is not a remote restore rehearsal.
+- Exact provider fallback count, full DevTools Network export, password recovery/resend, account export download, and authenticated multi-tab refresh behavior were not verified in this pass. History may use controlled provider fallback; do not claim zero upstream reads for browser QA.
+- Scheduled sync is not activated. Any future schedule needs explicit bounded per-platform budgets, observability/alerts, leases and a disable switch; no Cron was enabled here.
+
+## PRODUCTION CUTOVER ORDER
+
+1. Owner/legal decisions, canonical domain and final legal content.
+2. Production-only config/secrets/limiter and SMTP; validate fail-closed behavior.
+3. Backup and separate-DB remote restore rehearsal; approve and validate production migration plan (`0003` Accounts and any separately approved sync schema).
+4. Staging parity smoke, browser QA, privacy/security review and bounded monitoring rehearsal.
+5. Owner approval, then a separate production deploy/migration change with rollback trigger and post-deploy smoke. Never promote staging bindings or flags by accident.

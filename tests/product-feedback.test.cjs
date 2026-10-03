@@ -148,6 +148,50 @@ test('Timed IAAI presentation uses timed_end_at and secondary current bid withou
   vm.runInContext(`${statusBlock}\nglobalThis.statusLabel = getAuctionStatusLabel;`, statusContext);
   assert.equal(statusContext.statusLabel({ auction: { state: 'open', is_timed: true, timed_end_at: '2020-01-01T00:00:00Z' } }), 'Zakończona');
   assert.equal(statusContext.statusLabel({ auction: { state: 'upcoming', auction_at: null } }), 'Nadchodząca · termin nieustalony');
+  assert.equal(statusContext.statusLabel({ auction: { state: 'upcoming', auction_at: '2020-01-01T00:00:00Z' } }), 'Termin minął · wynik do potwierdzenia');
+});
+
+test('past auction time with only OPEN status is unconfirmed and does not trigger live polling', () => {
+  const phaseBlock = extractFunctionBlock(carSource, 'auctionPhase', 'auctionStatusLabel');
+  const intervalBlock = extractFunctionBlock(carSource, 'auctionRefreshIntervalMs', 'startAuctionRefresh');
+  const context = {
+    car: { auction: { state: 'open', auction_at: '2020-01-01T00:00:00Z' } },
+    getAuctionStatus: () => 'open',
+    getAuctionStart: () => '2020-01-01T00:00:00Z',
+    getAuctionEnd: () => null,
+    getFinalBid: () => null,
+    isEmpty: value => value === null || value === undefined || value === ''
+  };
+  vm.createContext(context);
+  vm.runInContext(`${phaseBlock}\n${intervalBlock}\nglobalThis.phase = auctionPhase; globalThis.refreshMs = auctionRefreshIntervalMs;`, context);
+  assert.equal(context.phase(), 'unconfirmed');
+  assert.equal(context.refreshMs(context.phase()), null);
+});
+
+test('car shipping section reads branch state only from location fields, not the auction state', () => {
+  const block = extractFunctionBlock(carSource, 'getBranchState', 'getTitleDocument');
+  const context = {
+    car: {
+      auction: { state: 'finished' },
+      location: { display: 'Bridgeport (PA)', state: 'PA' }
+    },
+    first: (...values) => values.find(value => value !== null && value !== undefined && value !== '') || null,
+    displayValue: value => value
+  };
+  vm.createContext(context);
+  vm.runInContext(`${block}\nglobalThis.branchState = getBranchState();`, context);
+  assert.equal(context.branchState, 'PA');
+  context.car.location = { display: 'Bridgeport' };
+  context.car.sale_information = { BranchState: 'CT' };
+  vm.runInContext(`globalThis.branchState = getBranchState();`, context);
+  assert.equal(context.branchState, 'CT');
+  context.car.sale_information = undefined;
+  context.car.location = 'Bridgeport (PA)';
+  vm.runInContext(`globalThis.branchState = getBranchState();`, context);
+  assert.equal(context.branchState, 'PA', 'explicit state suffix in source location can supply the branch state');
+  context.car.location = 'Bridgeport';
+  vm.runInContext(`globalThis.branchState = getBranchState();`, context);
+  assert.equal(context.branchState, null, 'unknown branch state stays unknown instead of borrowing auction state');
 });
 
 test('Sold on Approval is pending in list/detail and never becomes confirmed sale pricing', () => {
@@ -363,14 +407,15 @@ test('Buy Now market aisle shows the confirmed Buy Now price and keeps current b
 test('home catalog uses four bounded sections backed only by supported Worker filters', () => {
   const sections = [...indexSource.matchAll(/<section class="market-aisle" data-market-aisle data-kind="([^"]+)" data-query="([^"]+)"/g)];
   assert.equal(sections.length, 4);
-  assert.deepEqual(sections.map(match => match[1]), ['current', 'buy-now', 'timed', 'upcoming']);
+  assert.deepEqual(sections.map(match => match[1]), ['current', 'timed', 'buy-now', 'upcoming']);
   assert.deepEqual(sections.map(match => match[2]), [
-    'lot_sub_status=Open', 'lot_status=Buy%20Now', 'platform=iaai&amp;lot_status=Timed', 'upcoming=only'
+    'lot_sub_status=Open', 'platform=iaai&amp;lot_status=Timed', 'lot_status=Buy%20Now', 'upcoming=only'
   ]);
   assert.match(indexSource, /params\.set\("per_page", "4"\)/);
-  assert.match(indexSource, /marketAisleCars\(payload\)\.slice\(0, 4\)/);
+  assert.match(indexSource, /marketAisleCars\(payload, kind\)\.slice\(0, 4\)/);
   assert.match(indexSource, /href="\$\{escapeHtml\(href\)\}"/);
   assert.equal((indexSource.match(/class="aisle-more" href="\/?\?catalog=1/g) || []).length, 4);
+  assert.doesNotMatch(indexSource, /Vehicle Auction Marketplace/);
   assert.doesNotMatch(indexSource, /Superauta|Premium|Wyróżnione/);
   assert.match(indexSource, /id="catalogResults"[^>]*hidden/);
   assert.match(indexSource, /params\.get\("catalog"\) === "1" \|\| filterDefinitions\.some/);
@@ -391,6 +436,22 @@ test('upcoming aisle only shows source-confirmed future date and never substitut
   assert.equal(context.date({ auction: { state: 'finished', auction_at: '2099-05-06T12:30:00Z' } }), '', 'ended cards never advertise a future auction date');
   assert.equal(context.date({ auction: { state: 'finished', auction_at: '2020-05-06T12:30:00Z' } }), '', 'the upcoming aisle excludes finished listings');
   assert.equal(context.date({ auction: { auction_at: '2000-01-01T00:00:00Z' } }), '');
+});
+
+test('current home aisle excludes expired unresolved open listings but keeps explicit live or confirmed outcomes', () => {
+  const block = extractFunctionBlock(indexSource, 'marketAisleCars', 'loadMarketAisle');
+  const context = { Date };
+  vm.createContext(context);
+  vm.runInContext(`${block}\nglobalThis.pick = marketAisleCars;`, context);
+  const now = Date.parse('2026-10-03T12:00:00Z');
+  const payload = { data: [
+    { lot: 'old-open', auction: { state: 'open', auction_at: '2026-10-02T12:00:00Z' } },
+    { lot: 'future-open', auction: { state: 'open', auction_at: '2026-10-04T12:00:00Z' } },
+    { lot: 'confirmed-live', auction: { state: 'live', auction_at: '2026-10-02T12:00:00Z' } },
+    { lot: 'confirmed-ended', auction: { state: 'ended', auction_at: '2026-10-02T12:00:00Z' } }
+  ] };
+  assert.deepEqual(JSON.parse(JSON.stringify(context.pick(payload, 'current', now).map(car => car.lot))), ['future-open', 'confirmed-live']);
+  assert.equal(context.pick(payload, 'buy-now', now).length, 4, 'other category contract remains unchanged');
 });
 
 test('home puts search and aligned primary filters before the four discovery sections, with separated REX.Bid lockup', () => {

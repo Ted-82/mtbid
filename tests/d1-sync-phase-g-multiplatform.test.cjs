@@ -9,7 +9,9 @@ const {D1ReadRepository}=require('../sync/d1-read-repository.js');
 const {runPlatformBackfill,runProductMilestoneBackfill,handlePhaseGRequest,PLATFORMS,PER_PLATFORM_LIMIT,TOTAL_CAMPAIGN_LIMIT,BUDGET_PROVIDER,budgetKey,campaignBudgetKey}=require('../staging/phase-g-multiplatform-backfill.cjs');
 
 const ROOT=path.join(__dirname,'..');
-const NOW=Date.parse('2026-10-01T12:00:00.000Z');
+// Scope freshness is computed against the real clock; keep synthetic rows
+// recent so this test exercises independent scope behavior, not staleness.
+const NOW=Date.now();
 const seed=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures/apibara-discovery-page-shape.json'),'utf8'));
 const COPART_SCOPE=PLATFORMS.copart.scopeKey;
 const env={APIBARA_API_KEY:'mock-only',REXBID_SYNC_HOT_INTERVAL_MS:'300000',REXBID_SYNC_WARM_INTERVAL_MS:'21600000',REXBID_SYNC_COLD_INTERVAL_MS:'604800000',REXBID_SYNC_HOT_WINDOW_MS:'7200000'};

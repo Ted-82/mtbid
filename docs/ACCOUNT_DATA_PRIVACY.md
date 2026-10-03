@@ -1,5 +1,9 @@
 # Inwentarz danych kont Rex.Bid i prywatność — techniczny szkic
 
+## Przegląd 2026-10-03
+
+Pięć dokumentów roboczych znajduje się w `docs/legal/`; każdy ma oznaczenie **DRAFT — REQUIRES OWNER/LEGAL REVIEW**. Eksport `/api/me/export` istnieje w kodzie, ale jego UX nie został w tej sesji potwierdzony w browserze. Usunięcie konta nadal nie jest zaimplementowane i wymaga decyzji o reauth, backendowym Supabase Admin capability i retencji backupów. Service-role nie skonfigurowano.
+
 Stan: 2026-09-29. To inwentarz techniczny, nie finalna polityka prywatności. Retencja i podstawa prawna wymagają decyzji właściciela/prawnika.
 
 | Obszar | Dane w obecnym kodzie | Cel | Retencja / uwagi |

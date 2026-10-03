@@ -409,16 +409,24 @@
   const esc = storage.escapeHtml;
   const money = value => value === null || value === undefined || !Number.isFinite(Number(value)) ? "" : new Intl.NumberFormat("en-US", {style:"currency",currency:"USD",maximumFractionDigits:0}).format(Number(value));
   const approvalPending = auction => /sold on approval|approval pending|pending approval|awaiting approval|on approval/.test(String(auction?.outcome_status || auction?.last_sold_status || "").toLowerCase().replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim());
-  const statusLabel = auction => {
+  const statusLabel = (auction, now = Date.now()) => {
     const state = String(auction?.state || "").toLowerCase();
     const outcome = String(auction?.outcome_status || "").toLowerCase();
     if (/not.?sold|no.?sale|unsold/.test(outcome) || ["not_sold", "no_sale"].includes(state)) return "Niesprzedana";
     if (approvalPending(auction)) return "Oczekuje na zatwierdzenie";
     if (/\bsold\b/.test(outcome) || state === "sold" || auction?.sold_timed) return "Sprzedana";
     if (["finished", "closed", "ended"].includes(state)) return "Zakończona";
+    if (state === "live") return "Trwa";
+    const auctionTime = Date.parse(auction?.date || auction?.full_date || "");
+    if (Number.isFinite(auctionTime) && auctionTime < now && (["open", "active", "upcoming"].includes(state) || auction?.is_timed)) return "Termin minął · wynik do potwierdzenia";
     if (auction?.is_timed || String(auction?.lot_status || "").toLowerCase() === "timed") return "Timed Auction";
     if (["open", "active"].includes(state)) return "Przed licytacją";
     return "Nadchodząca · termin nieustalony";
+  };
+  const auctionDateLabel = value => {
+    const timestamp = Date.parse(value || "");
+    if (!Number.isFinite(timestamp)) return "—";
+    return new Intl.DateTimeFormat("pl-PL", { dateStyle: "medium", timeStyle: "short" }).format(new Date(timestamp));
   };
   if (window.RexBidAuth?.enabled) {
     globalThis.addEventListener?.("rexbid:auth-state", () => {
@@ -457,7 +465,7 @@
       const title = car.title || [car.year, car.make, car.model, car.series].filter(Boolean).join(" ") || "Samochód";
       const p = priceInfo(car);
       const href = storage.detailHref(car);
-      return `<article class="card"><a class="saved-car-link" href="${esc(href)}"><div class="image-wrap">${image ? `<img src="${esc(image)}" alt="${esc(title)}" loading="lazy">` : '<div class="no-image">Brak zdjęcia</div>'}<div class="demo">${esc(car.platform || "AUKCJA")}</div></div><div class="body"><div class="platform">${esc(car.platform || "AUKCJA")}</div><div class="title">${esc(title)}</div><div class="info"><div class="info-item"><span class="label">VIN</span><span class="value">${esc(car.vin || "—")}</span></div><div class="info-item"><span class="label">LOT</span><span class="value">${esc(car.lot || "—")}</span></div><div class="info-item"><span class="label">Przebieg</span><span class="value">${esc(car.odometer || "—")}</span></div><div class="info-item"><span class="label">Lokalizacja</span><span class="value">${esc(car.location || "—")}</span></div><div class="info-item"><span class="label">Status</span><span class="value">${esc(statusLabel(car.auction))}</span></div><div class="info-item"><span class="label">Aukcja</span><span class="value">${esc(car.auction?.date || "—")}</span></div><div class="info-item"><span class="label">Sprzedający</span><span class="value">${esc(car.seller || "—")}</span></div></div><div class="price"><small>${esc(p[0])}</small><br>${p[1] === null ? "—" : esc(money(p[1]))}</div></div></a><div class="saved-actions"><button class="btn btn-outline" type="button" data-action="remove" data-index="${index}">Usuń z obserwowanych</button></div></article>`;
+      return `<article class="card"><a class="saved-car-link" href="${esc(href)}"><div class="image-wrap">${image ? `<img src="${esc(image)}" alt="${esc(title)}" loading="lazy">` : '<div class="no-image">Brak zdjęcia</div>'}<div class="demo">${esc(car.platform || "AUKCJA")}</div></div><div class="body"><div class="platform">${esc(car.platform || "AUKCJA")}</div><div class="title">${esc(title)}</div><div class="info"><div class="info-item"><span class="label">VIN</span><span class="value">${esc(car.vin || "—")}</span></div><div class="info-item"><span class="label">LOT</span><span class="value">${esc(car.lot || "—")}</span></div><div class="info-item"><span class="label">Przebieg</span><span class="value">${esc(car.odometer || "—")}</span></div><div class="info-item"><span class="label">Lokalizacja</span><span class="value">${esc(car.location || "—")}</span></div><div class="info-item"><span class="label">Status</span><span class="value">${esc(statusLabel(car.auction))}</span></div><div class="info-item"><span class="label">Aukcja</span><span class="value">${esc(auctionDateLabel(car.auction?.date || car.auction?.full_date))}</span></div><div class="info-item"><span class="label">Sprzedający</span><span class="value">${esc(car.seller || "—")}</span></div></div><div class="price"><small>${esc(p[0])}</small><br>${p[1] === null ? "—" : esc(money(p[1]))}</div></div></a><div class="saved-actions"><button class="btn btn-outline" type="button" data-action="remove" data-index="${index}">Usuń z obserwowanych</button></div></article>`;
     }).join("")}</div>`;
   }
   content.addEventListener("click", event => {

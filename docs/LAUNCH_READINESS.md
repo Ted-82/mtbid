@@ -1,5 +1,29 @@
 # Rex.Bid — gotowość do kontrolowanego publicznego uruchomienia
 
+## Aktualizacja finalnego przeglądu stagingu — 2026-10-03
+
+Cel sprintu to release candidate do przeglądu właściciela, nie publiczny launch. Staging pozostaje `rexbid-auth-test` / `rexbid-auth-test-db`; produkcja jest nietknięta. D1-first, Calculator V3 i Accounts staging mają wcześniejsze weryfikacje opisane w handoffie. Bieżące lokalne poprawki UX mają 300/300 testów, ale muszą być wdrożone i ponownie sprawdzone przed oznaczeniem ich jako staging-verified.
+
+Staging D1: 260 Copart + 120 IAAI, oba scope partial; media URL/thumb refs na 80 listingach; 380 snapshots; zero events/entities; users/favorites 1/1. Nie jest to pełny rynek. Scheduled sync nie jest aktywny.
+
+Rehearsal backupu stagingu do disposable in-memory SQLite przeszedł count validation; remote restore i production restore pozostają nieweryfikowane.
+
+Drafty privacy, terms, cookies/analityki, danych aukcyjnych i kalkulatora znajdują się w `docs/legal/`; wszystkie wymagają owner/legal review i nie są publikowane.
+
+### Domenowy i pocztowy cutover — checklista właściciela
+
+- [ ] Wybrać i zatwierdzić domenę Rex.Bid; potwierdzić Cloudflare zone, rekordy DNS i osobę wykonującą zmiany.
+- [ ] Włączyć HTTPS oraz sprawdzić HTTP→HTTPS i host-only `__Host-` cookies.
+- [ ] Ustawić canonical origin; zaktualizować canonical URLs, sitemap, robots, noindex stagingu i Supabase Site URL/Redirect URLs.
+- [ ] Wybrać nadawcę SMTP i potwierdzić domenę nadawczą; opublikować SPF, DKIM i uzgodnioną politykę DMARC.
+- [ ] Ustalić From/Reply-To, confirmation/reset templates, limity i właściciela monitoringu delivery/bounce/complaints.
+- [ ] Po SMTP wykonać jeden kontrolowany test confirmation i password reset na stagingu; nie ponawiać żądań przy limitach dostawcy.
+- [ ] Zatwierdzić privacy/terms/cookies oraz kontakt; draftów nie publikować jako finalnych.
+
+### Synchronizacja automatyczna — status
+
+Projektuj bounded scheduled discovery z niezależnymi Copart/IAAI scope, limitami per run i kampanię, atomowym budżetem, lease, checkpointem każdej strony, ograniczonym retry/backoff i osobnym budżetem selektywnego media URL enrichment. HOT/WARM/COLD pozostają konfigurowalnymi priorytetami. **Cron/Queue pozostaje wyłączone** do zatwierdzenia budżetu i monitoringu.
+
 Stan na 2026-09-29. To przegląd infrastruktury i kodu, nie zgoda na produkcyjny deploy.
 
 ## DONE
@@ -78,3 +102,24 @@ Nazwy: `search_submitted`, `vehicle_opened`, `favorite_added`, `favorite_removed
 | `/api/auth/*` | istniejący per-operation IP/user scopes | ustalić per operację | Wymagany binding przed Auth production; nie blokować po samym emailu |
 
 To są wartości startowe do obciążeniowego testu i strojenia, nie zatwierdzone SLA. Cloudflare Rate Limiting ma ograniczenia per colo/eventual; użyć cache, Supabase limits, alertów i stopniowego rollout. Nie dodano namespace/bindingu ani nowej płatnej zależności w tej zmianie.
+# Final owner-review status — 2026-10-03
+
+## DONE — staging evidence
+
+- Latest staging Worker `rexbid-auth-test` Version `6c70674f-c164-404f-afc0-b1984ffe5549`, bound to staging D1 only. Health/readiness, noindex, private API cache, safe 404 and anonymous `/api/me` smoke passed.
+- Desktop/mobile real-browser review covered Home, catalog, exact VIN/LOT, Copart/IAAI detail, galleries, history, guest favorites and Calculator V3. Known D1 records render without claiming complete market coverage. A branch-state display bug was fixed and regression-tested.
+- Staging data remains partial: 260 Copart + 120 IAAI listings, 380 snapshots, 80 media URL/thumb records, zero events/entities, users/favorites 1/1. No production data touched.
+- Calculator keeps unconfirmed auction/import/tax/logistics charges incomplete; it does not present missing costs as zero or a guaranteed door-to-door quote.
+
+## BLOCKED / OWNER DECISION / EXTERNAL DEPENDENCY
+
+- Production is **NOT DEPLOYED**. Production Accounts remain fail-closed; migration 0003 is not applied to production.
+- Canonical domain and DNS/HTTPS/canonical/sitemap/Supabase redirect URLs are not selected or changed.
+- Production Supabase project, cookie secret/origins, custom SMTP and verified sender (SPF/DKIM/DMARC), delivery monitoring and production rate limiter need owner configuration and validation.
+- Separate remote Cloudflare D1 restore rehearsal is still required; the completed SQLite import rehearsal does not prove remote D1 restoration.
+- Legal drafts in `docs/legal/` require owner/legal review. Confirm terms for auction-site data independently; Apibara permission does not license permanent redistribution of original Copart/IAA photographs.
+- Scheduled provider sync is not activated. Exact browser-triggered provider fallback count and full DevTools Network evidence remain unverified; history may invoke controlled provider fallback.
+
+## Production domain checklist
+
+After owner selects the domain: Cloudflare DNS ownership/proxy and HTTPS; Worker custom-domain mapping; canonical and sitemap host; production robots policy (do not inherit staging noindex); Supabase Site URL and exact callback/redirect allowlist; email sending domain with SPF/DKIM/DMARC, From/Reply-To and delivery monitoring; then staging-equivalent smoke and owner approval. Do not buy a domain or change DNS without explicit approval.

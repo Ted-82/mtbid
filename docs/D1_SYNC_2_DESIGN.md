@@ -1,5 +1,13 @@
 # Rex.Bid D1 Sync 2 — projekt architektury
 
+## Stan przed finalnym owner review — 2026-10-03
+
+- Phase A DONE; Phase B D1 VERIFIED; Phase C SHADOW VERIFIED; Phase D persistent discovery verified; Phase E D1 read model verified; Phase F bounded backfill verified; Phase G staging partial D1-first API verified. Production cutover nie wykonano.
+- Ostatni staging inventory: Copart 260, IAAI 120 sources/listings; 380 observed snapshots; 0 confirmed events i vehicle entities; URL/thumb references na 80 listingach; oba scope partial z osobnymi cursorami; users/favorites 1/1; legacy tabele 0. 300 listingów nie ma zapisanych media URL; nie uruchamiaj masowego enrichment bez osobnego budżetu.
+- Automatyczny scheduled sync nie jest aktywny. Przyszły mechanizm ma być bounded: niezależne platform scopes/budgets/leases, limity per run i kampania, retry z ograniczonym backoff, checkpoint każdej strony oraz osobne selektywne zadania detail/history/media URL. HOT/WARM/COLD są konfigurowalnymi priorytetami, nie zatwierdzonym SLA.
+- Backup staging export → disposable in-memory SQLite przeszedł count validation; nie jest to remote D1 restore. Szczegóły w `docs/BACKUP_RECOVERY.md`.
+- W tym przeglądzie nie wykonano nowych Apibara requestów. Lokalne poprawki statusu dat aukcji, fikcyjnych kontrolek i formularza kontaktowego wymagają wdrożenia i browser re-check przed oznaczeniem ich jako staging verified.
+
 ## Staging product milestone — offline preparation (2026-10-01)
 
 - Zmiany lokalne po checkpoint `32533d4`: D1 catalog search oraz advanced filter predicates trafiają do read repository; odpowiedzi nadal opisują wyłącznie known rows, gdy scope jest partial.

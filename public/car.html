@@ -1338,7 +1338,7 @@ main{padding-top:22px}
 </main>
 
 <footer>
-  <div class="container">REX<span style="color:var(--accent)">.Bid</span> — Vehicle Auction Marketplace</div>
+  <div class="container">REX<span style="color:var(--accent)">.Bid</span> — Aukcje samochodów z USA</div>
 </footer>
 
 <div id="lightbox" class="lightbox" aria-hidden="true">
@@ -2135,6 +2135,26 @@ main{padding-top:22px}
     );
   }
 
+  function getBranchState() {
+    const location = car.location;
+    const locationState = location && typeof location === "object"
+      ? first(location.state, location.state_code, location.stateCode, location.province)
+      : null;
+    const saleState = first(
+      car.sale_information?.BranchState,
+      car.sale_information?.branch_state,
+      car.details?.sale_information?.BranchState,
+      car.details?.sale_information?.branch_state
+    );
+    const locationText = String(displayValue(first(
+      location && typeof location === "object" ? location.display : null,
+      location && typeof location === "object" ? location.name : null,
+      typeof location === "string" ? location : null
+    )) || "");
+    const locationCode = locationText.match(/(?:\(([A-Z]{2})\)|,\s*([A-Z]{2}))\s*$/);
+    return first(locationState, saleState, locationCode?.[1], locationCode?.[2]);
+  }
+
   function getTitleDocument() {
     const direct = first(
       getInfo(["TitleSaleDoc","SaleDocument","SaleDocumentName","DocumentName"]),
@@ -2328,8 +2348,9 @@ main{padding-top:22px}
     // dopiero wtedy uznajemy aukcję za zakończoną.
     if (Number.isFinite(end) && now >= end) return "ended";
 
-    // Po rozpoczęciu aukcji status LIVE/OPEN/ACTIVE ma pierwszeństwo.
-    if (/live|open|active|running|in progress|current|started/.test(state)) {
+    // Tylko jawny status live uzasadnia komunikat „Trwa” i częste odświeżanie.
+    // Ogólne OPEN/ACTIVE po zaplanowanym terminie nie potwierdza trwającej aukcji.
+    if (/live|running|in progress|current|started/.test(state) || String(car.auction?.lot_sub_status || "").toLowerCase() === "live") {
       return "live";
     }
 
@@ -2342,7 +2363,7 @@ main{padding-top:22px}
       if (!isEmpty(finalBid) && /sold|closed|ended|complete|completed|no sale|notsold/.test(state)) {
         return "ended";
       }
-      return "live";
+      return "unconfirmed";
     }
 
     if (/sold|closed|ended|complete|completed|no sale|notsold/.test(state)) {
@@ -2364,9 +2385,11 @@ main{padding-top:22px}
     if (car.auction?.is_timed === true || String(car.auction?.lot_status || "").toLowerCase() === "timed") return "Timed Auction";
     if (state === "upcoming" || state === "scheduled" || state === "future" || car.auction?.upcoming === true) {
       const start = getAuctionStart();
+      if (start && Number.isFinite(Date.parse(String(start))) && Date.parse(String(start)) <= Date.now()) return "Termin minął · wynik do potwierdzenia";
       return start && Number.isFinite(Date.parse(String(start))) ? "Nadchodząca" : "Nadchodząca · termin nieustalony";
     }
     if (phase === "live") return "Trwa";
+    if (phase === "unconfirmed") return "Termin minął · wynik do potwierdzenia";
     if (phase === "prebid") return "Przed licytacją";
     return "Status niedostępny";
   }
@@ -2675,7 +2698,7 @@ main{padding-top:22px}
               </div>
               <div class="mini-grid" style="margin-top:8px">
                 <div class="mini-stat"><small>Oddział</small><strong>${nice(getSale(["SellingBranch"])) || "—"}</strong></div>
-                <div class="mini-stat"><small>Stan</small><strong>${nice(valueFrom(["State","BranchState"])) || "—"}</strong></div>
+                <div class="mini-stat"><small>Stan</small><strong>${nice(getBranchState()) || "—"}</strong></div>
               </div>
               <div class="section-title" style="margin:12px 0 5px"><h2 style="font-size:12px">Orientacyjna trasa</h2></div>
               <div class="mini-grid">
@@ -3099,6 +3122,12 @@ main{padding-top:22px}
       const now = Date.now();
 
       let target = NaN;
+      if (phase === "unconfirmed") {
+        if (box) box.style.display = "";
+        if (label) label.textContent = "Status terminu";
+        node.textContent = "Wynik do potwierdzenia";
+        return;
+      }
       if (car.auction?.is_timed === true && Number.isFinite(end) && phase !== "ended") {
         target = end;
         if (label) label.textContent = "Do końca aukcji czasowej";

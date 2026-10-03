@@ -1,5 +1,15 @@
 # Rex.Bid — checklista wdrożenia produkcyjnego
 
+## Bramka domeny, Auth i SMTP — uzupełnienie 2026-10-03
+
+- [ ] Zatwierdzić domenę, DNS zone, HTTPS, canonical origin, sitemap/robots przed zmianą originów.
+- [ ] Ustawić Supabase Site URL i ścisłą listę callback/redirect URLs dla finalnej domeny; bez wildcardów.
+- [ ] Skonfigurować zatwierdzony SMTP: SPF, DKIM, DMARC, From/Reply-To, confirmation/reset templates, limity oraz monitoring bounce/delivery.
+- [ ] Opublikować wyłącznie owner/legal-approved privacy, terms, cookies i auction/calculator disclaimers; `docs/legal/*_DRAFT.md` są szkicami.
+- [ ] Dla Accounts osobno zatwierdzić migration 0003, production Supabase/cookie secret/origins, Cloudflare Auth rate limiter i real-browser E2E. Brak dowolnego wymogu oznacza Auth OFF.
+- [ ] Ustalić limity/alerty provider calls i fallbacków; nie aktywować Cron bez twardego budżetu.
+- [ ] Potwierdzić politykę backup retention. Staging→SQLite rehearsal nie zastępuje production restore rehearsal.
+
 Ta lista jest wymaganym runbookiem. Sam fakt przejścia `node --test` nie oznacza zgody na deploy. Konta i D1 Sync nie są częścią zwykłego wdrożenia strony.
 
 ## Przed wdrożeniem
@@ -33,3 +43,9 @@ Ta lista jest wymaganym runbookiem. Sam fakt przejścia `node --test` nie oznacz
 ## Zatrzymanie wdrożenia
 
 Nie wdrażaj, jeśli target Worker/D1 jest niejednoznaczny, testy nie przechodzą, backup nie jest potwierdzony, wymagane sekrety nie są skonfigurowane, Auth miałoby zostać przypadkowo aktywowane, albo wymagane prawa danych/zgody nadal są otwarte.
+# Final staging review addendum — 2026-10-03
+
+- Last reviewed staging release: `rexbid-auth-test` Version `6c70674f-c164-404f-afc0-b1984ffe5549`; production `mtbid` and `rexbid-db` were not used.
+- Staging health/readiness, noindex, private cache, safe 404 and anonymous auth response passed. Product browser review covered Home/catalog/search, both platform detail pages, images/history, guest favorites and Calculator V3 desktop/mobile.
+- Before production, additionally require: selected canonical domain and callback allowlist; production-only secrets and rate limiter; custom SMTP/deliverability; separately rehearsed remote D1 restore; approved migration list and backup; legal owner review; and a staging/production config diff proving no staging flags or binding can leak.
+- Production remains a **STOP** until all owner/external gates above are signed off. Current staging evidence is not production approval.

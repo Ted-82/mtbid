@@ -1,5 +1,16 @@
 # Rex.Bid Production Roadmap
 
+## Final staging product review — 2026-10-03
+
+- Target: **RELEASE CANDIDATE — READY FOR FINAL OWNER REVIEW**, not a production release. Staging baseline Worker `rexbid-auth-test` (`d86cef66-7683-42d6-8c75-32566f828a81`) / D1 `rexbid-auth-test-db`; production `mtbid` / `rexbid-db` remains unchanged.
+- Review found stale auction date labels, fabricated/dead account controls, an unconfigured contact form reporting success and old English footer text. Local fixes have regression coverage; Home aisle order is now Current → Timed → Buy Now → Upcoming.
+- Staging D1 remains explicitly partial: Copart 260 + IAAI 120, both with independent cursors; 380 listing snapshots, 0 events/entities; 80 records have media URL/thumb refs; users/favorites 1/1; legacy tables 0. No provider calls were made in this review.
+- Staging backup export → disposable in-memory SQLite rehearsal passed count validation. It did not overwrite staging and does not prove remote Cloudflare D1 restore. Production backup retention and restore rehearsal remain owner-controlled.
+- Auth recovery/resend and authenticated export/delete remain unverified in this browser session. Password recovery is blocked pending verified SMTP/delivery. Production Accounts stays fail-closed until SMTP, rate limiter, schema 0003, legal review and owner approval.
+- Scheduled discovery/refresh is **DESIGN ONLY / DISABLED**: separate Copart/IAAI scopes, hard run/campaign budgets, leases/checkpoints, bounded retry/backoff and separate selective media URL enrichment. No Cron/Queue was activated.
+- Five legal notice drafts are in `docs/legal/`, each marked **DRAFT — REQUIRES OWNER/LEGAL REVIEW**. Final domain, DNS, HTTPS, canonical/sitemap/robots and Supabase redirects require owner domain selection.
+- At this update, 300/300 automated tests pass; current UI fixes still need staging deploy/browser verification before marking them staging-verified.
+
 ## Staging product milestone — lokalne przygotowanie (2026-10-01)
 
 - Backfill offline przygotowany z twardym limitem **20 requestów łącznie, 10 na platformę**, maksymalnie 4 strony × 20 rekordów na run, bez retry. Wspólna rezerwacja kampanii w D1 jest atomowa i testowana przy równoległych runnerach.
@@ -281,3 +292,9 @@ Statusy launch: `docs/LAUNCH_READINESS.md`; backup/restore: `docs/BACKUP_RECOVER
 - Fixed two browser issues: thumbnails were counted as extra gallery images, and extracting the media normalizer removed a shared `isHttpUrl` helper still used elsewhere on `car.html`. Canonical pairing/deduplication and shared HTTPS validation are covered by regressions.
 - **AUTOMATED:** 299/299 PASS; rates generator, config validator, syntax and diff checks pass. No discovery/backfill/enrichment; 0 intentional Apibara requests. Exact browser-triggered fallback count and DevTools console/Network remain NOT VERIFIED. Authenticated cloud favorites were not retested in the anonymous session.
 - The 300 listings without URL refs were not enriched. Production D1-first cutover remains separate and gated.
+# Final staging release-candidate review — 2026-10-03
+
+- **Staging product review:** latest `rexbid-auth-test` Version `6c70674f-c164-404f-afc0-b1984ffe5549`. Home, catalog VIN/LOT search, known Copart/IAAI detail, galleries, history, guest favorites and Calculator V3 reviewed in a real browser on desktop/mobile widths. Fixed branch-state display; automated test added. Production was not deployed or migrated.
+- **Data scope:** staging D1 remains 260 Copart + 120 IAAI listings/sources, 380 snapshots, 80 media URL/thumb sets, 0 events/entities, 1 user/1 favorite row, no legacy vehicle/history rows. Separate platform scopes remain partial with cursors; D1-first applies only to known rows. Do not present these counts as total-market coverage.
+- **Operations:** health/readiness/private-cache/noindex/error smoke passed. Staging export→disposable in-memory SQLite rehearsal passed; separate remote D1 restore remains open. No schedule/Cron enabled. No discovery/backfill was run in this review. Exact provider fallback count and DevTools Network capture remain unverified; history can use the guarded provider fallback.
+- **Next:** owner review of release candidate; complete production domain, Supabase/SMTP, rate-limiter, backup restore, legal and production migration/deploy gates before any production activation.

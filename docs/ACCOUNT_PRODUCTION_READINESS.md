@@ -1,5 +1,11 @@
 # Gotowość kont Rex.Bid do produkcji
 
+## Uzupełnienie przeglądu launch — 2026-10-03
+
+Accounts nadal jest **STAGING VERIFIED / NOT PRODUCTION DEPLOYED**. Wcześniejszy login/account/cloud favorites E2E pozostaje wiarygodny. W tej sesji browser jest anonymous, więc nie powtórzono login/logout/merge/export/resend. Password recovery nie ponawiano z powodu wcześniejszych problemów z wysyłką i rate limit; wykonaj jeden kontrolowany stagingowy test dopiero po potwierdzeniu SMTP.
+
+Do produkcji wymagane: zatwierdzenie domeny/originów, production Supabase project/key i cookie secret, ścisła redirect allowlist, production D1 migration 0003 (osobno zatwierdzona), Cloudflare rate limiter, custom SMTP z SPF/DKIM/DMARC, owner/legal-approved notices i E2E na finalnej domenie. Samo dodanie flagi nie może włączać Auth.
+
 Stan dokumentu: 2026-09-29. Zakres: kod i procedura wydania. Nie stanowi zgody na aktywację produkcyjnego Auth.
 
 ## Status
@@ -92,3 +98,9 @@ Adapter ma PKCE Google authorize/callback, ale UI/credentials i produkcyjna konf
 **REAL BROWSER VERIFIED:** wcześniejsze owner-run testy staging obejmują normalny login, konto, aktywną sesję i cloud favorites; wcześniejszy Auth proof-of-fit obejmuje signup/confirmation/callback/session oraz favorites. Po bieżącym deployu zweryfikowano render reset/login i formularz ponownego potwierdzenia bez wysyłania danych.
 
 **NOT VERIFIED:** nie wysłano recovery/resend maila; nie sprawdzono callbacku recovery, zmiany hasła, global revocation, export download UX, współbieżności w wielu kartach/colo ani final-domain cookie. Produkcyjnego Auth nie wdrożono. Realny reset wymaga kontrolowanego działania właściciela na stagingowym koncie.
+# Final staging product review — 2026-10-03
+
+- Production Accounts remain **NOT DEPLOYED** and fail-closed. Production D1 migration `0003` remains unapplied.
+- Staging anonymous account/login render and `/api/me` 401 no-store response were smoke-checked. Prior owner-run staging login/session/cloud-favorites/logout E2E remains valid evidence; this review did not repeat credentialed login or resend/recovery/export.
+- Production gate remains: production Supabase project and exact canonical origins/callbacks, cookie secret, approved production D1 schema/migration, custom SMTP and SPF/DKIM/DMARC plus delivery monitoring, and production-grade rate limiting. Recovery/resend and multi-tab/concurrent refresh require controlled verification on the final origin before launch.
+- Do not promote staging auth flags, host allowlists, bindings or diagnostic UI to production.
