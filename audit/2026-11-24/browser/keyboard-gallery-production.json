@@ -1,0 +1,342 @@
+{
+  "target": "https://rexbid.pl/car?platform=copart&lot=48332546&vin=5TDKK3DC8ES447415",
+  "at": "2026-11-24T19:55:31.110Z",
+  "results": [
+    {
+      "engine": "Chrome",
+      "version": "157.0.8103.51",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "started": "2026-11-24T19:55:17.297Z",
+      "checks": [
+        {
+          "test": "Publiczna karta",
+          "seen": 200,
+          "expected": 200,
+          "pass": true
+        },
+        {
+          "test": "Dojście do przycisku głównego zdjęcia tylko klawiszem Tab",
+          "seen": "mainImage",
+          "expected": "mainImage",
+          "pass": true
+        },
+        {
+          "test": "Fokus po otwarciu jest w dialogu",
+          "seen": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "test": "Podstawowe kontrolki mają polskie nazwy dostępności",
+          "seen": 6,
+          "expected": 6,
+          "pass": true
+        },
+        {
+          "test": "Strzałka w prawo wybiera drugie zdjęcie",
+          "seen": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "test": "Strzałka w lewo wraca do pierwszego",
+          "seen": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "test": "Fokus pozostaje wewnątrz przy przejściu Tab i Shift+Tab",
+          "seen": false,
+          "expected": false,
+          "pass": true
+        },
+        {
+          "test": "Escape zamyka dialog",
+          "seen": false,
+          "expected": false,
+          "pass": true
+        },
+        {
+          "test": "Po zamknięciu fokus wraca do tego samego zdjęcia",
+          "seen": "mainImage",
+          "expected": "mainImage",
+          "pass": true
+        }
+      ],
+      "stepsToGallery": 14,
+      "first": "Pełna rozdzielczość • 1 / 14",
+      "second": "Pełna rozdzielczość • 2 / 14",
+      "forwardFocusIds": [
+        "lbPrev",
+        "lbNext",
+        "lbMinus",
+        "lbReset",
+        "lbPlus",
+        "lbClose"
+      ],
+      "backwardFocusIds": [
+        "lbPrev",
+        "lbClose",
+        "lbPlus",
+        "lbReset",
+        "lbMinus",
+        "lbNext"
+      ]
+    },
+    {
+      "engine": "Chrome",
+      "version": "157.0.8103.51",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "started": "2026-11-24T19:55:19.940Z",
+      "checks": [
+        {
+          "test": "Publiczna karta",
+          "seen": 200,
+          "expected": 200,
+          "pass": true
+        },
+        {
+          "test": "Dojście do przycisku głównego zdjęcia tylko klawiszem Tab",
+          "seen": "mainImage",
+          "expected": "mainImage",
+          "pass": true
+        },
+        {
+          "test": "Fokus po otwarciu jest w dialogu",
+          "seen": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "test": "Podstawowe kontrolki mają polskie nazwy dostępności",
+          "seen": 6,
+          "expected": 6,
+          "pass": true
+        },
+        {
+          "test": "Strzałka w prawo wybiera drugie zdjęcie",
+          "seen": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "test": "Strzałka w lewo wraca do pierwszego",
+          "seen": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "test": "Fokus pozostaje wewnątrz przy przejściu Tab i Shift+Tab",
+          "seen": false,
+          "expected": false,
+          "pass": true
+        },
+        {
+          "test": "Escape zamyka dialog",
+          "seen": false,
+          "expected": false,
+          "pass": true
+        },
+        {
+          "test": "Po zamknięciu fokus wraca do tego samego zdjęcia",
+          "seen": "mainImage",
+          "expected": "mainImage",
+          "pass": true
+        }
+      ],
+      "stepsToGallery": 19,
+      "first": "Pełna rozdzielczość • 1 / 14",
+      "second": "Pełna rozdzielczość • 2 / 14",
+      "forwardFocusIds": [
+        "lbPrev",
+        "lbNext",
+        "lbMinus",
+        "lbReset",
+        "lbPlus",
+        "lbClose"
+      ],
+      "backwardFocusIds": [
+        "lbPrev",
+        "lbClose",
+        "lbPlus",
+        "lbReset",
+        "lbMinus",
+        "lbNext"
+      ]
+    },
+    {
+      "engine": "WebKit",
+      "version": "27.2",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "started": "2026-11-24T19:55:25.077Z",
+      "checks": [
+        {
+          "test": "Publiczna karta",
+          "seen": 200,
+          "expected": 200,
+          "pass": true
+        },
+        {
+          "test": "Dojście do przycisku głównego zdjęcia tylko klawiszem Tab",
+          "seen": "mainImage",
+          "expected": "mainImage",
+          "pass": true
+        },
+        {
+          "test": "Fokus po otwarciu jest w dialogu",
+          "seen": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "test": "Podstawowe kontrolki mają polskie nazwy dostępności",
+          "seen": 6,
+          "expected": 6,
+          "pass": true
+        },
+        {
+          "test": "Strzałka w prawo wybiera drugie zdjęcie",
+          "seen": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "test": "Strzałka w lewo wraca do pierwszego",
+          "seen": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "test": "Fokus pozostaje wewnątrz przy przejściu Tab i Shift+Tab",
+          "seen": false,
+          "expected": false,
+          "pass": true
+        },
+        {
+          "test": "Escape zamyka dialog",
+          "seen": false,
+          "expected": false,
+          "pass": true
+        },
+        {
+          "test": "Po zamknięciu fokus wraca do tego samego zdjęcia",
+          "seen": "mainImage",
+          "expected": "mainImage",
+          "pass": true
+        }
+      ],
+      "stepsToGallery": 4,
+      "first": "Pełna rozdzielczość • 1 / 14",
+      "second": "Pełna rozdzielczość • 2 / 14",
+      "forwardFocusIds": [
+        "lbPrev",
+        "lbNext",
+        "lbMinus",
+        "lbReset",
+        "lbPlus",
+        "lbClose"
+      ],
+      "backwardFocusIds": [
+        "lbPrev",
+        "lbClose",
+        "lbPlus",
+        "lbReset",
+        "lbMinus",
+        "lbNext"
+      ]
+    },
+    {
+      "engine": "WebKit",
+      "version": "27.2",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "started": "2026-11-24T19:55:29.566Z",
+      "checks": [
+        {
+          "test": "Publiczna karta",
+          "seen": 200,
+          "expected": 200,
+          "pass": true
+        },
+        {
+          "test": "Dojście do przycisku głównego zdjęcia tylko klawiszem Tab",
+          "seen": "mainImage",
+          "expected": "mainImage",
+          "pass": true
+        },
+        {
+          "test": "Fokus po otwarciu jest w dialogu",
+          "seen": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "test": "Podstawowe kontrolki mają polskie nazwy dostępności",
+          "seen": 6,
+          "expected": 6,
+          "pass": true
+        },
+        {
+          "test": "Strzałka w prawo wybiera drugie zdjęcie",
+          "seen": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "test": "Strzałka w lewo wraca do pierwszego",
+          "seen": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "test": "Fokus pozostaje wewnątrz przy przejściu Tab i Shift+Tab",
+          "seen": false,
+          "expected": false,
+          "pass": true
+        },
+        {
+          "test": "Escape zamyka dialog",
+          "seen": false,
+          "expected": false,
+          "pass": true
+        },
+        {
+          "test": "Po zamknięciu fokus wraca do tego samego zdjęcia",
+          "seen": "mainImage",
+          "expected": "mainImage",
+          "pass": true
+        }
+      ],
+      "stepsToGallery": 3,
+      "first": "Pełna rozdzielczość • 1 / 14",
+      "second": "Pełna rozdzielczość • 2 / 14",
+      "forwardFocusIds": [
+        "lbPrev",
+        "lbNext",
+        "lbMinus",
+        "lbReset",
+        "lbPlus",
+        "lbClose"
+      ],
+      "backwardFocusIds": [
+        "lbPrev",
+        "lbClose",
+        "lbPlus",
+        "lbReset",
+        "lbMinus",
+        "lbNext"
+      ]
+    }
+  ]
+}
