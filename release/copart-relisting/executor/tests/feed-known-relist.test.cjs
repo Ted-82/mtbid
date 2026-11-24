@@ -71,6 +71,15 @@ test('a concurrent newer terminal membership prevents activation, regardless of 
  const result=await h.run(()=>h.sql.prepare('UPDATE feed_catalog_membership SET last_sequence=?').run(evidence.sequence+1));
  assert.equal(result.skipped,true);assert.equal(h.sql.prepare('SELECT active FROM feed_catalog_membership').get().active,0);
 });
+test('queuing a relisted auction looks up the exact lot in both existence checks',async t=>{
+ const h=await fixture(t);let upsert;const prepare=h.db.prepare.bind(h.db);
+ h.db.prepare=q=>{if(q.startsWith('INSERT INTO automatic_refresh_tasks(task_key,platform,listing_id,status,cursor,next_due_at,last_attempt_at)'))upsert=q;return prepare(q);};
+ assert.equal((await h.queue()).queued,1);assert.ok(upsert);
+ const plan=h.sql.prepare('EXPLAIN QUERY PLAN '+upsert).all(stamp,stamp,'[]',file.generation);
+ const lookups=plan.filter(p=>/^SEARCH l /.test(p.detail));
+ assert.equal(lookups.length,2);
+ assert.ok(lookups.every(p=>p.detail.includes('idx_listings_lot_recent (platform=? AND lot=?)')));
+});
 test('a numeric LOT returned on the other platform falls back once to VIN, then checks all three identity fields',async t=>{
  const h=await fixture(t);await h.queue();
  const recovered=await h.run(()=>{},id=>id===data.raw.lot_number?{...data.raw,platform:'iaai'}:data.raw);

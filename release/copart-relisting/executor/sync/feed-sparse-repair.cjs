@@ -77,8 +77,8 @@ async function prepareSparseQueue({db,store,groups,decisions,generationId,observ
  if(!entries.length)return{statements:[],queued:0};
  const at=iso(store.now()),statement=db.prepare(`INSERT INTO automatic_refresh_tasks(task_key,platform,listing_id,status,cursor,next_due_at,last_attempt_at)
   SELECT json_extract(x.value,'$.key'),json_extract(x.value,'$.platform'),NULL,'pending',json_extract(x.value,'$.cursor'),?,? FROM json_each(?) x
-  WHERE (((json_extract(x.value,'$.relist')=0 OR json_extract(json_extract(x.value,'$.cursor'),'$.relist.missing')=1) AND NOT EXISTS(SELECT 1 FROM auction_listings l WHERE l.platform=json_extract(x.value,'$.platform') AND l.lot=json_extract(x.value,'$.lot')))
-   OR (json_extract(x.value,'$.relist')=1 AND EXISTS(SELECT 1 FROM auction_listings l WHERE l.platform=json_extract(x.value,'$.platform') AND l.lot=json_extract(x.value,'$.lot')
+  WHERE (((json_extract(x.value,'$.relist')=0 OR json_extract(json_extract(x.value,'$.cursor'),'$.relist.missing')=1) AND NOT EXISTS(SELECT 1 FROM auction_listings l INDEXED BY idx_listings_lot_recent WHERE l.platform=json_extract(x.value,'$.platform') AND l.lot=json_extract(x.value,'$.lot')))
+   OR (json_extract(x.value,'$.relist')=1 AND EXISTS(SELECT 1 FROM auction_listings l INDEXED BY idx_listings_lot_recent WHERE l.platform=json_extract(x.value,'$.platform') AND l.lot=json_extract(x.value,'$.lot')
     AND l.auction_state='ended' AND l.identity_state='resolved' AND l.vin_normalized=json_extract(json_extract(x.value,'$.cursor'),'$.vin'))))
    AND EXISTS(SELECT 1 FROM server_feed_generations g WHERE g.generation_id=? AND g.status IN ('applying','complete')
     AND json_extract(x.value,'$.sequence') BETWEEN g.first_sequence AND g.last_sequence)
