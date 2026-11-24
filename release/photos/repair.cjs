@@ -4,7 +4,38 @@ const {apibaraPhotoFields}=require('../../integrity-followup-20261118/executor/p
 const {packMediaJson}=require('../../integrity-followup-20261118/executor/sync/catalog-media-storage.cjs');
 const {parseAccountBudget,accountWindowStart,accountAllowance,allowSupplementalWrites,STORAGE_RESERVE}=require('../executor/sync/feed-account-budget.cjs');
 const KEY='copart-week-photos/v1/progress.json';
+const PRIORITY_KEY='copart-week-photos/v1/priority-allowance.json';
 const DAY=86400000,WINDOW=7*DAY,PAGE=160;
+// Media columns have no indexes or triggers. A conditional gallery update changes at most one row.
+// The importer already excludes 160,000 outside-ledger writes/day from its allowance.
+const PRIORITY_DAILY_WRITES=512,PRIORITY_BATCH=4,MIN_PUBLICATION_HEADROOM=2200000;
+const recentPublications='SELECT status,observed_at,updated_at,last_error_code FROM server_feed_generations ORDER BY generation_id DESC LIMIT 4';
+function publicationHealthy(rows,now){
+ for(const row of rows){
+   if(row.last_error_code||!['complete','downloaded','prepared','applying'].includes(row.status))return false;
+   const received=Date.parse(row.observed_at),updated=Date.parse(row.updated_at);
+   if(!Number.isFinite(received)||!Number.isFinite(updated)||received>now+300000||updated>now+300000||now-received>2*3600000)return false;
+   if(row.status==='complete')return updated>=received-300000;
+ }
+ return false;
+}
+async function reservePriority(bucket,day,slot,wanted,previouslyReserved){
+ const current=await bucket.get(PRIORITY_KEY);
+ if(!current&&previouslyReserved)return null;
+ const previous=current?await current.json():null;
+ if(current&&(!previous||!/^\d{4}-\d{2}-\d{2}$/.test(previous.day)||!Number.isSafeInteger(previous.slot)||previous.slot<0||
+   !Number.isSafeInteger(previous.reserved)||previous.reserved<0||previous.reserved>PRIORITY_DAILY_WRITES))return null;
+ if(previous&&(previous.day>day||previous.slot>=slot))return null;
+ const used=previous?.day===day?previous.reserved:0;
+ // Release credits throughout the UTC day. Unused morning credits are available for later US sessions.
+ const slotsPerDay=DAY/300000;
+ const released=Math.ceil((slot%slotsPerDay+1)*PRIORITY_DAILY_WRITES/slotsPerDay);
+ const granted=Math.min(wanted,PRIORITY_BATCH,released-used);
+ if(granted<=0)return null;
+ const result=await bucket.put(PRIORITY_KEY,JSON.stringify({day,slot,reserved:used+granted}),
+   {onlyIf:current?{etagMatches:current.etag}:{etagDoesNotMatch:'*'}});
+ return result?{granted,exhausted:used+granted===PRIORITY_DAILY_WRITES}:null;
+}
 const API_RESERVE=30000, BURST_QUOTA=70000, BURST_BATCH=20, DAILY_REQUEST_LIMIT=288*BURST_BATCH;
 // Increase the pace only while the provider still reports a large unused Pro allowance.
 function batchSize(remaining){
@@ -52,8 +83,27 @@ async function run(env,now=Date.now()){
  const used=meter.results[0],size=meter.meta.size_after;
  const allowance=accountAllowance(policy,from,day);
  if(!Number.isSafeInteger(size)||size<=0||size+STORAGE_RESERVE>policy.databaseMaxBytes||!Number.isSafeInteger(used?.writes)||!Number.isSafeInteger(used?.reads)||used.writes+50000>allowance.writeLimit||used.reads+40000000>allowance.readLimit)return {status:'capacity_guard'};
- if(!allowSupplementalWrites(policy,{firstDay:from,day,writeLimit:allowance.writeLimit,writes:used.writes+50000}))return {status:'publication_reserve'};
+ const priority=!allowSupplementalWrites(policy,{firstDay:from,day,writeLimit:allowance.writeLimit,writes:used.writes+50000});
  const state={...old,slot,leaseUntil:now+240000};
+ const cachedQuota=Number.isSafeInteger(old.quota)&&Number.isFinite(old.quotaAt)&&old.quotaAt<=now&&now-old.quotaAt<3600000;
+ let priorityGrant=0;
+ if(priority){
+   if(allowance.writeLimit-used.writes-50000<MIN_PUBLICATION_HEADROOM)return {status:'publication_reserve'};
+   if(old.priorityExhaustedDay===day)return {status:'priority_capacity'};
+   const daily=old.requestDay===day?old.requestCount:0;
+   if(!Number.isSafeInteger(daily)||daily<0||daily>=DAILY_REQUEST_LIMIT)return {status:'day_capacity'};
+   const potential=Math.min(DAILY_REQUEST_LIMIT-daily,cachedQuota?batchSize(old.quota):PRIORITY_BATCH);
+   if(!potential)return {status:'api_reserve'};
+   if(!publicationHealthy((await db.prepare(recentPublications).all()).results,now))return {status:'publication_reserve'};
+   const budget=await reservePriority(env.STATE,day,slot,potential,old.priorityDay===day);
+   if(!budget)return {status:'priority_capacity'};
+   priorityGrant=budget.granted;
+   state.priorityDay=day;
+   if(budget.exhausted)state.priorityExhaustedDay=day;
+   // Charge before lookup. A crash or uncertain write cannot give the same slot or request back.
+   state.requestDay=day;state.requestCount=daily+priorityGrant;
+   state.quota=cachedQuota?old.quota-priorityGrant:null;
+ }
  const reserved=await env.STATE.put(KEY,JSON.stringify(state),{onlyIf:obj?{etagMatches:obj.etag}:{etagDoesNotMatch:'*'}});
  if(!reserved)return {status:'concurrent'};
  const save=async(result)=>{
@@ -73,14 +123,16 @@ async function run(env,now=Date.now()){
  };
  let attempted=0,current=null;const filled=[];
  try{
-   if(!Number.isFinite(state.quotaAt)||now-state.quotaAt>=3600000||!Number.isSafeInteger(state.quota)){
+   if(!cachedQuota){
      const acct=await call('usage');state.quota=acct?.quota?.left;state.quotaAt=now;
    }
-   const allowanceByQuota=batchSize(state.quota);
+   const available=priority&&cachedQuota?old.quota:state.quota;
+   const allowanceByQuota=batchSize(available);
+   if(priority&&!cachedQuota&&Number.isSafeInteger(state.quota))state.quota=Math.max(0,state.quota-priorityGrant);
    if(!allowanceByQuota)return await save({status:'api_reserve'});
    // Limit the number of source lookups independently of any concurrent import.
    const requestDay=state.requestDay===day?state.requestCount:0;
-   const batch=Math.min(allowanceByQuota,DAILY_REQUEST_LIMIT-requestDay);
+   const batch=Math.min(allowanceByQuota,priority?priorityGrant:DAILY_REQUEST_LIMIT-requestDay);
    if(batch<=0)return await save({status:'day_capacity'});
    state.requestDay=day;state.requestCount=requestDay;
    let scanned=0;
@@ -95,7 +147,8 @@ async function run(env,now=Date.now()){
        stage='vehicle_detail';
        const byVin=state.retryVinListing===row.listing_id;
        const detail=async id=>{
-         state.requestCount++;state.quota--;attempted++;
+         if(!priority){state.requestCount++;state.quota--;}
+         attempted++;
          return call('vehicles/'+encodeURIComponent(id)).catch(e=>{if(e.message==='SOURCE_404')return null;throw e;});
        };
        let lookup=await lookupGallery(row,byVin,detail);
@@ -123,7 +176,7 @@ async function run(env,now=Date.now()){
    }
    delete state.failedId;
    state.filled=(state.filled||0)+filled.length;
-   return await save({status:'complete',attempted,filled,scanned});
+   return await save({status:'complete',attempted,filled,scanned,...(priority?{mode:'priority',reservedWrites:priorityGrant}:{})});
  }catch(e){
    state.filled=(state.filled||0)+filled.length;
    const code=/^SOURCE_[0-9]{3}$/.test(e.message)?e.message:['AbortError','TimeoutError'].includes(e.name)?'timeout':'temporary_error';

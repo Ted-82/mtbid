@@ -95,8 +95,121 @@ test('dodatkowe galerie ustępują publikacji bez rezerwowania cyklu zdjęć',as
   databaseMaxBytes:8e9,days:[{day:'2026-11-08',writes:30e6,reads:0}]};
  const env={APIBARA_KEY:'test',ACCOUNT_POLICY:JSON.stringify(policy),
   STATE:{get:async()=>null,put:async()=>assert.fail('acquired lease')},
-  CATALOG:{prepare:()=>({bind:()=>({all:async()=>({
+  CATALOG:{prepare:()=>({all:async()=>({results:[]}),bind:()=>({all:async()=>({
    results:[{writes:6e6,reads:0}],meta:{size_after:2e9}
   })})})}};
  assert.deepEqual(await run(env,at),{status:'publication_reserve'});
+});
+
+const priorityTime=Date.parse('2026-11-24T20:00:00Z');
+const progressKey='copart-week-photos/v1/progress.json',priorityKey='copart-week-photos/v1/priority-allowance.json';
+function priorityFixture(t,now=priorityTime){
+ let revision=0;
+ const state=new Map(),updates=[],calls=[],puts=[];
+ const store=(key,data)=>state.set(key,{etag:String(++revision),data:structuredClone(data)});
+ store(progressKey,{quota:65000,quotaAt:now,requestDay:'2026-11-24',requestCount:0});
+ const sample=Array.from({length:25},(_,i)=>({listing_id:'lot-'+i,lot:String(80000000+i),vin,eligible:1,time:i}));
+ const testCase={writes:35e6,bytes:2e9,reads:0,stamp:now,rows:sample,
+   publications:[{status:'complete',observed_at:new Date(now-600000).toISOString(),updated_at:new Date(now-60000).toISOString()}],
+   calls,updates,puts,state,store};
+ const bucket={get:async key=>{
+   const entry=state.get(key);
+   return entry?{etag:entry.etag,json:async()=>structuredClone(entry.data)}:null;
+ },put:async(key,value,conditions)=>{
+   const current=state.get(key),wanted=conditions.onlyIf;
+   if(current?wanted.etagMatches!==current.etag:wanted.etagDoesNotMatch!=='*')return null;
+   puts.push(key);store(key,JSON.parse(value));return {etag:state.get(key).etag};
+ }};
+ const db={prepare:sql=>{
+   if(sql.includes('server_feed_daily_budgets'))return {bind:()=>({all:async()=>({results:[{writes:testCase.writes,reads:testCase.reads}],meta:{size_after:testCase.bytes}})})};
+   if(sql.includes('server_feed_generations'))return {all:async()=>({results:testCase.publications})};
+   if(sql.startsWith('SELECT'))return {bind:()=>({all:async()=>({results:testCase.rows})})};
+   if(sql.startsWith('UPDATE'))return {bind:(...args)=>({run:async()=>{
+     if(testCase.beforeWrite)await testCase.beforeWrite();
+     updates.push(args[3]);return {meta:{changes:1,rows_written:1}};
+   }})};
+   throw Error('SQL poza próbą');
+ }};
+ t.mock.method(globalThis,'fetch',async path=>{
+   const id=String(path).split('/').pop();calls.push(id);
+   if(id==='usage')return Response.json({data:{quota:{left:testCase.sourceQuota??65000}}});
+   return Response.json({data:{platform:'copart',lot_number:id,vin,auction:{state:'open'},media:{items:['https://example.org/car.jpg']}}});
+ });
+ const policy={version:2,billingDay:6,prioritizePublication:true,measuredAt:'2026-11-24T00:00:00Z',databaseMaxBytes:8e9,days:[]};
+ testCase.env={APIBARA_KEY:'test',ACCOUNT_POLICY:JSON.stringify(policy),CATALOG:db,STATE:bucket};
+ return testCase;
+}
+test('mała pula uzupełnia cztery datowane aukcje i rezerwuje limit przed pierwszym zapisem',async t=>{
+ const x=priorityFixture(t);
+ x.beforeWrite=async()=>{
+   assert.equal(x.state.get(priorityKey).data.reserved,4);
+   assert.equal(x.state.get(progressKey).data.requestCount,4);
+   assert.equal(x.state.get(progressKey).data.quota,64996);
+ };
+ const result=await run(x.env,priorityTime);
+ assert.equal(result.mode,'priority');assert.equal(result.attempted,4);assert.deepEqual(result.filled,x.updates);
+ assert.equal(x.updates.length,4);assert.equal(x.puts.filter(k=>k===priorityKey).length,1);
+ assert.equal((await run(x.env,priorityTime)).status,'already_reserved');
+ x.state.delete(progressKey);
+ assert.equal((await run(x.env,priorityTime)).status,'priority_capacity');
+ assert.equal(x.calls.length,4);
+});
+test('konkurencyjne wykonanie i niepewny wynik nie zwracają zapisów do puli',async t=>{
+ const x=priorityFixture(t);
+ x.beforeWrite=async()=>{throw Error('niepewny wynik zapisu');};
+ const results=await Promise.all([run(x.env,priorityTime),run(x.env,priorityTime)]);
+ assert.ok(results.some(r=>r.status==='temporary_error'));assert.equal(x.calls.length,1);
+ assert.equal(x.state.get(priorityKey).data.reserved,4);
+ assert.equal(x.state.get(progressKey).data.quota,64996);
+ x.state.delete(priorityKey);
+ assert.equal((await run(x.env,priorityTime+300000)).status,'priority_capacity');
+ assert.equal(x.calls.length,1);
+});
+test('koniec dziennego limitu, odnowienie o północy oraz równomierne uwalnianie rezerwy',async t=>{
+ const end=Date.parse('2026-11-24T23:58:00Z'),slot=Math.floor(end/300000),x=priorityFixture(t,end);
+ x.store(priorityKey,{day:'2026-11-24',slot:slot-1,reserved:511});
+ assert.equal((await run(x.env,end)).attempted,1);
+ assert.equal(x.state.get(priorityKey).data.reserved,512);
+ const next=end+300000;
+ assert.equal((await run(x.env,next)).attempted,2);
+ assert.equal(x.state.get(priorityKey).data.day,'2026-11-25');assert.equal(x.state.get(priorityKey).data.reserved,2);
+ assert.equal((await run(x.env,next+300000)).attempted,2);
+ assert.equal(x.state.get(priorityKey).data.reserved,4);
+});
+test('twardy zapas importu, nieaktualna publikacja, blokada bazy i błędny licznik nie wywołują dostawcy',async t=>{
+ const x=priorityFixture(t);
+ for(const [key,value,wanted] of [['writes',43e6,'publication_reserve'],['writes',47e6,'capacity_guard'],
+   ['bytes',8e9,'capacity_guard'],['reads',24e9,'capacity_guard'],
+   ['publications',[{...x.publications[0],status:'blocked'}],'publication_reserve'],
+   ['publications',[{...x.publications[0],observed_at:'2026-11-24T16:00:00Z'}],'publication_reserve']]){
+   const saved=x[key];x[key]=value;
+   assert.equal((await run(x.env,priorityTime)).status,wanted);x[key]=saved;
+ }
+ x.store(priorityKey,{day:'2026-11-24',slot:0,reserved:-1});
+ assert.equal((await run(x.env,priorityTime)).status,'priority_capacity');
+ assert.deepEqual([x.calls.length,x.updates.length,x.puts.length],[0,0,0]);
+});
+test('dostępna pula dostawcy i limit doby nadal ograniczają małą pulę',async t=>{
+ const x=priorityFixture(t);
+ x.store(progressKey,{quota:30000,quotaAt:priorityTime});
+ assert.equal((await run(x.env,priorityTime)).status,'api_reserve');
+ x.store(progressKey,{quota:60000,quotaAt:priorityTime,requestDay:'2026-11-24',requestCount:5760});
+ assert.equal((await run(x.env,priorityTime)).status,'day_capacity');
+ assert.equal(x.puts.length,0);
+ x.store(progressKey,{quota:60000,quotaAt:priorityTime-7200000,requestDay:'2026-11-24',requestCount:5758});
+ x.sourceQuota=30001;
+ assert.equal((await run(x.env,priorityTime)).attempted,1);
+ assert.deepEqual(x.calls,['usage','80000000']);
+ assert.equal(x.state.get(progressKey).data.requestCount,5760);
+});
+test('zwykła pula i jej powrót nie usuwają licznika dziennego dla pracy przy rezerwie',async t=>{
+ const x=priorityFixture(t);
+ assert.equal((await run(x.env,priorityTime)).mode,'priority');
+ x.writes=0;
+ const normal=await run(x.env,priorityTime+300000);
+ assert.equal(normal.mode,undefined);assert.equal(normal.attempted,10);
+ assert.equal(x.state.get(priorityKey).data.reserved,4);
+ x.writes=35e6;
+ assert.equal((await run(x.env,priorityTime+600000)).mode,'priority');
+ assert.equal(x.state.get(priorityKey).data.reserved,8);
 });

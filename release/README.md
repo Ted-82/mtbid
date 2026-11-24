@@ -6,7 +6,7 @@
 |---|---|---|
 | [public-site](public-site/) | Źródła strony, publicznego API, widoku testowego i jego testów. Wydanie testowe ma zablokowaną indeksację. | Publiczny staging REXBID. |
 | [executor](executor/) | 16 plików do nałożenia na kompletny, działający proces zapisu ofert. Obejmują m.in. uzgadnianie LOT z VIN, pełną nazwę dokumentu, kolor i testy zgodności. | `large-delivery-20261124/executor`, wersja `a95d53bb-a169-4371-ba7c-08dae26a2431`. |
-| [photos](photos/) | 3 pliki osobnego procesu uzupełniania galerii Copart. Ponowienie po VIN i obsługa pustej galerii podlegają dotychczasowym ograniczeniom. | `write-priority-20261122/photos`, wersja `0caccbfa-67a8-41e5-bd4c-500265d6df99`. |
+| [photos](photos/) | Proces uzupełniania galerii Copart dla aukcji w najbliższych siedmiu dniach. Kiedy rezerwa ograniczy zwykły tryb, automat może wykorzystać część puli na ruch poza importem, do czterech prób na przebieg i 512 na dobę UTC. [Odbiór produkcyjny](../audit/2026-11-24/produkcja/zdjecia-copart.md) | Kopia wyjściowa do złożenia: `write-priority-20261122/photos`, wersja `0caccbfa-67a8-41e5-bd4c-500265d6df99`. |
 
 Wdrożenie strony testowej i sprawdzenie wyglądu karty dotyczy pierwszego składnika. Każdy z dwóch procesów ma osobny kod wejściowy, konfigurację i wersję w Cloudflare. Do budowy używa się kopii właściwego procesu. Współdzielony kod na stronie i w wykonawcy może pochodzić z różnych wdrożeń. Wykonanie migracji D1, włączenie harmonogramów i zmiany w produkcji wymagają osobnego zatwierdzenia właściciela.
 
