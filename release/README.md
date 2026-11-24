@@ -24,16 +24,23 @@ node release/capture-operators.cjs --assemble $kopie $nazwaProby
 $proba = Join-Path $kopie $nazwaProby
 ```
 
-Kompletne kopie powstaną jako `$proba/executor` i `$proba/photos`. Taki układ zachowuje względne ścieżki galerii do modułu budżetu wykonawcy oraz wcześniejszych bibliotek w katalogu kopii. Konfiguracje do lokalnego złożenia pochodzą z oryginalnych wersji. Klucze, katalogi sesji narzędzi i zainstalowane biblioteki są pomijane. Do samego złożenia i testów nie jest potrzebny dostęp do Cloudflare.
+Kompletne kopie powstaną jako `$proba/executor` i `$proba/photos`. Taki układ zachowuje względne ścieżki galerii do modułu budżetu wykonawcy oraz wcześniejszych bibliotek w katalogu kopii. Konfiguracje do lokalnego złożenia pochodzą z oryginalnych wersji. Klucze, katalogi sesji narzędzi i zainstalowane biblioteki są pomijane. Do samego złożenia i testów nie jest potrzebny dostęp do Cloudflare. Jeden test integracji dokumentu i koloru otwiera szablon z wydania strony. Poniższe polecenia podstawiają go na czas próby do lokalnego drzewa testów i przywracają wersję wyjściową.
 
 ```powershell
+$kartaWydania = (Get-Item 'release/public-site/public/car.html').FullName
+$plikProby = Join-Path $proba 'executor/public/car.html'
+$poprzedniSzablon = [IO.File]::ReadAllBytes($plikProby)
 Push-Location (Join-Path $proba 'executor')
 try {
+  [IO.File]::Copy($kartaWydania, $plikProby, $true)
   $testy = @(Get-ChildItem -LiteralPath tests -Filter 'feed-*.test.cjs' -File | ForEach-Object FullName)
   $testy += (Get-Item 'tests/listing-display-facts.test.cjs').FullName
   node --test --test-concurrency=4 @testy
   if ($LASTEXITCODE -ne 0) { throw 'Nie przeszły testy wykonawcy' }
-} finally { Pop-Location }
+} finally {
+  [IO.File]::WriteAllBytes($plikProby, $poprzedniSzablon)
+  Pop-Location
+}
 Push-Location (Join-Path $proba 'photos')
 try {
   node --test repair.test.cjs

@@ -1,0 +1,204 @@
+{
+  "recorded": "2026-11-24T17:15:28.747Z",
+  "version": "159.0",
+  "base": "https://rexbid-audit-staging.tedn828.workers.dev",
+  "data": [
+    {
+      "key": "home",
+      "engine": "firefox",
+      "url": "https://rexbid-audit-staging.tedn828.workers.dev/",
+      "interactions": {
+        "menuOpened": true,
+        "menuClosed": true,
+        "budgetVisible": true,
+        "categoryHeadings": [
+          "Aktualne aukcje",
+          "Timed Auction",
+          "Kup teraz",
+          "Samochody elektryczne"
+        ]
+      },
+      "error": null,
+      "heading": "Samochody z aukcji w USA. Sprawdź koszt importu.",
+      "overflow": 0,
+      "labEvents": []
+    },
+    {
+      "key": "catalog",
+      "engine": "firefox",
+      "url": "https://rexbid-audit-staging.tedn828.workers.dev/",
+      "interactions": {
+        "geometry": [
+          [
+            "header",
+            0,
+            145
+          ],
+          [
+            "#search",
+            145,
+            168
+          ],
+          [
+            "#filterSection",
+            313,
+            240
+          ],
+          [
+            "#results",
+            585,
+            211
+          ],
+          [
+            "#catalogCoverage",
+            818,
+            84
+          ],
+          [
+            ".catalog-toolbar",
+            920,
+            194
+          ],
+          [
+            "#marketShortcuts",
+            1133,
+            59
+          ],
+          [
+            "#cars",
+            1200,
+            14925
+          ]
+        ],
+        "rows": 20,
+        "filtersOpened": true,
+        "jumped": {
+          "focused": "cars",
+          "top": 153
+        },
+        "listStyle": true
+      },
+      "error": null,
+      "heading": "Znajdź samochód. Sprawdź szczegóły.",
+      "overflow": 0,
+      "labEvents": [
+        {
+          "type": "pointerdown",
+          "duration": 16
+        },
+        {
+          "type": "pointerdown",
+          "duration": 128
+        },
+        {
+          "type": "pointerup",
+          "duration": 120
+        },
+        {
+          "type": "click",
+          "duration": 120
+        }
+      ]
+    },
+    {
+      "key": "car",
+      "engine": "firefox",
+      "url": "https://rexbid-audit-staging.tedn828.workers.dev/car",
+      "interactions": {
+        "main": {
+          "loaded": true,
+          "width": 960,
+          "shown": 360
+        },
+        "galleryNext": true,
+        "dialogClosed": true,
+        "focusReturn": "openHd",
+        "calculatorChanged": true,
+        "totals": [
+          "13 680 zł",
+          "20 354 zł"
+        ]
+      },
+      "error": null,
+      "heading": "2014 IC CORPORATION BUS",
+      "overflow": 0,
+      "labEvents": [
+        {
+          "type": "pointerdown",
+          "duration": 24
+        },
+        {
+          "type": "pointerup",
+          "duration": 16
+        },
+        {
+          "type": "click",
+          "duration": 16
+        },
+        {
+          "type": "pointerup",
+          "duration": 24
+        },
+        {
+          "type": "click",
+          "duration": 24
+        },
+        {
+          "type": "keydown",
+          "duration": 24
+        },
+        {
+          "type": "keypress",
+          "duration": 24
+        }
+      ]
+    },
+    {
+      "key": "budget",
+      "engine": "firefox",
+      "url": "https://rexbid-audit-staging.tedn828.workers.dev/kalkulator-budzet",
+      "interactions": {
+        "lookup": "",
+        "selected": true,
+        "matches": "",
+        "selectedBid": "—",
+        "retained": "Mamy zapis tej oferty. Katalog nie potwierdza obecnie możliwości licytacji.",
+        "retainedLink": "/car?lot=47018496&platform=copart"
+      },
+      "error": null,
+      "heading": "Twój budżet zakupu",
+      "overflow": 0,
+      "labEvents": [
+        {
+          "type": "pointerdown",
+          "duration": 16
+        }
+      ]
+    },
+    {
+      "key": "history",
+      "engine": "firefox",
+      "url": "https://rexbid-audit-staging.tedn828.workers.dev/archiwum",
+      "interactions": {
+        "invalidInput": "Wpisz poprawny VIN albo numer LOT."
+      },
+      "error": null,
+      "heading": "Archiwum aukcji",
+      "overflow": 0,
+      "labEvents": []
+    },
+    {
+      "key": "contact",
+      "engine": "firefox",
+      "url": "https://rexbid-audit-staging.tedn828.workers.dev/kontakt",
+      "interactions": {
+        "topic": "search",
+        "emptyRejected": true
+      },
+      "error": null,
+      "heading": "Porozmawiajmyo Twoim samochodzie.",
+      "overflow": 0,
+      "labEvents": []
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "at": "2026-11-24T17:11:56.185Z",
+  "plan": [
+    "SEARCH l USING INDEX idx_listings_public_auction_date (<expr>>? AND <expr><?)",
+    "CORRELATED SCALAR SUBQUERY 1",
+    "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+    "SEARCH m USING PRIMARY KEY (baseline_id=? AND listing_id=?)"
+  ]
+}

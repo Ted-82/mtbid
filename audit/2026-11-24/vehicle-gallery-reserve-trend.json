@@ -1,0 +1,40 @@
+{
+  "at": "2026-11-24T17:11:33.872Z",
+  "daysToReserve": 13,
+  "publishDailyOwnedByPolicy": 1100000,
+  "requiredByPublication": 14300000,
+  "bookedOrReservedWrites": 19620005,
+  "availableAfterSupplementalMargin": 9623203,
+  "closedDailyObservations": [
+    {
+      "day": "2026-11-17",
+      "writes": 1617689
+    },
+    {
+      "day": "2026-11-18",
+      "writes": 1617733
+    },
+    {
+      "day": "2026-11-19",
+      "writes": 1125820
+    },
+    {
+      "day": "2026-11-20",
+      "writes": 954487
+    },
+    {
+      "day": "2026-11-21",
+      "writes": 1730690
+    },
+    {
+      "day": "2026-11-22",
+      "writes": 971297
+    },
+    {
+      "day": "2026-11-23",
+      "writes": 609516
+    }
+  ],
+  "sevenDayAverage": 1232462,
+  "reads": 15
+}

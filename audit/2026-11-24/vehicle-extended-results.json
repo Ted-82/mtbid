@@ -1,0 +1,1871 @@
+{
+  "at": "2026-11-24T16:42:47.738Z",
+  "archive": [
+    {
+      "platform": "copart",
+      "lot": "73424196",
+      "vin": "1G1FZ6S0XP4154548",
+      "year": 2023,
+      "title": "2023 CHEVROLET BOLT EUV PREMIER",
+      "sequence": 105212167,
+      "recordedAt": "2026-11-18T19:42:21.000Z",
+      "saleCents": 1090000,
+      "status": "sold",
+      "photos": 12
+    },
+    {
+      "platform": "copart",
+      "lot": "66640416",
+      "vin": "3FMCR9BN7SRE27822",
+      "year": 2025,
+      "title": "2025 FORD BRONCO SPORT BIG BEND",
+      "sequence": 105212122,
+      "recordedAt": "2026-11-18T19:42:15.000Z",
+      "saleCents": 460000,
+      "status": "sold",
+      "photos": 13
+    },
+    {
+      "platform": "copart",
+      "lot": "75639076",
+      "vin": "1FT8W3DT6RED24786",
+      "year": 2024,
+      "title": "2024 FORD F350 SUPER DUTY",
+      "sequence": 105212107,
+      "recordedAt": "2026-11-18T19:42:05.000Z",
+      "saleCents": null,
+      "status": "sold",
+      "photos": 12
+    },
+    {
+      "platform": "copart",
+      "lot": "71012276",
+      "vin": "2C3CDXAT9KH605768",
+      "year": 2019,
+      "title": "2019 DODGE CHARGER POLICE",
+      "sequence": 105212098,
+      "recordedAt": "2026-11-18T19:42:00.000Z",
+      "saleCents": 225000,
+      "status": "sold",
+      "photos": 12
+    },
+    {
+      "platform": "copart",
+      "lot": "72258966",
+      "vin": "JF2GTHMC1PH300359",
+      "year": 2023,
+      "title": "2023 SUBARU CROSSTREK LIMITED",
+      "sequence": 105212097,
+      "recordedAt": "2026-11-18T19:42:00.000Z",
+      "saleCents": 160000,
+      "status": "sold",
+      "photos": 13
+    },
+    {
+      "platform": "copart",
+      "lot": "74925446",
+      "vin": "1N4BL4DV0TN313950",
+      "year": 2026,
+      "title": "2026 NISSAN ALTIMA SV",
+      "sequence": 105212085,
+      "recordedAt": "2026-11-18T19:41:58.000Z",
+      "saleCents": null,
+      "status": "sold",
+      "photos": 12
+    },
+    {
+      "platform": "copart",
+      "lot": "74944046",
+      "vin": "JN8AY2NCXL9620287",
+      "year": 2020,
+      "title": "2020 NISSAN ARMADA SL",
+      "sequence": 105212076,
+      "recordedAt": "2026-11-18T19:41:54.000Z",
+      "saleCents": null,
+      "status": "sold",
+      "photos": 13
+    },
+    {
+      "platform": "copart",
+      "lot": "73038436",
+      "vin": "3MW69CW00T8G14823",
+      "year": 2026,
+      "title": "2026 BMW 330I",
+      "sequence": 105212069,
+      "recordedAt": "2026-11-18T19:41:51.000Z",
+      "saleCents": 860000,
+      "status": "sold",
+      "photos": 13
+    },
+    {
+      "platform": "copart",
+      "lot": "75124446",
+      "vin": "4S4GUHF67S3711219",
+      "year": 2025,
+      "title": "2025 SUBARU CROSSTREK SPORT",
+      "sequence": 105212066,
+      "recordedAt": "2026-11-18T19:41:48.000Z",
+      "saleCents": null,
+      "status": "sold",
+      "photos": 13
+    },
+    {
+      "platform": "copart",
+      "lot": "58025966",
+      "vin": "3KPFU4DE1SE137857",
+      "year": 2025,
+      "title": "2025 KIA K4 EX",
+      "sequence": 105212030,
+      "recordedAt": "2026-11-18T19:41:32.000Z",
+      "saleCents": null,
+      "status": "sold",
+      "photos": 12
+    },
+    {
+      "platform": "copart",
+      "lot": "69332476",
+      "vin": "WP0CD2A89SK230208",
+      "year": 2025,
+      "title": "2025 PORSCHE BOXSTER GTS",
+      "sequence": 105212029,
+      "recordedAt": "2026-11-18T19:41:32.000Z",
+      "saleCents": 4850000,
+      "status": "sold",
+      "photos": 12
+    },
+    {
+      "platform": "copart",
+      "lot": "72118326",
+      "vin": "3C6LRVDG1ME589992",
+      "year": 2021,
+      "title": "2021 RAM PROMASTER 2500",
+      "sequence": 105212023,
+      "recordedAt": "2026-11-18T19:41:29.000Z",
+      "saleCents": null,
+      "status": "sold",
+      "photos": 13
+    }
+  ],
+  "sourceFields": [
+    {
+      "platform": "copart",
+      "lot": "46087626",
+      "kind": "active",
+      "sourceMatch": true,
+      "sellerCategory": "name supplied",
+      "sellerType": "unknown",
+      "publicNames": false,
+      "sourcePhotoCount": 13,
+      "sourceItemCount": 13,
+      "sourceThumbCount": 13,
+      "thumbs": null,
+      "publicPhotos": 0,
+      "resultEvidence": {
+        "phase": "awaiting_auction",
+        "resultConfirmed": false,
+        "outcome": null,
+        "historicalPrice": null,
+        "salePrice": null
+      },
+      "historyLen": 0,
+      "vinLots": 0
+    },
+    {
+      "platform": "copart",
+      "lot": "46350466",
+      "kind": "active",
+      "sourceMatch": true,
+      "sellerCategory": "placeholder",
+      "sellerType": "unknown",
+      "publicNames": false,
+      "sourcePhotoCount": 10,
+      "sourceItemCount": 10,
+      "sourceThumbCount": 10,
+      "thumbs": null,
+      "publicPhotos": 0,
+      "resultEvidence": {
+        "phase": "awaiting_auction",
+        "resultConfirmed": false,
+        "outcome": null,
+        "historicalPrice": null,
+        "salePrice": null
+      },
+      "historyLen": 0,
+      "vinLots": 0
+    },
+    {
+      "platform": "copart",
+      "lot": "46995635",
+      "kind": "active",
+      "sourceMatch": true,
+      "sellerCategory": "placeholder",
+      "sellerType": "unknown",
+      "publicNames": false,
+      "sourcePhotoCount": 10,
+      "sourceItemCount": 10,
+      "sourceThumbCount": 10,
+      "thumbs": null,
+      "publicPhotos": 0,
+      "resultEvidence": {
+        "phase": "awaiting_auction",
+        "resultConfirmed": false,
+        "outcome": null,
+        "historicalPrice": null,
+        "salePrice": null
+      },
+      "historyLen": 0,
+      "vinLots": 0
+    },
+    {
+      "platform": "copart",
+      "lot": "47018496",
+      "kind": "active",
+      "sourceMatch": true,
+      "sellerCategory": "placeholder",
+      "sellerType": "unknown",
+      "publicNames": false,
+      "sourcePhotoCount": 12,
+      "sourceItemCount": 12,
+      "sourceThumbCount": 12,
+      "thumbs": null,
+      "publicPhotos": 12,
+      "resultEvidence": {
+        "phase": "awaiting_auction",
+        "resultConfirmed": false,
+        "outcome": null,
+        "historicalPrice": null,
+        "salePrice": null
+      },
+      "historyLen": 31,
+      "vinLots": 0
+    },
+    {
+      "platform": "copart",
+      "lot": "65917836",
+      "kind": "active",
+      "sourceMatch": false,
+      "sellerCategory": "placeholder",
+      "sellerType": "unknown",
+      "publicNames": false,
+      "sourcePhotoCount": 12,
+      "sourceItemCount": 12,
+      "sourceThumbCount": 12,
+      "thumbs": null,
+      "publicPhotos": 13,
+      "resultEvidence": null,
+      "historyLen": 10,
+      "vinLots": 1
+    },
+    {
+      "platform": "copart",
+      "lot": "72024246",
+      "kind": "active",
+      "sourceMatch": true,
+      "sellerCategory": "name supplied",
+      "sellerType": "unknown",
+      "publicNames": false,
+      "sourcePhotoCount": 10,
+      "sourceItemCount": 10,
+      "sourceThumbCount": 10,
+      "thumbs": null,
+      "publicPhotos": 0,
+      "resultEvidence": {
+        "phase": "awaiting_auction",
+        "resultConfirmed": false,
+        "outcome": null,
+        "historicalPrice": null,
+        "salePrice": null
+      },
+      "historyLen": 0,
+      "vinLots": 0
+    },
+    {
+      "platform": "copart",
+      "lot": "57398926",
+      "kind": "active",
+      "sourceMatch": true,
+      "sellerCategory": "name supplied",
+      "sellerType": "unknown",
+      "publicNames": false,
+      "sourcePhotoCount": 13,
+      "sourceItemCount": 13,
+      "sourceThumbCount": 13,
+      "thumbs": null,
+      "publicPhotos": 13,
+      "resultEvidence": {
+        "phase": "awaiting_auction",
+        "resultConfirmed": false,
+        "outcome": null,
+        "historicalPrice": null,
+        "salePrice": null
+      },
+      "historyLen": 0,
+      "vinLots": 0
+    },
+    {
+      "platform": "copart",
+      "lot": "70091736",
+      "kind": "active",
+      "sourceMatch": true,
+      "sellerCategory": "placeholder",
+      "sellerType": "unknown",
+      "publicNames": false,
+      "sourcePhotoCount": 12,
+      "sourceItemCount": 12,
+      "sourceThumbCount": 12,
+      "thumbs": null,
+      "publicPhotos": 12,
+      "resultEvidence": {
+        "phase": "awaiting_auction",
+        "resultConfirmed": false,
+        "outcome": null,
+        "historicalPrice": null,
+        "salePrice": null
+      },
+      "historyLen": 0,
+      "vinLots": 0
+    },
+    {
+      "platform": "copart",
+      "lot": "73424196",
+      "kind": "archive",
+      "sourceMatch": true,
+      "sellerCategory": "placeholder",
+      "sellerType": "unknown",
+      "sourcePhotoCount": 12,
+      "sourceItemCount": 12,
+      "sourceThumbCount": 12,
+      "thumbs": null,
+      "publicPhotos": 12,
+      "resultEvidence": {
+        "phase": "finished",
+        "resultConfirmed": true,
+        "outcome": "Sold",
+        "historicalPrice": 10900,
+        "salePrice": 10900
+      },
+      "historyLen": 1,
+      "vinLots": 0
+    }
+  ],
+  "calc": [
+    {
+      "platform": "copart",
+      "lot": "46087626",
+      "title": "2017 DODGE GRAND CARAVAN SE",
+      "inUsd": 1,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 7830.46,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski.",
+        "Brak prawidłowej podstawy akcyzy."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Brak prawidłowej podstawy akcyzy. Brakujące kwoty nie są wliczone.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": 3600,
+          "powertrain": "ICE"
+        }
+      ],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 131,
+      "excise": null,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "46350466",
+      "title": "2016 WABASH DVCVHPC",
+      "inUsd": 500,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 10720.45,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski.",
+        "Potwierdź rodzaj napędu dla akcyzy."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Potwierdź rodzaj napędu dla akcyzy. Brakujące kwoty nie są wliczone.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": null,
+          "powertrain": null
+        }
+      ],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 340,
+      "excise": null,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "46995635",
+      "title": "2013 KENWORTH T700 HOOD",
+      "inUsd": 1100,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 13679.82,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski.",
+        "Brak prawidłowej podstawy akcyzy."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Brak prawidłowej podstawy akcyzy. Brakujące kwoty nie są wliczone.",
+      "specLookups": [],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 465,
+      "excise": null,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "47018496",
+      "title": "2014 IC CORPORATION BUS",
+      "inUsd": 2000,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 18027.05,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski.",
+        "Potwierdź rodzaj napędu dla akcyzy."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Potwierdź rodzaj napędu dla akcyzy. Brakujące kwoty nie są wliczone.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": 7636,
+          "powertrain": "ICE"
+        }
+      ],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 630,
+      "excise": null,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "iaai",
+      "lot": "44103794",
+      "title": "2023 HONDA WW150 A",
+      "inUsd": 4999,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 31370.78,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski.",
+        "Brak prawidłowej podstawy akcyzy."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Brak prawidłowej podstawy akcyzy. Brakujące kwoty nie są wliczone.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": 157,
+          "powertrain": "ICE"
+        }
+      ],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 900,
+      "excise": null,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "iaai",
+      "lot": "44185350",
+      "title": "2025 KAWASAKI ZX1002 M",
+      "inUsd": 5000,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 31476.91,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski.",
+        "Brak prawidłowej podstawy akcyzy."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Brak prawidłowej podstawy akcyzy. Brakujące kwoty nie są wliczone.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": 998,
+          "powertrain": "ICE"
+        }
+      ],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 925,
+      "excise": null,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "iaai",
+      "lot": "44346618",
+      "title": "2025 KAWASAKI EX650 R",
+      "inUsd": 15000,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 73459.25,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski.",
+        "Brak prawidłowej podstawy akcyzy."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Brak prawidłowej podstawy akcyzy. Brakujące kwoty nie są wliczone.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": 649,
+          "powertrain": "ICE"
+        }
+      ],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 1210,
+      "excise": null,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "iaai",
+      "lot": "44626541",
+      "title": "2021 HEARTLAND RV PIONEER",
+      "inUsd": 100000,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 441238.44,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski.",
+        "Potwierdź rodzaj napędu dla akcyzy."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Potwierdź rodzaj napędu dla akcyzy. Brakujące kwoty nie są wliczone.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": null,
+          "powertrain": null
+        }
+      ],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 6310,
+      "excise": null,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46162264",
+      "title": "2017 NISSAN SENTRA SV",
+      "inUsd": 1,
+      "complete": true,
+      "totalPln": 15995.43,
+      "knownTotalPln": 15995.43,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [],
+      "subtotalSumPln": 15995.43,
+      "delta": 0,
+      "commissionPln": 2500,
+      "auctionFee": 151,
+      "excise": 217.42,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46196877",
+      "title": "2019 ACURA TLX STANDARD",
+      "inUsd": 500,
+      "complete": true,
+      "totalPln": 21520.39,
+      "knownTotalPln": 21520.39,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [],
+      "subtotalSumPln": 21520.39,
+      "delta": 0,
+      "commissionPln": 2500,
+      "auctionFee": 360,
+      "excise": 1895.81,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46342287",
+      "title": "2026 MAZDA MAZDA3 2.5 S PREMIUM",
+      "inUsd": 1100,
+      "complete": true,
+      "totalPln": 26064.81,
+      "knownTotalPln": 26064.81,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [],
+      "subtotalSumPln": 26064.8,
+      "delta": 0.01,
+      "commissionPln": 2500,
+      "auctionFee": 485,
+      "excise": 2501.29,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46344182",
+      "title": "2014 LEXUS ES 300H",
+      "inUsd": 2000,
+      "complete": true,
+      "totalPln": 31453.22,
+      "knownTotalPln": 31453.22,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": 2500,
+          "powertrain": "HEV"
+        }
+      ],
+      "subtotalSumPln": 31453.22,
+      "delta": 0,
+      "commissionPln": 2500,
+      "auctionFee": 650,
+      "excise": 1695.37,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "49275536",
+      "title": "2020 LARK UNITED VN",
+      "inUsd": 4999,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 31289.14,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski.",
+        "Potwierdź rodzaj napędu dla akcyzy."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Potwierdź rodzaj napędu dla akcyzy. Brakujące kwoty nie są wliczone.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": null,
+          "powertrain": null
+        }
+      ],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 880,
+      "excise": null,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "53646966",
+      "title": "2026 CHEVROLET EQUINOX LT",
+      "inUsd": 5000,
+      "complete": true,
+      "totalPln": 47415.14,
+      "knownTotalPln": 47415.14,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": null,
+          "powertrain": "BEV"
+        }
+      ],
+      "subtotalSumPln": 47415.14,
+      "delta": 0,
+      "commissionPln": 2500,
+      "auctionFee": 905,
+      "excise": 0,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "65917836",
+      "title": "2002 DODGE DAKOTA SPORT",
+      "inUsd": 15000,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 73377.61,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski.",
+        "Brak prawidłowej podstawy akcyzy."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Brak prawidłowej podstawy akcyzy. Brakujące kwoty nie są wliczone.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": 3900,
+          "powertrain": "ICE"
+        }
+      ],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 1190,
+      "excise": null,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "72024246",
+      "title": "2014 CHEVROLET SILVERADO",
+      "inUsd": 100000,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 441156.8,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski.",
+        "Brak prawidłowej podstawy akcyzy."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Brak prawidłowej podstawy akcyzy. Brakujące kwoty nie są wliczone.",
+      "specLookups": [],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 6290,
+      "excise": null,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "57398926",
+      "title": "2023 TESLA MODEL 3",
+      "inUsd": 1,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 8238.65,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski. Brakujące kwoty nie są wliczone.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": null,
+          "powertrain": "BEV"
+        }
+      ],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 131,
+      "excise": 0,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "70091736",
+      "title": "2023 KIA SOUL EV LIMITED",
+      "inUsd": 500,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 11128.64,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski.",
+        "Potwierdź dokumenty zwolnienia akcyzowego pojazdu elektrycznego lub wodorowego."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Potwierdź dokumenty zwolnienia akcyzowego pojazdu elektrycznego lub wodorowego. Brakujące kwoty nie są wliczone.",
+      "specLookups": [
+        {
+          "ok": false,
+          "match": false
+        }
+      ],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 340,
+      "excise": null,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "70102696",
+      "title": "2023 BMW IX XDRIVE50",
+      "inUsd": 1100,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 14088.01,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski. Brakujące kwoty nie są wliczone.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": null,
+          "powertrain": "BEV"
+        }
+      ],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 465,
+      "excise": 0,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "70213406",
+      "title": "2022 TESLA MODEL 3",
+      "inUsd": 2000,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 18435.24,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski. Brakujące kwoty nie są wliczone.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": null,
+          "powertrain": "BEV"
+        }
+      ],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 630,
+      "excise": 0,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "48581306",
+      "title": "2023 MERCEDES-BENZ SPRINTER 2500",
+      "inUsd": 4999,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 31289.14,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski.",
+        "Brak prawidłowej podstawy akcyzy."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Brak prawidłowej podstawy akcyzy. Brakujące kwoty nie są wliczone.",
+      "specLookups": [],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 880,
+      "excise": null,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "53033436",
+      "title": "2019 PETERBILT 579",
+      "inUsd": 5000,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 31395.27,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski.",
+        "Brak prawidłowej podstawy akcyzy."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Brak prawidłowej podstawy akcyzy. Brakujące kwoty nie są wliczone.",
+      "specLookups": [],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 905,
+      "excise": null,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "61209496",
+      "title": "1999 REXHALL RECREATIONAL VEHICLE (RV)",
+      "inUsd": 15000,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 73377.61,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski.",
+        "Podaj pojemność silnika dla akcyzy."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Podaj pojemność silnika dla akcyzy. Brakujące kwoty nie są wliczone.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": 8300,
+          "powertrain": "ICE"
+        }
+      ],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 1190,
+      "excise": null,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "59717616",
+      "title": "2024 TOYOTA COROLLA HYBRID LE",
+      "inUsd": 100000,
+      "complete": true,
+      "totalPln": 600853.18,
+      "knownTotalPln": 600853.18,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": 1798,
+          "powertrain": "HEV"
+        }
+      ],
+      "subtotalSumPln": 600853.17,
+      "delta": 0.01,
+      "commissionPln": 2500,
+      "auctionFee": 6290,
+      "excise": 7502.14,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "61686556",
+      "title": "2017 CHEVROLET VOLT LT",
+      "inUsd": 1,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 8238.65,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski.",
+        "Potwierdź dokumenty zwolnienia akcyzowego PHEV do 2000 cm³."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Potwierdź dokumenty zwolnienia akcyzowego PHEV do 2000 cm³. Brakujące kwoty nie są wliczone.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": 1500,
+          "powertrain": "PHEV"
+        }
+      ],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 131,
+      "excise": null,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "62110276",
+      "title": "2024 TOYOTA TUNDRA CREWMAX CAPSTONE",
+      "inUsd": 500,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 11128.64,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski.",
+        "Brak prawidłowej podstawy akcyzy."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Brak prawidłowej podstawy akcyzy. Brakujące kwoty nie są wliczone.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": 3400,
+          "powertrain": "HEV"
+        }
+      ],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 340,
+      "excise": null,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46197316",
+      "title": "2012 BMW K1600 GT",
+      "inUsd": 1100,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 13761.46,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski.",
+        "Brak prawidłowej podstawy akcyzy."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Brak prawidłowej podstawy akcyzy. Brakujące kwoty nie są wliczone.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": 1649,
+          "powertrain": "ICE"
+        }
+      ],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 485,
+      "excise": null,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46229404",
+      "title": "2025 BMW R 1300 GS",
+      "inUsd": 2000,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 18108.68,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski.",
+        "Brak prawidłowej podstawy akcyzy."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Brak prawidłowej podstawy akcyzy. Brakujące kwoty nie są wliczone.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": 1300,
+          "powertrain": "ICE"
+        }
+      ],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 650,
+      "excise": null,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "iaai",
+      "lot": "45111614",
+      "title": "2024 TOYOTA RAV4 XLE PREMIUM",
+      "inUsd": 4999,
+      "complete": true,
+      "totalPln": 54798.08,
+      "knownTotalPln": 54798.08,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": 2487,
+          "powertrain": "ICE"
+        }
+      ],
+      "subtotalSumPln": 54798.07,
+      "delta": 0.01,
+      "commissionPln": 2500,
+      "auctionFee": 900,
+      "excise": 6329.65,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "iaai",
+      "lot": "45551103",
+      "title": "2021 TOYOTA HIGHLANDER XLE",
+      "inUsd": 5000,
+      "complete": true,
+      "totalPln": 53268.64,
+      "knownTotalPln": 53268.64,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": 3500,
+          "powertrain": "ICE"
+        }
+      ],
+      "subtotalSumPln": 53268.64,
+      "delta": 0,
+      "commissionPln": 2500,
+      "auctionFee": 925,
+      "excise": 6125.87,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "iaai",
+      "lot": "45790417",
+      "title": "2015 FORD FOCUS S",
+      "inUsd": 15000,
+      "complete": true,
+      "totalPln": 106978.34,
+      "knownTotalPln": 106978.34,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [],
+      "subtotalSumPln": 106978.34,
+      "delta": 0,
+      "commissionPln": 2500,
+      "auctionFee": 1210,
+      "excise": 2490.16,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "iaai",
+      "lot": "45809610",
+      "title": "2016 FORD FUSION TITANIUM",
+      "inUsd": 100000,
+      "complete": true,
+      "totalPln": 609033.71,
+      "knownTotalPln": 609033.71,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [],
+      "subtotalSumPln": 609033.71,
+      "delta": 0,
+      "commissionPln": 2500,
+      "auctionFee": 6310,
+      "excise": 15031.43,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46197864",
+      "title": "2024 TESLA MODELO 3 LONG RANGE DUAL MOTOR ALL-WHEEL DRIVE",
+      "inUsd": 1,
+      "complete": true,
+      "totalPln": 15235.42,
+      "knownTotalPln": 15235.42,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": null,
+          "powertrain": "BEV"
+        }
+      ],
+      "subtotalSumPln": 15235.43,
+      "delta": -0.01,
+      "commissionPln": 2500,
+      "auctionFee": 151,
+      "excise": 0,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46353280",
+      "title": "2023 TESLA MODEL Y PERFORMANCE DUAL MOTOR ALL-WHEEL DRIVE",
+      "inUsd": 500,
+      "complete": true,
+      "totalPln": 19081.99,
+      "knownTotalPln": 19081.99,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": null,
+          "powertrain": "BEV"
+        }
+      ],
+      "subtotalSumPln": 19082,
+      "delta": -0.01,
+      "commissionPln": 2500,
+      "auctionFee": 360,
+      "excise": 0,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "iaai",
+      "lot": "45382298",
+      "title": "2021 SUBARU FORESTER SPORT",
+      "inUsd": 1100,
+      "complete": true,
+      "totalPln": 27757.21,
+      "knownTotalPln": 27757.21,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [],
+      "subtotalSumPln": 27757.21,
+      "delta": 0,
+      "commissionPln": 2500,
+      "auctionFee": 485,
+      "excise": 2726.79,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "iaai",
+      "lot": "45521055",
+      "title": "2003 SUBARU FORESTER XS",
+      "inUsd": 2000,
+      "complete": true,
+      "totalPln": 35780.46,
+      "knownTotalPln": 35780.46,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [],
+      "subtotalSumPln": 35780.47,
+      "delta": -0.01,
+      "commissionPln": 2500,
+      "auctionFee": 650,
+      "excise": 3795.79,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "56535586",
+      "title": "2018 BMW 430I",
+      "inUsd": 4999,
+      "complete": true,
+      "totalPln": 48798.98,
+      "knownTotalPln": 48798.98,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [],
+      "subtotalSumPln": 48798.98,
+      "delta": 0,
+      "commissionPln": 2500,
+      "auctionFee": 880,
+      "excise": 1036.85,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "68853036",
+      "title": "2015 BMW 528 I",
+      "inUsd": 5000,
+      "complete": true,
+      "totalPln": 47717.97,
+      "knownTotalPln": 47717.97,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [],
+      "subtotalSumPln": 47717.97,
+      "delta": 0,
+      "commissionPln": 2500,
+      "auctionFee": 905,
+      "excise": 1009.84,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "54168076",
+      "title": "2025 TOYOTA COROLLA LE",
+      "inUsd": 15000,
+      "complete": true,
+      "totalPln": 105195.23,
+      "knownTotalPln": 105195.23,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [],
+      "subtotalSumPln": 105195.24,
+      "delta": -0.01,
+      "commissionPln": 2500,
+      "auctionFee": 1190,
+      "excise": 2445.62,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "56529686",
+      "title": "2015 TOYOTA CAMRY LE",
+      "inUsd": 100000,
+      "complete": true,
+      "totalPln": 682341.75,
+      "knownTotalPln": 682341.75,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [],
+      "subtotalSumPln": 682341.75,
+      "delta": 0,
+      "commissionPln": 2500,
+      "auctionFee": 6290,
+      "excise": 89942.21,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "65196656",
+      "title": "2007 FORD E450",
+      "inUsd": 1,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 7830.46,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski.",
+        "Brak prawidłowej podstawy akcyzy."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Brak prawidłowej podstawy akcyzy. Brakujące kwoty nie są wliczone.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": 6800,
+          "powertrain": "ICE"
+        }
+      ],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 131,
+      "excise": null,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "67417266",
+      "title": "2013 FORD F-150 SUPERCREW",
+      "inUsd": 500,
+      "complete": false,
+      "totalPln": null,
+      "knownTotalPln": 10720.45,
+      "missing": [
+        "Potwierdź transport do portu w USA.",
+        "Potwierdź fracht morski.",
+        "Brak prawidłowej podstawy akcyzy."
+      ],
+      "summary": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Brak prawidłowej podstawy akcyzy. Brakujące kwoty nie są wliczone.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": 3700,
+          "powertrain": "ICE"
+        }
+      ],
+      "subtotalSumPln": null,
+      "delta": null,
+      "commissionPln": 2500,
+      "auctionFee": 340,
+      "excise": null,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "71209046",
+      "title": "2021 TESLA MODEL 3",
+      "inUsd": 1100,
+      "complete": true,
+      "totalPln": 23537.06,
+      "knownTotalPln": 23537.06,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": null,
+          "powertrain": "BEV"
+        }
+      ],
+      "subtotalSumPln": 23537.06,
+      "delta": 0,
+      "commissionPln": 2500,
+      "auctionFee": 465,
+      "excise": 0,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "73751796",
+      "title": "2019 TESLA MODEL 3",
+      "inUsd": 2000,
+      "complete": true,
+      "totalPln": 28508.26,
+      "knownTotalPln": 28508.26,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": null,
+          "powertrain": "BEV"
+        }
+      ],
+      "subtotalSumPln": 28508.27,
+      "delta": -0.01,
+      "commissionPln": 2500,
+      "auctionFee": 630,
+      "excise": 0,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "75080916",
+      "title": "2015 SUBARU LEGACY 3.6R LIMITED",
+      "inUsd": 4999,
+      "complete": true,
+      "totalPln": 52416.17,
+      "knownTotalPln": 52416.17,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [],
+      "subtotalSumPln": 52416.17,
+      "delta": 0,
+      "commissionPln": 2500,
+      "auctionFee": 880,
+      "excise": 6012.29,
+      "fxDate": "2026-11-24"
+    },
+    {
+      "platform": "copart",
+      "lot": "51101386",
+      "title": "2015 SUBARU FORESTER 2.5I LIMITED",
+      "inUsd": 5000,
+      "complete": true,
+      "totalPln": 52391.1,
+      "knownTotalPln": 52391.1,
+      "missing": [],
+      "summary": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+      "specLookups": [
+        {
+          "ok": true,
+          "match": true,
+          "engineCc": 2500,
+          "powertrain": "ICE"
+        }
+      ],
+      "subtotalSumPln": 52391.1,
+      "delta": 0,
+      "commissionPln": 2500,
+      "auctionFee": 905,
+      "excise": 6008.95,
+      "fxDate": "2026-11-24"
+    }
+  ],
+  "publicUS": [
+    {
+      "platform": "iaai",
+      "lot": "46197316",
+      "vin": "WB1061108CZX80250",
+      "title": "2012 BMW K1600 GT",
+      "location": "Billings",
+      "body": "TOURING",
+      "fuel": "Other"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46229404",
+      "vin": "WB10M2300S6L11954",
+      "title": "2025 BMW R 1300 GS",
+      "location": "Ashland",
+      "body": "SPORT",
+      "fuel": "Gasoline"
+    },
+    {
+      "platform": "iaai",
+      "lot": "45111614",
+      "vin": "2T3A1RFV7RW473296",
+      "title": "2024 TOYOTA RAV4 XLE PREMIUM",
+      "location": "Portland West",
+      "body": "SUV/Crossover",
+      "fuel": "Gasoline"
+    },
+    {
+      "platform": "iaai",
+      "lot": "45551103",
+      "vin": "5TDGZRBH0MS125496",
+      "title": "2021 TOYOTA HIGHLANDER XLE",
+      "location": "East Bay",
+      "body": "SUV/Crossover",
+      "fuel": "Gasoline"
+    },
+    {
+      "platform": "iaai",
+      "lot": "45790417",
+      "vin": "1FADP3E20FL256998",
+      "title": "2015 FORD FOCUS S",
+      "location": "Portland West",
+      "body": "Sedan",
+      "fuel": "Gasoline"
+    },
+    {
+      "platform": "iaai",
+      "lot": "45809610",
+      "vin": "3FA6P0D95GR187833",
+      "title": "2016 FORD FUSION TITANIUM",
+      "location": "Portland West",
+      "body": "Sedan",
+      "fuel": "Gasoline"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46197864",
+      "vin": "5YJ3E1EB6RF813341",
+      "title": "2024 TESLA MODELO 3 LONG RANGE DUAL MOTOR ALL-WHEEL DRIVE",
+      "location": "Fontana Off Site (Calabash)",
+      "body": "Sedan",
+      "fuel": "Electric"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46353280",
+      "vin": "7SAYGDEF1PF914520",
+      "title": "2023 TESLA MODEL Y PERFORMANCE DUAL MOTOR ALL-WHEEL DRIVE",
+      "location": "Fontana Off Site (Calabash)",
+      "body": "SUV/Crossover",
+      "fuel": "Electric"
+    },
+    {
+      "platform": "iaai",
+      "lot": "45382298",
+      "vin": "JF2SKARC6MH454705",
+      "title": "2021 SUBARU FORESTER SPORT",
+      "location": "Portland",
+      "body": "SUV/Crossover",
+      "fuel": "Gasoline"
+    },
+    {
+      "platform": "iaai",
+      "lot": "45521055",
+      "vin": "JF1SG65683H742744",
+      "title": "2003 SUBARU FORESTER XS",
+      "location": "Spokane",
+      "body": "SUV/Crossover",
+      "fuel": "Gasoline"
+    },
+    {
+      "platform": "copart",
+      "lot": "56535586",
+      "vin": "WBA4Z1C50JEC70077",
+      "title": "2018 BMW 430I",
+      "location": "NE - GREENWOOD",
+      "body": "Convertible",
+      "fuel": "Gas"
+    },
+    {
+      "platform": "copart",
+      "lot": "68853036",
+      "vin": "WBA5A5C52FD523686",
+      "title": "2015 BMW 528 I",
+      "location": "TX - WILMER",
+      "body": "Sedan 4dr",
+      "fuel": "Gas"
+    },
+    {
+      "platform": "copart",
+      "lot": "54168076",
+      "vin": "5YFB4MDEXSP254575",
+      "title": "2025 TOYOTA COROLLA LE",
+      "location": "FL - FORT PIERCE",
+      "body": "Sedan",
+      "fuel": "Gas"
+    },
+    {
+      "platform": "copart",
+      "lot": "56529686",
+      "vin": "4T4BF1FK2FR453948",
+      "title": "2015 TOYOTA CAMRY LE",
+      "location": "CA - VALLEJO",
+      "body": "Sedan",
+      "fuel": "Gas"
+    },
+    {
+      "platform": "copart",
+      "lot": "65196656",
+      "vin": "1FDXE45SX7DB36653",
+      "title": "2007 FORD E450",
+      "location": "WY - CASPER",
+      "body": "Cutaway",
+      "fuel": "Gas"
+    },
+    {
+      "platform": "copart",
+      "lot": "67417266",
+      "vin": "1FTEX1CM5DFB50324",
+      "title": "2013 FORD F-150 SUPERCREW",
+      "location": "VA - CHATHAM",
+      "body": "4dr ext",
+      "fuel": null
+    },
+    {
+      "platform": "copart",
+      "lot": "71209046",
+      "vin": "5YJ3E1EA6MF090719",
+      "title": "2021 TESLA MODEL 3",
+      "location": "IL - PEKIN",
+      "body": "Sedan",
+      "fuel": "Electric"
+    },
+    {
+      "platform": "copart",
+      "lot": "73751796",
+      "vin": "5YJ3E1EB6KF392016",
+      "title": "2019 TESLA MODEL 3",
+      "location": "TX - HOUSTON",
+      "body": "Sedan",
+      "fuel": "Electric"
+    },
+    {
+      "platform": "copart",
+      "lot": "75080916",
+      "vin": "4S3BNEN61F3019443",
+      "title": "2015 SUBARU LEGACY 3.6R LIMITED",
+      "location": "TX - NEW BRAUNFELS",
+      "body": "Sedan 4dr",
+      "fuel": "Gas"
+    },
+    {
+      "platform": "copart",
+      "lot": "51101386",
+      "vin": "JF2SJAHC1FH556159",
+      "title": "2015 SUBARU FORESTER 2.5I LIMITED",
+      "location": "IL - CHICAGO NORTH",
+      "body": "4dr sport utility",
+      "fuel": "Gas"
+    }
+  ],
+  "search": [
+    {
+      "label": "VIN",
+      "identifier": "WB1061108CZX80250",
+      "rows": 12,
+      "identities": [
+        [
+          "copart",
+          "46087626",
+          "2C4RDGBG4HR742563"
+        ],
+        [
+          "copart",
+          "46350466",
+          "1JJV532D6GL941901"
+        ],
+        [
+          "copart",
+          "46995635",
+          "1XKFDP9X0DJ356766"
+        ],
+        [
+          "copart",
+          "47018496",
+          "4DRBUAAN8EB778826"
+        ],
+        [
+          "copart",
+          "48442696",
+          "2HGFC2F70LH017478"
+        ]
+      ]
+    },
+    {
+      "label": "vin_lower_spaces",
+      "identifier": " wb1061108czx80250 ",
+      "rows": 12,
+      "identities": [
+        [
+          "copart",
+          "46087626",
+          "2C4RDGBG4HR742563"
+        ],
+        [
+          "copart",
+          "46350466",
+          "1JJV532D6GL941901"
+        ],
+        [
+          "copart",
+          "46995635",
+          "1XKFDP9X0DJ356766"
+        ],
+        [
+          "copart",
+          "47018496",
+          "4DRBUAAN8EB778826"
+        ],
+        [
+          "copart",
+          "48442696",
+          "2HGFC2F70LH017478"
+        ]
+      ]
+    },
+    {
+      "label": "LOT",
+      "identifier": "46197316",
+      "rows": 12,
+      "identities": [
+        [
+          "copart",
+          "46087626",
+          "2C4RDGBG4HR742563"
+        ],
+        [
+          "copart",
+          "46350466",
+          "1JJV532D6GL941901"
+        ],
+        [
+          "copart",
+          "46995635",
+          "1XKFDP9X0DJ356766"
+        ],
+        [
+          "copart",
+          "47018496",
+          "4DRBUAAN8EB778826"
+        ],
+        [
+          "copart",
+          "48442696",
+          "2HGFC2F70LH017478"
+        ]
+      ]
+    },
+    {
+      "label": "invalid",
+      "identifier": "NOT-VALID-VIN-!!",
+      "rows": 12,
+      "identities": [
+        [
+          "copart",
+          "46087626",
+          "2C4RDGBG4HR742563"
+        ],
+        [
+          "copart",
+          "46350466",
+          "1JJV532D6GL941901"
+        ],
+        [
+          "copart",
+          "46995635",
+          "1XKFDP9X0DJ356766"
+        ],
+        [
+          "copart",
+          "47018496",
+          "4DRBUAAN8EB778826"
+        ],
+        [
+          "copart",
+          "48442696",
+          "2HGFC2F70LH017478"
+        ]
+      ]
+    },
+    {
+      "label": "none",
+      "identifier": "999999999999999",
+      "rows": 12,
+      "identities": [
+        [
+          "copart",
+          "46087626",
+          "2C4RDGBG4HR742563"
+        ],
+        [
+          "copart",
+          "46350466",
+          "1JJV532D6GL941901"
+        ],
+        [
+          "copart",
+          "46995635",
+          "1XKFDP9X0DJ356766"
+        ],
+        [
+          "copart",
+          "47018496",
+          "4DRBUAAN8EB778826"
+        ],
+        [
+          "copart",
+          "48442696",
+          "2HGFC2F70LH017478"
+        ]
+      ]
+    },
+    {
+      "label": "caseCollision",
+      "identifier": "46087626",
+      "rows": 12,
+      "identities": [
+        [
+          "copart",
+          "46087626",
+          "2C4RDGBG4HR742563"
+        ],
+        [
+          "copart",
+          "46350466",
+          "1JJV532D6GL941901"
+        ],
+        [
+          "copart",
+          "46995635",
+          "1XKFDP9X0DJ356766"
+        ],
+        [
+          "copart",
+          "47018496",
+          "4DRBUAAN8EB778826"
+        ],
+        [
+          "copart",
+          "48442696",
+          "2HGFC2F70LH017478"
+        ]
+      ]
+    }
+  ],
+  "competitors": [
+    {
+      "name": "BidCars Toyota 46557821",
+      "status": 403,
+      "reason": "Just a moment"
+    },
+    {
+      "name": "DreamBid kalkulator oraz lista",
+      "status": 403,
+      "reason": "Attention Required"
+    }
+  ],
+  "extraSourceRequests": 9
+}

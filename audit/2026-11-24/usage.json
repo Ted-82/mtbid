@@ -1,0 +1,195 @@
+{
+  "at": "2026-11-24T16:58:16.201Z",
+  "from": "2026-11-06T00:00:00.000Z",
+  "plans": [],
+  "metrics": {
+    "d1": {
+      "usage": [
+        {
+          "sum": {
+            "rowsRead": 965976070,
+            "rowsWritten": 36180273
+          }
+        }
+      ]
+    },
+    "r2": {
+      "buckets": [
+        {
+          "dimensions": {
+            "bucketName": "rexbid-production-private-files"
+          },
+          "max": {
+            "metadataSize": 43,
+            "payloadSize": 1119986
+          }
+        },
+        {
+          "dimensions": {
+            "bucketName": "rexbid-feed-sync-test"
+          },
+          "max": {
+            "metadataSize": 0,
+            "payloadSize": 0
+          }
+        },
+        {
+          "dimensions": {
+            "bucketName": "rexbid-operator-backups"
+          },
+          "max": {
+            "metadataSize": 12211,
+            "payloadSize": 227456792
+          }
+        },
+        {
+          "dimensions": {
+            "bucketName": "rexbid-staging-private-files"
+          },
+          "max": {
+            "metadataSize": 129,
+            "payloadSize": 519229
+          }
+        },
+        {
+          "dimensions": {
+            "bucketName": "rexbid-auction-history-private"
+          },
+          "max": {
+            "metadataSize": 1053726,
+            "payloadSize": 39321836624
+          }
+        },
+        {
+          "dimensions": {
+            "bucketName": "rexbid-feed-sync-production"
+          },
+          "max": {
+            "metadataSize": 2284032,
+            "payloadSize": 2593348099
+          }
+        }
+      ],
+      "ops": [
+        {
+          "dimensions": {
+            "actionType": "AbortMultipartUpload"
+          },
+          "sum": {
+            "requests": 112
+          }
+        },
+        {
+          "dimensions": {
+            "actionType": "HeadBucket"
+          },
+          "sum": {
+            "requests": 695
+          }
+        },
+        {
+          "dimensions": {
+            "actionType": "PutBucket"
+          },
+          "sum": {
+            "requests": 2
+          }
+        },
+        {
+          "dimensions": {
+            "actionType": "DeleteObject"
+          },
+          "sum": {
+            "requests": 2042
+          }
+        },
+        {
+          "dimensions": {
+            "actionType": "ListBuckets"
+          },
+          "sum": {
+            "requests": 13
+          }
+        },
+        {
+          "dimensions": {
+            "actionType": "CreateMultipartUpload"
+          },
+          "sum": {
+            "requests": 939
+          }
+        },
+        {
+          "dimensions": {
+            "actionType": "ListObjects"
+          },
+          "sum": {
+            "requests": 473009
+          }
+        },
+        {
+          "dimensions": {
+            "actionType": "GetObject"
+          },
+          "sum": {
+            "requests": 1049592
+          }
+        },
+        {
+          "dimensions": {
+            "actionType": "UploadPart"
+          },
+          "sum": {
+            "requests": 873
+          }
+        },
+        {
+          "dimensions": {
+            "actionType": "HeadObject"
+          },
+          "sum": {
+            "requests": 130349
+          }
+        },
+        {
+          "dimensions": {
+            "actionType": "CompleteMultipartUpload"
+          },
+          "sum": {
+            "requests": 823
+          }
+        },
+        {
+          "dimensions": {
+            "actionType": "DeleteObjects"
+          },
+          "sum": {
+            "requests": 1229
+          }
+        },
+        {
+          "dimensions": {
+            "actionType": "PutObject"
+          },
+          "sum": {
+            "requests": 198212
+          }
+        }
+      ]
+    },
+    "workersLast24h": {
+      "usage": [
+        {
+          "quantiles": {
+            "cpuTimeP50": 696,
+            "cpuTimeP99": 997533
+          },
+          "sum": {
+            "errors": 0,
+            "requests": 9215
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,54 @@
+diff --git a/sync/feed-active-reconcile.cjs b/sync/feed-active-reconcile.cjs
+index 8b4ba5c..1e45b35 100644
+--- a/sync/feed-active-reconcile.cjs
++++ b/sync/feed-active-reconcile.cjs
+@@ -290,12 +290,21 @@ async function processActiveFeedReconciliation({db, store, request, saveRecord,
+           .bind(`new:${iso(now()).slice(0,10)}`).first();
+         if (!budget || budget.consumed >= budget.limit_count) {report.deferred++; report.reason = 'new_listing_budget'; continue;}
+       }
+-      const identifier = known?.provider_vehicle_id || (scope.coverage&&!known?task.expected_vin:task.lot);
++      const retryByVin = task.last_error_code === 'FEED_ACTIVE_LOT_PLATFORM_COLLISION';
++      const identifier = retryByVin ? task.expected_vin : known?.provider_vehicle_id || (scope.coverage&&!known?task.expected_vin:task.lot);
+       if (typeof identifier !== 'string' || !identifier || identifier.length > 200) fail('FEED_ACTIVE_IDENTITY_INVALID');
+       const id = randomUUID(); await store.guarded([workGuard(db, task, scope, now(), id), renew(db, store, now()), cleanup(db, id)]);
+       report.attempted++;
+       const obtained = await request({operation: 'vehicleByIdentifier', identifier, platform: task.platform}, known?.listing_id || null);
+       const observedAt = time(obtained?.observedAt, now()), raw = adapter.vehicleDetailRecord(obtained.response);
++      // The detail endpoint can resolve an all-numeric LOT on the other platform.
++      // Reserve the verified VIN lookup for the next run and its own request budget.
++      if (!retryByVin && identifier === task.lot && ['copart','iaai'].includes(raw?.platform)
++          && raw.platform !== task.platform && String(raw.lot_number ?? raw.lot ?? '') === task.lot && fullVin(raw.vin)) {
++        await postpone({db,store,now},task,scope,'FEED_ACTIVE_LOT_PLATFORM_COLLISION',false,0);
++        report.deferred++;
++        continue;
++      }
+       if (!raw || typeof raw !== 'object' || Array.isArray(raw) || raw.platform !== task.platform
+           || String(raw.lot_number ?? raw.lot ?? '') !== task.lot || !fullVin(raw.vin) || raw.vin.toUpperCase() !== task.expected_vin) fail('FEED_ACTIVE_IDENTITY_MISMATCH');
+       if (known) assertDetail(raw, known);
+diff --git a/tests/feed-active-reconcile.test.cjs b/tests/feed-active-reconcile.test.cjs
+index c84ffbc..1f79ae9 100644
+--- a/tests/feed-active-reconcile.test.cjs
++++ b/tests/feed-active-reconcile.test.cjs
+@@ -151,6 +151,22 @@ test('new Copart LOT without record becomes a complete listing only through exis
+   await run(env); assert.equal(env.calls.requests.length, 1); clean(env);
+ });
+ 
++test('a same-number cross-platform LOT retries by the verified VIN within the next run budget', async t => {
++  for (const secondMatches of [true,false]) {
++    const env=await harness(t);enqueue(env);await record(env);finish(env);
++    env.detail=raw(LOT,{platform:'iaai',vin:OTHER_VIN});
++    const first=await run(env,{maxRequests:1});
++    assert.equal(first.deferred,1);assert.equal(listing(env),undefined);
++    assert.equal(task(env).status,'pending');assert.equal(env.calls.requests.length,1);
++    env.detail=secondMatches?raw():raw(LOT,{platform:'iaai',vin:OTHER_VIN});
++    const second=await run(env,{maxRequests:1});
++    assert.equal(env.calls.requests.length,2);assert.equal(env.calls.requests[1].spec.identifier,VIN);
++    if(secondMatches){assert.equal(second.completed,1);assert.equal(listing(env).vin_normalized,VIN);}
++    else{assert.equal(second.identityErrors,1);assert.equal(listing(env),undefined);assert.equal(task(env).status,'identity_error');}
++    clean(env);
++  }
++});
++
+ test('consumer never requires global API stream cursor', async t => {
+   const env = await harness(t); enqueue(env); await record(env); finish(env);
+   env.sqlite.exec("DELETE FROM automatic_refresh_tasks WHERE task_key='stream:changes'");

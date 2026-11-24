@@ -1,0 +1,109 @@
+{
+  "at": "2026-11-24T17:19:30.660Z",
+  "lot": "46162264",
+  "frameNetwork": [
+    {
+      "host": "vis.iaai.com",
+      "path": "/resizer",
+      "status": 200,
+      "mime": "image/jpeg"
+    },
+    {
+      "host": "vis.iaai.com",
+      "path": "/Home/ThreeSixtyView",
+      "status": 200,
+      "mime": "text/html"
+    },
+    {
+      "host": "vis.iaai.com",
+      "path": "/resizer",
+      "status": 200,
+      "mime": "image/jpeg"
+    },
+    {
+      "host": "vis.iaai.com",
+      "path": "/resizer",
+      "status": 200,
+      "mime": "image/jpeg"
+    },
+    {
+      "host": "vis.iaai.com",
+      "path": "/resizer",
+      "status": 200,
+      "mime": "image/jpeg"
+    },
+    {
+      "host": "vis.iaai.com",
+      "path": "/resizer",
+      "status": 200,
+      "mime": "image/jpeg"
+    },
+    {
+      "host": "vis.iaai.com",
+      "path": "/resizer",
+      "status": 200,
+      "mime": "image/jpeg"
+    },
+    {
+      "host": "vis.iaai.com",
+      "path": "/resizer",
+      "status": 200,
+      "mime": "image/jpeg"
+    },
+    {
+      "host": "vis.iaai.com",
+      "path": "/resizer",
+      "status": 200,
+      "mime": "image/jpeg"
+    },
+    {
+      "host": "vis.iaai.com",
+      "path": "/resizer",
+      "status": 200,
+      "mime": "image/jpeg"
+    },
+    {
+      "host": "vis.iaai.com",
+      "path": "/resizer",
+      "status": 200,
+      "mime": "image/jpeg"
+    },
+    {
+      "host": "mediaretriever.iaai.com",
+      "path": "/api/EngineVideoRetriever",
+      "status": 206,
+      "mime": "video/mp4"
+    },
+    {
+      "host": "mediaretriever.iaai.com",
+      "path": "/api/EngineVideoRetriever",
+      "status": 206,
+      "mime": "video/mp4"
+    },
+    {
+      "host": "mediaretriever.iaai.com",
+      "path": "/api/EngineVideoRetriever",
+      "status": 206,
+      "mime": "video/mp4"
+    }
+  ],
+  "title": "2017 NISSAN SENTRA SV | IAAI LOT 46162264 | REXBID",
+  "before": {
+    "spin": true,
+    "video": true,
+    "h1": "2017 NISSAN SENTRA SV"
+  },
+  "spin": {
+    "open": true,
+    "frame": "Widok 360°",
+    "external": "vis.iaai.com"
+  },
+  "video": {
+    "open": true,
+    "duration": 10.795778,
+    "readyState": 3,
+    "videoWidth": 1280,
+    "playedSeconds": 0,
+    "fallback": false
+  }
+}

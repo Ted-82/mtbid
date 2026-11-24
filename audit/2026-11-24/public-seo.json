@@ -1,0 +1,835 @@
+{
+  "at": "2026-11-24T16:37:22.276Z",
+  "lot": "46087626",
+  "vin": "2C4RDGBG4HR742563",
+  "pages": [
+    {
+      "p": "/",
+      "url": "https://rexbid.pl/",
+      "status": 200,
+      "type": "text/html",
+      "xrobots": null,
+      "bytes": 172676,
+      "at": "2026-11-24T16:37:20.930Z",
+      "title": "REXBID — Aukcje samochodów USA",
+      "desc": "Wyszukaj samochód z aukcji Copart i IAAI. Sprawdź VIN, zdjęcia i koszt transportu. Zaplanuj import z USA z REXBID.",
+      "robots": null,
+      "canonical": "https://rexbid.pl/",
+      "schema": [],
+      "og": "REXBID — Aukcje samochodów USA",
+      "h1": [
+        "Wybierz wymarzony pojazd. My zajmiemy się resztą."
+      ],
+      "hLevels": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          3,
+          9
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      "hasVin": false,
+      "internalLinks": [
+        "/",
+        "/jak-to-dziala",
+        "/ulubione",
+        "/konto",
+        "/pomoc",
+        "/kontakt",
+        "/kalkulator-budzet",
+        "/?catalog=1&amp;lot_sub_status=Open",
+        "/?catalog=1&amp;lot_status=Timed",
+        "/?catalog=1&amp;lot_status=Buy%20Now",
+        "/?catalog=1&amp;fuel_type=Electric",
+        "/jak-to-dziala.html",
+        "/porownaj.html",
+        "/kontakt.html",
+        "/ulubione.html",
+        "/o-nas.html",
+        "/warunki.html",
+        "/prywatnosc.html",
+        "/archiwum"
+      ],
+      "listingLinks": 0
+    },
+    {
+      "p": "/robots.txt",
+      "url": "https://rexbid.pl/robots.txt",
+      "status": 200,
+      "type": "text/plain; charset=UTF-8",
+      "xrobots": null,
+      "bytes": 308,
+      "at": "2026-11-24T16:37:21.033Z",
+      "desc": null,
+      "robots": null,
+      "schema": [],
+      "og": null,
+      "h1": [],
+      "hLevels": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      "hasVin": false,
+      "internalLinks": [],
+      "listingLinks": 0,
+      "robotRules": "User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /__staging/\nDisallow: /auth-test.html\nDisallow: /health\nDisallow: /ready\nDisallow: /konto\nDisallow: /logowanie\nDisallow: /rejestracja\nDisallow: /reset-hasla\nDisallow: /panel\nDisallow: /administracja\nDisallow: /ulubione\n\nSitemap: https://rexbid.pl/sitemap.xml\n"
+    },
+    {
+      "p": "/sitemap.xml",
+      "url": "https://rexbid.pl/sitemap.xml",
+      "status": 200,
+      "type": "application/xml; charset=UTF-8",
+      "xrobots": null,
+      "bytes": 483,
+      "at": "2026-11-24T16:37:21.085Z",
+      "desc": null,
+      "robots": null,
+      "schema": [],
+      "og": null,
+      "h1": [],
+      "hLevels": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      "hasVin": false,
+      "internalLinks": [],
+      "listingLinks": 0,
+      "sitemapEntries": [
+        "https://rexbid.pl/",
+        "https://rexbid.pl/jak-to-dziala.html",
+        "https://rexbid.pl/o-nas.html",
+        "https://rexbid.pl/kontakt.html",
+        "https://rexbid.pl/pomoc",
+        "https://rexbid.pl/warunki.html",
+        "https://rexbid.pl/prywatnosc.html"
+      ]
+    },
+    {
+      "p": "/archiwum",
+      "url": "https://rexbid.pl/archiwum",
+      "status": 200,
+      "type": "text/html",
+      "xrobots": null,
+      "bytes": 1821,
+      "at": "2026-11-24T16:37:21.171Z",
+      "title": "Archiwum aukcji — REXBID",
+      "desc": null,
+      "robots": "noindex, follow",
+      "schema": [],
+      "og": null,
+      "h1": [
+        "Archiwum aukcji"
+      ],
+      "hLevels": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      "hasVin": false,
+      "internalLinks": [
+        "/",
+        "/kontakt",
+        "/regulamin-archiwum"
+      ],
+      "listingLinks": 0
+    },
+    {
+      "p": "/kontakt",
+      "url": "https://rexbid.pl/kontakt",
+      "status": 200,
+      "type": "text/html",
+      "xrobots": null,
+      "bytes": 10035,
+      "at": "2026-11-24T16:37:21.266Z",
+      "title": "Kontakt i wycena importu — REXBID",
+      "desc": "Napisz na kontakt@rexbid.pl lub przygotuj zapytanie z LOT, VIN i budżetem do indywidualnej wyceny importu.",
+      "robots": null,
+      "canonical": "https://rexbid.pl/kontakt",
+      "schema": [],
+      "og": "Kontakt i wycena importu — REXBID",
+      "h1": [
+        "Porozmawiajmy o Twoim samochodzie."
+      ],
+      "hLevels": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      "hasVin": false,
+      "internalLinks": [
+        "/",
+        "/jak-to-dziala",
+        "/ulubione",
+        "/konto",
+        "/pomoc",
+        "/kontakt",
+        "/panel",
+        "/jak-to-dziala.html",
+        "/o-nas.html",
+        "/kontakt.html",
+        "/warunki.html",
+        "/prywatnosc.html"
+      ],
+      "listingLinks": 0
+    },
+    {
+      "p": "/jak-to-dziala",
+      "url": "https://rexbid.pl/jak-to-dziala",
+      "status": 200,
+      "type": "text/html",
+      "xrobots": null,
+      "bytes": 11319,
+      "at": "2026-11-24T16:37:21.346Z",
+      "title": "Jak działa import samochodu z USA — REXBID",
+      "desc": "Plan importu samochodu z USA: wybór auta, wycena, warunki zakupu, transport, odprawa i odbiór. Sprawdź, co przygotować przed zleceniem.",
+      "robots": null,
+      "canonical": "https://rexbid.pl/jak-to-dziala",
+      "schema": [],
+      "og": "Jak działa import samochodu z USA — REXBID",
+      "h1": [
+        "Od pierwszego wyboru do odbioru auta."
+      ],
+      "hLevels": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          3,
+          6
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      "hasVin": false,
+      "internalLinks": [
+        "/",
+        "/jak-to-dziala",
+        "/ulubione",
+        "/konto",
+        "/pomoc",
+        "/kontakt",
+        "/jak-to-dziala.html",
+        "/pomoc.html",
+        "/o-nas.html",
+        "/kontakt.html",
+        "/panel.html",
+        "/ulubione.html",
+        "/porownaj.html",
+        "/konto.html",
+        "/warunki.html",
+        "/prywatnosc.html"
+      ],
+      "listingLinks": 0
+    },
+    {
+      "p": "/kalkulator-budzet",
+      "url": "https://rexbid.pl/kalkulator-budzet",
+      "status": 200,
+      "type": "text/html",
+      "xrobots": null,
+      "bytes": 3654,
+      "at": "2026-11-24T16:37:21.521Z",
+      "title": "Twój budżet zakupu – REXBID",
+      "desc": "Znajdź ofertę Copart lub IAAI po VIN albo numerze LOT i oblicz szacowaną cenę z dostawą pod dom.",
+      "robots": null,
+      "schema": [],
+      "og": null,
+      "h1": [
+        "Twój budżet zakupu"
+      ],
+      "hLevels": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      "hasVin": false,
+      "internalLinks": [
+        "/"
+      ],
+      "listingLinks": 0
+    },
+    {
+      "p": "/pomoc",
+      "url": "https://rexbid.pl/pomoc",
+      "status": 200,
+      "type": "text/html",
+      "xrobots": null,
+      "bytes": 16428,
+      "at": "2026-11-24T16:37:21.580Z",
+      "title": "Centrum pomocy — aukcje, koszty i konto | REXBID",
+      "desc": "Odpowiedzi na pytania o aukcje Copart i IAAI, historię pojazdów, kalkulator importu, ulubione, konto i przebieg realizacji.",
+      "robots": null,
+      "canonical": "https://rexbid.pl/pomoc",
+      "schema": [],
+      "og": "Centrum pomocy — aukcje, koszty i konto | REXBID",
+      "h1": [
+        "Jasne odpowiedzi. Łatwiejszy kolejny krok."
+      ],
+      "hLevels": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      "hasVin": false,
+      "internalLinks": [
+        "/",
+        "/jak-to-dziala",
+        "/ulubione",
+        "/konto",
+        "/pomoc",
+        "/kontakt",
+        "/jak-to-dziala.html",
+        "/pomoc.html",
+        "/o-nas.html",
+        "/kontakt.html",
+        "/panel.html",
+        "/warunki.html",
+        "/prywatnosc.html"
+      ],
+      "listingLinks": 0
+    },
+    {
+      "p": "/panel",
+      "url": "https://rexbid.pl/panel",
+      "status": 200,
+      "type": "text/html",
+      "xrobots": "noindex, nofollow",
+      "bytes": 3438,
+      "at": "2026-11-24T16:37:21.655Z",
+      "title": "Moje importy | REXBID",
+      "desc": null,
+      "robots": "noindex, nofollow",
+      "schema": [],
+      "og": null,
+      "h1": [
+        "Moje importy"
+      ],
+      "hLevels": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      "hasVin": false,
+      "internalLinks": [
+        "/",
+        "/panel.html",
+        "/konto.html",
+        "/administracja.html",
+        "/logowanie.html?return_to=%2Fpanel.html",
+        "/kontakt.html"
+      ],
+      "listingLinks": 0
+    },
+    {
+      "p": "/administracja",
+      "url": "https://rexbid.pl/administracja",
+      "status": 200,
+      "type": "text/html",
+      "xrobots": "noindex, nofollow",
+      "bytes": 9675,
+      "at": "2026-11-24T16:37:21.755Z",
+      "title": "Obsługa importów | REXBID",
+      "desc": null,
+      "robots": "noindex, nofollow",
+      "schema": [],
+      "og": null,
+      "h1": [
+        "Obsługa importów"
+      ],
+      "hLevels": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      "hasVin": false,
+      "internalLinks": [
+        "/",
+        "/panel.html",
+        "/konto.html",
+        "/administracja.html",
+        "/logowanie.html?return_to=%2Fadministracja.html",
+        "/kontakt.html"
+      ],
+      "listingLinks": 0
+    },
+    {
+      "p": "/?category=electric",
+      "url": "https://rexbid.pl/?category=electric",
+      "status": 200,
+      "type": "text/html",
+      "xrobots": null,
+      "bytes": 172560,
+      "at": "2026-11-24T16:37:21.815Z",
+      "title": "REXBID — Aukcje samochodów USA",
+      "desc": "Wyszukaj samochód z aukcji Copart i IAAI. Sprawdź VIN, zdjęcia i koszt transportu. Zaplanuj import z USA z REXBID.",
+      "robots": null,
+      "schema": [],
+      "og": "REXBID — Aukcje samochodów USA",
+      "h1": [
+        "Znajdź samochód. Sprawdź szczegóły."
+      ],
+      "hLevels": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          3,
+          9
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      "hasVin": false,
+      "internalLinks": [
+        "/",
+        "/jak-to-dziala",
+        "/ulubione",
+        "/konto",
+        "/pomoc",
+        "/kontakt",
+        "/kalkulator-budzet",
+        "/?catalog=1&amp;lot_sub_status=Open",
+        "/?catalog=1&amp;lot_status=Timed",
+        "/?catalog=1&amp;lot_status=Buy%20Now",
+        "/?catalog=1&amp;fuel_type=Electric",
+        "/jak-to-dziala.html",
+        "/porownaj.html",
+        "/kontakt.html",
+        "/ulubione.html",
+        "/o-nas.html",
+        "/warunki.html",
+        "/prywatnosc.html",
+        "/archiwum"
+      ],
+      "listingLinks": 0
+    },
+    {
+      "p": "/samochody",
+      "url": "https://rexbid.pl/samochody",
+      "status": 404,
+      "type": "text/html; charset=UTF-8",
+      "xrobots": null,
+      "bytes": 386,
+      "at": "2026-11-24T16:37:21.913Z",
+      "title": "Nie znaleziono strony — REX.Bid",
+      "desc": null,
+      "robots": null,
+      "schema": [],
+      "og": null,
+      "h1": [
+        "Nie znaleziono strony"
+      ],
+      "hLevels": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      "hasVin": false,
+      "internalLinks": [
+        "/"
+      ],
+      "listingLinks": 0
+    },
+    {
+      "p": "/car?platform=copart&lot=46087626&vin=2C4RDGBG4HR742563",
+      "url": "https://rexbid.pl/car?platform=copart&lot=46087626&vin=2C4RDGBG4HR742563",
+      "status": 200,
+      "type": "text/html",
+      "xrobots": null,
+      "bytes": 218592,
+      "at": "2026-11-24T16:37:22.018Z",
+      "title": "REXBID — samochód",
+      "desc": "REXBID — szczegóły pojazdu z aukcji Copart i IAAI.",
+      "robots": null,
+      "schema": [],
+      "og": null,
+      "h1": [
+        "${esc(title || `${year || \"\"} ${make || \"\"} ${model || \"\"}`)}"
+      ],
+      "hLevels": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      "hasVin": false,
+      "internalLinks": [
+        "/",
+        "/jak-to-dziala",
+        "/ulubione",
+        "/konto",
+        "/pomoc",
+        "/kontakt",
+        "/o-nas.html",
+        "/kontakt.html",
+        "/warunki.html",
+        "/prywatnosc.html"
+      ],
+      "listingLinks": 0
+    },
+    {
+      "p": "/car?lot=00000000&platform=copart",
+      "url": "https://rexbid.pl/car?lot=00000000&platform=copart",
+      "status": 200,
+      "type": "text/html",
+      "xrobots": null,
+      "bytes": 218592,
+      "at": "2026-11-24T16:37:22.118Z",
+      "title": "REXBID — samochód",
+      "desc": "REXBID — szczegóły pojazdu z aukcji Copart i IAAI.",
+      "robots": null,
+      "schema": [],
+      "og": null,
+      "h1": [
+        "${esc(title || `${year || \"\"} ${make || \"\"} ${model || \"\"}`)}"
+      ],
+      "hLevels": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      "hasVin": false,
+      "internalLinks": [
+        "/",
+        "/jak-to-dziala",
+        "/ulubione",
+        "/konto",
+        "/pomoc",
+        "/kontakt",
+        "/o-nas.html",
+        "/kontakt.html",
+        "/warunki.html",
+        "/prywatnosc.html"
+      ],
+      "listingLinks": 0
+    },
+    {
+      "p": "/niedostepna-strona-rexbid-audit-2026",
+      "url": "https://rexbid.pl/niedostepna-strona-rexbid-audit-2026",
+      "status": 404,
+      "type": "text/html; charset=UTF-8",
+      "xrobots": null,
+      "bytes": 386,
+      "at": "2026-11-24T16:37:22.234Z",
+      "title": "Nie znaleziono strony — REX.Bid",
+      "desc": null,
+      "robots": null,
+      "schema": [],
+      "og": null,
+      "h1": [
+        "Nie znaleziono strony"
+      ],
+      "hLevels": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      "hasVin": false,
+      "internalLinks": [
+        "/"
+      ],
+      "listingLinks": 0
+    }
+  ]
+}

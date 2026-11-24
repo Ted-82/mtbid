@@ -1,0 +1,114 @@
+{
+  "framework": "lighthouse",
+  "conditions": "Lighthouse mobile defaults, simulated throttling; single run per route and origin",
+  "rows": [
+    {
+      "kind": "after",
+      "key": "home",
+      "time": "2026-11-24T17:10:40.963Z",
+      "url": "https://rexbid-audit-staging.tedn828.workers.dev/?rex_traffic_test=1",
+      "scores": {
+        "performance": 0.99,
+        "accessibility": 1,
+        "seo": 0.66
+      },
+      "ttfb": 130,
+      "fcp": 1666.656,
+      "lcp": 1666.656,
+      "tbt": 13.5,
+      "cls": 0,
+      "totalBytes": 124770,
+      "warnings": []
+    },
+    {
+      "kind": "after",
+      "key": "catalog",
+      "time": "2026-11-24T17:10:51.368Z",
+      "url": "https://rexbid-audit-staging.tedn828.workers.dev/?catalog=1&make=Subaru&year_from=2025&rex_traffic_test=1",
+      "scores": {
+        "performance": 0.96,
+        "accessibility": 1,
+        "seo": 0.66
+      },
+      "ttfb": 61,
+      "fcp": 1451.7788999999998,
+      "lcp": 1451.7788999999998,
+      "tbt": 157.5,
+      "cls": 0.08673733500062861,
+      "totalBytes": 724244,
+      "warnings": []
+    },
+    {
+      "kind": "after",
+      "key": "car",
+      "time": "2026-11-24T17:11:06.359Z",
+      "url": "https://rexbid-audit-staging.tedn828.workers.dev/car?platform=copart&lot=47018496&rex_traffic_test=1",
+      "scores": {
+        "performance": 0.97,
+        "accessibility": 1,
+        "seo": 0.69
+      },
+      "ttfb": 185,
+      "fcp": 1325.9746,
+      "lcp": 1325.9746,
+      "tbt": 207.25420000000008,
+      "cls": 0,
+      "totalBytes": 413401,
+      "warnings": []
+    },
+    {
+      "kind": "after",
+      "key": "budget",
+      "time": "2026-11-24T17:11:15.519Z",
+      "url": "https://rexbid-audit-staging.tedn828.workers.dev/kalkulator-budzet?rex_traffic_test=1",
+      "scores": {
+        "performance": 1,
+        "accessibility": 1,
+        "seo": 0.69
+      },
+      "ttfb": 67,
+      "fcp": 977.8952,
+      "lcp": 977.8952,
+      "tbt": 0,
+      "cls": 0,
+      "totalBytes": 109702,
+      "warnings": []
+    },
+    {
+      "kind": "after",
+      "key": "history",
+      "time": "2026-11-24T17:11:22.386Z",
+      "url": "https://rexbid-audit-staging.tedn828.workers.dev/archiwum?rex_traffic_test=1",
+      "scores": {
+        "performance": 1,
+        "accessibility": 1,
+        "seo": 0.58
+      },
+      "ttfb": 224,
+      "fcp": 1105.74675,
+      "lcp": 1105.74675,
+      "tbt": 0,
+      "cls": 0,
+      "totalBytes": 38734,
+      "warnings": []
+    },
+    {
+      "kind": "after",
+      "key": "contact",
+      "time": "2026-11-24T17:11:29.536Z",
+      "url": "https://rexbid-audit-staging.tedn828.workers.dev/kontakt?rex_traffic_test=1",
+      "scores": {
+        "performance": 1,
+        "accessibility": 1,
+        "seo": 0.69
+      },
+      "ttfb": 132,
+      "fcp": 1174.8137,
+      "lcp": 1174.8137,
+      "tbt": 0,
+      "cls": 0,
+      "totalBytes": 53033,
+      "warnings": []
+    }
+  ]
+}

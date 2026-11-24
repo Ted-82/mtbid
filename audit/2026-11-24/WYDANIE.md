@@ -1,0 +1,58 @@
+# Wydanie REXBID i wycofanie zmian
+
+**Właściciel może zatwierdzić samą publiczną stronę.** Wydanie procesora paczek, migracji D1 i automatu zdjęć wymaga osobnego odbioru. Na 24 listopada 2026 r. zmiany audytowe udostępniono na stagingu. Poniższe czynności produkcyjne czekają na zatwierdzenie.
+
+## Wersje wyjściowe
+
+Odczyty Cloudflare z 17:38 i 18:24 czasu polskiego wskazują te same wersje wszystkich pięciu usług. Tuż przed wdrożeniem należy ponownie odczytać identyfikatory w Workers & Pages → wybrana usługa → Deployments. Jeśli od audytu ktoś wdrożył nowszy kod, trzeba porównać zmiany i zapisać ten nowszy punkt powrotu. [Stan przed audytem](production-before.json) · [Stan po audycie](production-after.json)
+
+| Usługa | Produkcyjna wersja wyjściowa | Zakres wydania |
+|---|---|---|
+| rexbid-production-preflight | c16d3eb3-255b-4e4a-aa83-73f50723de05 | Publiczny serwis pod rexbid.pl, zasoby i obsługa żądań |
+| rexbid-feed-executor-production | a95d53bb-a169-4371-ba7c-08dae26a2431 | Zapisy ofert i uzgadnianie danych |
+| rexbid-copart-week-photos | 0caccbfa-67a8-41e5-bd4c-500265d6df99 | Uzupełnianie brakujących zdjęć Copart |
+| rexbid-feed-sync-production | 95810b52-fa45-4de3-86ee-4e16e0a892f6 | Odbieranie paczek od Apibary. Poza zakresem wydania |
+| rexbid-auction-archive-auto | 85aa5440-f186-43bc-ae45-f5139f381de1 | Zapis archiwalnych galerii. Poza zakresem wydania |
+
+Staging do odbioru ma wersję 2fcc6a47-a0f9-4420-bb6b-b199d7d3b5f2. Odczytuje publiczne oferty, wyklucza indeksowanie i ma oddzielną konfigurację. Dwie oferty demonstracyjne dostępne z parametrem proba=dane pokazują datowany odczyt dostawcy. [Otwórz staging](https://rexbid-audit-staging.tedn828.workers.dev/) · [Dodge Copart z datą próbki](https://rexbid-audit-staging.tedn828.workers.dev/car?platform=copart&lot=46087626&vin=2C4RDGBG4HR742563&proba=dane) · [Honda IAAI z datą próbki](https://rexbid-audit-staging.tedn828.workers.dev/car?platform=iaai&lot=44103794&vin=RLHKF4714PY100644&proba=dane)
+
+## Co wolno przekazać do GitHuba
+
+Repozytorium Ted-82/mtbid jest publiczne. Wskazana gałąź prac to audit/staging-20261124. Przed wysłaniem trzeba porównać pełny zestaw commitów przeznaczonych do publikacji z gałęzią zdalną, również starsze obiekty dostępne w historii nowej gałęzi. Lokalny commit bazowy db60e5a zawiera odtworzoną wersję operacyjną. Przejrzeć osobno treść plików i wynik kontroli sekretów. Lokalny commit i publiczny push to dwie osobne decyzje.
+
+Do publicznego repozytorium kwalifikują się przejrzane zmiany kodu, fikcyjne dane testowe i opis bez informacji poufnych. Surowe paczki, eksport D1, zakładki odtworzenia, prywatne logi produkcji, dane klientów, klucze, tokeny, prywatne adresy plików, kopie paneli i prywatne warunki umów pozostają w chronionej dokumentacji operatora. Sprawdzić także skrypty i przykładowe konfiguracje pod kątem danych handlowych, adresów kont oraz ścieżek do plików uwierzytelniających. Zignorowanie pliku w .gitignore nie usuwa go z już utworzonego commitu. Przy wątpliwości zachować aktualny punkt pracy lokalnie i zbudować do publikacji przejrzaną gałąź od zweryfikowanego publicznego commitu.
+
+## Bramka 1. Publiczna strona
+
+Z czystego checkoutu 2296979 zbudowano lokalnie również docelowy Worker wraz z jego konfiguracją publikacji. Wrangler zakończył próbę bez wysyłki, rozmiar przygotowanego kodu wyniósł 851,45 KiB lub 192,72 KiB po gzip. Pełny zestaw w tym samym checkoutcie przeszedł ponownie 2702/2702. Publikacja właściwej wersji wymaga zgody właściciela. [Wynik kompilacji](public-worker-build.txt) · [Testy](WYNIKI-TESTOW.json)
+
+1. Na stagingu otworzyć filtrowane Subaru od 2025, dodać stronę wyników, wybrać auto i wrócić. Sprawdzić obie platformy, zgodność VIN i LOT, zdjęcia, archiwalny wynik niepotwierdzony, kalkulację budżetu, cztery kategorie i widok telefonu. Zweryfikować polski komunikat, gdy brak kosztu transportu lub ceny. Czynności konta, uprawnienia, MFA i załączniki ocenia się w oddzielnym środowisku testowym z logowaniem. [Próby wyszukiwania](WYSZUKIWANIE.md) · [Zakres prób logowania i awarii](BEZPIECZENSTWO-AWARIE.md)
+2. Zbudować pakiet aplikacji z właściwego publicznego punktu startowego worker.publication.js i katalogu public, z konfiguracją wrangler.active-catalog-cutover.jsonc. Najpierw porównać w podglądzie wdrożenia nazwy usług, domen, zasobów i powiązań z aktualną produkcją. Kod pośredniczący worker.audit-staging.js, demonstracyjna próbka i globalne noindex stagingu należą do środowiska audytowego.
+3. Po akceptacji opublikować wyłącznie wersję rexbid-production-preflight. Zapisać nowy identyfikator wersji i czas UTC. Wykonać te same próby na publicznej domenie z rzeczywistymi danymi. Dodatkowo sprawdzić, czy poprawna karta wskazuje kanoniczny adres rexbid.pl, błędna kombinacja VIN/LOT nie otwiera innego auta, a prywatny dokument klienta wciąż wymaga odpowiedniej sesji. Zasymulowane próby ruchu oznaczyć jako testowe.
+4. Jeżeli po publikacji poprawnie używany filtr daje powtarzalne 503, karta otwiera inne auto, kalkulator pokazuje wynik mimo braku wymaganej pozycji albo przestaje działać dostęp klienta, sprawdzić tę samą ścieżkę na poprzedniej wersji i cofnąć publicznego Workera przy potwierdzonej regresji. W Deployments wybrać poprzednią sprawdzoną wersję usługi i Rollback. Powtórzyć próby także na urządzeniu mobilnym. Wydanie samego UI nie wymaga migracji bazy.
+
+## Bramka 2. Dane ofert i zdjęcia
+
+**Etap 2a – baza i procesor paczek.** Uruchomić oddzielnie od automatu zdjęć, aby ewentualny błąd można było przypisać do konkretnej zmiany.
+
+1. W istniejącej konfiguracji D1 sprawdzić obie strony powiązania. Publiczny Worker odczytuje REXBID_ACTIVE_CATALOG, a executor zapisuje REXBID_DB. Obie nazwy mają wskazywać **rexbid-active-catalog-meter-20261110**, identyfikator b9733ac7-8da3-40ac-b163-8d4a592f6e13. Zapisać godzinę, ostatnią całkowicie opublikowaną generację, jej sekwencję, najnowszą pobraną generację, kolejkę i istniejące powiązania. Dane klienta pozostają w osobnej bazie.
+2. **Bezpośrednio przed migracją** pobrać aktualny bookmark automatycznej kopii D1 Time Travel za pomocą wrangler d1 time-travel info rexbid-active-catalog-meter-20261110 --json, przy właściwej konfiguracji konta. Zachować prywatnie nazwę i UUID bazy, timestamp UTC, bookmark oraz schemat tabeli. Jeszcze raz odczytać zakładkę dla zanotowanego czasu i potwierdzić poprawną bazę oraz dostępność przywracania. Workers Paid ma 30 dni historii. Udokumentowana próba lokalnej kopii i niezależnego odtworzenia jest dostępna niżej. Jeżeli operator wymaga dodatkowego pełnego pliku SQL, zaplanować osobne okno, sprawdzić działanie odczytu rezerwowego, zapisać plik prywatnie i próbnie otworzyć go lokalnie. Cloudflare informuje, że działający eksport blokuje inne żądania do tej bazy. [Kopie D1](https://developers.cloudflare.com/d1/reference/time-travel/) · [Polecenia D1](https://developers.cloudflare.com/d1/wrangler-commands/) · [Ograniczenia eksportu](https://developers.cloudflare.com/d1/best-practices/import-export-data/) · [Próba odtworzenia](KOLOR-DOKUMENT.md)
+3. Odczytać PRAGMA table_info(auction_listings). Jeżeli kolumna exterior_color nie istnieje, wykonać wyłącznie migrację 0019_catalog_exterior_color.sql. Sprawdzić nową kolumnę typu TEXT, liczbę i wartości kontrolnego zestawu istniejących LOT-ów i ich historii. Wcześniejsze auta mogą mieć NULL. Jeżeli kolumna już istnieje, potwierdzić jej definicję. [Treść migracji](../../release/public-site/docs/proposals/0019_catalog_exterior_color.sql)
+4. Zbudować executor na dokładnym źródle obowiązującej wersji. Na dzień audytu to large-delivery-20261124/executor. Katalog master-audit-20261124/executor zawiera zmienione pliki do nałożenia, a nie samodzielny komplet usługi. Porównać wynik z instalacją bazową, powiązania D1, R2 i kolejki oraz wyniki testów. Opublikować wyłącznie rexbid-feed-executor-production. Zapisać identyfikator wersji oraz dokładny czas. Pozwolić mechanizmowi samodzielnie kontynuować od zachowanego punktu.
+
+**Etap 2b – osobny automat zdjęć.** Po sprawdzeniu ciągłości publikacji nałożyć przetestowaną korektę identyfikacji na wersję rexbid-copart-week-photos. Poprawka powtarza wyszukanie po VIN przy potwierdzonej kolizji numeru LOT między platformami. Przed zapisem musi zgadzać się platforma, LOT i VIN. Zachować rozliczanie prób i pierwszeństwo zapisów katalogu. Zarejestrować osobną wersję wdrożenia. Podczas audytu proces zdjęć ustępował rezerwie publikacji. W takim stanie sam nowy kod nie potwierdzi uzupełnienia galerii. W pierwszym dozwolonym cyklu sprawdzić fakt zapisu, ponowny odczyt tej samej galerii i otwarcie zdjęcia na stronie. [Pomiary procesu zdjęć](vehicle-gallery-allowance.json) · [Próby konkretnej kolizji](POJAZDY-WYCENY.md)
+
+## Odbiór po dwóch kolejnych paczkach i reakcja na regresję
+
+Dla każdej z **dwóch nowych generacji udostępnionych po wydaniu** zanotować ID, czas źródłowy, czas pobrania, czas pełnego zapisu, opublikowaną sekwencję, najnowszą generację źródła, liczbę oczekujących oraz błędy. Dopiero status complete, postęp opublikowanej sekwencji i odczyt zmienionej oferty z publicznego katalogu dokumentują przejście. Gdy paczka zawiera pełny rekord z kolorem lub dokumentem, porównać źródło, D1 i zwykłą kartę pozbawioną parametru próbki. Gdy zawiera wyłącznie ceny, zapisać ten fakt i pozostawić weryfikację koloru do pierwszej kwalifikującej się paczki. Dla galerii sprawdzić oddzielnie liczniki prób i uzupełnień, dostępność rezerwy, źródło obrazu i odpowiedź image/* dla zgodnej tożsamości.
+
+Punktem porównania są dwie generacje ukończone podczas audytu na dotychczasowym kodzie. Między pomiarami opublikowana generacja przesunęła się z 23136 przez 23157 do 23178, z sekwencji 117659706 do 117886312. Liczba oczekujących zmalała z dwóch do jednej, a różnica czasów źródłowych z około 60 do 30 minut. O 18:24 przetwarzano 23201. Te pomiary pozwalają ocenić nowe wydanie dopiero po uzyskaniu nowych obserwacji. [Historia generacji](generations.json)
+
+| Co wystąpiło po wydaniu | Działanie operatora |
+|---|---|
+| Brak nowszego pliku u dostawcy | Sprawdzić źródło i ostatni kompletny plik. Sama przerwa dostawy nie uzasadnia cofnięcia działającego Workera. |
+| Nowy plik jest dostępny, ale powtarzalny błąd nowej wersji zatrzymał zapis lub wykryto błędną tożsamość | Cofnąć wyłącznie executor do zanotowanej działającej wersji. Zachować kursor, paczki, historię oraz nową opcjonalną kolumnę. Porównać kolejne automatyczne próby i publiczny odczyt. |
+| Błędna galeria lub wzrost dodatkowych wywołań zdjęć | Cofnąć tylko rexbid-copart-week-photos. Sprawdzić konkretne pary VIN/LOT. Ewentualną naprawę pojedynczego już zapisanego powiązania przeprowadzić z kopii po ustaleniu zakresu. |
+| Udokumentowane uszkodzenie danych | Udokumentować moment, zakres i bieżący punkt odzysku. Zahamować szkodliwy zapis, zabezpieczyć przyjęte paczki. Najpierw sprawdzić możliwość naprawy ograniczonego zestawu rekordów. Przywrócenie całej D1 wymaga odrębnej decyzji właściciela, bo zmienia również wszystkie późniejsze poprawne zapisy. Po przywróceniu porównać faktyczny kursor z zachowanymi paczkami przed wznowieniem. |
+
+Cloudflare rollback dotyczy wersji wskazanej usługi. Przed jego potwierdzeniem należy porównać aktywne powiązania i zgodność migracji. Rutynowe cofnięcie aplikacji pozostawia dodatkową kolumnę D1 i napływające dane. [Wycofywanie wersji Workerów](https://developers.cloudflare.com/workers/configuration/versions-and-deployments/rollbacks/)

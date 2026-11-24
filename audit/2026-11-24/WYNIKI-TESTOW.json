@@ -1,0 +1,108 @@
+{
+  "date": "2026-11-24",
+  "timezone": "Europe/Warsaw",
+  "branch": "audit/staging-20261124",
+  "canonicalAtStart": "5c781c7a6db9a8ac3f70aedb638f4543dfce16e0",
+  "baselineSource": "db60e5a1765c2ab9fc8a58812f992210bb2fdc68",
+  "releaseSource": "2296979669d8ecfd4453ad97882aecb0b38d2f71",
+  "staging": "2fcc6a47-a0f9-4420-bb6b-b199d7d3b5f2",
+  "baseline": {
+    "tests": 2678,
+    "pass": 2649,
+    "fail": 29,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "finalFromReleaseCheckout": {
+    "tests": 2702,
+    "pass": 2702,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "freshCheckoutOfCommit": {
+    "tests": 2702,
+    "pass": 2702,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "executorBaseline": 713,
+  "executorIntegratedFeed": 716,
+  "executorIntegratedIncludingDisplay": 720,
+  "photoTests": 10,
+  "operationsTestScope": "Isolated complete runtime assembled per release/README.md. Suite totals overlap.",
+  "browser": {
+    "visitsPerVersion": 48,
+    "engines": [
+      "Chromium",
+      "Firefox",
+      "WebKit"
+    ],
+    "journeys": 18,
+    "roleAndFilesLocal": 236,
+    "failureLocal": 116
+  },
+  "productionBefore": {
+    "rexbid-production-preflight": "c16d3eb3-255b-4e4a-aa83-73f50723de05",
+    "rexbid-feed-executor-production": "a95d53bb-a169-4371-ba7c-08dae26a2431",
+    "rexbid-feed-sync-production": "95810b52-fa45-4de3-86ee-4e16e0a892f6",
+    "rexbid-copart-week-photos": "0caccbfa-67a8-41e5-bd4c-500265d6df99",
+    "rexbid-auction-archive-auto": "85aa5440-f186-43bc-ae45-f5139f381de1"
+  },
+  "productionAfter": {
+    "rexbid-production-preflight": "c16d3eb3-255b-4e4a-aa83-73f50723de05",
+    "rexbid-feed-executor-production": "a95d53bb-a169-4371-ba7c-08dae26a2431",
+    "rexbid-feed-sync-production": "95810b52-fa45-4de3-86ee-4e16e0a892f6",
+    "rexbid-copart-week-photos": "0caccbfa-67a8-41e5-bd4c-500265d6df99",
+    "rexbid-auction-archive-auto": "85aa5440-f186-43bc-ae45-f5139f381de1"
+  },
+  "scanRuntimeBefore": {
+    "info": 0,
+    "low": 0,
+    "moderate": 1,
+    "high": 1,
+    "critical": 0,
+    "total": 2
+  },
+  "scanRuntimeAfter": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "historicalFailureTitles": [
+    "not ok 165 - header styles reserve consistent account space and narrow phones wrap rather than overflow",
+    "not ok 438 - flag OFF and enabled NULL pointer retain legacy list/metadata/cursors and never add archival claims",
+    "not ok 439 - active lists and metadata exclude absent/inactive/ended canonical rows and report verified scope independently of stale records",
+    "not ok 440 - detail/history keep canonical archive reachable and never infer a Sold claim from absent membership",
+    "not ok 441 - incremental categories paginate unchanged active descriptions without refreshing their timestamps",
+    "not ok 442 - active cursor binds baseline and pointer revision for all sort modes, legacy cursor only works at NULL",
+    "not ok 444 - an overloaded initial D1 read can recover within the same public request without bypassing membership",
+    "not ok 446 - unresolved review and replay-in-progress coverage is explicit; corrupt ready checkpoint fails closed",
+    "not ok 450 - public list accepts a provider-attested pre-start bound and rejects a mismatched bound proof",
+    "not ok 452 - actual publication scheduler never starts the old API cursor beside an activated or replaying file catalogue",
+    "not ok 453 - null file pointer preserves the prior bounded scheduler; an invalid active proof fails closed",
+    "not ok 530 - catalog journal keeps prior attempts and counts a bounded transient retry before transport",
+    "not ok 531 - catalog retry never exceeds the durable budget",
+    "not ok 532 - catalog authentication, exhausted quota and not found are not retried",
+    "not ok 533 - catalog persistence exception never retries a successful provider response",
+    "not ok 534 - catalog resume retains completed targets and cannot replace its manifest",
+    "not ok 693 - customer pages request current content version: rexbid-market.js",
+    "not ok 780 - catalog cards preserve public fields and pagination with a single cover photo",
+    "not ok 993 - actual public stored route returns matching document DTOs and invalid input is 400, without network",
+    "not ok 1715 - index exposes only Worker-supported advanced filters and restores shareable filter URL state",
+    "not ok 2001 - favorites never show zero Buy Now or infer sale/current price from generic fields",
+    "not ok 2002 - favorite cards do not present elapsed unconfirmed auctions as upcoming and format dates for readers",
+    "not ok 2021 - first paint navigation is complete and reused: car.html",
+    "not ok 2035 - server catalog first paint matches every supported client filter without reflecting user values",
+    "not ok 2499 - customer search accepts copied LOT/VIN labels and a model year at either end",
+    "not ok 2500 - indexed make candidates preserve model, platform and cursor restrictions",
+    "not ok 2502 - all-known lists preserve old rows, dates and missing values, whereas explicit categories select fresh rows before paging",
+    "not ok 2507 - reversed year bounds return a clear error before touching D1 or a provider",
+    "not ok 2609 - source importer audits full land and sea tables and generated dataset is reproducible"
+  ],
+  "siteRegressionTitles": []
+}

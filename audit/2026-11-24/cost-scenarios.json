@@ -1,0 +1,77 @@
+{
+  "windowDays": 18.707131956018518,
+  "r2ClassA": 673871,
+  "r2ClassB": 1180636,
+  "r2GB": 42.147630871,
+  "forecastBaseWrites": 58021090.167742096,
+  "rows": [
+    {
+      "daily": 100,
+      "parts": {
+        "workers": 5,
+        "d1Writes": 8.021390167742096,
+        "d1Reads": 0,
+        "d1Storage": 0,
+        "r2Storage": 0.495,
+        "r2A": 4.5,
+        "r2B": 0,
+        "visitsCounter": 0
+      },
+      "cloud": 18.016390167742095,
+      "all": 88.01639016774209,
+      "annualCloud": 216.2,
+      "annual": 1056.2
+    },
+    {
+      "daily": 1000,
+      "parts": {
+        "workers": 5,
+        "d1Writes": 8.024090167742095,
+        "d1Reads": 0,
+        "d1Storage": 0,
+        "r2Storage": 0.495,
+        "r2A": 4.5,
+        "r2B": 0,
+        "visitsCounter": 0
+      },
+      "cloud": 18.019090167742092,
+      "all": 88.01909016774209,
+      "annualCloud": 216.23,
+      "annual": 1056.23
+    },
+    {
+      "daily": 10000,
+      "parts": {
+        "workers": 6.622935,
+        "d1Writes": 8.051090167742096,
+        "d1Reads": 0,
+        "d1Storage": 0,
+        "r2Storage": 0.495,
+        "r2A": 4.5,
+        "r2B": 0,
+        "visitsCounter": 0.15
+      },
+      "cloud": 19.819025167742094,
+      "all": 89.8190251677421,
+      "annualCloud": 237.83,
+      "annual": 1077.83
+    },
+    {
+      "daily": 100000,
+      "parts": {
+        "workers": 51.982935,
+        "d1Writes": 8.321090167742096,
+        "d1Reads": 0,
+        "d1Storage": 0,
+        "r2Storage": 0.495,
+        "r2A": 4.5,
+        "r2B": 0,
+        "visitsCounter": 1.65
+      },
+      "cloud": 66.94902516774209,
+      "all": 136.9490251677421,
+      "annualCloud": 803.39,
+      "annual": 1643.39
+    }
+  ]
+}

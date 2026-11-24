@@ -1,0 +1,134 @@
+[
+  {
+    "kind": "prod",
+    "i": 0,
+    "status": 200,
+    "ttfb": 551,
+    "complete": 613,
+    "bytes": 218592,
+    "serverRender": false,
+    "cache": "HIT",
+    "date": "Tue, 24 Nov 2026 17:05:53 GMT"
+  },
+  {
+    "kind": "stage",
+    "i": 0,
+    "status": 200,
+    "ttfb": 1072,
+    "complete": 1183,
+    "bytes": 223316,
+    "serverRender": true,
+    "cache": "MISS",
+    "date": "Tue, 24 Nov 2026 17:05:54 GMT"
+  },
+  {
+    "kind": "prod",
+    "i": 1,
+    "status": 200,
+    "ttfb": 210,
+    "complete": 300,
+    "bytes": 218592,
+    "serverRender": false,
+    "cache": "HIT",
+    "date": "Tue, 24 Nov 2026 17:05:55 GMT"
+  },
+  {
+    "kind": "stage",
+    "i": 1,
+    "status": 200,
+    "ttfb": 288,
+    "complete": 424,
+    "bytes": 223316,
+    "serverRender": true,
+    "cache": "HIT",
+    "date": "Tue, 24 Nov 2026 17:05:55 GMT"
+  },
+  {
+    "kind": "prod",
+    "i": 2,
+    "status": 200,
+    "ttfb": 254,
+    "complete": 319,
+    "bytes": 218592,
+    "serverRender": false,
+    "cache": "HIT",
+    "date": "Tue, 24 Nov 2026 17:05:55 GMT"
+  },
+  {
+    "kind": "stage",
+    "i": 2,
+    "status": 200,
+    "ttfb": 292,
+    "complete": 363,
+    "bytes": 223316,
+    "serverRender": true,
+    "cache": "HIT",
+    "date": "Tue, 24 Nov 2026 17:05:56 GMT"
+  },
+  {
+    "kind": "prod",
+    "i": 3,
+    "status": 200,
+    "ttfb": 205,
+    "complete": 260,
+    "bytes": 218592,
+    "serverRender": false,
+    "cache": "HIT",
+    "date": "Tue, 24 Nov 2026 17:05:56 GMT"
+  },
+  {
+    "kind": "stage",
+    "i": 3,
+    "status": 200,
+    "ttfb": 231,
+    "complete": 331,
+    "bytes": 223316,
+    "serverRender": true,
+    "cache": "HIT",
+    "date": "Tue, 24 Nov 2026 17:05:56 GMT"
+  },
+  {
+    "kind": "prod",
+    "i": 4,
+    "status": 200,
+    "ttfb": 61,
+    "complete": 97,
+    "bytes": 218592,
+    "serverRender": false,
+    "cache": "HIT",
+    "date": "Tue, 24 Nov 2026 17:05:57 GMT"
+  },
+  {
+    "kind": "stage",
+    "i": 4,
+    "status": 200,
+    "ttfb": 131,
+    "complete": 186,
+    "bytes": 223316,
+    "serverRender": true,
+    "cache": "HIT",
+    "date": "Tue, 24 Nov 2026 17:05:57 GMT"
+  },
+  {
+    "kind": "prod",
+    "i": 5,
+    "status": 200,
+    "ttfb": 107,
+    "complete": 168,
+    "bytes": 218592,
+    "serverRender": false,
+    "cache": "HIT",
+    "date": "Tue, 24 Nov 2026 17:05:57 GMT"
+  },
+  {
+    "kind": "stage",
+    "i": 5,
+    "status": 200,
+    "ttfb": 220,
+    "complete": 266,
+    "bytes": 223316,
+    "serverRender": true,
+    "cache": "HIT",
+    "date": "Tue, 24 Nov 2026 17:05:57 GMT"
+  }
+]

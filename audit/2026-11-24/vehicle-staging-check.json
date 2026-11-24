@@ -1,0 +1,68 @@
+{
+  "at": "2026-11-24T17:18:25.860Z",
+  "origin": "https://rexbid-audit-staging.tedn828.workers.dev",
+  "details": [
+    {
+      "url": "https://rexbid-audit-staging.tedn828.workers.dev/car?platform=copart&lot=47018496&vin=4DRBUAAN8EB778826&return_to=%2F",
+      "status": 200,
+      "headStatus": 200,
+      "noIndexStaging": "noindex, nofollow, noarchive",
+      "type": "text/html",
+      "h1": "2014 IC CORPORATION BUS",
+      "title": "2014 IC CORPORATION BUS | Copart LOT 47018496 | REXBID",
+      "canonical": "https://rexbid.pl/car?platform=copart&lot=47018496&vin=4DRBUAAN8EB778826",
+      "ogTitle": "2014 IC CORPORATION BUS | Copart LOT 47018496 | REXBID",
+      "ogUrl": "https://rexbid.pl/car?platform=copart&lot=47018496&vin=4DRBUAAN8EB778826",
+      "snapshot": {
+        "platform": "copart",
+        "lot": "47018496",
+        "vin": "4DRBUAAN8EB778826"
+      },
+      "headSize": 0
+    },
+    {
+      "url": "https://rexbid-audit-staging.tedn828.workers.dev/car?platform=iaai&lot=46162264&vin=3N1AB7AP2HY235605&return_to=%2F",
+      "status": 200,
+      "headStatus": 200,
+      "noIndexStaging": "noindex, nofollow, noarchive",
+      "type": "text/html",
+      "h1": "2017 NISSAN SENTRA SV",
+      "title": "2017 NISSAN SENTRA SV | IAAI LOT 46162264 | REXBID",
+      "canonical": "https://rexbid.pl/car?platform=iaai&lot=46162264&vin=3N1AB7AP2HY235605",
+      "ogTitle": "2017 NISSAN SENTRA SV | IAAI LOT 46162264 | REXBID",
+      "ogUrl": "https://rexbid.pl/car?platform=iaai&lot=46162264&vin=3N1AB7AP2HY235605",
+      "snapshot": {
+        "platform": "iaai",
+        "lot": "46162264",
+        "vin": "3N1AB7AP2HY235605"
+      },
+      "headSize": 0
+    },
+    {
+      "url": "https://rexbid-audit-staging.tedn828.workers.dev/car?platform=copart&lot=99999999999999999&return_to=%2F",
+      "status": 404,
+      "headStatus": null,
+      "noIndexStaging": "noindex, nofollow, noarchive",
+      "type": "text/html; charset=UTF-8",
+      "h1": "Oferta niedostępna",
+      "title": "Oferta niedostępna | REXBID",
+      "canonical": null,
+      "ogTitle": null,
+      "ogUrl": null,
+      "snapshot": null
+    },
+    {
+      "url": "https://rexbid-audit-staging.tedn828.workers.dev/car?platform=copart&lot=47018496&vin=3N1AB7AP2HY235605&return_to=%2F",
+      "status": 404,
+      "headStatus": null,
+      "noIndexStaging": "noindex, nofollow, noarchive",
+      "type": "text/html; charset=UTF-8",
+      "h1": "Oferta niedostępna",
+      "title": "Oferta niedostępna | REXBID",
+      "canonical": null,
+      "ogTitle": null,
+      "ogUrl": null,
+      "snapshot": null
+    }
+  ]
+}

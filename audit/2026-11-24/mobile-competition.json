@@ -1,0 +1,432 @@
+{
+  "started": "2026-11-24T16:36:52.869Z",
+  "engine": "Edge Chromium, 390x844 device emulation, no login",
+  "pages": [
+    {
+      "name": "REXBID",
+      "step": "home",
+      "at": "2026-11-24T16:36:53.872Z",
+      "url": "https://rexbid.pl/?rex_traffic_test=1",
+      "title": "REXBID — Aukcje samochodów USA",
+      "h1": [
+        "Wybierz wymarzony pojazd.\nMy zajmiemy się resztą."
+      ],
+      "width": 390,
+      "scrollWidth": 390,
+      "ttfbMs": 239.20000004768372,
+      "inputs": [
+        "VIN, numer LOT, marka lub model"
+      ],
+      "heading": [
+        "Znajdź swój samochód",
+        "Dopasuj samochód do siebie",
+        "Aktualne aukcje",
+        "Timed Auction",
+        "Kup teraz",
+        "Samochody elektryczne",
+        "Od znalezienia auta do decyzji.",
+        "Wybierz auto. Przygotuj dobry plan.",
+        "Masz konkretny samochód na oku?"
+      ],
+      "cta": [
+        "Przejdź do treści",
+        "RYNEK AUKCYJNY USA",
+        "☰",
+        "Zaloguj",
+        "Załóż konto",
+        "Szukaj ofert\n→",
+        "Przeglądaj cały katalog ↗",
+        "Pokaż filtry",
+        "↗\nAktualne aukcje\nOtwarte oferty z obu platform",
+        "◷\nTimed Auction\nAukcje z określonym czasem",
+        "$\nKup teraz\nOferty z podaną ceną zakupu",
+        "ϟ\nElektryczne\nPotwierdzony napęd BEV",
+        "Zobacz wszystkie\n→",
+        "Zobacz wszystkie\n→",
+        "Zobacz wszystkie\n→",
+        "Zobacz wszystkie\n→",
+        "Jak to działa\n→",
+        "Przygotuj zapytanie\n→",
+        "REXBID",
+        "Katalog samochodów",
+        "Ulubione",
+        "Porównanie"
+      ],
+      "challenge": false,
+      "canonical": null
+    },
+    {
+      "name": "REXBID",
+      "step": "home link /kalkulator-budzet",
+      "at": "2026-11-24T16:36:55.241Z",
+      "url": "https://rexbid.pl/kalkulator-budzet",
+      "title": "Twój budżet zakupu – REXBID",
+      "h1": [
+        "Twój budżet zakupu"
+      ],
+      "width": 390,
+      "scrollWidth": 390,
+      "ttfbMs": 63.10000002384186,
+      "inputs": [
+        "np. 30000",
+        "np. 74796146"
+      ],
+      "heading": [],
+      "cta": [
+        "Przejdź do treści",
+        "RYNEK AUKCYJNY USA",
+        "Zobacz aukcje",
+        "Oblicz limit licytacji"
+      ],
+      "challenge": false,
+      "canonical": null
+    },
+    {
+      "name": "REXBID",
+      "step": "home link /jak-to-dziala",
+      "at": "2026-11-24T16:36:56.112Z",
+      "url": "https://rexbid.pl/jak-to-dziala",
+      "title": "Jak działa import samochodu z USA — REXBID",
+      "h1": [
+        "Od pierwszego wyboru\ndo odbioru auta."
+      ],
+      "width": 390,
+      "scrollWidth": 390,
+      "ttfbMs": 251.60000002384186,
+      "inputs": [],
+      "heading": [
+        "Na jakim jesteś etapie?",
+        "Plan krok po kroku",
+        "Jedna decyzja, pełny obraz kosztów.",
+        "Narzędzia, które masz pod ręką"
+      ],
+      "cta": [
+        "Przejdź do treści",
+        "RYNEK AUKCYJNY USA",
+        "☰",
+        "Przebieg importu",
+        "Centrum pomocy",
+        "O REXBID",
+        "Znajdź samochód →",
+        "Zobacz plan krok po kroku",
+        "Przejdź do katalogu →",
+        "Przygotuj zapytanie →",
+        "Otwórz Moje importy →",
+        "Zbierz dane w zapytaniu →",
+        "Zapytaj o pełną wycenę",
+        "Pytania o koszty",
+        "Moje konto →\nZarządzaj profilem i przejdź do swoich realizacji.",
+        "REXBID",
+        "Jak to działa",
+        "Pomoc",
+        "Kontakt",
+        "O nas",
+        "Kontakt",
+        "Warunki korzystania"
+      ],
+      "challenge": false,
+      "canonical": "https://rexbid.pl/jak-to-dziala"
+    },
+    {
+      "name": "REXBID",
+      "step": "home link /kontakt",
+      "at": "2026-11-24T16:36:57.180Z",
+      "url": "https://rexbid.pl/kontakt",
+      "title": "Kontakt i wycena importu — REXBID",
+      "h1": [
+        "Porozmawiajmy\no Twoim samochodzie."
+      ],
+      "width": 390,
+      "scrollWidth": 390,
+      "ttfbMs": 297.7000000476837,
+      "inputs": [
+        "text",
+        "email",
+        "np. 80 000"
+      ],
+      "heading": [
+        "Zapytaj o auto i koszty",
+        "Otwórz Moje importy",
+        "Sprawdź centrum pomocy",
+        "Zapytaj o import",
+        "Co powinno znaleźć się w wycenie?",
+        "Z kim się kontaktujesz?",
+        "Masz już samochód na oku?"
+      ],
+      "cta": [
+        "Przejdź do treści",
+        "RYNEK AUKCYJNY USA",
+        "☰",
+        "REXBID",
+        "kontakt@rexbid.pl",
+        "Stan i dokumenty",
+        "Pełny koszt importu",
+        "Trasa i dostawa",
+        "Wyślij zapytanie →",
+        "Poznaj etapy importu →",
+        "kontakt@rexbid.pl",
+        "Wróć do katalogu →",
+        "REXBID",
+        "Pomoc",
+        "Jak to działa",
+        "O nas",
+        "Kontakt",
+        "O nas",
+        "Kontakt",
+        "Warunki korzystania",
+        "Prywatność"
+      ],
+      "challenge": false,
+      "canonical": "https://rexbid.pl/kontakt"
+    },
+    {
+      "name": "REXBID",
+      "step": "home link /archiwum",
+      "at": "2026-11-24T16:36:58.271Z",
+      "url": "https://rexbid.pl/archiwum",
+      "title": "Archiwum aukcji — REXBID",
+      "h1": [
+        "Archiwum aukcji"
+      ],
+      "width": 390,
+      "scrollWidth": 414,
+      "ttfbMs": 55.60000002384186,
+      "inputs": [
+        "Wpisz VIN lub LOT"
+      ],
+      "heading": [
+        "2019 FORD F150 SUPERCREW",
+        "2026 TOYOTA CAMRY XSE",
+        "2021 GMC SIERRA K1500 DENALI",
+        "2018 TOYOTA HIGHLANDER LIMITED",
+        "2023 GMC ACADIA DENALI",
+        "2019 GMC SIERRA K1500 AT4",
+        "2018 DODGE DURANGO GT",
+        "2024 FORD F150 XLT",
+        "2019 INFINITI Q50 3.0T LUXE",
+        "2024 BUICK ENVISTA PREFERRED"
+      ],
+      "cta": [
+        "Przejdź do treści",
+        "RYNEK AUKCYJNY USA",
+        "Aktualne aukcje",
+        "Kontakt",
+        "Szukaj",
+        "Pokaż kolejne oferty",
+        "Zasady archiwum"
+      ],
+      "challenge": false,
+      "canonical": null
+    },
+    {
+      "name": "BidCars",
+      "step": "home",
+      "at": "2026-11-24T16:36:59.136Z",
+      "url": "https://bid.cars/pl/",
+      "title": "Cierpliwości...",
+      "h1": [
+        "bid.cars"
+      ],
+      "width": 390,
+      "scrollWidth": 390,
+      "ttfbMs": 158.61500000953674,
+      "inputs": [],
+      "heading": [
+        "Przeprowadzanie weryfikacji zabezpieczeń"
+      ],
+      "cta": [
+        "Cloudflare",
+        "Prywatność"
+      ],
+      "challenge": false,
+      "canonical": null
+    },
+    {
+      "name": "DreamBid",
+      "step": "home",
+      "at": "2026-11-24T16:37:00.492Z",
+      "url": "https://dreambid.pl/pl",
+      "title": "Attention Required! | Cloudflare",
+      "h1": [
+        "Sorry, you have been blocked"
+      ],
+      "width": 390,
+      "scrollWidth": 390,
+      "ttfbMs": 194.5,
+      "inputs": [],
+      "heading": [
+        "You are unable to access dreambid.pl",
+        "Why have I been blocked?",
+        "What can I do to resolve this?"
+      ],
+      "cta": [
+        "Click to reveal",
+        "Cloudflare"
+      ],
+      "challenge": false,
+      "canonical": null
+    },
+    {
+      "name": "VinBidHistory",
+      "step": "home",
+      "at": "2026-11-24T16:37:01.555Z",
+      "url": "https://vinbidhistory.com/",
+      "title": "Vehicle Auction History & VIN Lookup | VinBidHistory",
+      "h1": [
+        "Vehicle Auction History"
+      ],
+      "width": 390,
+      "scrollWidth": 390,
+      "ttfbMs": 3011.5,
+      "inputs": [
+        "Enter full 17-character VIN"
+      ],
+      "heading": [
+        "Latest Auction Results",
+        "Browse by Make",
+        "Latest from the Blog",
+        "Understanding Vehicle Auction History Before You Buy"
+      ],
+      "cta": [
+        "Skip to content",
+        "Search",
+        "Search VIN",
+        "2022 Mercedes-Benz G-Class\nVIN: W1NYC7HJ3NX449342\nN/A\n$96,000",
+        "2024 Audi RS7\nVIN: WUAPDBF21RN901730\n21,023 mi\n$89,500",
+        "2024 BMW XM\nVIN: 5YM33CS04R9V60459\n15,317 mi\n$88,500",
+        "2023 Land Rover\nVIN: SALKVBE79PA039825\n77,868 mi\n$85,500",
+        "2018 Mercedes-Benz AMG\nVIN: WDDYJ7KA0JA021138\n24,849 mi\n$80,000",
+        "Acura",
+        "Alfa",
+        "Audi",
+        "BMW",
+        "Buick",
+        "Cadillac",
+        "Chevrolet",
+        "Chrysler",
+        "Dodge",
+        "Ferrari",
+        "Fiat",
+        "Ford",
+        "GMC",
+        "Honda"
+      ],
+      "challenge": false,
+      "canonical": "https://vinbidhistory.com/"
+    },
+    {
+      "name": "VinBidHistory",
+      "step": "home link /cars/",
+      "at": "2026-11-24T16:37:06.004Z",
+      "url": "https://vinbidhistory.com/cars/acura/",
+      "title": "Acura Auction History | VinBidHistory",
+      "h1": [
+        "Acura Auction History"
+      ],
+      "width": 390,
+      "scrollWidth": 390,
+      "ttfbMs": 2535,
+      "inputs": [],
+      "heading": [],
+      "cta": [
+        "Skip to content",
+        "Home",
+        "All Vehicles",
+        "Acura",
+        "All Models",
+        "1.6",
+        "ILX",
+        "Integra",
+        "MDX",
+        "RDX",
+        "RL",
+        "RLX",
+        "RSX",
+        "TL",
+        "TLX",
+        "TSX",
+        "ZDX",
+        "2022 Acura TLX\nVIN: 19UUB5F56NA003127\n30,314 mi\n$25,000",
+        "2009 Acura TL\nVIN: 19UUA86579A022635\n170,004 mi\n$25,000",
+        "2011 Acura TSX\nVIN: JH4CW2H63BC002728\n126,957 mi\n$25,000",
+        "2008 Acura TL\nVIN: 19UUA76598A049764\n241,753 mi\n$25,000",
+        "2004 Acura TSX\nVIN: JH4CL969X4C016630\n205,956 mi\n$25,000"
+      ],
+      "challenge": false,
+      "canonical": "https://vinbidhistory.com/cars/acura/"
+    },
+    {
+      "name": "VinBidHistory",
+      "step": "home link /vehicle/",
+      "at": "2026-11-24T16:37:09.360Z",
+      "url": "https://vinbidhistory.com/vehicle/mercedes-benz-g-class-wdcyc7hj8lx339417/",
+      "title": "2020 Mercedes-Benz G-Class – VIN WDCYC7HJ8LX339417 – Auction History | VinBidHistory",
+      "h1": [
+        "2020 Mercedes-Benz G-Class"
+      ],
+      "width": 390,
+      "scrollWidth": 390,
+      "ttfbMs": 1915.8000000715256,
+      "inputs": [],
+      "heading": [
+        "Similar Vehicles"
+      ],
+      "cta": [
+        "Skip to content",
+        "Home",
+        "Mercedes-Benz",
+        "G-Class",
+        "Ask to Remove This Listing",
+        "2021 Mercedes-Benz G-Class\n54,999 mi\n$96,000",
+        "2022 Mercedes-Benz G-Class\nN/A\n$96,000",
+        "1985 Mercedes-Benz 300\n124,629 mi\n$95,000",
+        "2024 Mercedes-Benz S-Class\n2,516 mi\n$84,900",
+        "2018 Mercedes-Benz AMG\n24,849 mi\n$80,000",
+        "2019 Mercedes-Benz G-Class\n111,952 mi\n$78,000",
+        "Kadence WP",
+        "Customize",
+        "Reject All",
+        "Accept All",
+        "Powered by"
+      ],
+      "challenge": false,
+      "canonical": "https://vinbidhistory.com/vehicle/mercedes-benz-g-class-wdcyc7hj8lx339417/"
+    },
+    {
+      "name": "Copart",
+      "step": "home",
+      "at": "2026-11-24T16:37:12.081Z",
+      "url": "https://www.copart.com/",
+      "title": "Online Car Auctions – Used, Salvage & Wholesale Vehicles",
+      "h1": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "ttfbMs": 543.3999999761581,
+      "inputs": [],
+      "heading": [],
+      "cta": [
+        "{{::locale.messages['app.label.skipTo.mainContent']}}",
+        "{{::locale.messages['app.label.skipTo.footer']}}"
+      ],
+      "challenge": false,
+      "canonical": null
+    },
+    {
+      "name": "IAAI",
+      "step": "home",
+      "at": "2026-11-24T16:37:21.367Z",
+      "url": "https://www.iaai.com/",
+      "title": "",
+      "h1": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "ttfbMs": 144.70000004768372,
+      "inputs": [],
+      "heading": [],
+      "cta": [],
+      "challenge": false,
+      "canonical": null
+    }
+  ],
+  "finished": "2026-11-24T16:37:29.892Z"
+}

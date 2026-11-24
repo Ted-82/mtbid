@@ -1,0 +1,98 @@
+{
+  "time": "2026-11-24T16:57:24.420Z",
+  "origin": "https://rexbid-auth-test.tedn828.workers.dev",
+  "auth": "guest, public documented GET, no cookies",
+  "rows": [
+    {
+      "path": "/logowanie",
+      "status": 200,
+      "cache": "private, no-store",
+      "robots": "noindex, nofollow, noarchive",
+      "frame": "DENY",
+      "hasCsp": true,
+      "title": "Logowanie — REXBID"
+    },
+    {
+      "path": "/panel",
+      "status": 200,
+      "cache": "private, no-store",
+      "robots": "noindex, nofollow, noarchive",
+      "frame": "DENY",
+      "hasCsp": true,
+      "title": "Moje importy | REXBID"
+    },
+    {
+      "path": "/administracja",
+      "status": 200,
+      "cache": "private, no-store",
+      "robots": "noindex, nofollow, noarchive",
+      "frame": "DENY",
+      "hasCsp": true,
+      "title": "Obsługa importów | REXBID"
+    },
+    {
+      "path": "/api/auth/config",
+      "status": 200,
+      "cache": "private, no-store",
+      "robots": "noindex, nofollow, noarchive",
+      "frame": "DENY",
+      "hasCsp": true,
+      "ok": true,
+      "enabled": true,
+      "publicError": null
+    },
+    {
+      "path": "/api/portal/config",
+      "status": 200,
+      "cache": "private, no-store",
+      "robots": "noindex, nofollow, noarchive",
+      "frame": "DENY",
+      "hasCsp": true,
+      "ok": true,
+      "enabled": true,
+      "publicError": null
+    },
+    {
+      "path": "/api/portal/me",
+      "status": 401,
+      "cache": "private, no-store",
+      "robots": "noindex, nofollow, noarchive",
+      "frame": "DENY",
+      "hasCsp": true,
+      "ok": false,
+      "enabled": null,
+      "publicError": "unauthorized"
+    },
+    {
+      "path": "/api/portal/orders",
+      "status": 401,
+      "cache": "private, no-store",
+      "robots": "noindex, nofollow, noarchive",
+      "frame": "DENY",
+      "hasCsp": true,
+      "ok": false,
+      "enabled": null,
+      "publicError": "unauthorized"
+    },
+    {
+      "path": "/api/portal/security",
+      "status": 401,
+      "cache": "private, no-store",
+      "robots": "noindex, nofollow, noarchive",
+      "frame": "DENY",
+      "hasCsp": true,
+      "ok": false,
+      "enabled": null,
+      "publicError": null
+    },
+    {
+      "path": "/robots.txt",
+      "status": 200,
+      "cache": "no-store",
+      "robots": "noindex, nofollow, noarchive",
+      "frame": "DENY",
+      "hasCsp": true,
+      "blocksIndex": true
+    }
+  ]
+}

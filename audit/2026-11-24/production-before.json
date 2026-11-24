@@ -1,0 +1,392 @@
+{
+  "at": "2026-11-24T16:38:54.688Z",
+  "runtime": {
+    "at": "2026-11-24T16:38:50.217Z",
+    "state": {
+      "active_generation": 23157,
+      "committed_sequence": 117659706,
+      "bucket_index": 90,
+      "group_offset": 322,
+      "updated_at": "2026-11-24T16:38:48.291Z",
+      "last_error_code": null,
+      "status": "applying",
+      "published": 23136
+    },
+    "job": {
+      "status": "complete",
+      "next_due_at": "2026-11-24T16:43:48.613Z",
+      "last_error_code": null,
+      "attempts": 0
+    },
+    "completed": [
+      {
+        "generation_id": 23136,
+        "observed_at": "2026-11-24T15:36:08.232Z",
+        "updated_at": "2026-11-24T16:17:16.228Z",
+        "last_sequence": 117659706
+      },
+      {
+        "generation_id": 23119,
+        "observed_at": "2026-11-24T15:05:56.880Z",
+        "updated_at": "2026-11-24T15:28:42.231Z",
+        "last_sequence": 117524558
+      },
+      {
+        "generation_id": 23097,
+        "observed_at": "2026-11-24T14:35:53.966Z",
+        "updated_at": "2026-11-24T14:45:25.854Z",
+        "last_sequence": 117476835
+      }
+    ],
+    "source": {
+      "latest": 23178,
+      "observed": "2026-11-24T16:35:56.158Z",
+      "pending": 2,
+      "timing": {
+        "ageMinutes": 2.9009833333333335,
+        "intervals": 24,
+        "medianMinutes": 30.007091666666668,
+        "longestMinutes": 994.9912
+      }
+    },
+    "delayMinutes": 59.798766666666666,
+    "capacity": {
+      "bytes": 2398072832,
+      "cap": 8000000000,
+      "importHeadroom": 5593927168,
+      "writeHeadroom": 9774454,
+      "readHeadroom": 18895103933,
+      "account": {
+        "at": "2026-11-24T16:38:51.727Z",
+        "databases": 6,
+        "bytes": 4978307072,
+        "headroomAgainst5GB": 21692928
+      }
+    },
+    "photo": {
+      "at": "2026-11-22T19:05:48.199Z",
+      "total": 2791,
+      "status": "complete",
+      "cap": 8000000000,
+      "headroom": 5593927168,
+      "supplementalAllowed": false
+    },
+    "archive": {
+      "at": "2026-11-24T16:37:17.068Z",
+      "galleries": 13226,
+      "remaining": 257099076489,
+      "warning": null
+    },
+    "timed": {
+      "http": 200,
+      "observed": "2026-11-24T13:46:36.605Z",
+      "ageHours": 2.8704477777777777,
+      "count": 3405,
+      "sourceTotal": 3407,
+      "skipped": 2,
+      "future": 3405
+    },
+    "versions": {
+      "rexbid-production-preflight": "c16d3eb3-255b-4e4a-aa83-73f50723de05",
+      "rexbid-feed-executor-production": "a95d53bb-a169-4371-ba7c-08dae26a2431",
+      "rexbid-feed-sync-production": "95810b52-fa45-4de3-86ee-4e16e0a892f6",
+      "rexbid-copart-week-photos": "0caccbfa-67a8-41e5-bd4c-500265d6df99",
+      "rexbid-auction-archive-auto": "85aa5440-f186-43bc-ae45-f5139f381de1"
+    }
+  },
+  "public": {
+    "routes": [
+      {
+        "route": "/",
+        "http": 200
+      },
+      {
+        "route": "/ready",
+        "http": 200,
+        "ready": true,
+        "databaseReady": true,
+        "assetsReady": true,
+        "providerMode": "scheduled_only",
+        "authConfigured": true
+      },
+      {
+        "route": "/panel",
+        "http": 200
+      },
+      {
+        "route": "/kontakt",
+        "http": 200
+      },
+      {
+        "route": "/kalkulator-budzet",
+        "http": 200
+      },
+      {
+        "route": "/archiwum",
+        "http": 200
+      }
+    ],
+    "lists": {
+      "subaru": {
+        "first": {
+          "http": 200,
+          "ms": 450,
+          "source": "d1",
+          "rows": 6,
+          "covers": 6,
+          "first": {
+            "lot": "66837846",
+            "platform": "copart"
+          },
+          "keys": [
+            "copart:66837846",
+            "copart:67083396",
+            "copart:67415896",
+            "copart:67689986",
+            "copart:69121916",
+            "copart:70006486"
+          ],
+          "cursor": "WyJsaXN0aW5nIiwie1widlwiOjIsXCJiYXNlbGluZUlkXCI6XCJsb2NhbC0xMDczMy1yZXBsYXktcHJvb2ZcIixcInJldmlzaW9uXCI6MSxcImFuY2hvclwiOlwie1xcXCJ2XFxcIjoxLFxcXCJzb3J0XFxcIjpcXFwiYXVjdGlvbl9uZXh0XFxcIixcXFwidmFsdWVcXFwiOjE3OTU1NDMyMDAsXFxcImlkXFxcIjpcXFwibGlzdGluZ3xhcGliYXJhfGNvcGFydHxzb3VyY2V8NzAwMDY0ODZcXFwiLFxcXCJhc09mXFxcIjoxNzk1NTM4MzMwMjk0fVwifSJd"
+        },
+        "second": {
+          "http": 200,
+          "ms": 268,
+          "source": "d1",
+          "rows": 6,
+          "covers": 5,
+          "first": {
+            "lot": "70244506",
+            "platform": "copart"
+          },
+          "keys": [
+            "copart:70244506",
+            "copart:70313026",
+            "copart:71007886",
+            "copart:71278136",
+            "copart:72948486",
+            "copart:78203066"
+          ],
+          "cursor": "WyJsaXN0aW5nIiwie1widlwiOjIsXCJiYXNlbGluZUlkXCI6XCJsb2NhbC0xMDczMy1yZXBsYXktcHJvb2ZcIixcInJldmlzaW9uXCI6MSxcImFuY2hvclwiOlwie1xcXCJ2XFxcIjoxLFxcXCJzb3J0XFxcIjpcXFwiYXVjdGlvbl9uZXh0XFxcIixcXFwidmFsdWVcXFwiOjE3OTU1NDMyMDAsXFxcImlkXFxcIjpcXFwibGlzdGluZ3xhcGliYXJhfGNvcGFydHxzb3VyY2V8NzgyMDMwNjZcXFwiLFxcXCJhc09mXFxcIjoxNzk1NTM4MzMwMjk0fVwifSJd"
+        },
+        "duplicates": 0
+      },
+      "electric": {
+        "first": {
+          "http": 200,
+          "ms": 296,
+          "source": "d1",
+          "rows": 6,
+          "covers": 6,
+          "first": {
+            "lot": "53646966",
+            "platform": "copart"
+          },
+          "keys": [
+            "copart:53646966",
+            "copart:57398926",
+            "copart:70091736",
+            "copart:70102696",
+            "copart:70213406",
+            "copart:71209046"
+          ],
+          "cursor": "WyJsaXN0aW5nIiwie1widlwiOjIsXCJiYXNlbGluZUlkXCI6XCJsb2NhbC0xMDczMy1yZXBsYXktcHJvb2ZcIixcInJldmlzaW9uXCI6MSxcImFuY2hvclwiOlwie1xcXCJ2XFxcIjoxLFxcXCJzb3J0XFxcIjpcXFwiYXVjdGlvbl9uZXh0XFxcIixcXFwidmFsdWVcXFwiOjE3OTU1Mzk2MDAsXFxcImlkXFxcIjpcXFwibGlzdGluZ3xhcGliYXJhfGNvcGFydHxzb3VyY2V8NzEyMDkwNDZcXFwiLFxcXCJhc09mXFxcIjoxNzk1NTM4MzMxMDUxfVwifSJd"
+        },
+        "second": {
+          "http": 200,
+          "ms": 198,
+          "source": "d1",
+          "rows": 6,
+          "covers": 2,
+          "first": {
+            "lot": "72060456",
+            "platform": "copart"
+          },
+          "keys": [
+            "copart:72060456",
+            "copart:72150896",
+            "copart:72171986",
+            "copart:72493216",
+            "copart:73481796",
+            "copart:73751796"
+          ],
+          "cursor": "WyJsaXN0aW5nIiwie1widlwiOjIsXCJiYXNlbGluZUlkXCI6XCJsb2NhbC0xMDczMy1yZXBsYXktcHJvb2ZcIixcInJldmlzaW9uXCI6MSxcImFuY2hvclwiOlwie1xcXCJ2XFxcIjoxLFxcXCJzb3J0XFxcIjpcXFwiYXVjdGlvbl9uZXh0XFxcIixcXFwidmFsdWVcXFwiOjE3OTU1Mzk2MDAsXFxcImlkXFxcIjpcXFwibGlzdGluZ3xhcGliYXJhfGNvcGFydHxzb3VyY2V8NzM3NTE3OTZcXFwiLFxcXCJhc09mXFxcIjoxNzk1NTM4MzMxMDUxfVwifSJd"
+        },
+        "duplicates": 0
+      },
+      "current": {
+        "first": {
+          "http": 200,
+          "ms": 262,
+          "source": "d1",
+          "rows": 6,
+          "covers": 2,
+          "first": {
+            "lot": "46087626",
+            "platform": "copart"
+          },
+          "keys": [
+            "copart:46087626",
+            "copart:46350466",
+            "copart:46995635",
+            "copart:47018496",
+            "copart:48442696",
+            "copart:48581306"
+          ],
+          "cursor": "WyJsaXN0aW5nIiwie1widlwiOjIsXCJiYXNlbGluZUlkXCI6XCJsb2NhbC0xMDczMy1yZXBsYXktcHJvb2ZcIixcInJldmlzaW9uXCI6MSxcImFuY2hvclwiOlwie1xcXCJ2XFxcIjoxLFxcXCJzb3J0XFxcIjpcXFwiYXVjdGlvbl9uZXh0XFxcIixcXFwidmFsdWVcXFwiOjE3OTU1Mzk2MDAsXFxcImlkXFxcIjpcXFwibGlzdGluZ3xhcGliYXJhfGNvcGFydHxzb3VyY2V8NDg1ODEzMDZcXFwiLFxcXCJhc09mXFxcIjoxNzk1NTM4MzMxNTE2fVwifSJd"
+        },
+        "second": {
+          "http": 200,
+          "ms": 166,
+          "source": "d1",
+          "rows": 6,
+          "covers": 5,
+          "first": {
+            "lot": "49275536",
+            "platform": "copart"
+          },
+          "keys": [
+            "copart:49275536",
+            "copart:49814296",
+            "copart:50420136",
+            "copart:51194926",
+            "copart:51906146",
+            "copart:51906266"
+          ],
+          "cursor": "WyJsaXN0aW5nIiwie1widlwiOjIsXCJiYXNlbGluZUlkXCI6XCJsb2NhbC0xMDczMy1yZXBsYXktcHJvb2ZcIixcInJldmlzaW9uXCI6MSxcImFuY2hvclwiOlwie1xcXCJ2XFxcIjoxLFxcXCJzb3J0XFxcIjpcXFwiYXVjdGlvbl9uZXh0XFxcIixcXFwidmFsdWVcXFwiOjE3OTU1Mzk2MDAsXFxcImlkXFxcIjpcXFwibGlzdGluZ3xhcGliYXJhfGNvcGFydHxzb3VyY2V8NTE5MDYyNjZcXFwiLFxcXCJhc09mXFxcIjoxNzk1NTM4MzMxNTE2fVwifSJd"
+        },
+        "duplicates": 0
+      },
+      "buyNow": {
+        "first": {
+          "http": 200,
+          "ms": 217,
+          "source": "d1",
+          "rows": 6,
+          "covers": 3,
+          "first": {
+            "lot": "46995635",
+            "platform": "copart"
+          },
+          "keys": [
+            "copart:46995635",
+            "copart:49275536",
+            "copart:53646966",
+            "copart:65917836",
+            "copart:72024246",
+            "copart:73700126"
+          ],
+          "cursor": "WyJsaXN0aW5nIiwie1widlwiOjIsXCJiYXNlbGluZUlkXCI6XCJsb2NhbC0xMDczMy1yZXBsYXktcHJvb2ZcIixcInJldmlzaW9uXCI6MSxcImFuY2hvclwiOlwie1xcXCJ2XFxcIjoxLFxcXCJzb3J0XFxcIjpcXFwiYXVjdGlvbl9uZXh0XFxcIixcXFwidmFsdWVcXFwiOjE3OTU1Mzk2MDAsXFxcImlkXFxcIjpcXFwibGlzdGluZ3xhcGliYXJhfGNvcGFydHxzb3VyY2V8NzM3MDAxMjZcXFwiLFxcXCJhc09mXFxcIjoxNzk1NTM4MzMxOTU5fVwifSJd"
+        }
+      },
+      "timed": {
+        "first": {
+          "http": 200,
+          "ms": 387,
+          "source": "apibara_timed_snapshot",
+          "rows": 6,
+          "covers": 6,
+          "first": {
+            "lot": "46162264",
+            "platform": "iaai"
+          },
+          "keys": [
+            "iaai:46162264",
+            "iaai:46196877",
+            "iaai:46342287",
+            "iaai:46344182",
+            "iaai:46410658",
+            "iaai:46428418"
+          ],
+          "cursor": "ti1.eyJzb3J0IjoiYXVjdGlvbl9uZXh0IiwidmFsdWUiOjE3OTU1NjQ4MDAwMDAsImxvdCI6IjQ2NDI4NDE4In0="
+        }
+      },
+      "timedHome": {
+        "first": {
+          "http": 200,
+          "ms": 97,
+          "source": "apibara_timed_snapshot",
+          "rows": 4,
+          "covers": 4,
+          "first": {
+            "lot": "46162264",
+            "platform": "iaai"
+          },
+          "keys": [
+            "iaai:46162264",
+            "iaai:46196877",
+            "iaai:46342287",
+            "iaai:46344182"
+          ],
+          "cursor": "ti1.eyJzb3J0IjoiYXVjdGlvbl9uZXh0IiwidmFsdWUiOjE3OTU1NjQ2ODAwMDAsImxvdCI6IjQ2MzQ0MTgyIn0="
+        }
+      },
+      "copart": {
+        "first": {
+          "http": 200,
+          "ms": 195,
+          "source": "d1",
+          "rows": 6,
+          "covers": 2,
+          "first": {
+            "lot": "46087626",
+            "platform": "copart"
+          },
+          "keys": [
+            "copart:46087626",
+            "copart:46350466",
+            "copart:46995635",
+            "copart:47018496",
+            "copart:48442696",
+            "copart:48581306"
+          ],
+          "cursor": "WyJsaXN0aW5nIiwie1widlwiOjIsXCJiYXNlbGluZUlkXCI6XCJsb2NhbC0xMDczMy1yZXBsYXktcHJvb2ZcIixcInJldmlzaW9uXCI6MSxcImFuY2hvclwiOlwie1xcXCJ2XFxcIjoxLFxcXCJzb3J0XFxcIjpcXFwiYXVjdGlvbl9uZXh0XFxcIixcXFwidmFsdWVcXFwiOjE3OTU1Mzk2MDAsXFxcImlkXFxcIjpcXFwibGlzdGluZ3xhcGliYXJhfGNvcGFydHxzb3VyY2V8NDg1ODEzMDZcXFwiLFxcXCJhc09mXFxcIjoxNzk1NTM4MzMyNjM5fVwifSJd"
+        }
+      },
+      "iaai": {
+        "first": {
+          "http": 200,
+          "ms": 350,
+          "source": "d1",
+          "rows": 6,
+          "covers": 6,
+          "first": {
+            "lot": "44103794",
+            "platform": "iaai"
+          },
+          "keys": [
+            "iaai:44103794",
+            "iaai:44185350",
+            "iaai:44346618",
+            "iaai:44626541",
+            "iaai:44940277",
+            "iaai:44964338"
+          ],
+          "cursor": "WyJsaXN0aW5nIiwie1widlwiOjIsXCJiYXNlbGluZUlkXCI6XCJsb2NhbC0xMDczMy1yZXBsYXktcHJvb2ZcIixcInJldmlzaW9uXCI6MSxcImFuY2hvclwiOlwie1xcXCJ2XFxcIjoxLFxcXCJzb3J0XFxcIjpcXFwiYXVjdGlvbl9uZXh0XFxcIixcXFwidmFsdWVcXFwiOjE3OTU1Mzk2MDAsXFxcImlkXFxcIjpcXFwibGlzdGluZ3xhcGliYXJhfGlhYWl8c291cmNlfDQ0OTY0MzM4XFxcIixcXFwiYXNPZlxcXCI6MTc5NTUzODMzMjkwNH1cIn0iXQ"
+        }
+      }
+    },
+    "cards": [
+      {
+        "lot": "46087626",
+        "platform": "copart",
+        "http": 200,
+        "images": 0,
+        "image": null
+      },
+      {
+        "lot": "44103794",
+        "platform": "iaai",
+        "http": 200,
+        "images": 14,
+        "image": {
+          "http": 200,
+          "type": "image/jpeg"
+        }
+      }
+    ],
+    "archive": {
+      "http": 200,
+      "entries": 1
+    }
+  }
+}

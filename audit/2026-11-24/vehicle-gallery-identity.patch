@@ -1,0 +1,130 @@
+diff --git a/repair.cjs b/repair.cjs
+index fbaf2a2..8fddbf5 100644
+--- a/repair.cjs
++++ b/repair.cjs
+@@ -12,7 +12,7 @@ function batchSize(remaining){
+  const target=remaining>=BURST_QUOTA?BURST_BATCH:remaining>=60000?10:4;
+  return Math.min(remaining-API_RESERVE,target);
+ }
+-const empty='l.media_urls_json IS NULL AND l.media_thumbs_json IS NULL';
++const empty="(l.media_urls_json IS NULL OR l.media_urls_json='[]') AND (l.media_thumbs_json IS NULL OR l.media_thumbs_json='[]')";
+ const member='EXISTS(SELECT 1 FROM feed_catalog_pointer p JOIN feed_catalog_membership m ON m.baseline_id=p.baseline_id WHERE p.singleton=1 AND m.active=1 AND m.listing_id=l.listing_id)';
+ const active="l.auction_state IN ('open','live')";
+ function selection(now,anchor){
+@@ -31,6 +31,12 @@ function media(row,raw){
+  if(!items.length&&!thumbs.length)return null;
+  return [items,thumbs].map(list=>list.length?packMediaJson(JSON.stringify(list)):null);
+ }
++async function lookupGallery(row,byVin,detail){
++ const raw=await detail(byVin?row.vin:row.lot);
++ const collision=!byVin && raw?.platform==='iaai' && String(raw.lot_number)===row.lot
++   && /^[A-HJ-NPR-Z0-9]{17}$/i.test(raw.vin||'');
++ return {pair:media(row,raw),retryByVin:collision};
++}
+ const update=`UPDATE auction_listings AS l SET media_urls_json=?,media_thumbs_json=?
+  WHERE l.listing_id=? AND l.platform='copart' AND l.lot=? AND l.source_listing_id=l.lot AND l.vin_normalized=?
+  AND l.identity_state='resolved' AND ${empty} AND ${active} AND (${auctionKey})=? AND ${member}`;
+@@ -85,11 +91,25 @@ async function run(env,now=Date.now()){
+     scanned+=rows.length;
+     for(const row of rows){
+      if(row.eligible&&/^\d+$/.test(row.lot)&&/^[A-HJ-NPR-Z0-9]{17}$/.test(row.vin)){
+-       state.requestCount++;state.quota--;attempted++;
+        current={id:row.listing_id,time:row.time};
+        stage='vehicle_detail';
+-       const raw=await call('vehicles/'+encodeURIComponent(row.lot)).catch(e=>{if(e.message==='SOURCE_404')return null;throw e;});
+-       const pair=media(row,raw);
++       const byVin=state.retryVinListing===row.listing_id;
++       const detail=async id=>{
++         state.requestCount++;state.quota--;attempted++;
++         return call('vehicles/'+encodeURIComponent(id)).catch(e=>{if(e.message==='SOURCE_404')return null;throw e;});
++       };
++       let lookup=await lookupGallery(row,byVin,detail);
++       if(lookup.retryByVin){
++         state.retryVinListing=row.listing_id;
++         if(attempted===batch){
++           // Keep the cursor before this row until the next slot has a request available.
++           state.filled=(state.filled||0)+filled.length;
++           return await save({status:'lot_collision_retry_by_vin',attempted,filled,scanned});
++         }
++         lookup=await lookupGallery(row,true,detail);
++       }
++       if(state.retryVinListing===row.listing_id)delete state.retryVinListing;
++       const pair=lookup.pair;
+        if(pair){
+          stage='save_gallery';
+          const wrote=await db.prepare(update).bind(...pair,row.listing_id,row.lot,row.vin,row.time).run();
+@@ -115,4 +135,4 @@ async function run(env,now=Date.now()){
+    return await save({status:code,stage,reason,attempted,filled});
+  }
+ }
+-module.exports={run,selection,media,update,KEY,batchSize};
++module.exports={run,selection,media,update,KEY,batchSize,lookupGallery};
+diff --git a/repair.test.cjs b/repair.test.cjs
+index e0c67ee..6a95abe 100644
+--- a/repair.test.cjs
++++ b/repair.test.cjs
+@@ -3,10 +3,43 @@ const {DatabaseSync}=require('node:sqlite');
+ const {selection,update,media,run}=require('./repair.cjs');
+ const {auctionIndexSql}=require('../../inquiry-budget-20261119/site/sync/catalog-order.cjs');
+ const at=Date.parse('2026-11-19T10:00:00Z'),vin='1FADP5AU8DL509002';
++test('kolizja LOT kieruje kolejne sprawdzenie na VIN i wymaga zgodności całej tożsamości',async()=>{
++ const {lookupGallery}=require('./repair.cjs');
++ const row={lot:'46087626',vin:'2C4RDGBG4HR742563'};
++ const images={items:['https://example.org/correct.jpg']};
++ const wrong={platform:'iaai',lot_number:row.lot,vin:'2T1BURHE5JC075043',media:images,auction:{state:'open'}};
++ const right={...wrong,platform:'copart',vin:row.vin};const ids=[];
++ const read=async id=>{ids.push(id);return id===row.lot?wrong:right;};
++ assert.deepEqual(await lookupGallery(row,false,read),{pair:null,retryByVin:true});
++ assert.ok((await lookupGallery(row,true,read)).pair);assert.deepEqual(ids,[row.lot,row.vin]);
++ for(const raw of [wrong,{...right,lot_number:'99999'},null])assert.deepEqual(await lookupGallery(row,true,async()=>raw),{pair:null,retryByVin:false});
++});
+ test('przyspieszenie zależy od zapasu Pro i zostawia co najmniej 30 tysięcy według miernika',()=>{
+  const {batchSize}=require('./repair.cjs');
+  for(const [remaining,wanted] of [[79700,20],[70000,20],[69999,10],[60000,10],[59999,4],[30003,3],[30000,0],[0,0],[null,0]])assert.equal(batchSize(remaining),wanted);
+ });
++test('ostatnie zapytanie doby zachowuje kursor, a następny cykl pobiera po VIN i zapisuje właściwą galerię',async t=>{
++ const now=Date.parse('2026-11-19T23:59:00Z'),lot='46087626',expectedVin='2C4RDGBG4HR742563';
++ const row={listing_id:'dodge',lot,vin:expectedVin,eligible:1,time:123};
++ let state={quotaAt:now,quota:75000,requestDay:'2026-11-19',requestCount:5759},writes=0;
++ const ids=[];
++ t.mock.method(globalThis,'fetch',async path=>{
++   const id=String(path).split('/').pop();ids.push(id);
++   const raw={platform:id===lot?'iaai':'copart',lot_number:lot,vin:id===lot?'2T1BURHE5JC075043':expectedVin,auction:{state:'open'},media:{items:['https://example.org/car.jpg']}};
++   return Response.json({data:raw});
++ });
++ const policy={version:2,billingDay:6,prioritizePublication:true,measuredAt:'2026-11-19T00:00:00Z',databaseMaxBytes:8e9,days:[]};
++ const env={APIBARA_KEY:'test',ACCOUNT_POLICY:JSON.stringify(policy),
++   STATE:{get:async()=>({etag:'ok',json:async()=>state}),put:async(k,v)=>{state=JSON.parse(v);return {etag:'ok'};}},
++   CATALOG:{prepare:sql=>({bind:()=>({
++     all:async()=>sql.includes('server_feed_daily_budgets')?{results:[{reads:0,writes:0}],meta:{size_after:2e9}}:{results:writes?[]:[row]},
++     run:async()=>{writes++;return {meta:{changes:1}};}
++   })})}};
++ assert.equal((await run(env,now)).status,'lot_collision_retry_by_vin');
++ assert.deepEqual(ids,[lot]);assert.equal(writes,0);assert.equal(state.requestCount,5760);assert.equal(state.retryVinListing,'dodge');assert.equal(state.anchor,undefined);
++ assert.equal((await run(env,now+300000)).status,'complete');assert.deepEqual(ids,[lot,expectedVin]);
++ assert.equal(writes,1);assert.equal(state.requestCount,1);assert.equal(state.filled,1);assert.equal(state.retryVinListing,undefined);
++});
+ function fixture(){
+  const db=new DatabaseSync(':memory:');
+  db.exec("CREATE TABLE auction_listings(listing_id TEXT PRIMARY KEY,lot TEXT,source_listing_id TEXT,vin_normalized TEXT,platform TEXT,identity_state TEXT,auction_state TEXT,source_status TEXT,is_timed INTEGER,timed_end_at TEXT,auction_at TEXT,media_urls_json TEXT,media_thumbs_json TEXT);CREATE TABLE feed_catalog_pointer(singleton INTEGER,baseline_id TEXT);CREATE TABLE feed_catalog_membership(baseline_id TEXT,listing_id TEXT,active INTEGER);INSERT INTO feed_catalog_pointer VALUES(1,'a');"+auctionIndexSql);
+@@ -28,6 +61,20 @@ test('zapis tylko dla tej samej aukcji, dnia i pustych mediów',()=>{
+  db.exec('UPDATE feed_catalog_membership SET active=0');assert.equal(write(vin,r.time),0);
+  db.exec('UPDATE feed_catalog_membership SET active=1');assert.equal(write(vin,r.time),1);assert.equal(write(vin,r.time),0);
+ });
++test('puste tablice i NULL są uzupełniane tylko jeśli obie galerie są puste, bez skanowania katalogu',()=>{
++ const db=fixture(),query=selection(at,null);
++ const plan=db.prepare('EXPLAIN QUERY PLAN '+query.sql).all(...query.args).map(x=>x.detail);
++ assert.ok(plan.some(line=>line.includes('SEARCH l USING INDEX idx_listings_public_auction_date')));
++ assert.ok(!plan.some(line=>line.startsWith('SCAN l')));
++ const setMedia=db.prepare("UPDATE auction_listings SET media_urls_json=?, media_thumbs_json=? WHERE listing_id='1'");
++ for(const [main,thumb,expected] of [[null,null,1],['[]',null,1],[null,'[]',1],['[]','[]',1],['["https://example.org/a.jpg"]','[]',0],['[]','["https://example.org/t.jpg"]',0]]){
++   setMedia.run(main,thumb);
++   const row=db.prepare(query.sql).all(...query.args).find(r=>r.listing_id==='1');
++   assert.equal(row.eligible,expected);
++   assert.equal(db.prepare(update).run('["https://example.org/new.jpg"]',null,row.listing_id,row.lot,vin,row.time).changes,expected);
++ }
++ db.close();
++});
+ test('dane szczegółowe z niezgodnym VIN, domem aukcyjnym lub statusem są pomijane',()=>{
+  const r={lot:'1',vin},raw={platform:'copart',lot_number:'1',vin,auction:{state:'open'},media:{items:['https://example.org/a.jpg']}};
+  assert.ok(media(r,raw)[0]);for(const changes of [{vin:'X'},{lot_number:'2'},{platform:'iaai'},{auction:{state:'sold'}},{auction:{state:'open',lot_removed:true}},{media:{}}])assert.equal(media(r,{...raw,...changes}),null);

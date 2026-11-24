@@ -1,0 +1,30 @@
+{
+  "at": "2026-11-24T17:02:12.027Z",
+  "lot": "45111614",
+  "http": [
+    200,
+    200
+  ],
+  "identity": "2T3A1RFV7RW473296",
+  "publicProduction": {
+    "htmlBytes": 218592,
+    "apiBytes": 4425,
+    "brotli5Both": 51676
+  },
+  "sameHTMLControlled": {
+    "n": 30,
+    "htmlBytes": 217183,
+    "apiBytes": 4425,
+    "beforeBrotli5": 51703,
+    "afterBrotli5": 51591,
+    "afterHtmlBytes": 221752,
+    "perRenderLookup": 1,
+    "browserLookupOnHydration": 0,
+    "localRenderMedianMs": 3.0289000000000215,
+    "localRenderP95Ms": 5.545500000000061
+  },
+  "notes": [
+    "Local Brotli quality 5 with same HTML shell, representative full public payload, no proxy encoding/Worker billing assumptions.",
+    "Client lookup count separately proven by tests/vehicle-page.test.cjs."
+  ]
+}

@@ -1,0 +1,1417 @@
+{
+  "startedUtc": "2026-11-24T17:03:44.890Z",
+  "origin": "https://rexbid.pl",
+  "api": [
+    {
+      "label": "Elektryczne",
+      "filters": {
+        "fuel_type": "Electric"
+      },
+      "page": 1,
+      "startedUtc": "2026-11-24T17:03:44.938Z",
+      "durationMs": 523,
+      "status": 200,
+      "next": true,
+      "count": 6,
+      "error": null,
+      "fields": [
+        "vehicle_id",
+        "platform",
+        "vin",
+        "slug_vin",
+        "lot_number",
+        "title",
+        "year",
+        "make",
+        "model",
+        "trim",
+        "body_style",
+        "fuel_type",
+        "transmission",
+        "drive_type",
+        "engine_size_l",
+        "auction",
+        "pricing",
+        "seller",
+        "condition",
+        "sale_document",
+        "location",
+        "odometer",
+        "last_seen_at",
+        "last_synced_at",
+        "freshness_status",
+        "read",
+        "image"
+      ],
+      "rows": [
+        {
+          "key": "iaai:46001646",
+          "vin": "YV4ED3UM8P2000882",
+          "year": 2023,
+          "make": "VOLVO",
+          "fuel": "Electric",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:46008683",
+          "vin": "YSMFD3KA8RL218595",
+          "year": 2024,
+          "make": "POLESTAR",
+          "fuel": "Electric",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:46127638",
+          "vin": "WBY63HD03TFW75626",
+          "year": 2026,
+          "make": "BMW",
+          "fuel": "Electric",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:46197864",
+          "vin": "5YJ3E1EB6RF813341",
+          "year": 2024,
+          "make": "TESLA",
+          "fuel": "Electric",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:46286019",
+          "vin": "W1N9M0KB7RN101104",
+          "year": 2024,
+          "make": "MERCEDES-BENZ",
+          "fuel": "Electric",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:46331246",
+          "vin": "1V2DNPE85PC049261",
+          "year": 2023,
+          "make": "VOLKSWAGEN",
+          "fuel": "Electric",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "label": "Subaru od 2025",
+      "filters": {
+        "make": "SUBARU",
+        "year_from": "2025"
+      },
+      "page": 1,
+      "startedUtc": "2026-11-24T17:03:44.891Z",
+      "durationMs": 1124,
+      "status": 200,
+      "next": true,
+      "count": 6,
+      "error": null,
+      "fields": [
+        "vehicle_id",
+        "platform",
+        "vin",
+        "slug_vin",
+        "lot_number",
+        "title",
+        "year",
+        "make",
+        "model",
+        "trim",
+        "body_style",
+        "fuel_type",
+        "transmission",
+        "drive_type",
+        "engine_size_l",
+        "auction",
+        "pricing",
+        "seller",
+        "condition",
+        "sale_document",
+        "location",
+        "odometer",
+        "last_seen_at",
+        "last_synced_at",
+        "freshness_status",
+        "read",
+        "image"
+      ],
+      "rows": [
+        {
+          "key": "copart:66837846",
+          "vin": "JF2SKAJCXSH402180",
+          "year": 2025,
+          "make": "SUBARU",
+          "fuel": "Gas",
+          "auctionAt": "2026-11-24T18:00:00.000Z"
+        },
+        {
+          "key": "copart:67083396",
+          "vin": "JF2SKAJC3SH407009",
+          "year": 2025,
+          "make": "SUBARU",
+          "fuel": "Gas",
+          "auctionAt": "2026-11-24T18:00:00.000Z"
+        },
+        {
+          "key": "copart:67415896",
+          "vin": "JF2SLDAC1SH565833",
+          "year": 2025,
+          "make": "SUBARU",
+          "fuel": "Gas",
+          "auctionAt": "2026-11-24T18:00:00.000Z"
+        },
+        {
+          "key": "copart:67689986",
+          "vin": "4S4GUHU69T3716541",
+          "year": 2026,
+          "make": "SUBARU",
+          "fuel": "Gas",
+          "auctionAt": "2026-11-24T18:00:00.000Z"
+        },
+        {
+          "key": "copart:69121916",
+          "vin": "4S4SLDD60T3004361",
+          "year": 2026,
+          "make": "SUBARU",
+          "fuel": "Gas",
+          "auctionAt": "2026-11-24T18:00:00.000Z"
+        },
+        {
+          "key": "copart:70006486",
+          "vin": "4S3BWGG67S3031581",
+          "year": 2025,
+          "make": "SUBARU",
+          "fuel": "Gas",
+          "auctionAt": "2026-11-24T18:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "label": "Aktualne",
+      "filters": {
+        "category": "current"
+      },
+      "page": 1,
+      "startedUtc": "2026-11-24T17:03:44.939Z",
+      "durationMs": 1176,
+      "status": 200,
+      "next": true,
+      "count": 6,
+      "error": null,
+      "fields": [
+        "vehicle_id",
+        "platform",
+        "vin",
+        "slug_vin",
+        "lot_number",
+        "title",
+        "year",
+        "make",
+        "model",
+        "trim",
+        "body_style",
+        "fuel_type",
+        "transmission",
+        "drive_type",
+        "engine_size_l",
+        "auction",
+        "pricing",
+        "seller",
+        "condition",
+        "sale_document",
+        "location",
+        "odometer",
+        "last_seen_at",
+        "last_synced_at",
+        "freshness_status",
+        "read",
+        "image"
+      ],
+      "rows": [
+        {
+          "key": "iaai:32039484",
+          "vin": "1FBSS31L57DB42333",
+          "year": 2007,
+          "make": "FORD",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:42057982",
+          "vin": "SALCT2BG4GH565432",
+          "year": 2016,
+          "make": "LAND ROVER",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:42720025",
+          "vin": "1HA3GSCG0KN004385",
+          "year": 2019,
+          "make": "CHEVROLET",
+          "fuel": "Flexiblefuel",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:42986108",
+          "vin": "3VWH17AU2JM750876",
+          "year": 2018,
+          "make": "VOLKSWAGEN",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:43035229",
+          "vin": "1FT7W2BT5KEC88958",
+          "year": 2019,
+          "make": "FORD",
+          "fuel": "Diesel",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:43197422",
+          "vin": "2HGFB2F70FH562068",
+          "year": 2015,
+          "make": "HONDA",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "label": "Elektryczne",
+      "filters": {
+        "fuel_type": "Electric"
+      },
+      "page": 2,
+      "startedUtc": "2026-11-24T17:03:46.116Z",
+      "durationMs": 206,
+      "status": 200,
+      "next": true,
+      "count": 6,
+      "error": null,
+      "fields": [
+        "vehicle_id",
+        "platform",
+        "vin",
+        "slug_vin",
+        "lot_number",
+        "title",
+        "year",
+        "make",
+        "model",
+        "trim",
+        "body_style",
+        "fuel_type",
+        "transmission",
+        "drive_type",
+        "engine_size_l",
+        "auction",
+        "pricing",
+        "seller",
+        "condition",
+        "sale_document",
+        "location",
+        "odometer",
+        "last_seen_at",
+        "last_synced_at",
+        "freshness_status",
+        "read",
+        "image"
+      ],
+      "rows": [
+        {
+          "key": "iaai:46353280",
+          "vin": "7SAYGDEF1PF914520",
+          "year": 2023,
+          "make": "TESLA",
+          "fuel": "Electric",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:46387290",
+          "vin": "JTJBDADBXTA000209",
+          "year": 2026,
+          "make": "LEXUS",
+          "fuel": "Electric",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:46387945",
+          "vin": "5YJ3E1EA2JF163189",
+          "year": 2018,
+          "make": "TESLA",
+          "fuel": "Electric",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:46446759",
+          "vin": "7SAYGDEE4PF619001",
+          "year": 2023,
+          "make": "TESLA",
+          "fuel": "Electric",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:46500847",
+          "vin": "3C3CFFGEXGT152367",
+          "year": 2016,
+          "make": "FIAT",
+          "fuel": "Electric",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:46534545",
+          "vin": "5YJ3E1EC6PF464624",
+          "year": 2023,
+          "make": "TESLA",
+          "fuel": "Electric",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "label": "Subaru od 2025",
+      "filters": {
+        "make": "SUBARU",
+        "year_from": "2025"
+      },
+      "page": 2,
+      "startedUtc": "2026-11-24T17:03:46.116Z",
+      "durationMs": 363,
+      "status": 200,
+      "next": true,
+      "count": 6,
+      "error": null,
+      "fields": [
+        "vehicle_id",
+        "platform",
+        "vin",
+        "slug_vin",
+        "lot_number",
+        "title",
+        "year",
+        "make",
+        "model",
+        "trim",
+        "body_style",
+        "fuel_type",
+        "transmission",
+        "drive_type",
+        "engine_size_l",
+        "auction",
+        "pricing",
+        "seller",
+        "condition",
+        "sale_document",
+        "location",
+        "odometer",
+        "last_seen_at",
+        "last_synced_at",
+        "freshness_status",
+        "read",
+        "image"
+      ],
+      "rows": [
+        {
+          "key": "copart:70244506",
+          "vin": "4S4BTANC1S3311216",
+          "year": 2025,
+          "make": "SUBARU",
+          "fuel": "Gas",
+          "auctionAt": "2026-11-24T18:00:00.000Z"
+        },
+        {
+          "key": "copart:70313026",
+          "vin": "4S4SLDD67T3013977",
+          "year": 2026,
+          "make": "SUBARU",
+          "fuel": "Gas",
+          "auctionAt": "2026-11-24T18:00:00.000Z"
+        },
+        {
+          "key": "copart:71007886",
+          "vin": "4S4BTANC2S3119982",
+          "year": 2025,
+          "make": "SUBARU",
+          "fuel": "Gas",
+          "auctionAt": "2026-11-24T18:00:00.000Z"
+        },
+        {
+          "key": "copart:71278136",
+          "vin": "JF2SLSEDXSH402735",
+          "year": 2025,
+          "make": "SUBARU",
+          "fuel": "Electric and gas hybrid",
+          "auctionAt": "2026-11-24T18:00:00.000Z"
+        },
+        {
+          "key": "copart:72948486",
+          "vin": "JF1VBAH63T9803213",
+          "year": 2026,
+          "make": "SUBARU",
+          "fuel": "Gas",
+          "auctionAt": "2026-11-24T18:00:00.000Z"
+        },
+        {
+          "key": "copart:78203066",
+          "vin": "JF2GUHDC8S8236150",
+          "year": 2025,
+          "make": "SUBARU",
+          "fuel": "Gas",
+          "auctionAt": "2026-11-24T18:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "label": "Aktualne",
+      "filters": {
+        "category": "current"
+      },
+      "page": 2,
+      "startedUtc": "2026-11-24T17:03:46.117Z",
+      "durationMs": 363,
+      "status": 200,
+      "next": true,
+      "count": 6,
+      "error": null,
+      "fields": [
+        "vehicle_id",
+        "platform",
+        "vin",
+        "slug_vin",
+        "lot_number",
+        "title",
+        "year",
+        "make",
+        "model",
+        "trim",
+        "body_style",
+        "fuel_type",
+        "transmission",
+        "drive_type",
+        "engine_size_l",
+        "auction",
+        "pricing",
+        "seller",
+        "condition",
+        "sale_document",
+        "location",
+        "odometer",
+        "last_seen_at",
+        "last_synced_at",
+        "freshness_status",
+        "read",
+        "image"
+      ],
+      "rows": [
+        {
+          "key": "iaai:43454920",
+          "vin": "5N1DL0MN5LC530350",
+          "year": 2020,
+          "make": "INFINITI",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:43506511",
+          "vin": "KNDJN2A28J7902471",
+          "year": 2018,
+          "make": "KIA",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:43821889",
+          "vin": "55SWF4JB1JU254253",
+          "year": 2018,
+          "make": "MERCEDES-BENZ",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:43837106",
+          "vin": "2HNYD28859H518542",
+          "year": 2009,
+          "make": "ACURA",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:43916059",
+          "vin": "1NXBR32E08Z954966",
+          "year": 2008,
+          "make": "TOYOTA",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:43927017",
+          "vin": "3FAHP0JGXAR394009",
+          "year": 2010,
+          "make": "FORD",
+          "fuel": "Flexiblefuel",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "label": "Obie granice",
+      "filters": {
+        "year_from": "2022",
+        "year_to": "2024"
+      },
+      "page": 1,
+      "startedUtc": "2026-11-24T17:03:46.481Z",
+      "durationMs": 212,
+      "status": 200,
+      "next": true,
+      "count": 6,
+      "error": null,
+      "fields": [
+        "vehicle_id",
+        "platform",
+        "vin",
+        "slug_vin",
+        "lot_number",
+        "title",
+        "year",
+        "make",
+        "model",
+        "trim",
+        "body_style",
+        "fuel_type",
+        "transmission",
+        "drive_type",
+        "engine_size_l",
+        "auction",
+        "pricing",
+        "seller",
+        "condition",
+        "sale_document",
+        "location",
+        "odometer",
+        "last_seen_at",
+        "last_synced_at",
+        "freshness_status",
+        "read",
+        "image"
+      ],
+      "rows": [
+        {
+          "key": "iaai:44995479",
+          "vin": "KL77LKE21RC154219",
+          "year": 2024,
+          "make": "CHEVROLET",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:45111614",
+          "vin": "2T3A1RFV7RW473296",
+          "year": 2024,
+          "make": "TOYOTA",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:45246101",
+          "vin": "JA4J4UA87NZ021848",
+          "year": 2022,
+          "make": "MITSUBISHI",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:45269312",
+          "vin": "JTDEPMAE1NJ226178",
+          "year": 2022,
+          "make": "TOYOTA",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:45339285",
+          "vin": "YV4L12RL8R1916139",
+          "year": 2024,
+          "make": "VOLVO",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:45389367",
+          "vin": "2HGFE2F56RH593822",
+          "year": 2024,
+          "make": "HONDA",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "label": "Bez granic",
+      "filters": {},
+      "page": 1,
+      "startedUtc": "2026-11-24T17:03:46.481Z",
+      "durationMs": 341,
+      "status": 200,
+      "next": true,
+      "count": 6,
+      "error": null,
+      "fields": [
+        "vehicle_id",
+        "platform",
+        "vin",
+        "slug_vin",
+        "lot_number",
+        "title",
+        "year",
+        "make",
+        "model",
+        "trim",
+        "body_style",
+        "fuel_type",
+        "transmission",
+        "drive_type",
+        "engine_size_l",
+        "auction",
+        "pricing",
+        "seller",
+        "condition",
+        "sale_document",
+        "location",
+        "odometer",
+        "last_seen_at",
+        "last_synced_at",
+        "freshness_status",
+        "read",
+        "image"
+      ],
+      "rows": [
+        {
+          "key": "iaai:32039484",
+          "vin": "1FBSS31L57DB42333",
+          "year": 2007,
+          "make": "FORD",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:42057982",
+          "vin": "SALCT2BG4GH565432",
+          "year": 2016,
+          "make": "LAND ROVER",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:42720025",
+          "vin": "1HA3GSCG0KN004385",
+          "year": 2019,
+          "make": "CHEVROLET",
+          "fuel": "Flexiblefuel",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:42986108",
+          "vin": "3VWH17AU2JM750876",
+          "year": 2018,
+          "make": "VOLKSWAGEN",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:43035229",
+          "vin": "1FT7W2BT5KEC88958",
+          "year": 2019,
+          "make": "FORD",
+          "fuel": "Diesel",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:43197422",
+          "vin": "2HGFB2F70FH562068",
+          "year": 2015,
+          "make": "HONDA",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "label": "Tylko do",
+      "filters": {
+        "year_to": "2017"
+      },
+      "page": 1,
+      "startedUtc": "2026-11-24T17:03:46.481Z",
+      "durationMs": 406,
+      "status": 200,
+      "next": true,
+      "count": 6,
+      "error": null,
+      "fields": [
+        "vehicle_id",
+        "platform",
+        "vin",
+        "slug_vin",
+        "lot_number",
+        "title",
+        "year",
+        "make",
+        "model",
+        "trim",
+        "body_style",
+        "fuel_type",
+        "transmission",
+        "drive_type",
+        "engine_size_l",
+        "auction",
+        "pricing",
+        "seller",
+        "condition",
+        "sale_document",
+        "location",
+        "odometer",
+        "last_seen_at",
+        "last_synced_at",
+        "freshness_status",
+        "read",
+        "image"
+      ],
+      "rows": [
+        {
+          "key": "iaai:32039484",
+          "vin": "1FBSS31L57DB42333",
+          "year": 2007,
+          "make": "FORD",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:42057982",
+          "vin": "SALCT2BG4GH565432",
+          "year": 2016,
+          "make": "LAND ROVER",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:43197422",
+          "vin": "2HGFB2F70FH562068",
+          "year": 2015,
+          "make": "HONDA",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:43837106",
+          "vin": "2HNYD28859H518542",
+          "year": 2009,
+          "make": "ACURA",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:43916059",
+          "vin": "1NXBR32E08Z954966",
+          "year": 2008,
+          "make": "TOYOTA",
+          "fuel": "Gasoline",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        },
+        {
+          "key": "iaai:43927017",
+          "vin": "3FAHP0JGXAR394009",
+          "year": 2010,
+          "make": "FORD",
+          "fuel": "Flexiblefuel",
+          "auctionAt": "2026-11-24T17:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "label": "Od większe niż do",
+      "filters": {
+        "year_from": "2025",
+        "year_to": "2022"
+      },
+      "page": 1,
+      "startedUtc": "2026-11-24T17:03:46.888Z",
+      "durationMs": 125,
+      "status": 400,
+      "next": false,
+      "count": 0,
+      "error": "invalid_year_range",
+      "fields": [],
+      "rows": []
+    },
+    {
+      "label": "Brak dopasowań",
+      "filters": {
+        "make": "REXBID-ZZZ-TEST-BRAK"
+      },
+      "page": 1,
+      "startedUtc": "2026-11-24T17:03:46.889Z",
+      "durationMs": 216,
+      "status": 200,
+      "next": false,
+      "count": 0,
+      "error": null,
+      "fields": [],
+      "rows": []
+    }
+  ],
+  "browser": {
+    "viewport": "390x844",
+    "first": {
+      "url": "https://rexbid.pl/?catalog=1&make=SUBARU&year_from=2025",
+      "count": 20,
+      "rows": [
+        {
+          "key": "copart:66837846",
+          "vin": "JF2SKAJCXSH402180"
+        },
+        {
+          "key": "copart:67083396",
+          "vin": "JF2SKAJC3SH407009"
+        },
+        {
+          "key": "copart:67415896",
+          "vin": "JF2SLDAC1SH565833"
+        },
+        {
+          "key": "copart:67689986",
+          "vin": "4S4GUHU69T3716541"
+        },
+        {
+          "key": "copart:69121916",
+          "vin": "4S4SLDD60T3004361"
+        },
+        {
+          "key": "copart:70006486",
+          "vin": "4S3BWGG67S3031581"
+        },
+        {
+          "key": "copart:70244506",
+          "vin": "4S4BTANC1S3311216"
+        },
+        {
+          "key": "copart:70313026",
+          "vin": "4S4SLDD67T3013977"
+        },
+        {
+          "key": "copart:71007886",
+          "vin": "4S4BTANC2S3119982"
+        },
+        {
+          "key": "copart:71278136",
+          "vin": "JF2SLSEDXSH402735"
+        },
+        {
+          "key": "copart:72948486",
+          "vin": "JF1VBAH63T9803213"
+        },
+        {
+          "key": "copart:78203066",
+          "vin": "JF2GUHDC8S8236150"
+        },
+        {
+          "key": "copart:66923526",
+          "vin": "4S4BTALC0S3174983"
+        },
+        {
+          "key": "copart:67755196",
+          "vin": "JF2GUABC0SH285255"
+        },
+        {
+          "key": "copart:72336326",
+          "vin": "4S4BTAFC0S3287215"
+        },
+        {
+          "key": "copart:72356046",
+          "vin": "JF1GUABC8S8312691"
+        },
+        {
+          "key": "copart:53741476",
+          "vin": "JF2SLDRC3SH445908"
+        },
+        {
+          "key": "copart:73145996",
+          "vin": "JTMBGAHC3TY005918"
+        },
+        {
+          "key": "iaai:46087206",
+          "vin": "JF2SLDDC4SH590687"
+        },
+        {
+          "key": "iaai:46605098",
+          "vin": "JF2SLDBC4SH544991"
+        }
+      ],
+      "make": "SUBARU",
+      "from": "2025",
+      "to": "",
+      "more": true,
+      "scrollY": 0,
+      "title": "Katalog samochodów"
+    },
+    "second": {
+      "url": "https://rexbid.pl/?catalog=1&make=SUBARU&year_from=2025",
+      "count": 40,
+      "rows": [
+        {
+          "key": "copart:66837846",
+          "vin": "JF2SKAJCXSH402180"
+        },
+        {
+          "key": "copart:67083396",
+          "vin": "JF2SKAJC3SH407009"
+        },
+        {
+          "key": "copart:67415896",
+          "vin": "JF2SLDAC1SH565833"
+        },
+        {
+          "key": "copart:67689986",
+          "vin": "4S4GUHU69T3716541"
+        },
+        {
+          "key": "copart:69121916",
+          "vin": "4S4SLDD60T3004361"
+        },
+        {
+          "key": "copart:70006486",
+          "vin": "4S3BWGG67S3031581"
+        },
+        {
+          "key": "copart:70244506",
+          "vin": "4S4BTANC1S3311216"
+        },
+        {
+          "key": "copart:70313026",
+          "vin": "4S4SLDD67T3013977"
+        },
+        {
+          "key": "copart:71007886",
+          "vin": "4S4BTANC2S3119982"
+        },
+        {
+          "key": "copart:71278136",
+          "vin": "JF2SLSEDXSH402735"
+        },
+        {
+          "key": "copart:72948486",
+          "vin": "JF1VBAH63T9803213"
+        },
+        {
+          "key": "copart:78203066",
+          "vin": "JF2GUHDC8S8236150"
+        },
+        {
+          "key": "copart:66923526",
+          "vin": "4S4BTALC0S3174983"
+        },
+        {
+          "key": "copart:67755196",
+          "vin": "JF2GUABC0SH285255"
+        },
+        {
+          "key": "copart:72336326",
+          "vin": "4S4BTAFC0S3287215"
+        },
+        {
+          "key": "copart:72356046",
+          "vin": "JF1GUABC8S8312691"
+        },
+        {
+          "key": "copart:53741476",
+          "vin": "JF2SLDRC3SH445908"
+        },
+        {
+          "key": "copart:73145996",
+          "vin": "JTMBGAHC3TY005918"
+        },
+        {
+          "key": "iaai:46087206",
+          "vin": "JF2SLDDC4SH590687"
+        },
+        {
+          "key": "iaai:46605098",
+          "vin": "JF2SLDBC4SH544991"
+        },
+        {
+          "key": "iaai:45951595",
+          "vin": "JF2BURMD7TY542315"
+        },
+        {
+          "key": "iaai:46381398",
+          "vin": "JF2BUPAD0TY455784"
+        },
+        {
+          "key": "iaai:45791961",
+          "vin": "4S4SLDD62T3016611"
+        },
+        {
+          "key": "iaai:46072394",
+          "vin": "4S4GUHM6XT3777865"
+        },
+        {
+          "key": "iaai:46294903",
+          "vin": "JF2SLDTC5SH513294"
+        },
+        {
+          "key": "iaai:46437122",
+          "vin": "JF2GUHDC3S8263983"
+        },
+        {
+          "key": "iaai:46453695",
+          "vin": "4S4BTACC5S3189527"
+        },
+        {
+          "key": "copart:62063866",
+          "vin": "4S4GUHM68S3755894"
+        },
+        {
+          "key": "copart:63523846",
+          "vin": "4S4GUHD6XT3788316"
+        },
+        {
+          "key": "copart:71075076",
+          "vin": "JF2GUABC0SH272697"
+        },
+        {
+          "key": "copart:72554926",
+          "vin": "JF2SLSJD0SH407951"
+        },
+        {
+          "key": "copart:72605296",
+          "vin": "4S4BTANC6S3243141"
+        },
+        {
+          "key": "copart:72685906",
+          "vin": "4S4GUHM67T3772221"
+        },
+        {
+          "key": "copart:73797836",
+          "vin": "4S4SLDD63T3117446"
+        },
+        {
+          "key": "copart:73814636",
+          "vin": "JF1GUHJC0S8223630"
+        },
+        {
+          "key": "copart:74282056",
+          "vin": "4S4WMALD8T3408263"
+        },
+        {
+          "key": "copart:75613176",
+          "vin": "4S4SLDD62T3156318"
+        },
+        {
+          "key": "copart:75698746",
+          "vin": "JF2GUHDC4SH242916"
+        },
+        {
+          "key": "copart:75929116",
+          "vin": "JF2SLDDC7SH599125"
+        },
+        {
+          "key": "copart:76583596",
+          "vin": "JF2SLDHC8SH535475"
+        }
+      ],
+      "make": "SUBARU",
+      "from": "2025",
+      "to": "",
+      "more": true,
+      "scrollY": 16046,
+      "title": "Katalog samochodów"
+    },
+    "selected": {
+      "href": "https://rexbid.pl/car?vin=JF2BURMD7TY542315&lot=45951595&platform=iaai&return_to=%2F%3Fcatalog%3D1%26make%3DSUBARU%26year_from%3D2025%23results",
+      "lot": "45951595",
+      "vin": "JF2BURMD7TY542315",
+      "scrollY": 16334
+    },
+    "detailRendered": true,
+    "detailUrl": "https://rexbid.pl/car?vin=JF2BURMD7TY542315&lot=45951595&platform=iaai&return_to=%2F%3Fcatalog%3D1%26make%3DSUBARU%26year_from%3D2025%23results",
+    "afterBack": {
+      "url": "https://rexbid.pl/?catalog=1&make=SUBARU&year_from=2025",
+      "count": 40,
+      "rows": [
+        {
+          "key": "copart:66837846",
+          "vin": "JF2SKAJCXSH402180"
+        },
+        {
+          "key": "copart:67083396",
+          "vin": "JF2SKAJC3SH407009"
+        },
+        {
+          "key": "copart:67415896",
+          "vin": "JF2SLDAC1SH565833"
+        },
+        {
+          "key": "copart:67689986",
+          "vin": "4S4GUHU69T3716541"
+        },
+        {
+          "key": "copart:69121916",
+          "vin": "4S4SLDD60T3004361"
+        },
+        {
+          "key": "copart:70006486",
+          "vin": "4S3BWGG67S3031581"
+        },
+        {
+          "key": "copart:70244506",
+          "vin": "4S4BTANC1S3311216"
+        },
+        {
+          "key": "copart:70313026",
+          "vin": "4S4SLDD67T3013977"
+        },
+        {
+          "key": "copart:71007886",
+          "vin": "4S4BTANC2S3119982"
+        },
+        {
+          "key": "copart:71278136",
+          "vin": "JF2SLSEDXSH402735"
+        },
+        {
+          "key": "copart:72948486",
+          "vin": "JF1VBAH63T9803213"
+        },
+        {
+          "key": "copart:78203066",
+          "vin": "JF2GUHDC8S8236150"
+        },
+        {
+          "key": "copart:66923526",
+          "vin": "4S4BTALC0S3174983"
+        },
+        {
+          "key": "copart:67755196",
+          "vin": "JF2GUABC0SH285255"
+        },
+        {
+          "key": "copart:72336326",
+          "vin": "4S4BTAFC0S3287215"
+        },
+        {
+          "key": "copart:72356046",
+          "vin": "JF1GUABC8S8312691"
+        },
+        {
+          "key": "copart:53741476",
+          "vin": "JF2SLDRC3SH445908"
+        },
+        {
+          "key": "copart:73145996",
+          "vin": "JTMBGAHC3TY005918"
+        },
+        {
+          "key": "iaai:46087206",
+          "vin": "JF2SLDDC4SH590687"
+        },
+        {
+          "key": "iaai:46605098",
+          "vin": "JF2SLDBC4SH544991"
+        },
+        {
+          "key": "iaai:45951595",
+          "vin": "JF2BURMD7TY542315"
+        },
+        {
+          "key": "iaai:46381398",
+          "vin": "JF2BUPAD0TY455784"
+        },
+        {
+          "key": "iaai:45791961",
+          "vin": "4S4SLDD62T3016611"
+        },
+        {
+          "key": "iaai:46072394",
+          "vin": "4S4GUHM6XT3777865"
+        },
+        {
+          "key": "iaai:46294903",
+          "vin": "JF2SLDTC5SH513294"
+        },
+        {
+          "key": "iaai:46437122",
+          "vin": "JF2GUHDC3S8263983"
+        },
+        {
+          "key": "iaai:46453695",
+          "vin": "4S4BTACC5S3189527"
+        },
+        {
+          "key": "copart:62063866",
+          "vin": "4S4GUHM68S3755894"
+        },
+        {
+          "key": "copart:63523846",
+          "vin": "4S4GUHD6XT3788316"
+        },
+        {
+          "key": "copart:71075076",
+          "vin": "JF2GUABC0SH272697"
+        },
+        {
+          "key": "copart:72554926",
+          "vin": "JF2SLSJD0SH407951"
+        },
+        {
+          "key": "copart:72605296",
+          "vin": "4S4BTANC6S3243141"
+        },
+        {
+          "key": "copart:72685906",
+          "vin": "4S4GUHM67T3772221"
+        },
+        {
+          "key": "copart:73797836",
+          "vin": "4S4SLDD63T3117446"
+        },
+        {
+          "key": "copart:73814636",
+          "vin": "JF1GUHJC0S8223630"
+        },
+        {
+          "key": "copart:74282056",
+          "vin": "4S4WMALD8T3408263"
+        },
+        {
+          "key": "copart:75613176",
+          "vin": "4S4SLDD62T3156318"
+        },
+        {
+          "key": "copart:75698746",
+          "vin": "JF2GUHDC4SH242916"
+        },
+        {
+          "key": "copart:75929116",
+          "vin": "JF2SLDDC7SH599125"
+        },
+        {
+          "key": "copart:76583596",
+          "vin": "JF2SLDHC8SH535475"
+        }
+      ],
+      "make": "SUBARU",
+      "from": "2025",
+      "to": "",
+      "more": true,
+      "scrollY": 16334,
+      "title": "Katalog samochodów"
+    },
+    "sameOrder": true,
+    "reversed": {
+      "visible": true,
+      "text": "Rok: wartość „od” nie może być większa niż „do”. Popraw zakres i zastosuj filtry.",
+      "invalid": "true"
+    },
+    "cleared": {
+      "url": "https://rexbid.pl/?catalog=1",
+      "count": 20,
+      "rows": [
+        {
+          "key": "iaai:32039484",
+          "vin": "1FBSS31L57DB42333"
+        },
+        {
+          "key": "iaai:42057982",
+          "vin": "SALCT2BG4GH565432"
+        },
+        {
+          "key": "iaai:42720025",
+          "vin": "1HA3GSCG0KN004385"
+        },
+        {
+          "key": "iaai:42986108",
+          "vin": "3VWH17AU2JM750876"
+        },
+        {
+          "key": "iaai:43035229",
+          "vin": "1FT7W2BT5KEC88958"
+        },
+        {
+          "key": "iaai:43197422",
+          "vin": "2HGFB2F70FH562068"
+        },
+        {
+          "key": "iaai:43454920",
+          "vin": "5N1DL0MN5LC530350"
+        },
+        {
+          "key": "iaai:43506511",
+          "vin": "KNDJN2A28J7902471"
+        },
+        {
+          "key": "iaai:43821889",
+          "vin": "55SWF4JB1JU254253"
+        },
+        {
+          "key": "iaai:43837106",
+          "vin": "2HNYD28859H518542"
+        },
+        {
+          "key": "iaai:43916059",
+          "vin": "1NXBR32E08Z954966"
+        },
+        {
+          "key": "iaai:43927017",
+          "vin": "3FAHP0JGXAR394009"
+        },
+        {
+          "key": "iaai:43965148",
+          "vin": "2T1BURHE7KC231911"
+        },
+        {
+          "key": "iaai:44029732",
+          "vin": "1F64F5DY8F0A02393"
+        },
+        {
+          "key": "iaai:44046651",
+          "vin": "1HGEM22542L814234"
+        },
+        {
+          "key": "iaai:44217226",
+          "vin": "19XFC2F61KE211145"
+        },
+        {
+          "key": "iaai:44237987",
+          "vin": "3VWRZ71K49M099239"
+        },
+        {
+          "key": "iaai:44249895",
+          "vin": "5FNYF8H84SB003157"
+        },
+        {
+          "key": "iaai:44364523",
+          "vin": "5YFBU4EE2CP040034"
+        },
+        {
+          "key": "iaai:44371938",
+          "vin": "WBA5A5C59FD515133"
+        }
+      ],
+      "make": "",
+      "from": "",
+      "to": "",
+      "more": true,
+      "scrollY": 567,
+      "title": "Katalog samochodów"
+    },
+    "empty": {
+      "count": 0,
+      "text": "Brak dopasowań w zapisanej części katalogu\nBrak wyniku nie oznacza braku takich aut na aukcjach. Zmień filtry lub prześlij nam VIN / LOT wybranego auta.\nWyczyść filtry",
+      "visibleMore": false
+    }
+  },
+  "finishedUtc": "2026-11-24T17:05:02.438Z"
+}

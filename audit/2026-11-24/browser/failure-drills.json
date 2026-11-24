@@ -1,0 +1,24 @@
+{
+  "origin": "https://rexbid-audit-staging.tedn828.workers.dev",
+  "date": "2026-11-24T17:13:56.374Z",
+  "scenarios": [
+    {
+      "scenario": "catalog503",
+      "message": "Nie udało się pobrać ofert\nFiltry zostały zachowane. Spróbuj ponownie za chwilę.\nSpróbuj ponownie",
+      "simulatedResponses": 1,
+      "retryAvailable": true,
+      "recovered": 20
+    },
+    {
+      "scenario": "calculatorModule",
+      "message": "Kalkulator jest chwilowo niedostępny. Odśwież stronę i spróbuj ponownie.",
+      "selected": false
+    },
+    {
+      "scenario": "photo404",
+      "message": "Podgląd niedostępny. Otwórz większe zdjęcie.",
+      "galleryNavigation": true,
+      "vehicle": "2014 IC CORPORATION BUS"
+    }
+  ]
+}

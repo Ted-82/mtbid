@@ -1,0 +1,42 @@
+{
+  "framework": "lighthouse",
+  "conditions": "Lighthouse mobile defaults, simulated throttling; single run per route and origin",
+  "rows": [
+    {
+      "kind": "before",
+      "key": "car",
+      "time": "2026-11-24T17:14:54.824Z",
+      "url": "https://rexbid.pl/car?platform=copart&lot=47018496&rex_traffic_test=1",
+      "scores": {
+        "performance": 0.82,
+        "accessibility": 0.96,
+        "seo": 1
+      },
+      "ttfb": 87,
+      "fcp": 1266.521,
+      "lcp": 3109.133,
+      "tbt": 445,
+      "cls": 0,
+      "totalBytes": 409962,
+      "warnings": []
+    },
+    {
+      "kind": "after",
+      "key": "car",
+      "time": "2026-11-24T17:15:08.405Z",
+      "url": "https://rexbid-audit-staging.tedn828.workers.dev/car?platform=copart&lot=47018496&rex_traffic_test=1",
+      "scores": {
+        "performance": 0.96,
+        "accessibility": 1,
+        "seo": 0.69
+      },
+      "ttfb": 208,
+      "fcp": 1264.2615,
+      "lcp": 1264.2615,
+      "tbt": 212,
+      "cls": 0,
+      "totalBytes": 412012,
+      "warnings": []
+    }
+  ]
+}

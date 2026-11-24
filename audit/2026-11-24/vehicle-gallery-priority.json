@@ -1,0 +1,184 @@
+{
+  "at": "2026-11-24T17:04:20.820Z",
+  "d1": [
+    {
+      "platform": "copart",
+      "lot": "46087626",
+      "auction_at": "2026-11-24T17:00:00.000Z",
+      "auction_state": "open",
+      "identity_state": "resolved",
+      "vin": "2C4RDGBG4HR742563",
+      "detail_synced_at": null,
+      "summary_synced_at": "2026-11-17T15:46:07.000Z",
+      "same_source_id": 1,
+      "main": "SQL NULL",
+      "thumbs": "SQL NULL",
+      "active_member": 1,
+      "scheduledMinusReadMinutes": -4,
+      "rowsRead": 4
+    },
+    {
+      "platform": "copart",
+      "lot": "46350466",
+      "auction_at": "2026-11-24T17:00:00.000Z",
+      "auction_state": "open",
+      "identity_state": "resolved",
+      "vin": "1JJV532D6GL941901",
+      "detail_synced_at": null,
+      "summary_synced_at": "2026-11-20T16:16:15.000Z",
+      "same_source_id": 1,
+      "main": "SQL NULL",
+      "thumbs": "SQL NULL",
+      "active_member": 1,
+      "scheduledMinusReadMinutes": -4,
+      "rowsRead": 4
+    },
+    {
+      "platform": "copart",
+      "lot": "46995635",
+      "auction_at": "2026-11-24T17:00:00.000Z",
+      "auction_state": "open",
+      "identity_state": "resolved",
+      "vin": "1XKFDP9X0DJ356766",
+      "detail_synced_at": null,
+      "summary_synced_at": "2026-11-18T19:31:03.000Z",
+      "same_source_id": 1,
+      "main": "SQL NULL",
+      "thumbs": "SQL NULL",
+      "active_member": 1,
+      "scheduledMinusReadMinutes": -4,
+      "rowsRead": 4
+    },
+    {
+      "platform": "copart",
+      "lot": "72024246",
+      "auction_at": "2026-11-24T17:00:00.000Z",
+      "auction_state": "open",
+      "identity_state": "resolved",
+      "vin": "1GC4K0C89EF117156",
+      "detail_synced_at": null,
+      "summary_synced_at": "2026-11-17T14:25:27.000Z",
+      "same_source_id": 1,
+      "main": "SQL NULL",
+      "thumbs": "SQL NULL",
+      "active_member": 1,
+      "scheduledMinusReadMinutes": -4,
+      "rowsRead": 4
+    }
+  ],
+  "media": [
+    {
+      "lot": "46162264",
+      "has360": true,
+      "hasVideo": true,
+      "countRefs": 2,
+      "items": 19,
+      "keys": [
+        "url"
+      ],
+      "media": [
+        {
+          "kind": "video",
+          "host": "mediaretriever.iaai.com",
+          "route": "/api/EngineVideoRetriever",
+          "status": 206,
+          "mime": "video/mp4",
+          "range": "bytes 0-2047/16509817",
+          "receivedHeaderBytes": 1378,
+          "signatureMP4": true,
+          "signatureHTML": false
+        },
+        {
+          "kind": "360",
+          "host": "vis.iaai.com",
+          "route": "/Home/ThreeSixtyView",
+          "status": 206,
+          "mime": "text/html; charset=utf-8",
+          "range": "bytes 0-2047/26336",
+          "receivedHeaderBytes": 1378,
+          "signatureMP4": false,
+          "signatureHTML": true
+        }
+      ]
+    },
+    {
+      "lot": "44185350",
+      "has360": true,
+      "hasVideo": true,
+      "countRefs": 2,
+      "items": 28,
+      "keys": [],
+      "media": [
+        {
+          "kind": "video",
+          "host": "mediaretriever.iaai.com",
+          "route": "/api/EngineVideoRetriever",
+          "status": 206,
+          "mime": "video/mp4",
+          "range": "bytes 0-2047/16029611",
+          "receivedHeaderBytes": 1378,
+          "signatureMP4": true,
+          "signatureHTML": false
+        },
+        {
+          "kind": "360",
+          "host": "vis.iaai.com",
+          "route": "/Home/ThreeSixtyView",
+          "status": 206,
+          "mime": "text/html; charset=utf-8",
+          "range": "bytes 0-2047/26217",
+          "receivedHeaderBytes": 1378,
+          "signatureMP4": false,
+          "signatureHTML": true
+        }
+      ]
+    }
+  ],
+  "quota": {
+    "plan": "Pro",
+    "used": 24371,
+    "limit": 100000,
+    "left": 75629,
+    "limitHeaders": []
+  },
+  "d1Plan": [
+    "SEARCH l USING INDEX idx_listings_public_auction_date (<expr>>? AND <expr><?)",
+    "CORRELATED SCALAR SUBQUERY 1",
+    "SEARCH p USING INTEGER PRIMARY KEY (rowid=?)",
+    "SEARCH m USING PRIMARY KEY (baseline_id=? AND listing_id=?)"
+  ],
+  "galleryProgress": {
+    "slot": 5984581,
+    "quota": 76200,
+    "last": {
+      "at": "2026-11-22T19:05:48.199Z",
+      "status": "complete",
+      "attempted": 20,
+      "filled": [
+        "76196416",
+        "76199466",
+        "76200936",
+        "76215556",
+        "76232266",
+        "76243726",
+        "76248066",
+        "76253476",
+        "76265676",
+        "76267346",
+        "76267386",
+        "76267466",
+        "76267506",
+        "76267516",
+        "76267526",
+        "76277706",
+        "76280816",
+        "76287336",
+        "76287506",
+        "76287536"
+      ],
+      "scanned": 160
+    },
+    "requestCount": 1640,
+    "anchorTime": 1795453200
+  }
+}

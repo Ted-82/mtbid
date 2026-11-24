@@ -1,0 +1,40 @@
+✔ pure builder restores only importer fields and affected tasks under the shared lease (29.7746ms)
+✔ last batch undo restores the earlier file checkpoint and retains its earlier audit (15.5884ms)
+✔ upgraded catalogue rollback preserves color and rejects a concurrent correction (18.3127ms)
+✔ newer listing price, detail timestamp or unrelated full-record field aborts every undo effect (48.28ms)
+✔ a concurrent task mutation or deletion aborts rollback of listing prices (40.8741ms)
+✔ absence guards reject a newly appeared LOT or previously absent reconciliation task (18.5002ms)
+✔ changed source ownership and stale lease reject the full undo transaction (33.3113ms)
+✔ late task-write failure rolls back earlier restored prices and retry succeeds (8.3122ms)
+✔ full column lists match the actual schema; 100 group undo stays below 250 statements (94.471ms)
+✔ unsupported tables, global stream tasks, wrong file identities and contradictory listing identity are refused (8.3406ms)
+✔ snapshots containing changes beyond this import or stale audit binding cannot authorize undo (9.1935ms)
+✔ terminal changes restore nulls and original active fields without touching prices outside importer scope (7.6137ms)
+✔ net-zero and identity-error groups undo only their tasks and still fence untouched rows (14.5117ms)
+✔ newest source record wins within ordered complete group even when newer than event vehicle time (6.3518ms)
+✔ record/event VIN, platform, LOT, malformed later VIN or quarantine suppress every candidate in the group (2.7861ms)
+✔ naive, future and invalid calendar times and incomplete prices cannot become full observations (0.7504ms)
+✔ 20 full records use bounded existing writer plus one immutable marker and never establish a stream cursor (71.4183ms)
+✔ same marker retry is one read and no mutation after later partial price changes (16.6951ms)
+✔ timeout after successful commit is safely retried through the durable hydration marker (13.9018ms)
+✔ missing media and descriptive enrichment cannot erase an existing full listing (16.3777ms)
+✔ a full record fills a missing seller, then null and source placeholders preserve that name on both platforms (39.1891ms)
+✔ older full records and newer detail observations never regress local data (15.7603ms)
+✔ conflicting existing VIN or non-apibara source is durably quarantined without replacing the listing (14.9253ms)
+✔ a concurrent exterior color observation invalidates the upgraded hydration baseline (10.2091ms)
+✔ a concurrent partial-price or media update cancels hydration despite unchanged full-record timestamps (18.6349ms)
+✔ caller checkpoint failure and stale lease roll back source, listing, snapshot and receipt together (11.0706ms)
+✔ changed receipt input, unsafe keys, duplicated groups and out-of-order events fail closed (8.2747ms)
+✔ normal feed stores both platforms and the detail template reads both confirmed facts; sparse updates and replay preserve them (68.2708ms)
+✔ new writer continues to ingest with the old D1 schema; migration and backup restore keep the exact saved values (43.991ms)
+CATALOG_OPTIONAL_SCHEMA_READ_UNAVAILABLE
+✔ existing history enrichment repairs legacy ST from a strictly matched vehicle, without changing its bid or its schedule (12.9419ms)
+✔ optional schema observation is shared; its failure leaves ordinary publishing available (0.8055ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 538.0629

@@ -1,0 +1,5040 @@
+{
+  "stamp": "2026-11-24T17:07:11.360Z",
+  "base": "https://rexbid-audit-staging.tedn828.workers.dev",
+  "browser": "Chrome/157.0.8103.51",
+  "cache": "browser disabled; edge/CDN uncontrolled",
+  "throttle": "native network, CPU unthrottled",
+  "results": [
+    {
+      "key": "home",
+      "width": 390,
+      "height": 844,
+      "run": 1,
+      "ready": true,
+      "wallMs": 2711,
+      "path": "/",
+      "title": "REXBID — Aukcje samochodów USA",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": null,
+      "searchPanelBottom": 951,
+      "mainPhotoTop": null,
+      "h1": [
+        "Wybierz wymarzony pojazd. My zajmiemy się resztą."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 754,
+      "fcp": 1232,
+      "lcp": 1232,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 15,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-auth.js",
+          13256
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-compare.js",
+          6824
+        ],
+        [
+          "/rexbid-portal.css",
+          5888
+        ],
+        [
+          "/rexbid-storage.js",
+          4772
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 146
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | ☰ | SAMOCHODY Z USA · COPART I IAAI | Wybierz wymarzony pojazd. | My zajmiemy się resztą. | Aukcje w USA, transport i formalności — z naszym wsparciem na każdym etapie. | Znajdź swój samochód | Szukaj ofert | → | PLN | Masz budżet? Sprawdź, ile licytować | Wp",
+      "networkCount": 16,
+      "encodedTransfer": 120033,
+      "imageTransfer": 16238,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 539
+        }
+      ],
+      "failures": [
+        {
+          "path": "/favicon.ico",
+          "status": 404
+        }
+      ]
+    },
+    {
+      "key": "catalog",
+      "width": 390,
+      "height": 844,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1812,
+      "path": "/",
+      "title": "REXBID — Aukcje samochodów USA",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": 1200,
+      "searchPanelBottom": 313,
+      "mainPhotoTop": null,
+      "h1": [
+        "Znajdź samochód. Sprawdź szczegóły."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "← Strona główna",
+          "h": 18,
+          "w": 354
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 78,
+      "fcp": 340,
+      "lcp": 340,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 43,
+      "resourceCount": 19,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-auth.js",
+          13256
+        ],
+        [
+          "/api/filters",
+          8917
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-compare.js",
+          6824
+        ],
+        [
+          "/rexbid-portal.css",
+          5888
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 119
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/780ce971385d4b2ab93d3108a5565313_ful.jpg",
+          "ms": 347
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/ae6592047b1541bc996b66f3c25a9523_ful.jpg",
+          "ms": 335
+        }
+      ],
+      "carCards": 20,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | ☰ | Znajdź samochód. Sprawdź szczegóły. | Szukaj ofert | Przejdź do wyników | ↓ | Dopasuj samochód do siebie | Pokaż filtry (2) | 2 aktywne filtry | Marka: Subaru | × | Rok od: 2025 | × | Wyczyść filtry | ← Strona główna | Katalog samochodów | Pokazane ceny s",
+      "networkCount": 20,
+      "encodedTransfer": 383532,
+      "imageTransfer": 261518,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 504
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 9166
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 1308
+        },
+        {
+          "route": "/api/cars",
+          "status": 200,
+          "bytes": 4782
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "car",
+      "width": 390,
+      "height": 844,
+      "run": 1,
+      "ready": true,
+      "wallMs": 2194,
+      "path": "/car",
+      "title": "2014 IC CORPORATION BUS | Copart LOT 47018496 | REXBID",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": 799,
+      "h1": [
+        "2014 IC CORPORATION BUS"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "REXBID",
+          "h": 18,
+          "w": 39
+        },
+        {
+          "label": "Samochody",
+          "h": 18,
+          "w": 62
+        },
+        {
+          "label": "Tłumaczenie dokumentów · 260 zł",
+          "h": 44,
+          "w": 17
+        },
+        {
+          "label": "Dopłata za ładunek niebezpieczny · 100,00 USD",
+          "h": 44,
+          "w": 17
+        },
+        {
+          "label": "Pojazd ponadgabarytowy — indywidualna wycena transportu",
+          "h": 44,
+          "w": 17
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 219,
+      "fcp": 432,
+      "lcp": 432,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 41,
+      "biggest": [
+        [
+          "/rexbid-calculator-v4-rates.js",
+          29333
+        ],
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-calculator-v4.js",
+          13812
+        ],
+        [
+          "/rexbid-auth.js",
+          13256
+        ],
+        [
+          "/rexbid-delivered-view.js",
+          11595
+        ],
+        [
+          "/rexbid-calculator.js",
+          10949
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 88
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_ful.jpg",
+          "ms": 222
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_thb.jpg",
+          "ms": 94
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/0f908f6e3c6b4cd9a0e6f3015de12b8c_thb.jpg",
+          "ms": 90
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8687338c6b641e385ea4dbad574b8c7_thb.jpg",
+          "ms": 122
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/82fea7fd42e449ae8b2cfa94abcc50e6_thb.jpg",
+          "ms": 101
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/887cf33e05ec48aaa1f63d6f0c064467_thb.jpg",
+          "ms": 115
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/fc7417d017324df1ac3baea33c42ca6d_thb.jpg",
+          "ms": 105
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/eefad05d1092476193032d54188919f4_thb.jpg",
+          "ms": 111
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/52fb7b00c4b54995986a60d2d78000b1_thb.jpg",
+          "ms": 110
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do danych pojazdu | RYNEK AUKCYJNY USA | ☰ | ← Wróć do samochodów | REXBID | › | Samochody | › | COPART | › | 47018496 | COPART ↗ | 2014 IC CORPORATION BUS | Dane aukcji wymagają odświeżenia | Zapis danych aukcji z 08.11.2026, 09:18. Cena i dostępność do potwierdzenia w oryginalnej aukcji. |",
+      "networkCount": 42,
+      "encodedTransfer": 411832,
+      "imageTransfer": 193338,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 503
+        },
+        {
+          "route": "/api/exchange-rates",
+          "status": 200,
+          "bytes": 723
+        },
+        {
+          "route": "/api/vehicle-specs",
+          "status": 200,
+          "bytes": 930
+        },
+        {
+          "route": "/api/car/47018496/history",
+          "status": 200,
+          "bytes": 2495
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "budget",
+      "width": 390,
+      "height": 844,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1854,
+      "path": "/kalkulator-budzet",
+      "title": "Kalkulator importu auta z USA – limit licytacji z budżetu | REXBID",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Twój budżet zakupu"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 138,
+      "fcp": 260,
+      "lcp": 260,
+      "lcpEl": "P",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 13,
+      "biggest": [
+        [
+          "/rexbid-calculator-v4-rates.js",
+          29393
+        ],
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-calculator-v4.js",
+          13812
+        ],
+        [
+          "/rexbid-delivered-view.js",
+          11595
+        ],
+        [
+          "/rexbid-brand.css",
+          6883
+        ],
+        [
+          "/rexbid-delivered-cost.js",
+          5958
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 168
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Zobacz aukcje | Twój budżet zakupu | Wpisz budżet w złotych i wybierz auto po VIN lub LOT. Sprawdzisz, ile maksymalnie przeznaczyć na licytację, uwzględniając import do Polski i prowizję 2500 zł brutto. | Twój łączny budżet · PLN | VIN lub numer LOT | Platfor",
+      "networkCount": 14,
+      "encodedTransfer": 108460,
+      "imageTransfer": 16580,
+      "api": [],
+      "failures": []
+    },
+    {
+      "key": "history",
+      "width": 390,
+      "height": 844,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1963,
+      "path": "/archiwum",
+      "title": "Archiwum aukcji — REXBID",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Archiwum aukcji"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "Aktualne aukcje",
+          "h": 21,
+          "w": 90
+        },
+        {
+          "label": "Kontakt",
+          "h": 21,
+          "w": 44
+        },
+        {
+          "label": "Zasady archiwum",
+          "h": 17,
+          "w": 98
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 401,
+      "fcp": 704,
+      "lcp": 704,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 7,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-brand.css",
+          6883
+        ],
+        [
+          "/rexbid-customer-guide.css",
+          2791
+        ],
+        [
+          "/rexbid-auction-archive.js",
+          2210
+        ],
+        [
+          "/rexbid-guide.css",
+          2167
+        ],
+        [
+          "/api/archiwum",
+          1365
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 194
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Aktualne aukcje | Kontakt | Archiwum aukcji | VIN lub numer LOT | Szukaj | Wyświetlono: 12 | 2019 RAM PROMASTER 1500 1500 HIGH | Copart · LOT 54051076 · Zapis z 18.11.2026 | Sprzedany · bez ceny | 3C6TRVBG4KE528345 | Zdjęcia (12) | 2020 HINO 258/268 | Copart ",
+      "networkCount": 8,
+      "encodedTransfer": 37574,
+      "imageTransfer": 16579,
+      "api": [
+        {
+          "route": "/api/archiwum",
+          "status": 200,
+          "bytes": 1566
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "contact",
+      "width": 390,
+      "height": 844,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1911,
+      "path": "/kontakt",
+      "title": "Kontakt i wycena importu — REXBID",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Porozmawiajmy o Twoim samochodzie."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "REXBID",
+          "h": 17,
+          "w": 42
+        },
+        {
+          "label": "Poznaj etapy importu →",
+          "h": 21,
+          "w": 169
+        },
+        {
+          "label": "Wróć do katalogu →",
+          "h": 21,
+          "w": 144
+        },
+        {
+          "label": "Pomoc",
+          "h": 21,
+          "w": 39
+        },
+        {
+          "label": "Jak to działa",
+          "h": 21,
+          "w": 70
+        },
+        {
+          "label": "O nas",
+          "h": 21,
+          "w": 33
+        },
+        {
+          "label": "Kontakt",
+          "h": 21,
+          "w": 44
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 184,
+      "fcp": 428,
+      "lcp": 428,
+      "lcpEl": "P",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 9,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-inquiry.js",
+          7580
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-storage.js",
+          4848
+        ],
+        [
+          "/rexbid-guide.css",
+          2167
+        ],
+        [
+          "/rexbid-car-navigation.js",
+          1844
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 102
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | ☰ | REXBID / Kontakt | POROZMAWIAJMY O TWOIM AUCIE | Porozmawiajmy | o Twoim samochodzie. | Prześlij numer aukcji lub VIN i pytania o import. Jeśli masz wybrane auto, link z jego karty dołączy dane do zapytania. | kontakt@rexbid.pl | Napisz bezpośrednio lub p",
+      "networkCount": 10,
+      "encodedTransfer": 51955,
+      "imageTransfer": 16576,
+      "api": [
+        {
+          "route": "/api/contact/config",
+          "status": 200,
+          "bytes": 505
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "home",
+      "width": 1366,
+      "height": 768,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1926,
+      "path": "/",
+      "title": "REXBID — Aukcje samochodów USA",
+      "viewport": 1366,
+      "clientWidth": 1351,
+      "scrollWidth": 1351,
+      "firstResultTop": null,
+      "searchPanelBottom": 693,
+      "mainPhotoTop": null,
+      "h1": [
+        "Wybierz wymarzony pojazd. My zajmiemy się resztą."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 79,
+      "fcp": 472,
+      "lcp": 472,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 14,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-auth.js",
+          13256
+        ],
+        [
+          "/rexbid-compare.js",
+          6890
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-portal.css",
+          5960
+        ],
+        [
+          "/rexbid-storage.js",
+          4772
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 118
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Aukcje | Jak to działa | Ulubione | 0 | Konto | Pomoc | Kontakt | SAMOCHODY Z USA · COPART I IAAI | Wybierz wymarzony pojazd. | My zajmiemy się resztą. | Aukcje w USA, transport i formalności — z naszym wsparciem na każdym etapie. | Znajdź swój samochód | Szu",
+      "networkCount": 15,
+      "encodedTransfer": 123417,
+      "imageTransfer": 16582,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 504
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "catalog",
+      "width": 1366,
+      "height": 768,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1931,
+      "path": "/",
+      "title": "REXBID — Aukcje samochodów USA",
+      "viewport": 1366,
+      "clientWidth": 1351,
+      "scrollWidth": 1351,
+      "firstResultTop": 1131,
+      "searchPanelBottom": 226,
+      "mainPhotoTop": null,
+      "h1": [
+        "Znajdź samochód. Sprawdź szczegóły."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "← Strona główna",
+          "h": 18,
+          "w": 560
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 89,
+      "fcp": 388,
+      "lcp": 388,
+      "lcpEl": "H1",
+      "cls": 0.017,
+      "longTaskBlockingAfterFCP": 45,
+      "resourceCount": 23,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-auth.js",
+          13251
+        ],
+        [
+          "/api/filters",
+          8904
+        ],
+        [
+          "/rexbid-brand.css",
+          6920
+        ],
+        [
+          "/rexbid-compare.js",
+          6893
+        ],
+        [
+          "/rexbid-portal.css",
+          5888
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 133
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/780ce971385d4b2ab93d3108a5565313_ful.jpg",
+          "ms": 170
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/ae6592047b1541bc996b66f3c25a9523_ful.jpg",
+          "ms": 453
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0926/7c05f13b513b413190cb35140592447e_ful.jpg",
+          "ms": 626
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0926/0cbbbdfe83e54311a1a7954531c6801b_ful.jpg",
+          "ms": 814
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0926/56373c3e33584bfb8e54f0f3cfd76e44_ful.jpg",
+          "ms": 858
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0926/c94c007eb3484771b65f98122f2e0ecb_ful.jpg",
+          "ms": 1041
+        }
+      ],
+      "carCards": 20,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Aukcje | Jak to działa | Ulubione | 0 | Konto | Pomoc | Kontakt | Znajdź samochód. Sprawdź szczegóły. | Szukaj ofert | → | Przejdź do wyników | ↓ | Dopasuj samochód do siebie | Wybierz lub wpisz markę i model. Podpowiedzi obejmują częściowy katalog. | Platfor",
+      "networkCount": 24,
+      "encodedTransfer": 1011932,
+      "imageTransfer": 889913,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 505
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 9156
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 1308
+        },
+        {
+          "route": "/api/cars",
+          "status": 200,
+          "bytes": 4713
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "car",
+      "width": 1366,
+      "height": 768,
+      "run": 1,
+      "ready": true,
+      "wallMs": 2913,
+      "path": "/car",
+      "title": "2014 IC CORPORATION BUS | Copart LOT 47018496 | REXBID",
+      "viewport": 1366,
+      "clientWidth": 1351,
+      "scrollWidth": 1351,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": 528,
+      "h1": [
+        "2014 IC CORPORATION BUS"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "REXBID",
+          "h": 18,
+          "w": 39
+        },
+        {
+          "label": "Samochody",
+          "h": 18,
+          "w": 62
+        },
+        {
+          "label": "Tłumaczenie dokumentów · 260 zł",
+          "h": 44,
+          "w": 17
+        },
+        {
+          "label": "Dopłata za ładunek niebezpieczny · 100,00 USD",
+          "h": 44,
+          "w": 17
+        },
+        {
+          "label": "Pojazd ponadgabarytowy — indywidualna wycena transportu",
+          "h": 44,
+          "w": 17
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 270,
+      "fcp": 592,
+      "lcp": 1332,
+      "lcpEl": "IMG",
+      "cls": 0.35,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 43,
+      "biggest": [
+        [
+          "/rexbid-calculator-v4-rates.js",
+          29516
+        ],
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-calculator-v4.js",
+          13812
+        ],
+        [
+          "/rexbid-auth.js",
+          13310
+        ],
+        [
+          "/rexbid-delivered-view.js",
+          11595
+        ],
+        [
+          "/rexbid-calculator.js",
+          11022
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 191
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_hrs.jpg",
+          "ms": 255
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_thb.jpg",
+          "ms": 168
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/0f908f6e3c6b4cd9a0e6f3015de12b8c_thb.jpg",
+          "ms": 168
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8687338c6b641e385ea4dbad574b8c7_thb.jpg",
+          "ms": 251
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/82fea7fd42e449ae8b2cfa94abcc50e6_thb.jpg",
+          "ms": 170
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/887cf33e05ec48aaa1f63d6f0c064467_thb.jpg",
+          "ms": 177
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/fc7417d017324df1ac3baea33c42ca6d_thb.jpg",
+          "ms": 200
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/02a1d4c026de4f82ae15edb9d624b44f_thb.jpg",
+          "ms": 170
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/52fb7b00c4b54995986a60d2d78000b1_thb.jpg",
+          "ms": 195
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do danych pojazdu | RYNEK AUKCYJNY USA | Aukcje | Jak to działa | Ulubione | 0 | Konto | Pomoc | Kontakt | ← Wróć do samochodów | REXBID | › | Samochody | › | COPART | › | 47018496 | COPART ↗ | 2014 IC CORPORATION BUS | Dane aukcji wymagają odświeżenia | Zapis danych aukcji z 08.11.2026, 09:",
+      "networkCount": 44,
+      "encodedTransfer": 571522,
+      "imageTransfer": 352481,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 508
+        },
+        {
+          "route": "/api/exchange-rates",
+          "status": 200,
+          "bytes": 723
+        },
+        {
+          "route": "/api/vehicle-specs",
+          "status": 200,
+          "bytes": 981
+        },
+        {
+          "route": "/api/car/47018496/history",
+          "status": 200,
+          "bytes": 2557
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "budget",
+      "width": 1366,
+      "height": 768,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1856,
+      "path": "/kalkulator-budzet",
+      "title": "Kalkulator importu auta z USA – limit licytacji z budżetu | REXBID",
+      "viewport": 1366,
+      "clientWidth": 1366,
+      "scrollWidth": 1366,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Twój budżet zakupu"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 122,
+      "fcp": 356,
+      "lcp": 356,
+      "lcpEl": "P",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 13,
+      "biggest": [
+        [
+          "/rexbid-calculator-v4-rates.js",
+          29393
+        ],
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-calculator-v4.js",
+          13812
+        ],
+        [
+          "/rexbid-delivered-view.js",
+          11633
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-delivered-cost.js",
+          5958
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 179
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Zobacz aukcje | Twój budżet zakupu | Wpisz budżet w złotych i wybierz auto po VIN lub LOT. Sprawdzisz, ile maksymalnie przeznaczyć na licytację, uwzględniając import do Polski i prowizję 2500 zł brutto. | Twój łączny budżet · PLN | VIN lub numer LOT | Platfor",
+      "networkCount": 14,
+      "encodedTransfer": 108482,
+      "imageTransfer": 16581,
+      "api": [],
+      "failures": []
+    },
+    {
+      "key": "history",
+      "width": 1366,
+      "height": 768,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1925,
+      "path": "/archiwum",
+      "title": "Archiwum aukcji — REXBID",
+      "viewport": 1366,
+      "clientWidth": 1351,
+      "scrollWidth": 1351,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Archiwum aukcji"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "Aktualne aukcje",
+          "h": 21,
+          "w": 90
+        },
+        {
+          "label": "Kontakt",
+          "h": 21,
+          "w": 44
+        },
+        {
+          "label": "Zasady archiwum",
+          "h": 17,
+          "w": 98
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 205,
+      "fcp": 640,
+      "lcp": 640,
+      "lcpEl": "H1",
+      "cls": 0.695,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 7,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-customer-guide.css",
+          2722
+        ],
+        [
+          "/rexbid-auction-archive.js",
+          2210
+        ],
+        [
+          "/rexbid-guide.css",
+          2167
+        ],
+        [
+          "/api/archiwum",
+          1365
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 347
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Aktualne aukcje | Kontakt | Archiwum aukcji | VIN lub numer LOT | Szukaj | Wyświetlono: 12 | 2019 RAM PROMASTER 1500 1500 HIGH | Copart · LOT 54051076 · Zapis z 18.11.2026 | Sprzedany · bez ceny | 3C6TRVBG4KE528345 | Zdjęcia (12) | 2020 HINO 258/268 | Copart ",
+      "networkCount": 8,
+      "encodedTransfer": 37481,
+      "imageTransfer": 16586,
+      "api": [
+        {
+          "route": "/api/archiwum",
+          "status": 200,
+          "bytes": 1574
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "contact",
+      "width": 1366,
+      "height": 768,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1912,
+      "path": "/kontakt",
+      "title": "Kontakt i wycena importu — REXBID",
+      "viewport": 1366,
+      "clientWidth": 1351,
+      "scrollWidth": 1351,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Porozmawiajmy o Twoim samochodzie."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "REXBID",
+          "h": 17,
+          "w": 42
+        },
+        {
+          "label": "Poznaj etapy importu →",
+          "h": 21,
+          "w": 169
+        },
+        {
+          "label": "Wróć do katalogu →",
+          "h": 21,
+          "w": 144
+        },
+        {
+          "label": "Pomoc",
+          "h": 21,
+          "w": 39
+        },
+        {
+          "label": "Jak to działa",
+          "h": 21,
+          "w": 70
+        },
+        {
+          "label": "O nas",
+          "h": 21,
+          "w": 33
+        },
+        {
+          "label": "Kontakt",
+          "h": 21,
+          "w": 44
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 125,
+      "fcp": 464,
+      "lcp": 464,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 9,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-inquiry.js",
+          7501
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-storage.js",
+          4772
+        ],
+        [
+          "/rexbid-guide.css",
+          2167
+        ],
+        [
+          "/rexbid-car-navigation.js",
+          1844
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 188
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Aukcje | Jak to działa | Ulubione | 0 | Konto | Pomoc | Kontakt | REXBID / Kontakt | POROZMAWIAJMY O TWOIM AUCIE | Porozmawiajmy | o Twoim samochodzie. | Prześlij numer aukcji lub VIN i pytania o import. Jeśli masz wybrane auto, link z jego karty dołączy dane",
+      "networkCount": 10,
+      "encodedTransfer": 51804,
+      "imageTransfer": 16580,
+      "api": [
+        {
+          "route": "/api/contact/config",
+          "status": 200,
+          "bytes": 501
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "home",
+      "width": 360,
+      "height": 800,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1926,
+      "path": "/",
+      "title": "REXBID — Aukcje samochodów USA",
+      "viewport": 360,
+      "clientWidth": 360,
+      "scrollWidth": 360,
+      "firstResultTop": null,
+      "searchPanelBottom": 951,
+      "mainPhotoTop": null,
+      "h1": [
+        "Wybierz wymarzony pojazd. My zajmiemy się resztą."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 116,
+      "fcp": 464,
+      "lcp": 464,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 14,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-auth.js",
+          13256
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-compare.js",
+          6824
+        ],
+        [
+          "/rexbid-portal.css",
+          5888
+        ],
+        [
+          "/rexbid-storage.js",
+          4772
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 198
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | ☰ | SAMOCHODY Z USA · COPART I IAAI | Wybierz wymarzony pojazd. | My zajmiemy się resztą. | Aukcje w USA, transport i formalności — z naszym wsparciem na każdym etapie. | Znajdź swój samochód | Szukaj ofert | → | PLN | Masz budżet? Sprawdź, ile licytować | Wp",
+      "networkCount": 15,
+      "encodedTransfer": 123245,
+      "imageTransfer": 16577,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 500
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "catalog",
+      "width": 360,
+      "height": 800,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1897,
+      "path": "/",
+      "title": "REXBID — Aukcje samochodów USA",
+      "viewport": 360,
+      "clientWidth": 360,
+      "scrollWidth": 360,
+      "firstResultTop": 1219,
+      "searchPanelBottom": 313,
+      "mainPhotoTop": null,
+      "h1": [
+        "Znajdź samochód. Sprawdź szczegóły."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "← Strona główna",
+          "h": 18,
+          "w": 332
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 77,
+      "fcp": 424,
+      "lcp": 424,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 41,
+      "resourceCount": 19,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-auth.js",
+          13256
+        ],
+        [
+          "/api/filters",
+          8923
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-compare.js",
+          6824
+        ],
+        [
+          "/rexbid-portal.css",
+          5888
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 157
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/780ce971385d4b2ab93d3108a5565313_ful.jpg",
+          "ms": 127
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/ae6592047b1541bc996b66f3c25a9523_ful.jpg",
+          "ms": 282
+        }
+      ],
+      "carCards": 20,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | ☰ | Znajdź samochód. Sprawdź szczegóły. | Szukaj ofert | Przejdź do wyników | ↓ | Dopasuj samochód do siebie | Pokaż filtry (2) | 2 aktywne filtry | Marka: Subaru | × | Rok od: 2025 | × | Wyczyść filtry | ← Strona główna | Katalog samochodów | Pokazane ceny s",
+      "networkCount": 20,
+      "encodedTransfer": 383498,
+      "imageTransfer": 261433,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 504
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 9176
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 1308
+        },
+        {
+          "route": "/api/cars",
+          "status": 200,
+          "bytes": 4740
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "car",
+      "width": 360,
+      "height": 800,
+      "run": 1,
+      "ready": true,
+      "wallMs": 2276,
+      "path": "/car",
+      "title": "2014 IC CORPORATION BUS | Copart LOT 47018496 | REXBID",
+      "viewport": 360,
+      "clientWidth": 360,
+      "scrollWidth": 360,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": 762,
+      "h1": [
+        "2014 IC CORPORATION BUS"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "REXBID",
+          "h": 18,
+          "w": 39
+        },
+        {
+          "label": "Samochody",
+          "h": 18,
+          "w": 62
+        },
+        {
+          "label": "Tłumaczenie dokumentów · 260 zł",
+          "h": 44,
+          "w": 17
+        },
+        {
+          "label": "Dopłata za ładunek niebezpieczny · 100,00 USD",
+          "h": 44,
+          "w": 17
+        },
+        {
+          "label": "Pojazd ponadgabarytowy — indywidualna wycena transportu",
+          "h": 44,
+          "w": 17
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 192,
+      "fcp": 400,
+      "lcp": 400,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 41,
+      "biggest": [
+        [
+          "/rexbid-calculator-v4-rates.js",
+          29433
+        ],
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-calculator-v4.js",
+          13812
+        ],
+        [
+          "/rexbid-auth.js",
+          13256
+        ],
+        [
+          "/rexbid-delivered-view.js",
+          11592
+        ],
+        [
+          "/rexbid-calculator.js",
+          10949
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 139
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_ful.jpg",
+          "ms": 218
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_thb.jpg",
+          "ms": 134
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/0f908f6e3c6b4cd9a0e6f3015de12b8c_thb.jpg",
+          "ms": 129
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/887cf33e05ec48aaa1f63d6f0c064467_thb.jpg",
+          "ms": 145
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/82fea7fd42e449ae8b2cfa94abcc50e6_thb.jpg",
+          "ms": 150
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8687338c6b641e385ea4dbad574b8c7_thb.jpg",
+          "ms": 156
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/fc7417d017324df1ac3baea33c42ca6d_thb.jpg",
+          "ms": 136
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/52fb7b00c4b54995986a60d2d78000b1_thb.jpg",
+          "ms": 162
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/02a1d4c026de4f82ae15edb9d624b44f_thb.jpg",
+          "ms": 163
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do danych pojazdu | RYNEK AUKCYJNY USA | ☰ | ← Wróć do samochodów | REXBID | › | Samochody | › | COPART | › | 47018496 | COPART ↗ | 2014 IC CORPORATION BUS | Dane aukcji wymagają odświeżenia | Zapis danych aukcji z 08.11.2026, 09:18. Cena i dostępność do potwierdzenia w oryginalnej aukcji. |",
+      "networkCount": 42,
+      "encodedTransfer": 411673,
+      "imageTransfer": 192973,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 497
+        },
+        {
+          "route": "/api/exchange-rates",
+          "status": 200,
+          "bytes": 723
+        },
+        {
+          "route": "/api/vehicle-specs",
+          "status": 200,
+          "bytes": 971
+        },
+        {
+          "route": "/api/car/47018496/history",
+          "status": 200,
+          "bytes": 2558
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "budget",
+      "width": 360,
+      "height": 800,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1660,
+      "path": "/kalkulator-budzet",
+      "title": "Kalkulator importu auta z USA – limit licytacji z budżetu | REXBID",
+      "viewport": 360,
+      "clientWidth": 360,
+      "scrollWidth": 360,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Twój budżet zakupu"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 163,
+      "fcp": 340,
+      "lcp": 340,
+      "lcpEl": "P",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 13,
+      "biggest": [
+        [
+          "/rexbid-calculator-v4-rates.js",
+          29412
+        ],
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-calculator-v4.js",
+          13812
+        ],
+        [
+          "/rexbid-delivered-view.js",
+          11595
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-delivered-cost.js",
+          5958
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 124
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Zobacz aukcje | Twój budżet zakupu | Wpisz budżet w złotych i wybierz auto po VIN lub LOT. Sprawdzisz, ile maksymalnie przeznaczyć na licytację, uwzględniając import do Polski i prowizję 2500 zł brutto. | Twój łączny budżet · PLN | VIN lub numer LOT | Platfor",
+      "networkCount": 14,
+      "encodedTransfer": 108453,
+      "imageTransfer": 16578,
+      "api": [],
+      "failures": []
+    },
+    {
+      "key": "history",
+      "width": 360,
+      "height": 800,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1564,
+      "path": "/archiwum",
+      "title": "Archiwum aukcji — REXBID",
+      "viewport": 360,
+      "clientWidth": 360,
+      "scrollWidth": 360,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Archiwum aukcji"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "Aktualne aukcje",
+          "h": 21,
+          "w": 90
+        },
+        {
+          "label": "Kontakt",
+          "h": 21,
+          "w": 44
+        },
+        {
+          "label": "Zasady archiwum",
+          "h": 17,
+          "w": 98
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 74,
+      "fcp": 256,
+      "lcp": 256,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 7,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-customer-guide.css",
+          2722
+        ],
+        [
+          "/rexbid-auction-archive.js",
+          2210
+        ],
+        [
+          "/rexbid-guide.css",
+          2167
+        ],
+        [
+          "/api/archiwum",
+          1365
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 149
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Aktualne aukcje | Kontakt | Archiwum aukcji | VIN lub numer LOT | Szukaj | Wyświetlono: 12 | 2019 RAM PROMASTER 1500 1500 HIGH | Copart · LOT 54051076 · Zapis z 18.11.2026 | Sprzedany · bez ceny | 3C6TRVBG4KE528345 | Zdjęcia (12) | 2020 HINO 258/268 | Copart ",
+      "networkCount": 8,
+      "encodedTransfer": 37478,
+      "imageTransfer": 16588,
+      "api": [
+        {
+          "route": "/api/archiwum",
+          "status": 200,
+          "bytes": 1570
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "contact",
+      "width": 360,
+      "height": 800,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1942,
+      "path": "/kontakt",
+      "title": "Kontakt i wycena importu — REXBID",
+      "viewport": 360,
+      "clientWidth": 360,
+      "scrollWidth": 360,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Porozmawiajmy o Twoim samochodzie."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "REXBID",
+          "h": 17,
+          "w": 42
+        },
+        {
+          "label": "Poznaj etapy importu →",
+          "h": 21,
+          "w": 169
+        },
+        {
+          "label": "Wróć do katalogu →",
+          "h": 21,
+          "w": 144
+        },
+        {
+          "label": "Pomoc",
+          "h": 21,
+          "w": 39
+        },
+        {
+          "label": "Jak to działa",
+          "h": 21,
+          "w": 70
+        },
+        {
+          "label": "O nas",
+          "h": 21,
+          "w": 33
+        },
+        {
+          "label": "Kontakt",
+          "h": 21,
+          "w": 44
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 141,
+      "fcp": 484,
+      "lcp": 484,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 9,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-inquiry.js",
+          7501
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-storage.js",
+          4772
+        ],
+        [
+          "/rexbid-guide.css",
+          2167
+        ],
+        [
+          "/rexbid-car-navigation.js",
+          1844
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 199
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | ☰ | REXBID / Kontakt | POROZMAWIAJMY O TWOIM AUCIE | Porozmawiajmy | o Twoim samochodzie. | Prześlij numer aukcji lub VIN i pytania o import. Jeśli masz wybrane auto, link z jego karty dołączy dane do zapytania. | kontakt@rexbid.pl | Napisz bezpośrednio lub p",
+      "networkCount": 10,
+      "encodedTransfer": 51785,
+      "imageTransfer": 16579,
+      "api": [
+        {
+          "route": "/api/contact/config",
+          "status": 200,
+          "bytes": 507
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "home",
+      "width": 430,
+      "height": 932,
+      "run": 1,
+      "ready": true,
+      "wallMs": 2008,
+      "path": "/",
+      "title": "REXBID — Aukcje samochodów USA",
+      "viewport": 430,
+      "clientWidth": 430,
+      "scrollWidth": 430,
+      "firstResultTop": null,
+      "searchPanelBottom": 849,
+      "mainPhotoTop": null,
+      "h1": [
+        "Wybierz wymarzony pojazd. My zajmiemy się resztą."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 110,
+      "fcp": 500,
+      "lcp": 500,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 17,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-auth.js",
+          13256
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-compare.js",
+          6824
+        ],
+        [
+          "/rexbid-portal.css",
+          5928
+        ],
+        [
+          "/rexbid-storage.js",
+          4772
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 425
+        },
+        {
+          "path": "vis.iaai.com/resizer",
+          "ms": 379
+        },
+        {
+          "path": "vis.iaai.com/resizer",
+          "ms": 581
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | ☰ | SAMOCHODY Z USA · COPART I IAAI | Wybierz wymarzony pojazd. | My zajmiemy się resztą. | Aukcje w USA, transport i formalności — z naszym wsparciem na każdym etapie. | Znajdź swój samochód | Szukaj ofert | → | PLN | Masz budżet? Sprawdź, ile licytować | Wp",
+      "networkCount": 18,
+      "encodedTransfer": 192976,
+      "imageTransfer": 82498,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 507
+        },
+        {
+          "route": "/api/cars",
+          "status": 200,
+          "bytes": 3762
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "catalog",
+      "width": 430,
+      "height": 932,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1824,
+      "path": "/",
+      "title": "REXBID — Aukcje samochodów USA",
+      "viewport": 430,
+      "clientWidth": 430,
+      "scrollWidth": 430,
+      "firstResultTop": 1108,
+      "searchPanelBottom": 222,
+      "mainPhotoTop": null,
+      "h1": [
+        "Znajdź samochód. Sprawdź szczegóły."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "← Strona główna",
+          "h": 18,
+          "w": 394
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 114,
+      "fcp": 488,
+      "lcp": 744,
+      "lcpEl": "P",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 6,
+      "resourceCount": 19,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-auth.js",
+          13256
+        ],
+        [
+          "/api/filters",
+          8871
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-compare.js",
+          6824
+        ],
+        [
+          "/rexbid-portal.css",
+          5928
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 232
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/780ce971385d4b2ab93d3108a5565313_ful.jpg",
+          "ms": 150
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/ae6592047b1541bc996b66f3c25a9523_ful.jpg",
+          "ms": 270
+        }
+      ],
+      "carCards": 20,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | ☰ | Znajdź samochód. Sprawdź szczegóły. | Szukaj ofert | Przejdź do wyników | ↓ | Dopasuj samochód do siebie | Pokaż filtry (2) | 2 aktywne filtry | Marka: Subaru | × | Rok od: 2025 | × | Wyczyść filtry | ← Strona główna | Katalog samochodów | Pokazane ceny s",
+      "networkCount": 20,
+      "encodedTransfer": 383388,
+      "imageTransfer": 261464,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 503
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 9122
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 1312
+        },
+        {
+          "route": "/api/cars",
+          "status": 200,
+          "bytes": 4762
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "car",
+      "width": 430,
+      "height": 932,
+      "run": 1,
+      "ready": true,
+      "wallMs": 2479,
+      "path": "/car",
+      "title": "2014 IC CORPORATION BUS | Copart LOT 47018496 | REXBID",
+      "viewport": 430,
+      "clientWidth": 430,
+      "scrollWidth": 430,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": 640,
+      "h1": [
+        "2014 IC CORPORATION BUS"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "REXBID",
+          "h": 18,
+          "w": 39
+        },
+        {
+          "label": "Samochody",
+          "h": 18,
+          "w": 62
+        },
+        {
+          "label": "Tłumaczenie dokumentów · 260 zł",
+          "h": 44,
+          "w": 17
+        },
+        {
+          "label": "Dopłata za ładunek niebezpieczny · 100,00 USD",
+          "h": 44,
+          "w": 17
+        },
+        {
+          "label": "Pojazd ponadgabarytowy — indywidualna wycena transportu",
+          "h": 44,
+          "w": 17
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 350,
+      "fcp": 636,
+      "lcp": 1068,
+      "lcpEl": "IMG",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 41,
+      "biggest": [
+        [
+          "/rexbid-calculator-v4-rates.js",
+          29516
+        ],
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-calculator-v4.js",
+          13812
+        ],
+        [
+          "/rexbid-auth.js",
+          13256
+        ],
+        [
+          "/rexbid-delivered-view.js",
+          11595
+        ],
+        [
+          "/rexbid-calculator.js",
+          10949
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 186
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_ful.jpg",
+          "ms": 164
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/0f908f6e3c6b4cd9a0e6f3015de12b8c_thb.jpg",
+          "ms": 123
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_thb.jpg",
+          "ms": 124
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8687338c6b641e385ea4dbad574b8c7_thb.jpg",
+          "ms": 122
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/82fea7fd42e449ae8b2cfa94abcc50e6_thb.jpg",
+          "ms": 123
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/887cf33e05ec48aaa1f63d6f0c064467_thb.jpg",
+          "ms": 129
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/fc7417d017324df1ac3baea33c42ca6d_thb.jpg",
+          "ms": 130
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/eefad05d1092476193032d54188919f4_thb.jpg",
+          "ms": 131
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/52fb7b00c4b54995986a60d2d78000b1_thb.jpg",
+          "ms": 132
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do danych pojazdu | RYNEK AUKCYJNY USA | ☰ | ← Wróć do samochodów | REXBID | › | Samochody | › | COPART | › | 47018496 | COPART ↗ | 2014 IC CORPORATION BUS | Dane aukcji wymagają odświeżenia | Zapis danych aukcji z 08.11.2026, 09:18. Cena i dostępność do potwierdzenia w oryginalnej aukcji. |",
+      "networkCount": 42,
+      "encodedTransfer": 412264,
+      "imageTransfer": 193339,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 500
+        },
+        {
+          "route": "/api/exchange-rates",
+          "status": 200,
+          "bytes": 725
+        },
+        {
+          "route": "/api/vehicle-specs",
+          "status": 200,
+          "bytes": 977
+        },
+        {
+          "route": "/api/car/47018496/history",
+          "status": 200,
+          "bytes": 2560
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "budget",
+      "width": 430,
+      "height": 932,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1560,
+      "path": "/kalkulator-budzet",
+      "title": "Kalkulator importu auta z USA – limit licytacji z budżetu | REXBID",
+      "viewport": 430,
+      "clientWidth": 430,
+      "scrollWidth": 430,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Twój budżet zakupu"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 68,
+      "fcp": 228,
+      "lcp": 228,
+      "lcpEl": "P",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 13,
+      "biggest": [
+        [
+          "/rexbid-calculator-v4-rates.js",
+          29428
+        ],
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-calculator-v4.js",
+          13812
+        ],
+        [
+          "/rexbid-delivered-view.js",
+          11595
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-delivered-cost.js",
+          5958
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 79
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Zobacz aukcje | Twój budżet zakupu | Wpisz budżet w złotych i wybierz auto po VIN lub LOT. Sprawdzisz, ile maksymalnie przeznaczyć na licytację, uwzględniając import do Polski i prowizję 2500 zł brutto. | Twój łączny budżet · PLN | VIN lub numer LOT | Platfor",
+      "networkCount": 14,
+      "encodedTransfer": 108438,
+      "imageTransfer": 16589,
+      "api": [],
+      "failures": []
+    },
+    {
+      "key": "history",
+      "width": 430,
+      "height": 932,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1548,
+      "path": "/archiwum",
+      "title": "Archiwum aukcji — REXBID",
+      "viewport": 430,
+      "clientWidth": 430,
+      "scrollWidth": 430,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Archiwum aukcji"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "Aktualne aukcje",
+          "h": 21,
+          "w": 90
+        },
+        {
+          "label": "Kontakt",
+          "h": 21,
+          "w": 44
+        },
+        {
+          "label": "Zasady archiwum",
+          "h": 17,
+          "w": 98
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 58,
+      "fcp": 176,
+      "lcp": 392,
+      "lcpEl": "H2",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 7,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-customer-guide.css",
+          2722
+        ],
+        [
+          "/rexbid-auction-archive.js",
+          2210
+        ],
+        [
+          "/rexbid-guide.css",
+          2167
+        ],
+        [
+          "/api/archiwum",
+          1425
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 89
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Aktualne aukcje | Kontakt | Archiwum aukcji | VIN lub numer LOT | Szukaj | Wyświetlono: 12 | 2025 HYUNDAI SANTA FE SE | Copart · LOT 55699206 · Zapis z 18.11.2026 | 4100,00 USD · cena sprzedaży | 5NMP14GL5SH113996 | Zdjęcia (14) | 2018 HYUNDAI SONATA LIMITED ",
+      "networkCount": 8,
+      "encodedTransfer": 37529,
+      "imageTransfer": 16580,
+      "api": [
+        {
+          "route": "/api/archiwum",
+          "status": 200,
+          "bytes": 1637
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "contact",
+      "width": 430,
+      "height": 932,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1828,
+      "path": "/kontakt",
+      "title": "Kontakt i wycena importu — REXBID",
+      "viewport": 430,
+      "clientWidth": 430,
+      "scrollWidth": 430,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Porozmawiajmy o Twoim samochodzie."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "REXBID",
+          "h": 17,
+          "w": 42
+        },
+        {
+          "label": "Poznaj etapy importu →",
+          "h": 21,
+          "w": 169
+        },
+        {
+          "label": "Wróć do katalogu →",
+          "h": 21,
+          "w": 144
+        },
+        {
+          "label": "Pomoc",
+          "h": 21,
+          "w": 39
+        },
+        {
+          "label": "Jak to działa",
+          "h": 21,
+          "w": 70
+        },
+        {
+          "label": "O nas",
+          "h": 21,
+          "w": 33
+        },
+        {
+          "label": "Kontakt",
+          "h": 21,
+          "w": 44
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 127,
+      "fcp": 356,
+      "lcp": 356,
+      "lcpEl": "P",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 9,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-inquiry.js",
+          7501
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-storage.js",
+          4772
+        ],
+        [
+          "/rexbid-guide.css",
+          2167
+        ],
+        [
+          "/rexbid-car-navigation.js",
+          1844
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 125
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | ☰ | REXBID / Kontakt | POROZMAWIAJMY O TWOIM AUCIE | Porozmawiajmy | o Twoim samochodzie. | Prześlij numer aukcji lub VIN i pytania o import. Jeśli masz wybrane auto, link z jego karty dołączy dane do zapytania. | kontakt@rexbid.pl | Napisz bezpośrednio lub p",
+      "networkCount": 10,
+      "encodedTransfer": 51798,
+      "imageTransfer": 16579,
+      "api": [
+        {
+          "route": "/api/contact/config",
+          "status": 200,
+          "bytes": 509
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "home",
+      "width": 768,
+      "height": 1024,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1628,
+      "path": "/",
+      "title": "REXBID — Aukcje samochodów USA",
+      "viewport": 768,
+      "clientWidth": 753,
+      "scrollWidth": 753,
+      "firstResultTop": null,
+      "searchPanelBottom": 705,
+      "mainPhotoTop": null,
+      "h1": [
+        "Wybierz wymarzony pojazd. My zajmiemy się resztą."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 130,
+      "fcp": 340,
+      "lcp": 340,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 14,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-auth.js",
+          13256
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-compare.js",
+          6824
+        ],
+        [
+          "/rexbid-portal.css",
+          5888
+        ],
+        [
+          "/rexbid-storage.js",
+          4848
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 70
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | ☰ | SAMOCHODY Z USA · COPART I IAAI | Wybierz wymarzony pojazd. | My zajmiemy się resztą. | Aukcje w USA, transport i formalności — z naszym wsparciem na każdym etapie. | Znajdź swój samochód | Szukaj ofert | → | PLN | Masz budżet? Sprawdź, ile licytować | Wp",
+      "networkCount": 15,
+      "encodedTransfer": 123323,
+      "imageTransfer": 16578,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 503
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "catalog",
+      "width": 768,
+      "height": 1024,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1853,
+      "path": "/",
+      "title": "REXBID — Aukcje samochodów USA",
+      "viewport": 768,
+      "clientWidth": 753,
+      "scrollWidth": 753,
+      "firstResultTop": 1305,
+      "searchPanelBottom": 221,
+      "mainPhotoTop": null,
+      "h1": [
+        "Znajdź samochód. Sprawdź szczegóły."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "← Strona główna",
+          "h": 18,
+          "w": 414
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 90,
+      "fcp": 324,
+      "lcp": 588,
+      "lcpEl": "P",
+      "cls": 0.053,
+      "longTaskBlockingAfterFCP": 35,
+      "resourceCount": 21,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-auth.js",
+          13256
+        ],
+        [
+          "/api/filters",
+          8872
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-compare.js",
+          6824
+        ],
+        [
+          "/rexbid-portal.css",
+          5920
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 122
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/780ce971385d4b2ab93d3108a5565313_ful.jpg",
+          "ms": 178
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/ae6592047b1541bc996b66f3c25a9523_ful.jpg",
+          "ms": 652
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0926/7c05f13b513b413190cb35140592447e_ful.jpg",
+          "ms": 748
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0926/0cbbbdfe83e54311a1a7954531c6801b_ful.jpg",
+          "ms": 867
+        }
+      ],
+      "carCards": 20,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | ☰ | Znajdź samochód. Sprawdź szczegóły. | Szukaj ofert | → | Przejdź do wyników | ↓ | Dopasuj samochód do siebie | Wybierz lub wpisz markę i model. Podpowiedzi obejmują częściowy katalog. | Platforma | Obie platformy | IAAI | COPART | Marka | Model | Rok od |",
+      "networkCount": 22,
+      "encodedTransfer": 722972,
+      "imageTransfer": 601006,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 503
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 9137
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 1311
+        },
+        {
+          "route": "/api/cars",
+          "status": 200,
+          "bytes": 4717
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "car",
+      "width": 768,
+      "height": 1024,
+      "run": 1,
+      "ready": true,
+      "wallMs": 2762,
+      "path": "/car",
+      "title": "2014 IC CORPORATION BUS | Copart LOT 47018496 | REXBID",
+      "viewport": 768,
+      "clientWidth": 753,
+      "scrollWidth": 753,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": 614,
+      "h1": [
+        "2014 IC CORPORATION BUS"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "REXBID",
+          "h": 18,
+          "w": 39
+        },
+        {
+          "label": "Samochody",
+          "h": 18,
+          "w": 62
+        },
+        {
+          "label": "Tłumaczenie dokumentów · 260 zł",
+          "h": 44,
+          "w": 17
+        },
+        {
+          "label": "Dopłata za ładunek niebezpieczny · 100,00 USD",
+          "h": 44,
+          "w": 17
+        },
+        {
+          "label": "Pojazd ponadgabarytowy — indywidualna wycena transportu",
+          "h": 44,
+          "w": 17
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 419,
+      "fcp": 688,
+      "lcp": 1212,
+      "lcpEl": "IMG",
+      "cls": 0.177,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 43,
+      "biggest": [
+        [
+          "/rexbid-calculator-v4-rates.js",
+          29393
+        ],
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-calculator-v4.js",
+          13812
+        ],
+        [
+          "/rexbid-auth.js",
+          13319
+        ],
+        [
+          "/rexbid-delivered-view.js",
+          11595
+        ],
+        [
+          "/rexbid-calculator.js",
+          10949
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 106
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_hrs.jpg",
+          "ms": 254
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_thb.jpg",
+          "ms": 185
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/0f908f6e3c6b4cd9a0e6f3015de12b8c_thb.jpg",
+          "ms": 149
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/82fea7fd42e449ae8b2cfa94abcc50e6_thb.jpg",
+          "ms": 157
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8687338c6b641e385ea4dbad574b8c7_thb.jpg",
+          "ms": 169
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/887cf33e05ec48aaa1f63d6f0c064467_thb.jpg",
+          "ms": 185
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/fc7417d017324df1ac3baea33c42ca6d_thb.jpg",
+          "ms": 184
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/eefad05d1092476193032d54188919f4_thb.jpg",
+          "ms": 169
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/52fb7b00c4b54995986a60d2d78000b1_thb.jpg",
+          "ms": 151
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do danych pojazdu | RYNEK AUKCYJNY USA | ☰ | ← Wróć do samochodów | REXBID | › | Samochody | › | COPART | › | 47018496 | COPART ↗ | 2014 IC CORPORATION BUS | Dane aukcji wymagają odświeżenia | Zapis danych aukcji z 08.11.2026, 09:18. Cena i dostępność do potwierdzenia w oryginalnej aukcji. |",
+      "networkCount": 44,
+      "encodedTransfer": 571244,
+      "imageTransfer": 352539,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 505
+        },
+        {
+          "route": "/api/exchange-rates",
+          "status": 200,
+          "bytes": 717
+        },
+        {
+          "route": "/api/vehicle-specs",
+          "status": 200,
+          "bytes": 979
+        },
+        {
+          "route": "/api/car/47018496/history",
+          "status": 200,
+          "bytes": 2560
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "budget",
+      "width": 768,
+      "height": 1024,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1597,
+      "path": "/kalkulator-budzet",
+      "title": "Kalkulator importu auta z USA – limit licytacji z budżetu | REXBID",
+      "viewport": 768,
+      "clientWidth": 768,
+      "scrollWidth": 768,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Twój budżet zakupu"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 105,
+      "fcp": 240,
+      "lcp": 240,
+      "lcpEl": "P",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 13,
+      "biggest": [
+        [
+          "/rexbid-calculator-v4-rates.js",
+          29433
+        ],
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-calculator-v4.js",
+          13812
+        ],
+        [
+          "/rexbid-delivered-view.js",
+          11595
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-delivered-cost.js",
+          5958
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 118
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Zobacz aukcje | Twój budżet zakupu | Wpisz budżet w złotych i wybierz auto po VIN lub LOT. Sprawdzisz, ile maksymalnie przeznaczyć na licytację, uwzględniając import do Polski i prowizję 2500 zł brutto. | Twój łączny budżet · PLN | VIN lub numer LOT | Platfor",
+      "networkCount": 14,
+      "encodedTransfer": 108472,
+      "imageTransfer": 16579,
+      "api": [],
+      "failures": []
+    },
+    {
+      "key": "history",
+      "width": 768,
+      "height": 1024,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1907,
+      "path": "/archiwum",
+      "title": "Archiwum aukcji — REXBID",
+      "viewport": 768,
+      "clientWidth": 753,
+      "scrollWidth": 753,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Archiwum aukcji"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "Aktualne aukcje",
+          "h": 21,
+          "w": 90
+        },
+        {
+          "label": "Kontakt",
+          "h": 21,
+          "w": 44
+        },
+        {
+          "label": "Zasady archiwum",
+          "h": 17,
+          "w": 98
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 210,
+      "fcp": 520,
+      "lcp": 760,
+      "lcpEl": "H2",
+      "cls": 0.063,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 7,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-brand.css",
+          6948
+        ],
+        [
+          "/rexbid-customer-guide.css",
+          2722
+        ],
+        [
+          "/rexbid-auction-archive.js",
+          2210
+        ],
+        [
+          "/rexbid-guide.css",
+          2167
+        ],
+        [
+          "/api/archiwum",
+          1425
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 294
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Aktualne aukcje | Kontakt | Archiwum aukcji | VIN lub numer LOT | Szukaj | Wyświetlono: 12 | 2025 HYUNDAI SANTA FE SE | Copart · LOT 55699206 · Zapis z 18.11.2026 | 4100,00 USD · cena sprzedaży | 5NMP14GL5SH113996 | Zdjęcia (14) | 2018 HYUNDAI SONATA LIMITED ",
+      "networkCount": 8,
+      "encodedTransfer": 37631,
+      "imageTransfer": 16579,
+      "api": [
+        {
+          "route": "/api/archiwum",
+          "status": 200,
+          "bytes": 1639
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "contact",
+      "width": 768,
+      "height": 1024,
+      "run": 1,
+      "ready": true,
+      "wallMs": 2119,
+      "path": "/kontakt",
+      "title": "Kontakt i wycena importu — REXBID",
+      "viewport": 768,
+      "clientWidth": 753,
+      "scrollWidth": 753,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Porozmawiajmy o Twoim samochodzie."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "REXBID",
+          "h": 17,
+          "w": 42
+        },
+        {
+          "label": "Poznaj etapy importu →",
+          "h": 21,
+          "w": 169
+        },
+        {
+          "label": "Wróć do katalogu →",
+          "h": 21,
+          "w": 144
+        },
+        {
+          "label": "Pomoc",
+          "h": 21,
+          "w": 39
+        },
+        {
+          "label": "Jak to działa",
+          "h": 21,
+          "w": 70
+        },
+        {
+          "label": "O nas",
+          "h": 21,
+          "w": 33
+        },
+        {
+          "label": "Kontakt",
+          "h": 21,
+          "w": 44
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 164,
+      "fcp": 640,
+      "lcp": 640,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 9,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-inquiry.js",
+          7501
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-storage.js",
+          4772
+        ],
+        [
+          "/rexbid-guide.css",
+          2167
+        ],
+        [
+          "/rexbid-car-navigation.js",
+          1844
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 333
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | ☰ | REXBID / Kontakt | POROZMAWIAJMY O TWOIM AUCIE | Porozmawiajmy | o Twoim samochodzie. | Prześlij numer aukcji lub VIN i pytania o import. Jeśli masz wybrane auto, link z jego karty dołączy dane do zapytania. | kontakt@rexbid.pl | Napisz bezpośrednio lub p",
+      "networkCount": 10,
+      "encodedTransfer": 51813,
+      "imageTransfer": 16576,
+      "api": [
+        {
+          "route": "/api/contact/config",
+          "status": 200,
+          "bytes": 506
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "home",
+      "width": 1920,
+      "height": 1080,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1869,
+      "path": "/",
+      "title": "REXBID — Aukcje samochodów USA",
+      "viewport": 1920,
+      "clientWidth": 1905,
+      "scrollWidth": 1905,
+      "firstResultTop": null,
+      "searchPanelBottom": 693,
+      "mainPhotoTop": null,
+      "h1": [
+        "Wybierz wymarzony pojazd. My zajmiemy się resztą."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 77,
+      "fcp": 428,
+      "lcp": 428,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 19,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-auth.js",
+          13256
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-compare.js",
+          6824
+        ],
+        [
+          "/rexbid-portal.css",
+          5888
+        ],
+        [
+          "/rexbid-storage.js",
+          4772
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 109
+        },
+        {
+          "path": "vis.iaai.com/resizer",
+          "ms": 347
+        },
+        {
+          "path": "vis.iaai.com/resizer",
+          "ms": 418
+        },
+        {
+          "path": "vis.iaai.com/resizer",
+          "ms": 189
+        },
+        {
+          "path": "vis.iaai.com/resizer",
+          "ms": 310
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Aukcje | Jak to działa | Ulubione | 0 | Konto | Pomoc | Kontakt | SAMOCHODY Z USA · COPART I IAAI | Wybierz wymarzony pojazd. | My zajmiemy się resztą. | Aukcje w USA, transport i formalności — z naszym wsparciem na każdym etapie. | Znajdź swój samochód | Szu",
+      "networkCount": 20,
+      "encodedTransfer": 251813,
+      "imageTransfer": 141327,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 500
+        },
+        {
+          "route": "/api/cars",
+          "status": 200,
+          "bytes": 3771
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "catalog",
+      "width": 1920,
+      "height": 1080,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1800,
+      "path": "/",
+      "title": "REXBID — Aukcje samochodów USA",
+      "viewport": 1920,
+      "clientWidth": 1905,
+      "scrollWidth": 1905,
+      "firstResultTop": 1131,
+      "searchPanelBottom": 226,
+      "mainPhotoTop": null,
+      "h1": [
+        "Znajdź samochód. Sprawdź szczegóły."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "← Strona główna",
+          "h": 18,
+          "w": 560
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 74,
+      "fcp": 320,
+      "lcp": 320,
+      "lcpEl": "H1",
+      "cls": 0.072,
+      "longTaskBlockingAfterFCP": 6,
+      "resourceCount": 21,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-auth.js",
+          13256
+        ],
+        [
+          "/api/filters",
+          8947
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-compare.js",
+          6824
+        ],
+        [
+          "/rexbid-portal.css",
+          5888
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 100
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/780ce971385d4b2ab93d3108a5565313_ful.jpg",
+          "ms": 662
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/ae6592047b1541bc996b66f3c25a9523_ful.jpg",
+          "ms": 655
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0926/7c05f13b513b413190cb35140592447e_ful.jpg",
+          "ms": 777
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0926/0cbbbdfe83e54311a1a7954531c6801b_ful.jpg",
+          "ms": 1064
+        }
+      ],
+      "carCards": 20,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Aukcje | Jak to działa | Ulubione | 0 | Konto | Pomoc | Kontakt | Znajdź samochód. Sprawdź szczegóły. | Szukaj ofert | → | Przejdź do wyników | ↓ | Dopasuj samochód do siebie | Wybierz lub wpisz markę i model. Podpowiedzi obejmują częściowy katalog. | Platfor",
+      "networkCount": 24,
+      "encodedTransfer": 722548,
+      "imageTransfer": 600607,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 500
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 9197
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 1311
+        },
+        {
+          "route": "/api/cars",
+          "status": 200,
+          "bytes": 4748
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "car",
+      "width": 1920,
+      "height": 1080,
+      "run": 1,
+      "ready": true,
+      "wallMs": 2306,
+      "path": "/car",
+      "title": "2014 IC CORPORATION BUS | Copart LOT 47018496 | REXBID",
+      "viewport": 1920,
+      "clientWidth": 1905,
+      "scrollWidth": 1905,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": 532,
+      "h1": [
+        "2014 IC CORPORATION BUS"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "REXBID",
+          "h": 18,
+          "w": 39
+        },
+        {
+          "label": "Samochody",
+          "h": 18,
+          "w": 62
+        },
+        {
+          "label": "Tłumaczenie dokumentów · 260 zł",
+          "h": 44,
+          "w": 17
+        },
+        {
+          "label": "Dopłata za ładunek niebezpieczny · 100,00 USD",
+          "h": 44,
+          "w": 17
+        },
+        {
+          "label": "Pojazd ponadgabarytowy — indywidualna wycena transportu",
+          "h": 44,
+          "w": 17
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 134,
+      "fcp": 324,
+      "lcp": 816,
+      "lcpEl": "IMG",
+      "cls": 0.749,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 43,
+      "biggest": [
+        [
+          "/rexbid-calculator-v4-rates.js",
+          29402
+        ],
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-calculator-v4.js",
+          13812
+        ],
+        [
+          "/rexbid-auth.js",
+          13251
+        ],
+        [
+          "/rexbid-delivered-view.js",
+          11592
+        ],
+        [
+          "/rexbid-calculator.js",
+          11022
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 94
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_hrs.jpg",
+          "ms": 221
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_thb.jpg",
+          "ms": 166
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/0f908f6e3c6b4cd9a0e6f3015de12b8c_thb.jpg",
+          "ms": 166
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8687338c6b641e385ea4dbad574b8c7_thb.jpg",
+          "ms": 166
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/82fea7fd42e449ae8b2cfa94abcc50e6_thb.jpg",
+          "ms": 166
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/887cf33e05ec48aaa1f63d6f0c064467_thb.jpg",
+          "ms": 166
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/fc7417d017324df1ac3baea33c42ca6d_thb.jpg",
+          "ms": 166
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/eefad05d1092476193032d54188919f4_thb.jpg",
+          "ms": 166
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/52fb7b00c4b54995986a60d2d78000b1_thb.jpg",
+          "ms": 166
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do danych pojazdu | RYNEK AUKCYJNY USA | Aukcje | Jak to działa | Ulubione | 0 | Konto | Pomoc | Kontakt | ← Wróć do samochodów | REXBID | › | Samochody | › | COPART | › | 47018496 | COPART ↗ | 2014 IC CORPORATION BUS | Dane aukcji wymagają odświeżenia | Zapis danych aukcji z 08.11.2026, 09:",
+      "networkCount": 44,
+      "encodedTransfer": 571566,
+      "imageTransfer": 352924,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 502
+        },
+        {
+          "route": "/api/exchange-rates",
+          "status": 200,
+          "bytes": 720
+        },
+        {
+          "route": "/api/vehicle-specs",
+          "status": 200,
+          "bytes": 982
+        },
+        {
+          "route": "/api/car/47018496/history",
+          "status": 200,
+          "bytes": 2557
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "budget",
+      "width": 1920,
+      "height": 1080,
+      "run": 1,
+      "ready": true,
+      "wallMs": 2076,
+      "path": "/kalkulator-budzet",
+      "title": "Kalkulator importu auta z USA – limit licytacji z budżetu | REXBID",
+      "viewport": 1920,
+      "clientWidth": 1920,
+      "scrollWidth": 1920,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Twój budżet zakupu"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 166,
+      "fcp": 412,
+      "lcp": 412,
+      "lcpEl": "P",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 13,
+      "biggest": [
+        [
+          "/rexbid-calculator-v4-rates.js",
+          29433
+        ],
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-calculator-v4.js",
+          13812
+        ],
+        [
+          "/rexbid-delivered-view.js",
+          11592
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-delivered-cost.js",
+          5958
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 270
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Zobacz aukcje | Twój budżet zakupu | Wpisz budżet w złotych i wybierz auto po VIN lub LOT. Sprawdzisz, ile maksymalnie przeznaczyć na licytację, uwzględniając import do Polski i prowizję 2500 zł brutto. | Twój łączny budżet · PLN | VIN lub numer LOT | Platfor",
+      "networkCount": 14,
+      "encodedTransfer": 108467,
+      "imageTransfer": 16579,
+      "api": [],
+      "failures": []
+    },
+    {
+      "key": "history",
+      "width": 1920,
+      "height": 1080,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1715,
+      "path": "/archiwum",
+      "title": "Archiwum aukcji — REXBID",
+      "viewport": 1920,
+      "clientWidth": 1905,
+      "scrollWidth": 1905,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Archiwum aukcji"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "Aktualne aukcje",
+          "h": 21,
+          "w": 90
+        },
+        {
+          "label": "Kontakt",
+          "h": 21,
+          "w": 44
+        },
+        {
+          "label": "Zasady archiwum",
+          "h": 17,
+          "w": 98
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 229,
+      "fcp": 364,
+      "lcp": 364,
+      "lcpEl": "H1",
+      "cls": 0.303,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 7,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-customer-guide.css",
+          2722
+        ],
+        [
+          "/rexbid-auction-archive.js",
+          2210
+        ],
+        [
+          "/rexbid-guide.css",
+          2167
+        ],
+        [
+          "/api/archiwum",
+          1425
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 117
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Aktualne aukcje | Kontakt | Archiwum aukcji | VIN lub numer LOT | Szukaj | Wyświetlono: 12 | 2025 HYUNDAI SANTA FE SE | Copart · LOT 55699206 · Zapis z 18.11.2026 | 4100,00 USD · cena sprzedaży | 5NMP14GL5SH113996 | Zdjęcia (14) | 2018 HYUNDAI SONATA LIMITED ",
+      "networkCount": 8,
+      "encodedTransfer": 37542,
+      "imageTransfer": 16582,
+      "api": [
+        {
+          "route": "/api/archiwum",
+          "status": 200,
+          "bytes": 1631
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "contact",
+      "width": 1920,
+      "height": 1080,
+      "run": 1,
+      "ready": true,
+      "wallMs": 2000,
+      "path": "/kontakt",
+      "title": "Kontakt i wycena importu — REXBID",
+      "viewport": 1920,
+      "clientWidth": 1905,
+      "scrollWidth": 1905,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Porozmawiajmy o Twoim samochodzie."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "REXBID",
+          "h": 17,
+          "w": 42
+        },
+        {
+          "label": "Poznaj etapy importu →",
+          "h": 21,
+          "w": 169
+        },
+        {
+          "label": "Wróć do katalogu →",
+          "h": 21,
+          "w": 144
+        },
+        {
+          "label": "Pomoc",
+          "h": 21,
+          "w": 39
+        },
+        {
+          "label": "Jak to działa",
+          "h": 21,
+          "w": 70
+        },
+        {
+          "label": "O nas",
+          "h": 21,
+          "w": 33
+        },
+        {
+          "label": "Kontakt",
+          "h": 21,
+          "w": 44
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 91,
+      "fcp": 288,
+      "lcp": 288,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 9,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-inquiry.js",
+          7501
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-storage.js",
+          4772
+        ],
+        [
+          "/rexbid-guide.css",
+          2167
+        ],
+        [
+          "/rexbid-car-navigation.js",
+          1844
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 430
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Aukcje | Jak to działa | Ulubione | 0 | Konto | Pomoc | Kontakt | REXBID / Kontakt | POROZMAWIAJMY O TWOIM AUCIE | Porozmawiajmy | o Twoim samochodzie. | Prześlij numer aukcji lub VIN i pytania o import. Jeśli masz wybrane auto, link z jego karty dołączy dane",
+      "networkCount": 10,
+      "encodedTransfer": 51887,
+      "imageTransfer": 16579,
+      "api": [
+        {
+          "route": "/api/contact/config",
+          "status": 200,
+          "bytes": 509
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "home",
+      "width": 390,
+      "height": 844,
+      "run": 2,
+      "ready": true,
+      "wallMs": 1820,
+      "path": "/",
+      "title": "REXBID — Aukcje samochodów USA",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": null,
+      "searchPanelBottom": 951,
+      "mainPhotoTop": null,
+      "h1": [
+        "Wybierz wymarzony pojazd. My zajmiemy się resztą."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 88,
+      "fcp": 364,
+      "lcp": 364,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 14,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-auth.js",
+          13256
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-compare.js",
+          6824
+        ],
+        [
+          "/rexbid-portal.css",
+          5888
+        ],
+        [
+          "/rexbid-storage.js",
+          4772
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 178
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | ☰ | SAMOCHODY Z USA · COPART I IAAI | Wybierz wymarzony pojazd. | My zajmiemy się resztą. | Aukcje w USA, transport i formalności — z naszym wsparciem na każdym etapie. | Znajdź swój samochód | Szukaj ofert | → | PLN | Masz budżet? Sprawdź, ile licytować | Wp",
+      "networkCount": 15,
+      "encodedTransfer": 123327,
+      "imageTransfer": 16589,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 496
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "catalog",
+      "width": 390,
+      "height": 844,
+      "run": 2,
+      "ready": true,
+      "wallMs": 1892,
+      "path": "/",
+      "title": "REXBID — Aukcje samochodów USA",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": 1200,
+      "searchPanelBottom": 313,
+      "mainPhotoTop": null,
+      "h1": [
+        "Znajdź samochód. Sprawdź szczegóły."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "← Strona główna",
+          "h": 18,
+          "w": 354
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 167,
+      "fcp": 436,
+      "lcp": 436,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 19,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-auth.js",
+          13256
+        ],
+        [
+          "/api/filters",
+          8947
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-compare.js",
+          6824
+        ],
+        [
+          "/rexbid-portal.css",
+          5928
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 185
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/780ce971385d4b2ab93d3108a5565313_ful.jpg",
+          "ms": 159
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/ae6592047b1541bc996b66f3c25a9523_ful.jpg",
+          "ms": 240
+        }
+      ],
+      "carCards": 20,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | ☰ | Znajdź samochód. Sprawdź szczegóły. | Szukaj ofert | Przejdź do wyników | ↓ | Dopasuj samochód do siebie | Pokaż filtry (2) | 2 aktywne filtry | Marka: Subaru | × | Rok od: 2025 | × | Wyczyść filtry | ← Strona główna | Katalog samochodów | Pokazane ceny s",
+      "networkCount": 20,
+      "encodedTransfer": 383023,
+      "imageTransfer": 261043,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 504
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 9201
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 1312
+        },
+        {
+          "route": "/api/cars",
+          "status": 200,
+          "bytes": 4741
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "car",
+      "width": 390,
+      "height": 844,
+      "run": 2,
+      "ready": true,
+      "wallMs": 2118,
+      "path": "/car",
+      "title": "2014 IC CORPORATION BUS | Copart LOT 47018496 | REXBID",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": 799,
+      "h1": [
+        "2014 IC CORPORATION BUS"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "REXBID",
+          "h": 18,
+          "w": 39
+        },
+        {
+          "label": "Samochody",
+          "h": 18,
+          "w": 62
+        },
+        {
+          "label": "Tłumaczenie dokumentów · 260 zł",
+          "h": 44,
+          "w": 17
+        },
+        {
+          "label": "Dopłata za ładunek niebezpieczny · 100,00 USD",
+          "h": 44,
+          "w": 17
+        },
+        {
+          "label": "Pojazd ponadgabarytowy — indywidualna wycena transportu",
+          "h": 44,
+          "w": 17
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 201,
+      "fcp": 368,
+      "lcp": 368,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 41,
+      "biggest": [
+        [
+          "/rexbid-calculator-v4-rates.js",
+          29433
+        ],
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-calculator-v4.js",
+          13812
+        ],
+        [
+          "/rexbid-auth.js",
+          13256
+        ],
+        [
+          "/rexbid-delivered-view.js",
+          11592
+        ],
+        [
+          "/rexbid-calculator.js",
+          10949
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 76
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_ful.jpg",
+          "ms": 140
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_thb.jpg",
+          "ms": 81
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/0f908f6e3c6b4cd9a0e6f3015de12b8c_thb.jpg",
+          "ms": 70
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8687338c6b641e385ea4dbad574b8c7_thb.jpg",
+          "ms": 88
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/887cf33e05ec48aaa1f63d6f0c064467_thb.jpg",
+          "ms": 95
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/82fea7fd42e449ae8b2cfa94abcc50e6_thb.jpg",
+          "ms": 108
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/fc7417d017324df1ac3baea33c42ca6d_thb.jpg",
+          "ms": 115
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/eefad05d1092476193032d54188919f4_thb.jpg",
+          "ms": 73
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/52fb7b00c4b54995986a60d2d78000b1_thb.jpg",
+          "ms": 117
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do danych pojazdu | RYNEK AUKCYJNY USA | ☰ | ← Wróć do samochodów | REXBID | › | Samochody | › | COPART | › | 47018496 | COPART ↗ | 2014 IC CORPORATION BUS | Dane aukcji wymagają odświeżenia | Zapis danych aukcji z 08.11.2026, 09:18. Cena i dostępność do potwierdzenia w oryginalnej aukcji. |",
+      "networkCount": 42,
+      "encodedTransfer": 412171,
+      "imageTransfer": 193384,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 501
+        },
+        {
+          "route": "/api/exchange-rates",
+          "status": 200,
+          "bytes": 723
+        },
+        {
+          "route": "/api/vehicle-specs",
+          "status": 200,
+          "bytes": 977
+        },
+        {
+          "route": "/api/car/47018496/history",
+          "status": 200,
+          "bytes": 2561
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "budget",
+      "width": 390,
+      "height": 844,
+      "run": 2,
+      "ready": true,
+      "wallMs": 1847,
+      "path": "/kalkulator-budzet",
+      "title": "Kalkulator importu auta z USA – limit licytacji z budżetu | REXBID",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Twój budżet zakupu"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 147,
+      "fcp": 372,
+      "lcp": 372,
+      "lcpEl": "P",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 13,
+      "biggest": [
+        [
+          "/rexbid-calculator-v4-rates.js",
+          29393
+        ],
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-calculator-v4.js",
+          13814
+        ],
+        [
+          "/rexbid-delivered-view.js",
+          11595
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-delivered-cost.js",
+          5958
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 164
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Zobacz aukcje | Twój budżet zakupu | Wpisz budżet w złotych i wybierz auto po VIN lub LOT. Sprawdzisz, ile maksymalnie przeznaczyć na licytację, uwzględniając import do Polski i prowizję 2500 zł brutto. | Twój łączny budżet · PLN | VIN lub numer LOT | Platfor",
+      "networkCount": 14,
+      "encodedTransfer": 108489,
+      "imageTransfer": 16585,
+      "api": [],
+      "failures": []
+    },
+    {
+      "key": "history",
+      "width": 390,
+      "height": 844,
+      "run": 2,
+      "ready": true,
+      "wallMs": 1547,
+      "path": "/archiwum",
+      "title": "Archiwum aukcji — REXBID",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Archiwum aukcji"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "Aktualne aukcje",
+          "h": 21,
+          "w": 90
+        },
+        {
+          "label": "Kontakt",
+          "h": 21,
+          "w": 44
+        },
+        {
+          "label": "Zasady archiwum",
+          "h": 17,
+          "w": 98
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 62,
+      "fcp": 216,
+      "lcp": 508,
+      "lcpEl": "H2",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 7,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-customer-guide.css",
+          2722
+        ],
+        [
+          "/rexbid-auction-archive.js",
+          2210
+        ],
+        [
+          "/rexbid-guide.css",
+          2167
+        ],
+        [
+          "/api/archiwum",
+          1425
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 96
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Aktualne aukcje | Kontakt | Archiwum aukcji | VIN lub numer LOT | Szukaj | Wyświetlono: 12 | 2025 HYUNDAI SANTA FE SE | Copart · LOT 55699206 · Zapis z 18.11.2026 | 4100,00 USD · cena sprzedaży | 5NMP14GL5SH113996 | Zdjęcia (14) | 2018 HYUNDAI SONATA LIMITED ",
+      "networkCount": 8,
+      "encodedTransfer": 37542,
+      "imageTransfer": 16582,
+      "api": [
+        {
+          "route": "/api/archiwum",
+          "status": 200,
+          "bytes": 1630
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "contact",
+      "width": 390,
+      "height": 844,
+      "run": 2,
+      "ready": true,
+      "wallMs": 1586,
+      "path": "/kontakt",
+      "title": "Kontakt i wycena importu — REXBID",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Porozmawiajmy o Twoim samochodzie."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "REXBID",
+          "h": 17,
+          "w": 42
+        },
+        {
+          "label": "Poznaj etapy importu →",
+          "h": 21,
+          "w": 169
+        },
+        {
+          "label": "Wróć do katalogu →",
+          "h": 21,
+          "w": 144
+        },
+        {
+          "label": "Pomoc",
+          "h": 21,
+          "w": 39
+        },
+        {
+          "label": "Jak to działa",
+          "h": 21,
+          "w": 70
+        },
+        {
+          "label": "O nas",
+          "h": 21,
+          "w": 33
+        },
+        {
+          "label": "Kontakt",
+          "h": 21,
+          "w": 44
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 84,
+      "fcp": 288,
+      "lcp": 288,
+      "lcpEl": "P",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 9,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-inquiry.js",
+          7577
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-storage.js",
+          4772
+        ],
+        [
+          "/rexbid-guide.css",
+          2167
+        ],
+        [
+          "/rexbid-car-navigation.js",
+          1844
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 77
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | ☰ | REXBID / Kontakt | POROZMAWIAJMY O TWOIM AUCIE | Porozmawiajmy | o Twoim samochodzie. | Prześlij numer aukcji lub VIN i pytania o import. Jeśli masz wybrane auto, link z jego karty dołączy dane do zapytania. | kontakt@rexbid.pl | Napisz bezpośrednio lub p",
+      "networkCount": 10,
+      "encodedTransfer": 51875,
+      "imageTransfer": 16581,
+      "api": [
+        {
+          "route": "/api/contact/config",
+          "status": 200,
+          "bytes": 511
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "home",
+      "width": 390,
+      "height": 844,
+      "run": 3,
+      "ready": true,
+      "wallMs": 1777,
+      "path": "/",
+      "title": "REXBID — Aukcje samochodów USA",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": null,
+      "searchPanelBottom": 951,
+      "mainPhotoTop": null,
+      "h1": [
+        "Wybierz wymarzony pojazd. My zajmiemy się resztą."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 76,
+      "fcp": 308,
+      "lcp": 308,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 14,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-auth.js",
+          13256
+        ],
+        [
+          "/rexbid-brand.css",
+          6883
+        ],
+        [
+          "/rexbid-compare.js",
+          6824
+        ],
+        [
+          "/rexbid-portal.css",
+          5920
+        ],
+        [
+          "/rexbid-storage.js",
+          4772
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 93
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | ☰ | SAMOCHODY Z USA · COPART I IAAI | Wybierz wymarzony pojazd. | My zajmiemy się resztą. | Aukcje w USA, transport i formalności — z naszym wsparciem na każdym etapie. | Znajdź swój samochód | Szukaj ofert | → | PLN | Masz budżet? Sprawdź, ile licytować | Wp",
+      "networkCount": 15,
+      "encodedTransfer": 123315,
+      "imageTransfer": 16580,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 504
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "catalog",
+      "width": 390,
+      "height": 844,
+      "run": 3,
+      "ready": true,
+      "wallMs": 1565,
+      "path": "/",
+      "title": "REXBID — Aukcje samochodów USA",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": 1200,
+      "searchPanelBottom": 313,
+      "mainPhotoTop": null,
+      "h1": [
+        "Znajdź samochód. Sprawdź szczegóły."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "← Strona główna",
+          "h": 18,
+          "w": 354
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 79,
+      "fcp": 252,
+      "lcp": 252,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 19,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-auth.js",
+          13251
+        ],
+        [
+          "/api/filters",
+          8909
+        ],
+        [
+          "/rexbid-brand.css",
+          6948
+        ],
+        [
+          "/rexbid-compare.js",
+          6824
+        ],
+        [
+          "/rexbid-portal.css",
+          5920
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 111
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/780ce971385d4b2ab93d3108a5565313_ful.jpg",
+          "ms": 291
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/ae6592047b1541bc996b66f3c25a9523_ful.jpg",
+          "ms": 384
+        }
+      ],
+      "carCards": 20,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | ☰ | Znajdź samochód. Sprawdź szczegóły. | Szukaj ofert | Przejdź do wyników | ↓ | Dopasuj samochód do siebie | Pokaż filtry (2) | 2 aktywne filtry | Marka: Subaru | × | Rok od: 2025 | × | Wyczyść filtry | ← Strona główna | Katalog samochodów | Pokazane ceny s",
+      "networkCount": 20,
+      "encodedTransfer": 383048,
+      "imageTransfer": 261010,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 510
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 9168
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 1307
+        },
+        {
+          "route": "/api/cars",
+          "status": 200,
+          "bytes": 4742
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "car",
+      "width": 390,
+      "height": 844,
+      "run": 3,
+      "ready": true,
+      "wallMs": 2090,
+      "path": "/car",
+      "title": "2014 IC CORPORATION BUS | Copart LOT 47018496 | REXBID",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": 799,
+      "h1": [
+        "2014 IC CORPORATION BUS"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "REXBID",
+          "h": 18,
+          "w": 39
+        },
+        {
+          "label": "Samochody",
+          "h": 18,
+          "w": 62
+        },
+        {
+          "label": "Tłumaczenie dokumentów · 260 zł",
+          "h": 44,
+          "w": 17
+        },
+        {
+          "label": "Dopłata za ładunek niebezpieczny · 100,00 USD",
+          "h": 44,
+          "w": 17
+        },
+        {
+          "label": "Pojazd ponadgabarytowy — indywidualna wycena transportu",
+          "h": 44,
+          "w": 17
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 131,
+      "fcp": 300,
+      "lcp": 300,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 41,
+      "biggest": [
+        [
+          "/rexbid-calculator-v4-rates.js",
+          29412
+        ],
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-calculator-v4.js",
+          13814
+        ],
+        [
+          "/rexbid-auth.js",
+          13251
+        ],
+        [
+          "/rexbid-delivered-view.js",
+          11595
+        ],
+        [
+          "/rexbid-calculator.js",
+          10949
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 97
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_ful.jpg",
+          "ms": 217
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_thb.jpg",
+          "ms": 114
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/0f908f6e3c6b4cd9a0e6f3015de12b8c_thb.jpg",
+          "ms": 114
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8687338c6b641e385ea4dbad574b8c7_thb.jpg",
+          "ms": 148
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/82fea7fd42e449ae8b2cfa94abcc50e6_thb.jpg",
+          "ms": 116
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/887cf33e05ec48aaa1f63d6f0c064467_thb.jpg",
+          "ms": 129
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/fc7417d017324df1ac3baea33c42ca6d_thb.jpg",
+          "ms": 136
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/eefad05d1092476193032d54188919f4_thb.jpg",
+          "ms": 114
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/52fb7b00c4b54995986a60d2d78000b1_thb.jpg",
+          "ms": 115
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do danych pojazdu | RYNEK AUKCYJNY USA | ☰ | ← Wróć do samochodów | REXBID | › | Samochody | › | COPART | › | 47018496 | COPART ↗ | 2014 IC CORPORATION BUS | Dane aukcji wymagają odświeżenia | Zapis danych aukcji z 08.11.2026, 09:18. Cena i dostępność do potwierdzenia w oryginalnej aukcji. |",
+      "networkCount": 42,
+      "encodedTransfer": 411979,
+      "imageTransfer": 193372,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 504
+        },
+        {
+          "route": "/api/exchange-rates",
+          "status": 200,
+          "bytes": 726
+        },
+        {
+          "route": "/api/vehicle-specs",
+          "status": 200,
+          "bytes": 975
+        },
+        {
+          "route": "/api/car/47018496/history",
+          "status": 200,
+          "bytes": 2571
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "budget",
+      "width": 390,
+      "height": 844,
+      "run": 3,
+      "ready": true,
+      "wallMs": 1567,
+      "path": "/kalkulator-budzet",
+      "title": "Kalkulator importu auta z USA – limit licytacji z budżetu | REXBID",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Twój budżet zakupu"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 64,
+      "fcp": 212,
+      "lcp": 212,
+      "lcpEl": "P",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 13,
+      "biggest": [
+        [
+          "/rexbid-calculator-v4-rates.js",
+          29412
+        ],
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-calculator-v4.js",
+          13814
+        ],
+        [
+          "/rexbid-delivered-view.js",
+          11595
+        ],
+        [
+          "/rexbid-brand.css",
+          6883
+        ],
+        [
+          "/rexbid-delivered-cost.js",
+          5958
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 91
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Zobacz aukcje | Twój budżet zakupu | Wpisz budżet w złotych i wybierz auto po VIN lub LOT. Sprawdzisz, ile maksymalnie przeznaczyć na licytację, uwzględniając import do Polski i prowizję 2500 zł brutto. | Twój łączny budżet · PLN | VIN lub numer LOT | Platfor",
+      "networkCount": 14,
+      "encodedTransfer": 108487,
+      "imageTransfer": 16583,
+      "api": [],
+      "failures": []
+    },
+    {
+      "key": "history",
+      "width": 390,
+      "height": 844,
+      "run": 3,
+      "ready": true,
+      "wallMs": 1548,
+      "path": "/archiwum",
+      "title": "Archiwum aukcji — REXBID",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Archiwum aukcji"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "Aktualne aukcje",
+          "h": 21,
+          "w": 90
+        },
+        {
+          "label": "Kontakt",
+          "h": 21,
+          "w": 44
+        },
+        {
+          "label": "Zasady archiwum",
+          "h": 17,
+          "w": 98
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 67,
+      "fcp": 200,
+      "lcp": 320,
+      "lcpEl": "H2",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 7,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-brand.css",
+          6883
+        ],
+        [
+          "/rexbid-customer-guide.css",
+          2722
+        ],
+        [
+          "/rexbid-auction-archive.js",
+          2210
+        ],
+        [
+          "/rexbid-guide.css",
+          2167
+        ],
+        [
+          "/api/archiwum",
+          1425
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 117
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Aktualne aukcje | Kontakt | Archiwum aukcji | VIN lub numer LOT | Szukaj | Wyświetlono: 12 | 2025 HYUNDAI SANTA FE SE | Copart · LOT 55699206 · Zapis z 18.11.2026 | 4100,00 USD · cena sprzedaży | 5NMP14GL5SH113996 | Zdjęcia (14) | 2018 HYUNDAI SONATA LIMITED ",
+      "networkCount": 8,
+      "encodedTransfer": 37567,
+      "imageTransfer": 16587,
+      "api": [
+        {
+          "route": "/api/archiwum",
+          "status": 200,
+          "bytes": 1633
+        }
+      ],
+      "failures": []
+    },
+    {
+      "key": "contact",
+      "width": 390,
+      "height": 844,
+      "run": 3,
+      "ready": true,
+      "wallMs": 1555,
+      "path": "/kontakt",
+      "title": "Kontakt i wycena importu — REXBID",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": null,
+      "h1": [
+        "Porozmawiajmy o Twoim samochodzie."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "REXBID",
+          "h": 17,
+          "w": 42
+        },
+        {
+          "label": "Poznaj etapy importu →",
+          "h": 21,
+          "w": 169
+        },
+        {
+          "label": "Wróć do katalogu →",
+          "h": 21,
+          "w": 144
+        },
+        {
+          "label": "Pomoc",
+          "h": 21,
+          "w": 39
+        },
+        {
+          "label": "Jak to działa",
+          "h": 21,
+          "w": 70
+        },
+        {
+          "label": "O nas",
+          "h": 21,
+          "w": 33
+        },
+        {
+          "label": "Kontakt",
+          "h": 21,
+          "w": 44
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 65,
+      "fcp": 264,
+      "lcp": 264,
+      "lcpEl": "P",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 9,
+      "biggest": [
+        [
+          "/rexbid-logo-20261117-dark.webp",
+          16102
+        ],
+        [
+          "/rexbid-inquiry.js",
+          7501
+        ],
+        [
+          "/rexbid-brand.css",
+          6857
+        ],
+        [
+          "/rexbid-storage.js",
+          4772
+        ],
+        [
+          "/rexbid-guide.css",
+          2167
+        ],
+        [
+          "/rexbid-car-navigation.js",
+          1844
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 115
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | ☰ | REXBID / Kontakt | POROZMAWIAJMY O TWOIM AUCIE | Porozmawiajmy | o Twoim samochodzie. | Prześlij numer aukcji lub VIN i pytania o import. Jeśli masz wybrane auto, link z jego karty dołączy dane do zapytania. | kontakt@rexbid.pl | Napisz bezpośrednio lub p",
+      "networkCount": 10,
+      "encodedTransfer": 51780,
+      "imageTransfer": 16587,
+      "api": [
+        {
+          "route": "/api/contact/config",
+          "status": 200,
+          "bytes": 503
+        }
+      ],
+      "failures": []
+    }
+  ]
+}

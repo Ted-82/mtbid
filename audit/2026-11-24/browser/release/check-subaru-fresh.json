@@ -1,0 +1,18 @@
+[
+  {
+    "platform": "copart",
+    "lot": "66837846",
+    "title": "2025 SUBARU FORESTER WILDERNESS",
+    "read": {
+      "source": "d1",
+      "catalog_scope": "active",
+      "freshness": "stale",
+      "last_seen_at": "2026-10-27T14:56:47.000Z",
+      "last_synced_at": "2026-10-27T14:56:47.000Z",
+      "data_status": "last_known"
+    },
+    "auctionAt": "2026-11-24T18:00:00.000Z",
+    "phase": null,
+    "state": "open"
+  }
+]

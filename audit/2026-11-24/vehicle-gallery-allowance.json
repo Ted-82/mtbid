@@ -1,0 +1,24 @@
+{
+  "at": "2026-11-24T17:05:20.481Z",
+  "day": "2026-11-24",
+  "from": "2026-11-06",
+  "used": {
+    "writes": 19583581,
+    "reads": 361106845
+  },
+  "allowance": {
+    "writeLimit": 29293208,
+    "readLimit": 19255027912
+  },
+  "bytes": 2402156544,
+  "capacityGuard": false,
+  "publicationGuard": true,
+  "decision": "publication_reserve",
+  "boundedDateSample": {
+    "sampled": 160,
+    "literalEmpties": 0,
+    "bothSqlNull": 34
+  },
+  "boundedSampleRead": 9718,
+  "cost": "four-point and bounded date lookups only, no production write"
+}

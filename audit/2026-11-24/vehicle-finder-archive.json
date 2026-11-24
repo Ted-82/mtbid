@@ -1,0 +1,102 @@
+{
+  "at": "2026-11-24T16:52:32.390Z",
+  "finder": [
+    {
+      "kind": "VIN",
+      "input": "2T3A1RFV7RW473296",
+      "status": 200,
+      "exact": [
+        [
+          "iaai",
+          "45111614",
+          "2T3A1RFV7RW473296"
+        ]
+      ]
+    },
+    {
+      "kind": "vin_lower_spaces",
+      "input": " 2t3a1rfv7rw473296 ",
+      "status": 200,
+      "exact": [
+        [
+          "iaai",
+          "45111614",
+          "2T3A1RFV7RW473296"
+        ]
+      ]
+    },
+    {
+      "kind": "LOT",
+      "input": "45111614",
+      "status": 200,
+      "exact": [
+        [
+          "iaai",
+          "45111614",
+          "2T3A1RFV7RW473296"
+        ]
+      ]
+    },
+    {
+      "kind": "invalid",
+      "input": "NOT-VALID-VIN-!!",
+      "status": 200,
+      "exact": []
+    },
+    {
+      "kind": "none",
+      "input": "999999999999999",
+      "status": 200,
+      "exact": []
+    },
+    {
+      "kind": "copartCollision",
+      "input": "46087626",
+      "status": 200,
+      "exact": [
+        [
+          "copart",
+          "46087626",
+          "2C4RDGBG4HR742563"
+        ]
+      ]
+    }
+  ],
+  "archive": {
+    "pages": 6,
+    "unique": 72,
+    "photos": [],
+    "cases": [
+      {
+        "platform": "copart",
+        "vin": "1GNEVHKW5NJ106685",
+        "lot": "67597216",
+        "sequence": 105212468,
+        "status": "sold",
+        "saleCents": 195000,
+        "lookup": 200,
+        "matched": true,
+        "image": {
+          "status": 200,
+          "type": "image/jpeg",
+          "bytes": "256884"
+        }
+      },
+      {
+        "platform": "iaai",
+        "vin": "5J8TC2H34ML006761",
+        "lot": "46440491",
+        "sequence": 105210920,
+        "status": "sold",
+        "saleCents": 1315000,
+        "lookup": 200,
+        "matched": true,
+        "image": {
+          "status": 200,
+          "type": "image/jpeg",
+          "bytes": "334935"
+        }
+      }
+    ]
+  }
+}

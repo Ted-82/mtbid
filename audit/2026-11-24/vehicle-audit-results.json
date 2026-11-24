@@ -1,0 +1,6344 @@
+{
+  "time": "2026-11-24T16:40:11.190Z",
+  "queries": [
+    {
+      "name": "copart",
+      "returned": 24,
+      "error": null,
+      "sample": [
+        "2017 DODGE GRAND CARAVAN SE",
+        "2016 WABASH DVCVHPC"
+      ],
+      "pagination": {
+        "has_more": null,
+        "next_page": null,
+        "page": null,
+        "per_page": null
+      }
+    },
+    {
+      "name": "iaai",
+      "returned": 24,
+      "error": null,
+      "sample": [
+        "2023 HONDA WW150 A",
+        "2025 KAWASAKI ZX1002 M"
+      ],
+      "pagination": {
+        "has_more": null,
+        "next_page": null,
+        "page": null,
+        "per_page": null
+      }
+    },
+    {
+      "name": "timed",
+      "returned": 24,
+      "error": null,
+      "sample": [
+        "2017 NISSAN SENTRA SV",
+        "2019 ACURA TLX STANDARD"
+      ],
+      "pagination": {
+        "has_more": null,
+        "next_page": null,
+        "page": null,
+        "per_page": null
+      }
+    },
+    {
+      "name": "buy-now",
+      "returned": 24,
+      "error": null,
+      "sample": [
+        "2013 KENWORTH T700 HOOD",
+        "2020 LARK UNITED VN"
+      ],
+      "pagination": {
+        "has_more": null,
+        "next_page": null,
+        "page": null,
+        "per_page": null
+      }
+    },
+    {
+      "name": "electric",
+      "returned": 24,
+      "error": null,
+      "sample": [
+        "2026 CHEVROLET EQUINOX LT",
+        "2023 TESLA MODEL 3"
+      ],
+      "pagination": {
+        "has_more": null,
+        "next_page": null,
+        "page": null,
+        "per_page": null
+      }
+    },
+    {
+      "name": "diesel",
+      "returned": 24,
+      "error": null,
+      "sample": [
+        "2013 KENWORTH T700 HOOD",
+        "2023 MERCEDES-BENZ SPRINTER 2500"
+      ],
+      "pagination": {
+        "has_more": null,
+        "next_page": null,
+        "page": null,
+        "per_page": null
+      }
+    },
+    {
+      "name": "hybrid",
+      "returned": 24,
+      "error": null,
+      "sample": [
+        "2024 TOYOTA COROLLA HYBRID LE",
+        "2017 CHEVROLET VOLT LT"
+      ],
+      "pagination": {
+        "has_more": null,
+        "next_page": null,
+        "page": null,
+        "per_page": null
+      }
+    }
+  ],
+  "vehicles": [
+    {
+      "group": "known",
+      "public": {
+        "lot_number": "46087626",
+        "vin": "2C4RDGBG4HR742563",
+        "platform": "copart",
+        "title": "2017 DODGE GRAND CARAVAN SE",
+        "year": 2017,
+        "make": "DODGE",
+        "model": "GRAND CARAVAN",
+        "trim": null,
+        "body_style": "Sports van",
+        "fuel_type": "Flexible",
+        "engine_size_l": 3.6,
+        "exterior_color": null,
+        "transmission": "Automatic",
+        "drive_type": "FRONT WHEEL DRIVE",
+        "last_synced_at": "2026-11-17T15:46:07.000Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 252332,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "ON - TORONTO",
+          "state": "ON",
+          "postal_code": "L1E 0L1"
+        },
+        "doc": {
+          "name": "ST",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Front end",
+          "secondary_damage": null,
+          "run_condition": "Vehicle Starts",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": 350,
+          "buy_now_usd": null,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": false,
+        "photos": 0,
+        "video": false,
+        "spin": false
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "46087626",
+        "vin": "2C4RDGBG4HR742563",
+        "platform": "copart",
+        "title": "2017 DODGE GRAND CARAVAN SE",
+        "year": 2017,
+        "make": "DODGE",
+        "model": "GRAND CARAVAN",
+        "trim": null,
+        "updated_at": "2026-11-24T16:33:06.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 252332,
+          "km": 406088
+        },
+        "spec": {
+          "exterior_color": "White",
+          "body_style": "Sports van",
+          "fuel_type": "Flexible",
+          "transmission": "Automatic",
+          "drive_type": "FRONT WHEEL DRIVE"
+        },
+        "engine": {
+          "raw": "3.6L 6",
+          "size_l": "3.6",
+          "hp": null
+        },
+        "doc": {
+          "name": "PERMIT SALVAGE",
+          "raw_name": "ON - Permit Salvage",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Front end",
+          "secondary_damage": null,
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": 350,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "copart",
+      "public": {
+        "lot_number": "46350466",
+        "vin": "1JJV532D6GL941901",
+        "platform": "copart",
+        "title": "2016 WABASH DVCVHPC",
+        "year": 2016,
+        "make": "WABASH",
+        "model": "DVCVHPC",
+        "trim": null,
+        "body_style": null,
+        "fuel_type": null,
+        "engine_size_l": null,
+        "exterior_color": null,
+        "transmission": null,
+        "drive_type": null,
+        "last_synced_at": "2026-11-20T16:16:15.000Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 0,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "WI - FRANKLIN",
+          "state": "WI",
+          "postal_code": "53132"
+        },
+        "doc": {
+          "name": "CT",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Side",
+          "secondary_damage": null,
+          "run_condition": "Unknown",
+          "has_key": false,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": 3550,
+          "buy_now_usd": null,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": false,
+        "photos": 0,
+        "video": false,
+        "spin": false
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "46350466",
+        "vin": "1JJV532D6GL941901",
+        "platform": "copart",
+        "title": "2016 WABASH DVCVHPC",
+        "year": 2016,
+        "make": "WABASH",
+        "model": "DVCVHPC",
+        "trim": null,
+        "updated_at": "2026-11-24T15:31:40.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 0,
+          "km": 0
+        },
+        "spec": {
+          "exterior_color": "White",
+          "body_style": null,
+          "fuel_type": null,
+          "transmission": null,
+          "drive_type": null
+        },
+        "engine": {
+          "raw": null,
+          "size_l": null,
+          "hp": null
+        },
+        "doc": {
+          "name": "CERTIFICATE OF TITLE",
+          "raw_name": "TN - Certificate Of Title",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Side",
+          "secondary_damage": null,
+          "has_key": false
+        },
+        "pricing": {
+          "current_bid_usd": 3550,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "copart",
+      "public": {
+        "lot_number": "46995635",
+        "vin": "1XKFDP9X0DJ356766",
+        "platform": "copart",
+        "title": "2013 KENWORTH T700 HOOD",
+        "year": 2013,
+        "make": "KENWORTH",
+        "model": "T700 HOOD",
+        "trim": null,
+        "body_style": "Tractor",
+        "fuel_type": "Diesel",
+        "engine_size_l": 12.9,
+        "exterior_color": null,
+        "transmission": "Manual",
+        "drive_type": "REAR WHEEL DRIVE",
+        "last_synced_at": "2026-11-18T19:31:03.000Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 1310132,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "TN - LEBANON",
+          "state": "TN",
+          "postal_code": "37090"
+        },
+        "doc": {
+          "name": "CT",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Side",
+          "secondary_damage": null,
+          "run_condition": "DEFAULT",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": 1900,
+          "buy_now_usd": 3500,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": false,
+        "photos": 0,
+        "video": false,
+        "spin": false
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "46995635",
+        "vin": "1XKFDP9X0DJ356766",
+        "platform": "copart",
+        "title": "2013 KENWORTH T700 HOOD",
+        "year": 2013,
+        "make": "KENWORTH",
+        "model": "T700 HOOD",
+        "trim": null,
+        "updated_at": "2026-11-24T15:31:21.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 1310132,
+          "km": 2108448
+        },
+        "spec": {
+          "exterior_color": "Black",
+          "body_style": "Tractor",
+          "fuel_type": "Diesel",
+          "transmission": "Manual",
+          "drive_type": "REAR WHEEL DRIVE"
+        },
+        "engine": {
+          "raw": "12.9L 6",
+          "size_l": "12.9",
+          "hp": null
+        },
+        "doc": {
+          "name": "CERTIFICATE OF TITLE",
+          "raw_name": "TN - Certificate Of Title",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Side",
+          "secondary_damage": null,
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": 1900,
+          "buy_now_usd": 3500,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "copart",
+      "public": {
+        "lot_number": "47018496",
+        "vin": "4DRBUAAN8EB778826",
+        "platform": "copart",
+        "title": "2014 IC CORPORATION BUS",
+        "year": 2014,
+        "make": "IC CORPORATION",
+        "model": "BUS",
+        "trim": null,
+        "body_style": "Bus",
+        "fuel_type": null,
+        "engine_size_l": null,
+        "exterior_color": null,
+        "transmission": "Automatic",
+        "drive_type": null,
+        "last_synced_at": "2026-11-08T08:18:56.000Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": null,
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 0,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "PA - PITTSBURGH WEST",
+          "state": "PA",
+          "postal_code": "15122"
+        },
+        "doc": {
+          "name": "CERT OF TITLE",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Normal wear",
+          "secondary_damage": null,
+          "run_condition": "DEFAULT",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": null,
+          "buy_now_usd": null,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": false,
+        "photos": 12,
+        "video": false,
+        "spin": false
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "47018496",
+        "vin": "4DRBUAAN8EB778826",
+        "platform": "copart",
+        "title": "2014 IC CORPORATION BUS",
+        "year": 2014,
+        "make": "IC CORPORATION",
+        "model": "BUS",
+        "trim": null,
+        "updated_at": "2026-11-24T15:31:33.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 0,
+          "km": 0
+        },
+        "spec": {
+          "exterior_color": "Yellow",
+          "body_style": "Bus",
+          "fuel_type": null,
+          "transmission": "Automatic",
+          "drive_type": null
+        },
+        "engine": {
+          "raw": null,
+          "size_l": null,
+          "hp": null
+        },
+        "doc": {
+          "name": "CERT OF TITLE",
+          "raw_name": "PA - Cert Of Title",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Normal wear",
+          "secondary_damage": null,
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": null,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 31,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "iaai",
+      "public": {
+        "lot_number": "44103794",
+        "vin": "RLHKF4714PY100644",
+        "platform": "iaai",
+        "title": "2023 HONDA WW150 A",
+        "year": 2023,
+        "make": "HONDA",
+        "model": "WW150",
+        "trim": null,
+        "body_style": "SCOOTER",
+        "fuel_type": "Gasoline",
+        "engine_size_l": null,
+        "exterior_color": null,
+        "transmission": "Unknown",
+        "drive_type": null,
+        "last_synced_at": "2026-11-11T08:06:02.000Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": null,
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 1,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "Miami-North",
+          "state": "FL",
+          "postal_code": "33332"
+        },
+        "doc": {
+          "name": "REBUILDABLE",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Front end",
+          "secondary_damage": null,
+          "run_condition": "Stationary",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": null,
+          "buy_now_usd": null,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "photos": 14,
+        "video": false,
+        "spin": true
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "44103794",
+        "vin": "RLHKF4714PY100644",
+        "platform": "iaai",
+        "title": "2023 HONDA WW150 A",
+        "year": 2023,
+        "make": "HONDA",
+        "model": "WW150",
+        "trim": null,
+        "updated_at": "2026-11-24T15:08:29.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 1,
+          "km": 2
+        },
+        "spec": {
+          "exterior_color": "Gray",
+          "body_style": null,
+          "fuel_type": "Gasoline",
+          "transmission": "Unknown",
+          "drive_type": null
+        },
+        "engine": {
+          "raw": "1",
+          "size_l": null,
+          "hp": null
+        },
+        "doc": {
+          "name": "REBUILDABLE",
+          "raw_name": "REBUILDABLE (Florida)",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Front end",
+          "secondary_damage": null,
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": null,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "iaai",
+      "public": {
+        "lot_number": "44185350",
+        "vin": "JKBZXVM10SA009397",
+        "platform": "iaai",
+        "title": "2025 KAWASAKI ZX1002 M",
+        "year": 2025,
+        "make": "KAWASAKI",
+        "model": "ZX1002",
+        "trim": null,
+        "body_style": "SPORT",
+        "fuel_type": "Gasoline",
+        "engine_size_l": null,
+        "exterior_color": null,
+        "transmission": "Unknown",
+        "drive_type": null,
+        "last_synced_at": "2026-11-20T12:12:33.000Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 655,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "Oklahoma City",
+          "state": "OK",
+          "postal_code": "73121"
+        },
+        "doc": {
+          "name": "CLEAR (Oklahoma)",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Right side",
+          "secondary_damage": null,
+          "run_condition": "Starts",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": 7000,
+          "buy_now_usd": null,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "photos": 15,
+        "video": true,
+        "spin": true
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "44185350",
+        "vin": "JKBZXVM10SA009397",
+        "platform": "iaai",
+        "title": "2025 KAWASAKI ZX1002 M",
+        "year": 2025,
+        "make": "KAWASAKI",
+        "model": "ZX1002",
+        "trim": null,
+        "updated_at": "2026-11-24T15:21:18.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 655,
+          "km": 1054
+        },
+        "spec": {
+          "exterior_color": "Green",
+          "body_style": null,
+          "fuel_type": "Gasoline",
+          "transmission": "Unknown",
+          "drive_type": null
+        },
+        "engine": {
+          "raw": "4",
+          "size_l": null,
+          "hp": null
+        },
+        "doc": {
+          "name": "CLEAR",
+          "raw_name": "CLEAR (Oklahoma)",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Right side",
+          "secondary_damage": null,
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": 7000,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "iaai",
+      "public": {
+        "lot_number": "44346618",
+        "vin": "ML5EXER19SDAF9515",
+        "platform": "iaai",
+        "title": "2025 KAWASAKI EX650 R",
+        "year": 2025,
+        "make": "KAWASAKI",
+        "model": "EX650",
+        "trim": null,
+        "body_style": "SPORT",
+        "fuel_type": "Gasoline",
+        "engine_size_l": null,
+        "exterior_color": null,
+        "transmission": "Unknown",
+        "drive_type": null,
+        "last_synced_at": "2026-11-17T07:36:18.000Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 801,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "Denver East",
+          "state": "CO",
+          "postal_code": "80022"
+        },
+        "doc": {
+          "name": "SALVAGE",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Right side",
+          "secondary_damage": "Right Front",
+          "run_condition": "Starts",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": 1100,
+          "buy_now_usd": null,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "photos": 15,
+        "video": true,
+        "spin": true
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "44346618",
+        "vin": "ML5EXER19SDAF9515",
+        "platform": "iaai",
+        "title": "2025 KAWASAKI EX650 R",
+        "year": 2025,
+        "make": "KAWASAKI",
+        "model": "EX650",
+        "trim": null,
+        "updated_at": "2026-11-24T15:08:29.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 801,
+          "km": 1289
+        },
+        "spec": {
+          "exterior_color": "Black",
+          "body_style": null,
+          "fuel_type": "Gasoline",
+          "transmission": "Unknown",
+          "drive_type": null
+        },
+        "engine": {
+          "raw": "2",
+          "size_l": null,
+          "hp": null
+        },
+        "doc": {
+          "name": "SALVAGE",
+          "raw_name": "SALVAGE (Colorado)",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Right side",
+          "secondary_damage": "Right Front",
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": 1100,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "iaai",
+      "public": {
+        "lot_number": "44626541",
+        "vin": "5SFPB3222ME475812",
+        "platform": "iaai",
+        "title": "2021 HEARTLAND RV PIONEER",
+        "year": 2021,
+        "make": "HEARTLAND RV",
+        "model": "PIONEER",
+        "trim": null,
+        "body_style": "Travel Trailer",
+        "fuel_type": "Other",
+        "engine_size_l": null,
+        "exterior_color": null,
+        "transmission": "Unknown",
+        "drive_type": null,
+        "last_synced_at": "2026-11-15T07:20:19.000Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": null,
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 1,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "Cleveland",
+          "state": "OH",
+          "postal_code": "44053"
+        },
+        "doc": {
+          "name": "SALVAGE",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Left & right side",
+          "secondary_damage": "Rear",
+          "run_condition": "Unknown",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": 575,
+          "buy_now_usd": null,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "photos": 19,
+        "video": false,
+        "spin": false
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "44626541",
+        "vin": "5SFPB3222ME475812",
+        "platform": "iaai",
+        "title": "2021 HEARTLAND RV PIONEER",
+        "year": 2021,
+        "make": "HEARTLAND RV",
+        "model": "PIONEER",
+        "trim": null,
+        "updated_at": "2026-11-24T15:46:20.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 1,
+          "km": 2
+        },
+        "spec": {
+          "exterior_color": null,
+          "body_style": null,
+          "fuel_type": "Other",
+          "transmission": null,
+          "drive_type": null
+        },
+        "engine": {
+          "raw": null,
+          "size_l": null,
+          "hp": null
+        },
+        "doc": {
+          "name": "SALVAGE",
+          "raw_name": "SALVAGE (Ohio)",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Left & right side",
+          "secondary_damage": "Rear",
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": 575,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "timed",
+      "public": {
+        "lot_number": "46162264",
+        "vin": "3N1AB7AP2HY235605",
+        "platform": "iaai",
+        "title": "2017 NISSAN SENTRA SV",
+        "year": 2017,
+        "make": "NISSAN",
+        "model": "SENTRA",
+        "trim": "Sentra",
+        "body_style": "Sedan",
+        "fuel_type": "Gasoline",
+        "engine_size_l": 1.8,
+        "exterior_color": null,
+        "transmission": "Automatic",
+        "drive_type": "Front Wheel Drive",
+        "last_synced_at": "2026-11-24T13:46:36.605Z",
+        "freshness_status": "fresh",
+        "auction": {
+          "state": "open",
+          "phase": null,
+          "auction_at": null,
+          "timed_end_at": "2026-11-24T23:55:00.000Z",
+          "is_timed": true,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 143887,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "West Palm Beach",
+          "state": "FL",
+          "postal_code": "33478"
+        },
+        "doc": {
+          "name": "REBUILDABLE (Florida)",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Rear",
+          "secondary_damage": null,
+          "run_condition": "RUNS AND DRIVES",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": null,
+          "buy_now_usd": null,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "photos": 18,
+        "video": true,
+        "spin": true
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "46162264",
+        "vin": "3N1AB7AP2HY235605",
+        "platform": "iaai",
+        "title": "2017 NISSAN SENTRA SV",
+        "year": 2017,
+        "make": "NISSAN",
+        "model": "SENTRA",
+        "trim": null,
+        "updated_at": "2026-11-24T16:28:35.000000Z",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "auction_at": "2026-11-24T23:55:00+00:00",
+          "timed_end_at": "2026-11-24T23:55:00+00:00",
+          "is_timed": true,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 143887,
+          "km": 231563
+        },
+        "spec": {
+          "exterior_color": "White",
+          "body_style": "Sedan",
+          "fuel_type": "Gasoline",
+          "transmission": "Automatic",
+          "drive_type": "Front Wheel Drive"
+        },
+        "engine": {
+          "raw": "1.8L I-4 DOHC, VVT, regular , 124HP",
+          "size_l": "1.8",
+          "hp": 124
+        },
+        "doc": {
+          "name": "REBUILDABLE",
+          "raw_name": "REBUILDABLE (Florida)",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Rear",
+          "secondary_damage": null,
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": null,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "timed",
+      "public": {
+        "lot_number": "46196877",
+        "vin": "19UUB1F30KA010092",
+        "platform": "iaai",
+        "title": "2019 ACURA TLX STANDARD",
+        "year": 2019,
+        "make": "ACURA",
+        "model": "TLX",
+        "trim": "TLX",
+        "body_style": "Sedan",
+        "fuel_type": "Gasoline",
+        "engine_size_l": 2.4,
+        "exterior_color": null,
+        "transmission": "Automatic",
+        "drive_type": "Front Wheel Drive",
+        "last_synced_at": "2026-11-24T13:46:36.605Z",
+        "freshness_status": "fresh",
+        "auction": {
+          "state": "open",
+          "phase": null,
+          "auction_at": null,
+          "timed_end_at": "2026-11-24T23:56:00.000Z",
+          "is_timed": true,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 95269,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "West Palm Beach",
+          "state": "FL",
+          "postal_code": "33478"
+        },
+        "doc": {
+          "name": "REBUILDABLE (Florida)",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Right side",
+          "secondary_damage": null,
+          "run_condition": "RUNS AND DRIVES",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": null,
+          "buy_now_usd": null,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "photos": 18,
+        "video": true,
+        "spin": true
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "46196877",
+        "vin": "19UUB1F30KA010092",
+        "platform": "iaai",
+        "title": "2019 ACURA TLX STANDARD",
+        "year": 2019,
+        "make": "ACURA",
+        "model": "TLX",
+        "trim": null,
+        "updated_at": "2026-11-24T16:27:34.000000Z",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "auction_at": "2026-11-24T23:56:00+00:00",
+          "timed_end_at": "2026-11-24T23:56:00+00:00",
+          "is_timed": true,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 95269,
+          "km": 153320
+        },
+        "spec": {
+          "exterior_color": "Black",
+          "body_style": "Sedan",
+          "fuel_type": "Gasoline",
+          "transmission": "Automatic",
+          "drive_type": "Front Wheel Drive"
+        },
+        "engine": {
+          "raw": "2.4L I-4 DI, DOHC, VVT, premium , 206HP",
+          "size_l": "2.4",
+          "hp": 206
+        },
+        "doc": {
+          "name": "REBUILDABLE",
+          "raw_name": "REBUILDABLE (Florida)",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Right side",
+          "secondary_damage": null,
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": null,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "timed",
+      "public": {
+        "lot_number": "46342287",
+        "vin": "JM1BPAML6T1868419",
+        "platform": "iaai",
+        "title": "2026 MAZDA MAZDA3 2.5 S PREMIUM",
+        "year": 2026,
+        "make": "MAZDA",
+        "model": "MAZDA3",
+        "trim": "3",
+        "body_style": "Hatchback",
+        "fuel_type": "Gasoline",
+        "engine_size_l": 2.5,
+        "exterior_color": null,
+        "transmission": "Manual",
+        "drive_type": "Front Wheel Drive",
+        "last_synced_at": "2026-11-24T13:46:36.605Z",
+        "freshness_status": "fresh",
+        "auction": {
+          "state": "open",
+          "phase": null,
+          "auction_at": null,
+          "timed_end_at": "2026-11-24T23:57:00.000Z",
+          "is_timed": true,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 1750,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "West Palm Beach",
+          "state": "FL",
+          "postal_code": "33478"
+        },
+        "doc": {
+          "name": "REBUILDABLE (Florida)",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Rear",
+          "secondary_damage": null,
+          "run_condition": "RUNS AND DRIVES",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": null,
+          "buy_now_usd": null,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "photos": 18,
+        "video": true,
+        "spin": true
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "46342287",
+        "vin": "JM1BPAML6T1868419",
+        "platform": "iaai",
+        "title": "2026 MAZDA MAZDA3 2.5 S PREMIUM",
+        "year": 2026,
+        "make": "MAZDA",
+        "model": "MAZDA3",
+        "trim": null,
+        "updated_at": "2026-11-24T16:33:24.000000Z",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "auction_at": "2026-11-24T23:57:00+00:00",
+          "timed_end_at": "2026-11-24T23:57:00+00:00",
+          "is_timed": true,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 1750,
+          "km": 2816
+        },
+        "spec": {
+          "exterior_color": "Gray",
+          "body_style": "Hatchback",
+          "fuel_type": "Gasoline",
+          "transmission": "Manual",
+          "drive_type": "Front Wheel Drive"
+        },
+        "engine": {
+          "raw": "2.5L I-4 DI, DOHC, VVT, regular , 186HP",
+          "size_l": "2.5",
+          "hp": 186
+        },
+        "doc": {
+          "name": "REBUILDABLE",
+          "raw_name": "REBUILDABLE (Florida)",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Rear",
+          "secondary_damage": null,
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": null,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "timed",
+      "public": {
+        "lot_number": "46344182",
+        "vin": "JTHBW1GG8E2057668",
+        "platform": "iaai",
+        "title": "2014 LEXUS ES 300H",
+        "year": 2014,
+        "make": "LEXUS",
+        "model": "ES 300H",
+        "trim": null,
+        "body_style": "Sedan",
+        "fuel_type": "Hybrid",
+        "engine_size_l": 2.5,
+        "exterior_color": null,
+        "transmission": "Automatic",
+        "drive_type": "Front Wheel Drive",
+        "last_synced_at": "2026-11-24T13:46:36.605Z",
+        "freshness_status": "fresh",
+        "auction": {
+          "state": "open",
+          "phase": null,
+          "auction_at": null,
+          "timed_end_at": "2026-11-24T23:58:00.000Z",
+          "is_timed": true,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 128684,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "West Palm Beach",
+          "state": "FL",
+          "postal_code": "33478"
+        },
+        "doc": {
+          "name": "REBUILDABLE (Florida)",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Left front",
+          "secondary_damage": "Mechanical",
+          "run_condition": "Starts",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": null,
+          "buy_now_usd": null,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "photos": 18,
+        "video": false,
+        "spin": true
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "46344182",
+        "vin": "JTHBW1GG8E2057668",
+        "platform": "iaai",
+        "title": "2014 LEXUS ES 300H",
+        "year": 2014,
+        "make": "LEXUS",
+        "model": "ES 300H",
+        "trim": null,
+        "updated_at": "2026-11-24T16:27:34.000000Z",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "auction_at": "2026-11-24T23:58:00+00:00",
+          "timed_end_at": "2026-11-24T23:58:00+00:00",
+          "is_timed": true,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 128684,
+          "km": 207096
+        },
+        "spec": {
+          "exterior_color": "White",
+          "body_style": "Sedan",
+          "fuel_type": "Hybrid",
+          "transmission": "Automatic",
+          "drive_type": "Front Wheel Drive"
+        },
+        "engine": {
+          "raw": "2.5L I-4 DOHC, VVT, regular , 156HP",
+          "size_l": "2.5",
+          "hp": 156
+        },
+        "doc": {
+          "name": "REBUILDABLE",
+          "raw_name": "REBUILDABLE (Florida)",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Left front",
+          "secondary_damage": "Mechanical",
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": null,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "buy-now",
+      "public": {
+        "lot_number": "49275536",
+        "vin": "571BE0513LM037683",
+        "platform": "copart",
+        "title": "2020 LARK UNITED VN",
+        "year": 2020,
+        "make": "LARK UNITED",
+        "model": "VN",
+        "trim": null,
+        "body_style": null,
+        "fuel_type": null,
+        "engine_size_l": null,
+        "exterior_color": null,
+        "transmission": null,
+        "drive_type": null,
+        "last_synced_at": "2026-11-09T17:03:55.000Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": null,
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 0,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "TX - ANDREWS",
+          "state": "TX",
+          "postal_code": "79714"
+        },
+        "doc": {
+          "name": "CT",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Front end",
+          "secondary_damage": null,
+          "run_condition": "DEFAULT",
+          "has_key": false,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": 10,
+          "buy_now_usd": 600,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "photos": 10,
+        "video": false,
+        "spin": false
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "49275536",
+        "vin": "571BE0513LM037683",
+        "platform": "copart",
+        "title": "2020 LARK UNITED VN",
+        "year": 2020,
+        "make": "LARK UNITED",
+        "model": "VN",
+        "trim": null,
+        "updated_at": "2026-11-24T15:25:38.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 0,
+          "km": 0
+        },
+        "spec": {
+          "exterior_color": "White",
+          "body_style": null,
+          "fuel_type": null,
+          "transmission": null,
+          "drive_type": null
+        },
+        "engine": {
+          "raw": null,
+          "size_l": null,
+          "hp": null
+        },
+        "doc": {
+          "name": "CERTIFICATE OF TITLE",
+          "raw_name": "TX - Certificate Of Title",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Front end",
+          "secondary_damage": null,
+          "has_key": false
+        },
+        "pricing": {
+          "current_bid_usd": 10,
+          "buy_now_usd": 600,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 1,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "buy-now",
+      "public": {
+        "lot_number": "53646966",
+        "vin": "3GN7DMRPXTS153578",
+        "platform": "copart",
+        "title": "2026 CHEVROLET EQUINOX LT",
+        "year": 2026,
+        "make": "CHEVROLET",
+        "model": "EQUINOX",
+        "trim": "Equinox",
+        "body_style": "Sport utility vehicle",
+        "fuel_type": "Electric",
+        "engine_size_l": null,
+        "exterior_color": null,
+        "transmission": "Automatic",
+        "drive_type": "FRONT WHEEL DRIVE",
+        "last_synced_at": "2026-11-22T17:56:25.106Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 782,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "CA - VAN NUYS",
+          "state": "CA",
+          "postal_code": "94590"
+        },
+        "doc": {
+          "name": "CERTIFICATE OF TITLE",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Normal wear",
+          "secondary_damage": null,
+          "run_condition": "Run & Drive Verified",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": 15200,
+          "buy_now_usd": 20200,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "photos": 14,
+        "video": true,
+        "spin": false
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "53646966",
+        "vin": "3GN7DMRPXTS153578",
+        "platform": "copart",
+        "title": "2026 CHEVROLET EQUINOX LT",
+        "year": 2026,
+        "make": "CHEVROLET",
+        "model": "EQUINOX",
+        "trim": null,
+        "updated_at": "2026-11-24T16:35:03.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 782,
+          "km": 1259
+        },
+        "spec": {
+          "exterior_color": "Silver",
+          "body_style": "Sport utility vehicle",
+          "fuel_type": "Electric",
+          "transmission": "Automatic",
+          "drive_type": "FRONT WHEEL DRIVE"
+        },
+        "engine": {
+          "raw": null,
+          "size_l": null,
+          "hp": null
+        },
+        "doc": {
+          "name": "CERTIFICATE OF TITLE",
+          "raw_name": "CA - Certificate Of Title",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Normal wear",
+          "secondary_damage": null,
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": 15400,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 1,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "buy-now",
+      "public": {
+        "lot_number": "65917836",
+        "vin": "1B7GG32X82S697320",
+        "platform": "copart",
+        "title": "2002 DODGE DAKOTA SPORT",
+        "year": 2002,
+        "make": "DODGE",
+        "model": "DAKOTA",
+        "trim": null,
+        "body_style": "Club cab pickup",
+        "fuel_type": "Gas",
+        "engine_size_l": null,
+        "exterior_color": null,
+        "transmission": "Automatic",
+        "drive_type": "4X4 W/REAR WHEEL DRV",
+        "last_synced_at": "2026-11-08T08:18:56.000Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": null,
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 107261,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "MI - KINCHELOE",
+          "state": "MI",
+          "postal_code": "49788"
+        },
+        "doc": {
+          "name": "DEALER ONLY CLEAN TITLE",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Front end",
+          "secondary_damage": null,
+          "run_condition": "Run & Drive Verified",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": 225,
+          "buy_now_usd": 468,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": false,
+        "photos": 13,
+        "video": false,
+        "spin": false
+      },
+      "lookup": [
+        "vin",
+        "lot"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "65917836",
+        "vin": "1B7GG32X82S697320",
+        "platform": "copart",
+        "title": "2002 DODGE DAKOTA SPORT",
+        "year": 2002,
+        "make": "DODGE",
+        "model": "DAKOTA",
+        "trim": null,
+        "updated_at": "2026-11-24T15:31:32.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 107261,
+          "km": 172619
+        },
+        "spec": {
+          "exterior_color": "Silver",
+          "body_style": "Club cab pickup",
+          "fuel_type": "Gas",
+          "transmission": "Automatic",
+          "drive_type": "4X4 W/REAR WHEEL DRV"
+        },
+        "engine": {
+          "raw": "3.9L 6",
+          "size_l": "3.9",
+          "hp": null
+        },
+        "doc": {
+          "name": "DEALER ONLY CLEAN TITLE",
+          "raw_name": "MI - Dealer Only Clean Title",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Front end",
+          "secondary_damage": null,
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": 225,
+          "buy_now_usd": 468,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 10,
+        "vinLots": 1,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "buy-now",
+      "public": {
+        "lot_number": "72024246",
+        "vin": "1GC4K0C89EF117156",
+        "platform": "copart",
+        "title": "2014 CHEVROLET SILVERADO",
+        "year": 2014,
+        "make": "CHEVROLET",
+        "model": "SILVERADO",
+        "trim": null,
+        "body_style": "Crew pickup",
+        "fuel_type": "Diesel",
+        "engine_size_l": 6.6,
+        "exterior_color": null,
+        "transmission": "Automatic",
+        "drive_type": "4X4 W/REAR WHEEL DRV",
+        "last_synced_at": "2026-11-17T14:25:27.000Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 414175,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "ON - TORONTO",
+          "state": "ON",
+          "postal_code": "L1E 0L1"
+        },
+        "doc": {
+          "name": "RF",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Normal wear",
+          "secondary_damage": null,
+          "run_condition": "Run & Drive Verified",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": null,
+          "buy_now_usd": 10000,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": false,
+        "photos": 0,
+        "video": false,
+        "spin": false
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "72024246",
+        "vin": "1GC4K0C89EF117156",
+        "platform": "copart",
+        "title": "2014 SPECIAL BOX TRUCK",
+        "year": 2014,
+        "make": "CHEVROLET",
+        "model": "SILVERADO",
+        "trim": null,
+        "updated_at": "2026-11-24T16:33:09.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 414175,
+          "km": 666548
+        },
+        "spec": {
+          "exterior_color": "White",
+          "body_style": "Crew pickup",
+          "fuel_type": "Diesel",
+          "transmission": "Automatic",
+          "drive_type": "4X4 W/REAR WHEEL DRV"
+        },
+        "engine": {
+          "raw": "6.6L 8",
+          "size_l": "6.6",
+          "hp": null
+        },
+        "doc": {
+          "name": "PERMIT REBUILT - FIT",
+          "raw_name": "ON - Permit Rebuilt - Fit (P)",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Normal wear",
+          "secondary_damage": null,
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": 1200,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "electric",
+      "public": {
+        "lot_number": "57398926",
+        "vin": "5YJ3E1EB2PF680784",
+        "platform": "copart",
+        "title": "2023 TESLA MODEL 3",
+        "year": 2023,
+        "make": "TESLA",
+        "model": "MODEL 3",
+        "trim": null,
+        "body_style": "Sedan",
+        "fuel_type": "Electric",
+        "engine_size_l": null,
+        "exterior_color": null,
+        "transmission": "Automatic",
+        "drive_type": "ALL WHEEL DRIVE",
+        "last_synced_at": "2026-11-12T14:17:57.000Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": null,
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 108908,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "ON - LONDON",
+          "state": "ON",
+          "postal_code": "N5W 6C8"
+        },
+        "doc": {
+          "name": "ST",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Rear end",
+          "secondary_damage": null,
+          "run_condition": "Run & Drive Verified",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": 9300,
+          "buy_now_usd": null,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": false,
+        "photos": 13,
+        "video": false,
+        "spin": true
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "57398926",
+        "vin": "5YJ3E1EB2PF680784",
+        "platform": "copart",
+        "title": "2023 TESLA MODEL 3",
+        "year": 2023,
+        "make": "TESLA",
+        "model": "MODEL 3",
+        "trim": null,
+        "updated_at": "2026-11-24T16:33:21.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 108908,
+          "km": 175270
+        },
+        "spec": {
+          "exterior_color": "Gray",
+          "body_style": "Sedan",
+          "fuel_type": "Electric",
+          "transmission": "Automatic",
+          "drive_type": "ALL WHEEL DRIVE"
+        },
+        "engine": {
+          "raw": null,
+          "size_l": null,
+          "hp": null
+        },
+        "doc": {
+          "name": "PERMIT SALVAGE",
+          "raw_name": "ON - Permit Salvage",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Rear end",
+          "secondary_damage": null,
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": 9600,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "electric",
+      "public": {
+        "lot_number": "70091736",
+        "vin": "KNDJ33A13P7031801",
+        "platform": "copart",
+        "title": "2023 KIA SOUL EV LIMITED",
+        "year": 2023,
+        "make": "KIA",
+        "model": "SOUL EV",
+        "trim": null,
+        "body_style": "Sport utility vehicle",
+        "fuel_type": "Electric",
+        "engine_size_l": null,
+        "exterior_color": null,
+        "transmission": "Automatic",
+        "drive_type": "FRONT WHEEL DRIVE",
+        "last_synced_at": "2026-11-07T22:46:09.000Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": null,
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 53357,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "QC - MONTREAL",
+          "state": "QC",
+          "postal_code": "H1B 4W3"
+        },
+        "doc": {
+          "name": "SR",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Front end",
+          "secondary_damage": null,
+          "run_condition": "Run & Drive Verified",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": 4900,
+          "buy_now_usd": null,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": false,
+        "photos": 12,
+        "video": false,
+        "spin": true
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "70091736",
+        "vin": "KNDJ33A13P7031801",
+        "platform": "copart",
+        "title": "2023 KIA SOUL EV LIMITED",
+        "year": 2023,
+        "make": "KIA",
+        "model": "SOUL EV",
+        "trim": null,
+        "updated_at": "2026-11-24T16:33:36.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 53357,
+          "km": 85870
+        },
+        "spec": {
+          "exterior_color": "Gray",
+          "body_style": "Sport utility vehicle",
+          "fuel_type": "Electric",
+          "transmission": "Automatic",
+          "drive_type": "FRONT WHEEL DRIVE"
+        },
+        "engine": {
+          "raw": "0",
+          "size_l": null,
+          "hp": null
+        },
+        "doc": {
+          "name": "GRAVEMENT ACCIDENTE",
+          "raw_name": "QC - Gravement Accidente",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Front end",
+          "secondary_damage": null,
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": 6400,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "electric",
+      "public": {
+        "lot_number": "70102696",
+        "vin": "WB523CF03PCM91080",
+        "platform": "copart",
+        "title": "2023 BMW IX XDRIVE50",
+        "year": 2023,
+        "make": "BMW",
+        "model": "IX",
+        "trim": null,
+        "body_style": "Sport utility vehicle",
+        "fuel_type": "Electric",
+        "engine_size_l": null,
+        "exterior_color": null,
+        "transmission": "Automatic",
+        "drive_type": "ALL WHEEL DRIVE",
+        "last_synced_at": "2026-11-10T21:40:37.000Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": null,
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 51403,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "ON - TORONTO",
+          "state": "ON",
+          "postal_code": "L1E 0L1"
+        },
+        "doc": {
+          "name": "ST",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Front end",
+          "secondary_damage": null,
+          "run_condition": "DEFAULT",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": 6200,
+          "buy_now_usd": null,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": false,
+        "photos": 13,
+        "video": false,
+        "spin": true
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "70102696",
+        "vin": "WB523CF03PCM91080",
+        "platform": "copart",
+        "title": "2023 BMW IX XDRIVE50",
+        "year": 2023,
+        "make": "BMW",
+        "model": "IX",
+        "trim": null,
+        "updated_at": "2026-11-24T15:25:40.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 51403,
+          "km": 82725
+        },
+        "spec": {
+          "exterior_color": "White",
+          "body_style": "Sport utility vehicle",
+          "fuel_type": "Electric",
+          "transmission": "Automatic",
+          "drive_type": "ALL WHEEL DRIVE"
+        },
+        "engine": {
+          "raw": "0",
+          "size_l": null,
+          "hp": null
+        },
+        "doc": {
+          "name": "PERMIT SALVAGE",
+          "raw_name": "ON - Permit Salvage",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Front end",
+          "secondary_damage": null,
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": 6200,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "electric",
+      "public": {
+        "lot_number": "70213406",
+        "vin": "5YJ3E1EA5NF249960",
+        "platform": "copart",
+        "title": "2022 TESLA MODEL 3",
+        "year": 2022,
+        "make": "TESLA",
+        "model": "MODEL 3",
+        "trim": null,
+        "body_style": "Sedan",
+        "fuel_type": "Electric",
+        "engine_size_l": null,
+        "exterior_color": null,
+        "transmission": "Automatic",
+        "drive_type": "REAR WHEEL DRIVE",
+        "last_synced_at": "2026-11-20T13:40:48.000Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 132924,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "ON - TORONTO",
+          "state": "ON",
+          "postal_code": "L1E 0L1"
+        },
+        "doc": {
+          "name": "ST",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Rear end",
+          "secondary_damage": null,
+          "run_condition": "Vehicle Starts",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": 8900,
+          "buy_now_usd": null,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": false,
+        "photos": 12,
+        "video": false,
+        "spin": true
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "70213406",
+        "vin": "5YJ3E1EA5NF249960",
+        "platform": "copart",
+        "title": "2022 TESLA MODEL 3",
+        "year": 2022,
+        "make": "TESLA",
+        "model": "MODEL 3",
+        "trim": null,
+        "updated_at": "2026-11-24T16:33:10.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 132924,
+          "km": 213920
+        },
+        "spec": {
+          "exterior_color": "White",
+          "body_style": "Sedan",
+          "fuel_type": "Electric",
+          "transmission": "Automatic",
+          "drive_type": "REAR WHEEL DRIVE"
+        },
+        "engine": {
+          "raw": null,
+          "size_l": null,
+          "hp": null
+        },
+        "doc": {
+          "name": "PERMIT SALVAGE",
+          "raw_name": "ON - Permit Salvage",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Rear end",
+          "secondary_damage": null,
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": 8900,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "diesel",
+      "public": {
+        "lot_number": "48581306",
+        "vin": "W1Y4NBHY2PP531495",
+        "platform": "copart",
+        "title": "2023 MERCEDES-BENZ SPRINTER 2500",
+        "year": 2023,
+        "make": "MERCEDES-BENZ",
+        "model": "SPRINTER",
+        "trim": "Sprinter",
+        "body_style": "Van cargo",
+        "fuel_type": "Diesel",
+        "engine_size_l": 2,
+        "exterior_color": null,
+        "transmission": "Automatic",
+        "drive_type": "REAR WHEEL DRIVE",
+        "last_synced_at": "2026-11-16T16:01:41.000Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 0,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "ON - TORONTO",
+          "state": "ON",
+          "postal_code": "L1E 0L1"
+        },
+        "doc": {
+          "name": "PERMIT IRREPAIRABLE",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Burn",
+          "secondary_damage": null,
+          "run_condition": "DEFAULT",
+          "has_key": false,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": 1300,
+          "buy_now_usd": null,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": false,
+        "photos": 12,
+        "video": false,
+        "spin": false
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "48581306",
+        "vin": "W1Y4NBHY2PP531495",
+        "platform": "copart",
+        "title": "2023 MERCEDES-BENZ SPRINTER 2500 SERVICE VAN",
+        "year": 2023,
+        "make": "MERCEDES-BENZ",
+        "model": "SPRINTER",
+        "trim": null,
+        "updated_at": "2026-11-24T16:33:06.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 0,
+          "km": 0
+        },
+        "spec": {
+          "exterior_color": "White",
+          "body_style": "Van cargo",
+          "fuel_type": "Diesel",
+          "transmission": "Automatic",
+          "drive_type": "REAR WHEEL DRIVE"
+        },
+        "engine": {
+          "raw": "2.0L 4",
+          "size_l": "2.0",
+          "hp": null
+        },
+        "doc": {
+          "name": "PERMIT IRREPAIRABLE",
+          "raw_name": "ON - Permit Irrepairable",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Burn",
+          "secondary_damage": null,
+          "has_key": false
+        },
+        "pricing": {
+          "current_bid_usd": 2950,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "diesel",
+      "public": {
+        "lot_number": "53033436",
+        "vin": "1XPBDP9X3KD612435",
+        "platform": "copart",
+        "title": "2019 PETERBILT 579",
+        "year": 2019,
+        "make": "PETERBILT",
+        "model": "579",
+        "trim": null,
+        "body_style": "Tractor truck",
+        "fuel_type": "Diesel",
+        "engine_size_l": 12.9,
+        "exterior_color": null,
+        "transmission": "Manual",
+        "drive_type": "REAR WHEEL DRIVE",
+        "last_synced_at": "2026-11-17T16:55:15.000Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 753194,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "TX - ANTHONY",
+          "state": "TX",
+          "postal_code": "79821"
+        },
+        "doc": {
+          "name": "CT",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Normal wear",
+          "secondary_damage": null,
+          "run_condition": "Run & Drive Verified",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": 12300,
+          "buy_now_usd": null,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": false,
+        "photos": 0,
+        "video": false,
+        "spin": false
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "53033436",
+        "vin": "1XPBDP9X3KD612435",
+        "platform": "copart",
+        "title": "2019 PETERBILT 579",
+        "year": 2019,
+        "make": "PETERBILT",
+        "model": "579",
+        "trim": null,
+        "updated_at": "2026-11-24T15:31:18.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 753194,
+          "km": 1212145
+        },
+        "spec": {
+          "exterior_color": "Green",
+          "body_style": "Tractor truck",
+          "fuel_type": "Diesel",
+          "transmission": "Manual",
+          "drive_type": "REAR WHEEL DRIVE"
+        },
+        "engine": {
+          "raw": "12.9L 6",
+          "size_l": "12.9",
+          "hp": null
+        },
+        "doc": {
+          "name": "CERTIFICATE OF TITLE",
+          "raw_name": "VA - Certificate Of Title",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Normal wear",
+          "secondary_damage": null,
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": 13900,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "diesel",
+      "public": {
+        "lot_number": "61209496",
+        "vin": "4VZDK7999XC032149",
+        "platform": "copart",
+        "title": "1999 REXHALL RECREATIONAL VEHICLE (RV)",
+        "year": 1999,
+        "make": "REXHALL",
+        "model": "RECREATIONAL VEHICLE (RV)",
+        "trim": null,
+        "body_style": "Motorized home",
+        "fuel_type": "Diesel",
+        "engine_size_l": null,
+        "exterior_color": null,
+        "transmission": "Automatic",
+        "drive_type": "REAR WHEEL DRIVE",
+        "last_synced_at": "2026-11-03T06:16:14.000Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": null,
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 88072,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "IN - DYER",
+          "state": "IN",
+          "postal_code": "46311"
+        },
+        "doc": {
+          "name": "CT",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Top/roof",
+          "secondary_damage": null,
+          "run_condition": "Run & Drive Verified",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": 15,
+          "buy_now_usd": null,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": false,
+        "photos": 10,
+        "video": false,
+        "spin": false
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "61209496",
+        "vin": "4VZDK7999XC032149",
+        "platform": "copart",
+        "title": "1999 REXHALL RECREATIONAL VEHICLE (RV)",
+        "year": 1999,
+        "make": "REXHALL",
+        "model": "RECREATIONAL VEHICLE (RV)",
+        "trim": null,
+        "updated_at": "2026-11-24T15:31:40.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 88072,
+          "km": 141738
+        },
+        "spec": {
+          "exterior_color": "Two tone",
+          "body_style": "Motorized home",
+          "fuel_type": "Diesel",
+          "transmission": "Automatic",
+          "drive_type": "REAR WHEEL DRIVE"
+        },
+        "engine": {
+          "raw": "6",
+          "size_l": null,
+          "hp": null
+        },
+        "doc": {
+          "name": "CERTIFICATE OF TITLE",
+          "raw_name": "IN - Certificate Of Title",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Top/roof",
+          "secondary_damage": null,
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": 15,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "hybrid",
+      "public": {
+        "lot_number": "59717616",
+        "vin": "JTDBCMFE1RJ034921",
+        "platform": "copart",
+        "title": "2024 TOYOTA COROLLA HYBRID LE",
+        "year": 2024,
+        "make": "TOYOTA",
+        "model": "COROLLA HYBRID",
+        "trim": null,
+        "body_style": "Sedan",
+        "fuel_type": "Electric and gas hybrid",
+        "engine_size_l": 1.8,
+        "exterior_color": null,
+        "transmission": "Automatic",
+        "drive_type": "FRONT WHEEL DRIVE",
+        "last_synced_at": "2026-11-19T16:46:04.000Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 27041,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "TX - ANDREWS",
+          "state": "TX",
+          "postal_code": "79714"
+        },
+        "doc": {
+          "name": "CT",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Front end",
+          "secondary_damage": null,
+          "run_condition": "DEFAULT",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": 2950,
+          "buy_now_usd": null,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "photos": 0,
+        "video": false,
+        "spin": false
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "59717616",
+        "vin": "JTDBCMFE1RJ034921",
+        "platform": "copart",
+        "title": "2024 TOYOTA COROLLA HYBRID LE",
+        "year": 2024,
+        "make": "TOYOTA",
+        "model": "COROLLA HYBRID",
+        "trim": null,
+        "updated_at": "2026-11-24T16:35:07.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 27041,
+          "km": 43518
+        },
+        "spec": {
+          "exterior_color": "Blue",
+          "body_style": "Sedan",
+          "fuel_type": "Electric and gas hybrid",
+          "transmission": "Automatic",
+          "drive_type": "FRONT WHEEL DRIVE"
+        },
+        "engine": {
+          "raw": "1.8L 4",
+          "size_l": "1.8",
+          "hp": null
+        },
+        "doc": {
+          "name": "CERTIFICATE OF TITLE",
+          "raw_name": "FL - Certificate Of Title",
+          "type": "success"
+        },
+        "damage": {
+          "primary_damage": "Front end",
+          "secondary_damage": null,
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": 2950,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "hybrid",
+      "public": {
+        "lot_number": "61686556",
+        "vin": "1G1RA6S59HU166434",
+        "platform": "copart",
+        "title": "2017 CHEVROLET VOLT LT",
+        "year": 2017,
+        "make": "CHEVROLET",
+        "model": "VOLT",
+        "trim": null,
+        "body_style": "Hatchback 4dr",
+        "fuel_type": "Electric and gas hybrid",
+        "engine_size_l": null,
+        "exterior_color": null,
+        "transmission": "Automatic",
+        "drive_type": "FRONT WHEEL DRIVE",
+        "last_synced_at": "2026-10-29T05:38:09.000Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": null,
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 0,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "QC - MONTREAL",
+          "state": "QC",
+          "postal_code": "H1B 4W3"
+        },
+        "doc": {
+          "name": "SR",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Front end",
+          "secondary_damage": null,
+          "run_condition": "DEFAULT",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": 200,
+          "buy_now_usd": null,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": false,
+        "photos": 13,
+        "video": false,
+        "spin": true
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "61686556",
+        "vin": "1G1RA6S59HU166434",
+        "platform": "copart",
+        "title": "2017 CHEVROLET VOLT LT",
+        "year": 2017,
+        "make": "CHEVROLET",
+        "model": "VOLT",
+        "trim": null,
+        "updated_at": "2026-11-24T16:33:36.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 0,
+          "km": 0
+        },
+        "spec": {
+          "exterior_color": "Gray",
+          "body_style": "Hatchback 4dr",
+          "fuel_type": "Electric and gas hybrid",
+          "transmission": "Automatic",
+          "drive_type": "FRONT WHEEL DRIVE"
+        },
+        "engine": {
+          "raw": "1.5L 4",
+          "size_l": "1.5",
+          "hp": null
+        },
+        "doc": {
+          "name": "GRAVEMENT ACCIDENTE",
+          "raw_name": "QC - Gravement Accidente",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Front end",
+          "secondary_damage": null,
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": 550,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "group": "hybrid",
+      "public": {
+        "lot_number": "62110276",
+        "vin": "5TFVC5DB1RX050481",
+        "platform": "copart",
+        "title": "2024 TOYOTA TUNDRA CREWMAX CAPSTONE",
+        "year": 2024,
+        "make": "TOYOTA",
+        "model": "TUNDRA",
+        "trim": null,
+        "body_style": "Pickup",
+        "fuel_type": "Electric and gas hybrid",
+        "engine_size_l": 3.4,
+        "exterior_color": null,
+        "transmission": "Automatic",
+        "drive_type": "4X4 W/REAR WHEEL DRV",
+        "last_synced_at": "2026-11-18T19:55:32.000Z",
+        "freshness_status": "stale",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "auction_at": "2026-11-24T17:00:00.000Z",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": null,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "value": 45316,
+          "unit": "mi"
+        },
+        "location": {
+          "display": "QC - MONTREAL",
+          "state": "QC",
+          "postal_code": "H1B 4W3"
+        },
+        "doc": {
+          "name": "NU",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Normal wear",
+          "secondary_damage": null,
+          "run_condition": "Run & Drive Verified",
+          "has_key": true,
+          "airbags": null
+        },
+        "pricing": {
+          "current_bid_usd": 25250,
+          "buy_now_usd": null,
+          "final_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": false,
+        "photos": 11,
+        "video": false,
+        "spin": false
+      },
+      "lookup": [
+        "vin"
+      ],
+      "sourceMatch": true,
+      "source": {
+        "lot_number": "62110276",
+        "vin": "5TFVC5DB1RX050481",
+        "platform": "copart",
+        "title": "2024 TOYOTA TUNDRA CREWMAX CAPSTONE",
+        "year": 2024,
+        "make": "TOYOTA",
+        "model": "TUNDRA",
+        "trim": null,
+        "updated_at": "2026-11-24T16:33:40.000000Z",
+        "auction": {
+          "state": "live",
+          "phase": "awaiting_auction",
+          "auction_at": "2026-11-24T17:00:00+00:00",
+          "timed_end_at": null,
+          "is_timed": false,
+          "result_confirmed": false,
+          "outcome_status": null,
+          "last_sold_at": null
+        },
+        "odometer": {
+          "mi": 45316,
+          "km": 72929
+        },
+        "spec": {
+          "exterior_color": "Black",
+          "body_style": "Pickup",
+          "fuel_type": "Electric and gas hybrid",
+          "transmission": "Automatic",
+          "drive_type": "4X4 W/REAR WHEEL DRV"
+        },
+        "engine": {
+          "raw": "3.4L 6",
+          "size_l": "3.4",
+          "hp": null
+        },
+        "doc": {
+          "name": "PERMIT NO BRAND - UNFIT",
+          "raw_name": "ON - Permit No Brand - Unfit",
+          "type": "other"
+        },
+        "damage": {
+          "primary_damage": "Normal wear",
+          "secondary_damage": null,
+          "has_key": true
+        },
+        "pricing": {
+          "current_bid_usd": 30500,
+          "buy_now_usd": null,
+          "sale_price_usd": null,
+          "estimated_retail_value_usd": null
+        },
+        "sellerNamed": true,
+        "historyCount": 0,
+        "vinLots": 0,
+        "mediaFields": [
+          "thumbs_count",
+          "images_count",
+          "items_count",
+          "has_video",
+          "has_360",
+          "thumbs",
+          "items"
+        ],
+        "photos": null
+      }
+    },
+    {
+      "platform": "iaai",
+      "lot": "46557821",
+      "error": "REXBID 404"
+    }
+  ],
+  "quotes": [
+    {
+      "platform": "copart",
+      "lot": "46087626",
+      "inUsd": 1,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź transport do portu w USA.",
+          "Potwierdź fracht morski.",
+          "Potwierdź rodzaj napędu dla akcyzy."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 7830.46,
+        "customsUsd": null,
+        "customsPln": null,
+        "dutyPln": null,
+        "vatPln": null,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 131,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 1,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 131,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 0,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Potwierdź rodzaj napędu dla akcyzy. Brakujące kwoty nie są wliczone.",
+      "keys": [
+        "complete",
+        "missing",
+        "totalPln",
+        "knownTotalPln",
+        "customsUsd",
+        "customsPln",
+        "calculatedCustomsUsd",
+        "customsValueSource",
+        "dutyPln",
+        "vatPln",
+        "excisePln",
+        "auctionFeeUsd",
+        "commissionGrossPln",
+        "lineItems",
+        "ratesVersion",
+        "assumptions",
+        "loading"
+      ]
+    },
+    {
+      "platform": "copart",
+      "lot": "46350466",
+      "inUsd": 500,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź transport do portu w USA.",
+          "Potwierdź fracht morski.",
+          "Potwierdź rodzaj napędu dla akcyzy."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 10720.45,
+        "customsUsd": null,
+        "customsPln": null,
+        "dutyPln": null,
+        "vatPln": null,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 340,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 500,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 340,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 0,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Potwierdź rodzaj napędu dla akcyzy. Brakujące kwoty nie są wliczone."
+    },
+    {
+      "platform": "copart",
+      "lot": "46995635",
+      "inUsd": 1100,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź transport do portu w USA.",
+          "Potwierdź fracht morski.",
+          "Brak prawidłowej podstawy akcyzy."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 13679.82,
+        "customsUsd": null,
+        "customsPln": null,
+        "dutyPln": null,
+        "vatPln": null,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 465,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 1100,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 465,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 0,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Brak prawidłowej podstawy akcyzy. Brakujące kwoty nie są wliczone."
+    },
+    {
+      "platform": "copart",
+      "lot": "47018496",
+      "inUsd": 2000,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź transport do portu w USA.",
+          "Potwierdź fracht morski.",
+          "Potwierdź rodzaj napędu dla akcyzy."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 18027.05,
+        "customsUsd": null,
+        "customsPln": null,
+        "dutyPln": null,
+        "vatPln": null,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 630,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 2000,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 630,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 0,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Potwierdź rodzaj napędu dla akcyzy. Brakujące kwoty nie są wliczone."
+    },
+    {
+      "platform": "iaai",
+      "lot": "44103794",
+      "inUsd": 4999,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź transport do portu w USA.",
+          "Potwierdź fracht morski.",
+          "Podaj pojemność silnika dla akcyzy."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 31370.78,
+        "customsUsd": null,
+        "customsPln": null,
+        "dutyPln": null,
+        "vatPln": null,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 900,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 4999,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 900,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 0,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Podaj pojemność silnika dla akcyzy. Brakujące kwoty nie są wliczone."
+    },
+    {
+      "platform": "iaai",
+      "lot": "44185350",
+      "inUsd": 5000,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź transport do portu w USA.",
+          "Potwierdź fracht morski.",
+          "Podaj pojemność silnika dla akcyzy."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 31476.91,
+        "customsUsd": null,
+        "customsPln": null,
+        "dutyPln": null,
+        "vatPln": null,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 925,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 5000,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 925,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 0,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Podaj pojemność silnika dla akcyzy. Brakujące kwoty nie są wliczone."
+    },
+    {
+      "platform": "iaai",
+      "lot": "44346618",
+      "inUsd": 15000,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź transport do portu w USA.",
+          "Potwierdź fracht morski.",
+          "Podaj pojemność silnika dla akcyzy."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 73459.25,
+        "customsUsd": null,
+        "customsPln": null,
+        "dutyPln": null,
+        "vatPln": null,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 1210,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 15000,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 1210,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 0,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Podaj pojemność silnika dla akcyzy. Brakujące kwoty nie są wliczone."
+    },
+    {
+      "platform": "iaai",
+      "lot": "44626541",
+      "inUsd": 100000,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź transport do portu w USA.",
+          "Potwierdź fracht morski.",
+          "Potwierdź rodzaj napędu dla akcyzy."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 441238.44,
+        "customsUsd": null,
+        "customsPln": null,
+        "dutyPln": null,
+        "vatPln": null,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 6310,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 100000,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 6310,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 0,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Potwierdź rodzaj napędu dla akcyzy. Brakujące kwoty nie są wliczone."
+    },
+    {
+      "platform": "iaai",
+      "lot": "46162264",
+      "inUsd": 1,
+      "fields": {
+        "complete": true,
+        "missing": [],
+        "totalPln": 15995.43,
+        "knownTotalPln": 15995.43,
+        "customsUsd": 1562,
+        "customsPln": 6375.93,
+        "dutyPln": 637.59,
+        "vatPln": 1472.84,
+        "excisePln": 217.42,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 151,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 1,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 151,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": 415,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": 995,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": 637.59,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": 1472.84,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 0,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": 217.42,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem."
+    },
+    {
+      "platform": "iaai",
+      "lot": "46196877",
+      "inUsd": 500,
+      "fields": {
+        "complete": true,
+        "missing": [],
+        "totalPln": 21520.39,
+        "knownTotalPln": 21520.39,
+        "customsUsd": 2270,
+        "customsPln": 9265.91,
+        "dutyPln": 926.59,
+        "vatPln": 2140.43,
+        "excisePln": 1895.81,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 360,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 500,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 360,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": 415,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": 995,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": 926.59,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": 2140.43,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 0,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": 1895.81,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem."
+    },
+    {
+      "platform": "iaai",
+      "lot": "46342287",
+      "inUsd": 1100,
+      "fields": {
+        "complete": true,
+        "missing": [],
+        "totalPln": 26064.81,
+        "knownTotalPln": 26064.81,
+        "customsUsd": 2995,
+        "customsPln": 12225.29,
+        "dutyPln": 1222.53,
+        "vatPln": 2824.04,
+        "excisePln": 2501.29,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 485,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 1100,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 485,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": 415,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": 995,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": 1222.53,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": 2824.04,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 0,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": 2501.29,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem."
+    },
+    {
+      "platform": "iaai",
+      "lot": "46344182",
+      "inUsd": 2000,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź rodzaj napędu dla akcyzy."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 29757.86,
+        "customsUsd": 4060,
+        "customsPln": 16572.51,
+        "dutyPln": 1657.25,
+        "vatPln": 3828.25,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 650,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 2000,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 650,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": 415,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": 995,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": 1657.25,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": 3828.25,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 100,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź rodzaj napędu dla akcyzy. Brakujące kwoty nie są wliczone."
+    },
+    {
+      "platform": "copart",
+      "lot": "49275536",
+      "inUsd": 4999,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź transport do portu w USA.",
+          "Potwierdź fracht morski.",
+          "Potwierdź rodzaj napędu dla akcyzy."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 31289.14,
+        "customsUsd": null,
+        "customsPln": null,
+        "dutyPln": null,
+        "vatPln": null,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 880,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 4999,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 880,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 0,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Potwierdź rodzaj napędu dla akcyzy. Brakujące kwoty nie są wliczone."
+    },
+    {
+      "platform": "copart",
+      "lot": "53646966",
+      "inUsd": 5000,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź dokumenty zwolnienia akcyzowego pojazdu elektrycznego lub wodorowego."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 47415.14,
+        "customsUsd": 7310,
+        "customsPln": 29838.69,
+        "dutyPln": 2983.87,
+        "vatPln": 6892.74,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 905,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 5000,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 905,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": 410,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": 995,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": 2983.87,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": 6892.74,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 100,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź dokumenty zwolnienia akcyzowego pojazdu elektrycznego lub wodorowego. Brakujące kwoty nie są wliczone."
+    },
+    {
+      "platform": "copart",
+      "lot": "65917836",
+      "inUsd": 15000,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź transport do portu w USA.",
+          "Potwierdź fracht morski.",
+          "Podaj pojemność silnika dla akcyzy."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 73377.61,
+        "customsUsd": null,
+        "customsPln": null,
+        "dutyPln": null,
+        "vatPln": null,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 1190,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 15000,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 1190,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 0,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Podaj pojemność silnika dla akcyzy. Brakujące kwoty nie są wliczone."
+    },
+    {
+      "platform": "copart",
+      "lot": "72024246",
+      "inUsd": 100000,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź transport do portu w USA.",
+          "Potwierdź fracht morski.",
+          "Brak prawidłowej podstawy akcyzy."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 441156.8,
+        "customsUsd": null,
+        "customsPln": null,
+        "dutyPln": null,
+        "vatPln": null,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 6290,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 100000,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 6290,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 0,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Brak prawidłowej podstawy akcyzy. Brakujące kwoty nie są wliczone."
+    },
+    {
+      "platform": "copart",
+      "lot": "57398926",
+      "inUsd": 1,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź transport do portu w USA.",
+          "Potwierdź fracht morski.",
+          "Potwierdź dokumenty zwolnienia akcyzowego pojazdu elektrycznego lub wodorowego."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 8238.65,
+        "customsUsd": null,
+        "customsPln": null,
+        "dutyPln": null,
+        "vatPln": null,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 131,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 1,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 131,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 100,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Potwierdź dokumenty zwolnienia akcyzowego pojazdu elektrycznego lub wodorowego. Brakujące kwoty nie są wliczone."
+    },
+    {
+      "platform": "copart",
+      "lot": "70091736",
+      "inUsd": 500,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź transport do portu w USA.",
+          "Potwierdź fracht morski.",
+          "Potwierdź dokumenty zwolnienia akcyzowego pojazdu elektrycznego lub wodorowego."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 11128.64,
+        "customsUsd": null,
+        "customsPln": null,
+        "dutyPln": null,
+        "vatPln": null,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 340,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 500,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 340,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 100,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Potwierdź dokumenty zwolnienia akcyzowego pojazdu elektrycznego lub wodorowego. Brakujące kwoty nie są wliczone."
+    },
+    {
+      "platform": "copart",
+      "lot": "70102696",
+      "inUsd": 1100,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź transport do portu w USA.",
+          "Potwierdź fracht morski.",
+          "Potwierdź dokumenty zwolnienia akcyzowego pojazdu elektrycznego lub wodorowego."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 14088.01,
+        "customsUsd": null,
+        "customsPln": null,
+        "dutyPln": null,
+        "vatPln": null,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 465,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 1100,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 465,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 100,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Potwierdź dokumenty zwolnienia akcyzowego pojazdu elektrycznego lub wodorowego. Brakujące kwoty nie są wliczone."
+    },
+    {
+      "platform": "copart",
+      "lot": "70213406",
+      "inUsd": 2000,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź transport do portu w USA.",
+          "Potwierdź fracht morski.",
+          "Potwierdź dokumenty zwolnienia akcyzowego pojazdu elektrycznego lub wodorowego."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 18435.24,
+        "customsUsd": null,
+        "customsPln": null,
+        "dutyPln": null,
+        "vatPln": null,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 630,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 2000,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 630,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 100,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Potwierdź dokumenty zwolnienia akcyzowego pojazdu elektrycznego lub wodorowego. Brakujące kwoty nie są wliczone."
+    },
+    {
+      "platform": "copart",
+      "lot": "48581306",
+      "inUsd": 4999,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź transport do portu w USA.",
+          "Potwierdź fracht morski.",
+          "Brak prawidłowej podstawy akcyzy."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 31289.14,
+        "customsUsd": null,
+        "customsPln": null,
+        "dutyPln": null,
+        "vatPln": null,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 880,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 4999,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 880,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 0,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Brak prawidłowej podstawy akcyzy. Brakujące kwoty nie są wliczone."
+    },
+    {
+      "platform": "copart",
+      "lot": "53033436",
+      "inUsd": 5000,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź transport do portu w USA.",
+          "Potwierdź fracht morski.",
+          "Brak prawidłowej podstawy akcyzy."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 31395.27,
+        "customsUsd": null,
+        "customsPln": null,
+        "dutyPln": null,
+        "vatPln": null,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 905,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 5000,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 905,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 0,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Brak prawidłowej podstawy akcyzy. Brakujące kwoty nie są wliczone."
+    },
+    {
+      "platform": "copart",
+      "lot": "61209496",
+      "inUsd": 15000,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź transport do portu w USA.",
+          "Potwierdź fracht morski.",
+          "Podaj pojemność silnika dla akcyzy."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 73377.61,
+        "customsUsd": null,
+        "customsPln": null,
+        "dutyPln": null,
+        "vatPln": null,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 1190,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 15000,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 1190,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 0,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Podaj pojemność silnika dla akcyzy. Brakujące kwoty nie są wliczone."
+    },
+    {
+      "platform": "copart",
+      "lot": "59717616",
+      "inUsd": 100000,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź rodzaj napędu dla akcyzy."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 593351.03,
+        "customsUsd": 107795,
+        "customsPln": 440008.41,
+        "dutyPln": 44000.84,
+        "vatPln": 101641.94,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 6290,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 100000,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 6290,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": 510,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": 995,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": 44000.84,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": 101641.94,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 100,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź rodzaj napędu dla akcyzy. Brakujące kwoty nie są wliczone."
+    },
+    {
+      "platform": "copart",
+      "lot": "61686556",
+      "inUsd": 1,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź transport do portu w USA.",
+          "Potwierdź fracht morski.",
+          "Potwierdź rodzaj napędu dla akcyzy."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 8238.65,
+        "customsUsd": null,
+        "customsPln": null,
+        "dutyPln": null,
+        "vatPln": null,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 131,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 1,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 131,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 100,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Potwierdź rodzaj napędu dla akcyzy. Brakujące kwoty nie są wliczone."
+    },
+    {
+      "platform": "copart",
+      "lot": "62110276",
+      "inUsd": 500,
+      "fields": {
+        "complete": false,
+        "missing": [
+          "Potwierdź transport do portu w USA.",
+          "Potwierdź fracht morski.",
+          "Potwierdź rodzaj napędu dla akcyzy."
+        ],
+        "totalPln": null,
+        "knownTotalPln": 11128.64,
+        "customsUsd": null,
+        "customsPln": null,
+        "dutyPln": null,
+        "vatPln": null,
+        "excisePln": null,
+        "commissionGrossPln": 2500,
+        "landUsd": null,
+        "seaUsd": null,
+        "auctionFeeUsd": 340,
+        "powertrain": null,
+        "destination": null,
+        "lineItems": [
+          {
+            "id": "purchase",
+            "label": "Cena pojazdu",
+            "amount": 500,
+            "currency": "USD"
+          },
+          {
+            "id": "auction",
+            "label": "Opłaty aukcyjne",
+            "amount": 340,
+            "currency": "USD"
+          },
+          {
+            "id": "land",
+            "label": "Dostawa do portu w USA",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "sea",
+            "label": "Fracht morski",
+            "amount": null,
+            "currency": "USD"
+          },
+          {
+            "id": "duty",
+            "label": "Cło",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "vat",
+            "label": "VAT importowy",
+            "amount": null,
+            "currency": "PLN"
+          },
+          {
+            "id": "port",
+            "label": "Odprawa i rozładunek",
+            "amount": 500,
+            "currency": "EUR"
+          },
+          {
+            "id": "commission",
+            "label": "Obsługa REXBID z VAT",
+            "amount": 2500,
+            "currency": "PLN"
+          },
+          {
+            "id": "delivery",
+            "label": "Dostawa pod dom",
+            "amount": 2300,
+            "currency": "PLN"
+          },
+          {
+            "id": "translations",
+            "label": "Tłumaczenia dokumentów",
+            "amount": 260,
+            "currency": "PLN"
+          },
+          {
+            "id": "dangerousCargo",
+            "label": "Ładunek niebezpieczny",
+            "amount": 100,
+            "currency": "USD"
+          },
+          {
+            "id": "excise",
+            "label": "Akcyza",
+            "amount": null,
+            "currency": "PLN"
+          }
+        ]
+      },
+      "text": "Do pełnej ceny uzupełnij: Potwierdź transport do portu w USA; Potwierdź fracht morski; Potwierdź rodzaj napędu dla akcyzy. Brakujące kwoty nie są wliczone."
+    }
+  ],
+  "archive": [],
+  "database": {
+    "columns": [
+      "listing_id",
+      "source_key",
+      "platform",
+      "listing_identity_kind",
+      "identity_state",
+      "source_listing_id",
+      "listing_generation",
+      "vin_normalized",
+      "lot",
+      "vehicle_title",
+      "make",
+      "model",
+      "trim",
+      "year",
+      "body_style",
+      "fuel_type",
+      "transmission",
+      "drive_type",
+      "engine_size_l",
+      "odometer_value",
+      "odometer_unit",
+      "auction_state",
+      "source_status",
+      "auction_at",
+      "is_timed",
+      "timed_end_at",
+      "current_bid_usd",
+      "current_bid2_usd",
+      "buy_now_usd",
+      "final_price_usd",
+      "source_price_usd",
+      "price_currency",
+      "seller_name",
+      "seller_type",
+      "primary_damage",
+      "secondary_damage",
+      "run_state",
+      "keys_present",
+      "airbags",
+      "document_name",
+      "document_type",
+      "registration_allowed",
+      "export_allowed",
+      "location_display",
+      "location_state",
+      "location_postal_code",
+      "has_video",
+      "has_360",
+      "media_urls_json",
+      "media_thumbs_json",
+      "source_updated_at",
+      "first_seen_at",
+      "last_seen_at",
+      "summary_synced_at",
+      "detail_synced_at",
+      "freshness_class",
+      "next_refresh_at",
+      "fingerprint",
+      "normalizer_version",
+      "created_at",
+      "updated_at"
+    ],
+    "samples": [
+      {
+        "platform": "copart",
+        "lot": "46087626",
+        "matched": 1,
+        "rows": [
+          {
+            "platform": "copart",
+            "lot": "46087626",
+            "year": 2017,
+            "make": "DODGE",
+            "model": "GRAND CARAVAN",
+            "document_type": "other",
+            "auction_at": "2026-11-24T17:00:00.000Z",
+            "current_bid_usd": 350,
+            "primary_damage": "Front end",
+            "engine_size_l": 3.6,
+            "source_updated_at": "2026-11-17T15:46:07.000Z",
+            "sellerNamed": false
+          }
+        ],
+        "rowsRead": 2
+      },
+      {
+        "platform": "copart",
+        "lot": "46350466",
+        "matched": 1,
+        "rows": [
+          {
+            "platform": "copart",
+            "lot": "46350466",
+            "year": 2016,
+            "make": "WABASH",
+            "model": "DVCVHPC",
+            "document_type": "other",
+            "auction_at": "2026-11-24T17:00:00.000Z",
+            "current_bid_usd": 3550,
+            "primary_damage": "Side",
+            "engine_size_l": null,
+            "source_updated_at": "2026-11-20T16:16:15.000Z",
+            "sellerNamed": false
+          }
+        ],
+        "rowsRead": 2
+      },
+      {
+        "platform": "copart",
+        "lot": "46995635",
+        "matched": 1,
+        "rows": [
+          {
+            "platform": "copart",
+            "lot": "46995635",
+            "year": 2013,
+            "make": "KENWORTH",
+            "model": "T700 HOOD",
+            "document_type": "other",
+            "auction_at": "2026-11-24T17:00:00.000Z",
+            "current_bid_usd": 1900,
+            "primary_damage": "Side",
+            "engine_size_l": 12.9,
+            "source_updated_at": "2026-11-18T19:31:03.000Z",
+            "sellerNamed": false
+          }
+        ],
+        "rowsRead": 2
+      },
+      {
+        "platform": "copart",
+        "lot": "47018496",
+        "matched": 1,
+        "rows": [
+          {
+            "platform": "copart",
+            "lot": "47018496",
+            "year": 2014,
+            "make": "IC CORPORATION",
+            "model": "BUS",
+            "document_type": "success",
+            "auction_at": "2026-11-24T17:00:00.000Z",
+            "current_bid_usd": null,
+            "primary_damage": "Normal wear",
+            "engine_size_l": null,
+            "source_updated_at": "2026-11-08T08:18:56.000000Z",
+            "sellerNamed": false
+          }
+        ],
+        "rowsRead": 2
+      },
+      {
+        "platform": "iaai",
+        "lot": "44103794",
+        "matched": 1,
+        "rows": [
+          {
+            "platform": "iaai",
+            "lot": "44103794",
+            "year": 2023,
+            "make": "HONDA",
+            "model": "WW150",
+            "document_type": "success",
+            "auction_at": "2026-11-24T17:00:00.000Z",
+            "current_bid_usd": null,
+            "primary_damage": "Front end",
+            "engine_size_l": null,
+            "source_updated_at": "2026-11-11T08:06:02.000Z",
+            "sellerNamed": true
+          }
+        ],
+        "rowsRead": 2
+      }
+    ]
+  },
+  "external": [],
+  "sourceRequests": 27,
+  "fx": {
+    "ok": true,
+    "usdPln": 4.0819,
+    "eurPln": 4.4633,
+    "effectiveDate": "2026-11-24",
+    "table": "228/A/NBP/2026",
+    "source": "NBP Table A",
+    "sourceUrl": "https://api.nbp.pl/api/exchangerates/tables/A/?format=json",
+    "checkedAt": "2026-11-24T11:22:44.287Z",
+    "stale": false
+  }
+}

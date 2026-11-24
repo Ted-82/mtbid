@@ -1,0 +1,15 @@
+{
+  "at": "2026-11-24T17:32:36.288Z",
+  "limiter": {
+    "present": true
+  },
+  "privateFilesR2": {
+    "managed": {
+      "publicDevelopmentEnabled": false
+    },
+    "custom": {
+      "enabledCustomDomains": 0,
+      "total": 0
+    }
+  }
+}

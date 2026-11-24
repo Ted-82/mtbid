@@ -1,0 +1,101 @@
+{
+  "mode": "local browser using disk assets and fixture HTTP responses",
+  "date": "2026-11-24T17:38:04.428Z",
+  "scenarios": [
+    {
+      "name": "client",
+      "role": "client",
+      "requests": [
+        "GET /api/portal/config",
+        "GET /api/portal/me",
+        "GET /api/portal/profile",
+        "GET /api/portal/orders",
+        "GET /api/portal/orders/22222222-2222-4222-8222-222222222222",
+        "GET /api/portal/orders/33333333-3333-4333-8333-333333333333",
+        "GET /api/portal/orders"
+      ],
+      "external": [],
+      "writes": [],
+      "checks": [
+        "Widoczna właściwa rola sesji",
+        "Dwie realizacje",
+        "Link wskazuje drugą realizację i ustawia fokus na jej rozmowie",
+        "Klient nie widzi tworzenia spraw ani narzędzi właściciela",
+        "Zmiana na pierwszą sprawę czyści poprzednią rozmowę",
+        "401 w działającym panelu ukrywa listę i szczegóły",
+        "Bez żądań do zewnętrznych usług i bez zapisów"
+      ]
+    },
+    {
+      "name": "owner",
+      "role": "owner",
+      "requests": [
+        "GET /api/portal/security",
+        "GET /api/portal/config",
+        "GET /api/portal/me",
+        "GET /api/portal/clients",
+        "GET /api/portal/archive",
+        "GET /api/portal/orders",
+        "GET /api/portal/orders/33333333-3333-4333-8333-333333333333",
+        "GET /api/portal/orders/22222222-2222-4222-8222-222222222222"
+      ],
+      "external": [],
+      "writes": [],
+      "checks": [
+        "Widoczna właściwa rola sesji",
+        "Dwie realizacje",
+        "Widoczne uprawnione formularze właściciela",
+        "Widoczna rozmowa i formularz odpowiedzi właściwej realizacji",
+        "Bez żądań do zewnętrznych usług i bez zapisów"
+      ]
+    },
+    {
+      "name": "denied",
+      "role": "client",
+      "requests": [
+        "GET /api/portal/security",
+        "GET /api/portal/config",
+        "GET /api/portal/me"
+      ],
+      "external": [],
+      "writes": [],
+      "checks": [
+        "Brak obszaru roboczego i żądań o realizacje",
+        "Klient otrzymuje odmowę i link do własnego panelu",
+        "Bez żądań do zewnętrznych usług i bez zapisów"
+      ]
+    },
+    {
+      "name": "owner-mfa",
+      "role": "pending",
+      "requests": [
+        "GET /api/portal/security",
+        "GET /api/portal/config",
+        "GET /api/portal/me"
+      ],
+      "external": [],
+      "writes": [],
+      "checks": [
+        "Brak obszaru roboczego i żądań o realizacje",
+        "Właściciel bez potwierdzonego drugiego składnika otrzymuje komunikat o weryfikacji",
+        "Bez żądań do zewnętrznych usług i bez zapisów"
+      ]
+    },
+    {
+      "name": "signed-out",
+      "role": "expired",
+      "requests": [
+        "GET /api/portal/config",
+        "GET /api/portal/me"
+      ],
+      "external": [],
+      "writes": [],
+      "checks": [
+        "Brak obszaru roboczego i żądań o realizacje",
+        "Sesja wymaga logowania i zachowuje adres powrotu do rozmowy",
+        "Bez żądań do zewnętrznych usług i bez zapisów"
+      ]
+    }
+  ],
+  "browser": "157.0.8103.51"
+}

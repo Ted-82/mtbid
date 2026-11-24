@@ -1,0 +1,193 @@
+✔ flag OFF and enabled NULL pointer retain legacy list/metadata/cursors and never add archival claims (114.1833ms)
+✔ active lists and metadata exclude absent/inactive/ended canonical rows and report verified scope independently of stale records (49.7354ms)
+✔ detail/history keep canonical archive reachable and never infer a Sold claim from absent membership (32.5321ms)
+✔ incremental categories paginate unchanged active descriptions without refreshing their timestamps (86.6928ms)
+✔ active cursor binds baseline and pointer revision for all sort modes, legacy cursor only works at NULL (106.0344ms)
+✔ one request shares pointer/proof read between cache namespace and route; pointer flip/NULL rollback isolate 900s taxonomy cache (41.5821ms)
+✔ an overloaded initial D1 read can recover within the same public request without bypassing membership (148.5131ms)
+Rex.Bid stored catalog read failure {"route":"/api/cars","stage":"coverage","category":"invalid_catalog_state"}
+✔ namespace gate never calls D1 for HTML/auth/private/credential requests; proof failure cannot reuse old unversioned cache (11.4588ms)
+Rex.Bid stored catalog read failure {"route":"/api/cars","stage":"coverage","category":"invalid_catalog_state"}
+✔ unresolved review and replay-in-progress coverage is explicit; corrupt ready checkpoint fails closed (23.0087ms)
+✔ membership read predicates use primary-key search and retain the three exact identifier expression indexes (13.2495ms)
+✔ public helper loads with standard WebCrypto only and Worker source keeps optin flag without Node compatibility (5.1963ms)
+✔ long taxonomy cache accepts only the strict public catalogue metadata shape (13.5349ms)
+Rex.Bid stored catalog read failure {"route":"/api/cars","stage":"coverage","category":"invalid_catalog_state"}
+✔ public list accepts a provider-attested pre-start bound and rejects a mismatched bound proof (19.0437ms)
+✔ file scheduler authority remains exclusive during a verified baseline and its pending delta (13.9747ms)
+✔ actual publication scheduler never starts the old API cursor beside an activated or replaying file catalogue (53.3957ms)
+✔ null file pointer preserves the prior bounded scheduler; an invalid active proof fails closed (16.6599ms)
+rex.bid.provider_request {"request_id":"8f156d9e-7616-459a-aa4d-3b16d2f5f72f","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":4}
+rex.bid.provider_request {"request_id":"2183d7d4-a78c-4f5c-bbde-8fa8ed6d0138","provider":"apibara","operation":"vehicleByIdentifier","route":"/api/car/:identifier","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":1}
+rex.bid.provider_request {"request_id":"b69cbf56-05f2-4c2c-bb0a-a8e994a4ddc7","provider":"apibara","operation":"searchVehicles","route":"/api/cars","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+rex.bid.provider_request {"request_id":"cbd2971d-aa94-4179-8d9d-0226ad21a7f7","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+rex.bid.provider_request {"request_id":"4453794e-a135-47a8-98ca-7d4c08a61c9d","provider":"apibara","operation":"listVehicles","route":"/api/cars","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+rex.bid.provider_request {"request_id":"21036b6a-6c40-4ae0-b06d-02c84565846a","provider":"apibara","operation":"vehicleFilters","route":"/api/filters","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":1}
+rex.bid.provider_request {"request_id":"f458848c-fa4c-4dd4-9da9-bf8cc1850242","provider":"apibara","operation":"vehicleByIdentifier","route":"/api/car/:identifier","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+rex.bid.request {"request_id":"65bf4133-ab9a-4da8-baaa-04c7c4456b91","method":"GET","route":"/api/car/:identifier","status":200,"duration_ms":13,"provider_operation":"/api/car/:identifier","sync_operation":null,"auth_operation":null}
+rex.bid.provider_request {"request_id":"0c5098f3-87c8-43d7-926c-33355917fa30","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":1}
+rex.bid.request {"request_id":"8a45dda1-4fe0-4ac6-b6c9-c9a974991453","method":"GET","route":"/api/car/:identifier/history","status":200,"duration_ms":22,"provider_operation":"/api/car/:identifier/history","sync_operation":null,"auth_operation":null}
+rex.bid.provider_request {"request_id":"eac9a6c8-77bc-42ea-bfdc-51d5978aa958","provider":"apibara","operation":"listVehicles","route":"/api/cars","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":1}
+rex.bid.request {"request_id":"295ab11d-29c9-420a-9c1a-100ee45082b6","method":"GET","route":"/api/cars","status":200,"duration_ms":4,"provider_operation":"/api/cars","sync_operation":null,"auth_operation":null}
+rex.bid.request {"request_id":"f981b290-96c4-4719-90da-1827b77ad735","method":"GET","route":"/api/:unmatched","status":200,"duration_ms":1,"provider_operation":"/api/:unmatched","sync_operation":null,"auth_operation":null}
+rex.bid.request {"request_id":"61077e99-a042-49be-aa48-bfddcb448e55","method":"POST","route":"/api/sync/vehicle/:identifier","status":401,"duration_ms":1,"provider_operation":null,"sync_operation":"manual_sync","auth_operation":null,"safe_error_code":"request_rejected"}
+rex.bid.request {"request_id":"ee9fd2fe-acde-4bf2-85d9-5b660fe44d05","method":"POST","route":"/api/sync/vehicle/:identifier","status":401,"duration_ms":0,"provider_operation":null,"sync_operation":"manual_sync","auth_operation":null,"safe_error_code":"request_rejected"}
+rex.bid.request {"request_id":"c4a2f0ba-5205-4d7e-835b-65326445c317","method":"GET","route":"/api/sync/vehicle/:identifier","status":405,"duration_ms":1,"provider_operation":null,"sync_operation":"manual_sync","auth_operation":null,"safe_error_code":"method_not_allowed"}
+rex.bid.request {"request_id":"815e3eca-e51d-4589-93b9-fa6bd227a25b","method":"POST","route":"/api/sync/vehicle/:identifier","status":503,"duration_ms":0,"provider_operation":null,"sync_operation":"manual_sync","auth_operation":null,"safe_error_code":"service_unavailable"}
+rex.bid.provider_request {"request_id":"06ebbd31-a201-4af7-8677-7848bb363042","provider":"apibara","operation":"vehicleByIdentifier","route":"/api/car/:identifier","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":1}
+rex.bid.provider_request {"request_id":"3d2af80f-d21f-499d-a36f-7976ba8727e6","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":1}
+rex.bid.request {"request_id":"6d110fe2-a59e-445e-8e5c-c46f97a7a304","method":"POST","route":"/api/sync/vehicle/:identifier","status":200,"duration_ms":14,"provider_operation":null,"sync_operation":"manual_sync","auth_operation":null}
+rex.bid.provider {"provider":"apibara","operation":"unknown","stage":"response","status":503,"safe_error_code":"UPSTREAM"}
+rex.bid.provider_request {"request_id":"1a37c8f0-3c97-4b68-a094-2a74bda4b38e","provider":"apibara","operation":"vehicleByIdentifier","route":"/api/car/:identifier","platform":"unknown","upstream_request":true,"outcome":"error","status":503,"safe_error_code":"UPSTREAM","duration_ms":2}
+rex.bid.event {"event":"provider_direct_lookup_failed","safe_error_code":"UPSTREAM"}
+rex.bid.request {"request_id":"d185ffb5-636a-45ab-9694-0dd359b9e604","method":"GET","route":"/api/car/:identifier","status":200,"duration_ms":8,"provider_operation":"/api/car/:identifier","sync_operation":null,"auth_operation":null}
+rex.bid.provider {"provider":"apibara","operation":"unknown","stage":"response","status":503,"safe_error_code":"UPSTREAM"}
+rex.bid.provider_request {"request_id":"e5b6396c-1dde-486a-99b3-bd55479b2363","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"error","status":503,"safe_error_code":"UPSTREAM","duration_ms":1}
+rex.bid.event {"event":"provider_history_failed","safe_error_code":"UPSTREAM"}
+rex.bid.request {"request_id":"3c8da730-0cf7-4694-b61b-86a8866d024f","method":"GET","route":"/api/car/:identifier/history","status":200,"duration_ms":17,"provider_operation":"/api/car/:identifier/history","sync_operation":null,"auth_operation":null}
+rex.bid.provider_request {"request_id":"a4b5842b-847e-4543-bbf5-6c11d25a7b0a","provider":"apibara","operation":"vehicleByIdentifier","route":"/api/car/:identifier","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":1}
+rex.bid.provider_request {"request_id":"0d6a6da5-0795-4d69-986b-5b676f70f371","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+rex.bid.provider_request {"request_id":"b626c92e-bfa2-43c3-adfb-dc67564f7064","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":1}
+rex.bid.provider_request {"request_id":"6ed48692-2052-41ff-b91c-033b0f7a2cbf","provider":"apibara","operation":"vehicleByIdentifier","route":"/api/car/:identifier","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+rex.bid.provider_request {"request_id":"c30cf910-200e-44ee-8d6a-9cf6e7bcb20a","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+rex.bid.provider_request {"request_id":"87b62a7e-d104-4f08-8393-cc50f9f66737","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":1}
+rex.bid.provider_request {"request_id":"7944f99d-e28d-4ba4-8856-0477bfe2d165","provider":"apibara","operation":"vehicleByIdentifier","route":"/api/car/:identifier","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":1}
+rex.bid.provider_request {"request_id":"26745316-b16c-4aec-b951-2d687cc4d8f5","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+rex.bid.provider_request {"request_id":"005539a0-427b-4f8c-a7c1-ce5c1d30eb6f","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+rex.bid.provider_request {"request_id":"f0434ef3-1fd9-4b52-86a5-a9fc378a0504","provider":"apibara","operation":"vehicleByIdentifier","route":"/api/car/:identifier","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+rex.bid.provider_request {"request_id":"d0a4c977-d7be-43d8-b66d-e02da4687663","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+rex.bid.provider {"provider":"apibara","operation":"unknown","stage":"response","status":503,"safe_error_code":"UPSTREAM"}
+rex.bid.provider_request {"request_id":"8f3b3215-fcd5-4fcd-9695-7d436955a767","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"error","status":503,"safe_error_code":"UPSTREAM","duration_ms":1}
+rex.bid.provider {"provider":"apibara","operation":"unknown","stage":"response","status":429,"safe_error_code":"RATE_LIMITED"}
+rex.bid.provider_request {"request_id":"3439ae5a-c91a-4d19-8963-f966d349f304","provider":"apibara","operation":"searchVehicles","route":"/api/cars","platform":"unknown","upstream_request":true,"outcome":"error","status":429,"safe_error_code":"RATE_LIMITED","duration_ms":1}
+rex.bid.provider {"provider":"apibara","operation":"unknown","stage":"fetch","error_type":"unknown"}
+rex.bid.provider_request {"request_id":"3e1b41b3-10c8-4cb3-b764-43ebb81bc3ca","provider":"apibara","operation":"vehicleByIdentifier","route":"/api/car/:identifier","platform":"unknown","upstream_request":true,"outcome":"error","status":null,"safe_error_code":"UPSTREAM","duration_ms":0}
+rex.bid.provider_request {"request_id":"386d1203-ac2a-4472-b801-ef7e59bacb7a","provider":"apibara","operation":"vehicleByIdentifier","route":"/api/car/:identifier","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":1}
+rex.bid.request {"request_id":"1e4d04cf-45de-459a-8171-6f7d1506baed","method":"GET","route":"/api/car/:identifier","status":200,"duration_ms":3,"provider_operation":"/api/car/:identifier","sync_operation":null,"auth_operation":null}
+rex.bid.request {"request_id":"4efa83e9-2c8a-4462-96ad-cfe1bacab3b4","method":"GET","route":"/api/car/:identifier","status":200,"duration_ms":0,"provider_operation":"/api/car/:identifier","sync_operation":null,"auth_operation":null}
+rex.bid.provider_request {"request_id":"1cc12f63-8a67-46ca-b17c-bc05e5f4308b","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":1}
+rex.bid.request {"request_id":"c9b9b4ec-1d48-413e-85c5-598b3fae2d03","method":"GET","route":"/api/car/:identifier/history","status":200,"duration_ms":1,"provider_operation":"/api/car/:identifier/history","sync_operation":null,"auth_operation":null}
+rex.bid.request {"request_id":"40032ded-2a25-4bb2-9882-9a0f1d4e57aa","method":"GET","route":"/api/car/:identifier/history","status":200,"duration_ms":1,"provider_operation":"/api/car/:identifier/history","sync_operation":null,"auth_operation":null}
+rex.bid.provider_request {"request_id":"827ae643-b6e5-4075-95d2-35e9b6e8bf07","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+rex.bid.request {"request_id":"e3b9f1fa-ba73-4b3a-bac4-43a74d27ef7b","method":"GET","route":"/api/car/:identifier/history","status":200,"duration_ms":1,"provider_operation":"/api/car/:identifier/history","sync_operation":null,"auth_operation":null}
+rex.bid.request {"request_id":"008dc4e3-b970-4d8d-af0c-3f070da7ace2","method":"GET","route":"/api/car/:identifier/history","status":200,"duration_ms":1,"provider_operation":"/api/car/:identifier/history","sync_operation":null,"auth_operation":null}
+rex.bid.provider_request {"request_id":"663344af-f1fd-410b-8e9e-d1195a7f0da7","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+rex.bid.request {"request_id":"e3216567-1f5f-41f1-85ae-8d295767a2e2","method":"GET","route":"/api/car/:identifier/history","status":200,"duration_ms":2,"provider_operation":"/api/car/:identifier/history","sync_operation":null,"auth_operation":null}
+rex.bid.request {"request_id":"6ce51038-7230-44ad-a561-e2315ff7715b","method":"GET","route":"/api/car/:identifier/history","status":400,"duration_ms":1,"provider_operation":"/api/car/:identifier/history","sync_operation":null,"auth_operation":null,"safe_error_code":"request_rejected"}
+rex.bid.provider_request {"request_id":"be472806-8b51-4d2a-959a-38f57759c26b","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+rex.bid.request {"request_id":"6dc61cc9-0549-41c3-b922-4bb5dd49ca4f","method":"GET","route":"/api/car/:identifier/history","status":200,"duration_ms":2,"provider_operation":"/api/car/:identifier/history","sync_operation":null,"auth_operation":null}
+✔ canonical normalization keeps prices separate, preserves raw JSON, and accepts missing price (100.5792ms)
+✔ requestApibara builds only approved endpoints, uses only the named secret, and forwards cursor opaquely (10.8155ms)
+✔ Apibara read helpers make no D1 access and keep endpoint persistence outside the read layer (5.8877ms)
+✔ filter metadata proxy uses the shared client, keeps documented response data and caches per make (8.0575ms)
+✔ production GET routes use D1 SELECT only and preserve vehicle/history responses (48.4623ms)
+✔ manual synchronization trigger is authenticated, explicit, and persists only on authorized POST (23.0518ms)
+✔ GET local fallback remains readable without schema creation or writes (39.0889ms)
+✔ syncVehicle upserts vehicles/history idempotently and snapshots only on fingerprint changes (23.6429ms)
+✔ incomplete history pagination does not persist or report a completed sync (7.6993ms)
+✔ requestApibara maps upstream errors without exposing response bodies and does not retry (4.3741ms)
+✔ requestApibara logs safe fetch diagnostics and redacts secrets and upstream bodies (4.1797ms)
+✔ requestApibara identifies URL-stage failures without logging credentials (4.2982ms)
+✔ requestApibara timeout aborts the one request without retry (5.0922ms)
+✔ fallback keys distinguish separate auctions for the same VIN and LOT (3.0458ms)
+✔ explicit event_key values remain distinct and stable across mutable fields (3.822ms)
+✔ auction history migration is additive and does not infer final price or delete legacy data (5.9549ms)
+✔ same event ID updates one D1 record when status and price change (7.7554ms)
+✔ public detail/history edge cache reduces repeat provider requests without caching across history cursors (9.4098ms)
+✔ partial provider payload does not blank persisted good fields or erase raw source data (4.9507ms)
+✔ Sold on Approval clears a previously persisted final price without assigning the event seller (3.1686ms)
+✔ legacy D1 rows remain readable and generic price is not backfilled as final price (5.1844ms)
+✔ history endpoint forwards an opaque cursor and returns canonical history with no-store (5.0569ms)
+✔ history endpoint validates per_page and ends pagination when cursor is null (5.2614ms)
+✔ vehicle history opens with one page and exposes the exact opaque next cursor (2.5191ms)
+✔ detail initialization loads one history page and shows the manual continuation control (3.1183ms)
+✔ manual older-history action requests one opaque cursor page, deduplicates, and preserves records on error (22.164ms)
+✔ vehicle detail does not duplicate the Worker exact-search fallback after 404 or transient API failure (3.5012ms)
+✔ missing or failing media module degrades to an empty gallery without blocking vehicle data (2.319ms)
+✔ primary vehicle detail renders before calculator/history work and never exits buildPage silently (35.8792ms)
+✔ auction Buy Now price action outside the calculator panel changes V4 price basis (2.5626ms)
+✔ auction refresh cadence is phase-aware and stops polling when no real start is known (2.3351ms)
+✔ frontend history code consumes canonical pages, caps requests, guards cursor loops, and preserves date-only values (9.8143ms)
+✔ index list pagination appends by cursor, resets filters, deduplicates by platform/LOT, and preserves links on failure (32.4865ms)
+✔ index exposes only Worker-supported advanced filters and restores shareable filter URL state (20.0995ms)
+✔ market category shortcuts use only supported list filters and always start at page one (12.4571ms)
+✔ filter metadata option text and values are escaped before select markup (2.4395ms)
+✔ listing and detail price labels preserve price meaning and finished overrides a future auction date (38.407ms)
+✔ unassigned upcoming detail shows an explicit unknown date without rendering a stale helper timestamp (3.0166ms)
+✔ Car 2.0 keeps vehicle actions and media controls explicit without implying unavailable features work (2.1145ms)
+✔ title document guidance uses explicit registration and export flags with conservative term mapping (2.0398ms)
+✔ car detail keeps exact VIN and LOT selection and never falls back to the first list item (2.3206ms)
+✔ detail price facts stay distinct and updateable, and missing final price labels history bid correctly (4.6643ms)
+✔ D1 snapshots display observed dates and prices separately from confirmed auction events (3.2185ms)
+✔ production public list uses the R2 copy after D1 returns 503 (145.619ms)
+✔ isolated publication delegates the canonical request unchanged to the working shared Worker (18.4519ms)
+✔ catalogue pages and their errors stay on the active database while archived details and accounts remain accessible (32.4085ms)
+✔ only active catalog lists use a new primary-pinned D1 read session (12.3833ms)
+✔ catalog publication renders real public pages without dead Auth/portal links while retaining contact and local favorites (3525.9989ms)
+✔ HEAD for a matched vehicle uses the GET-only public HTML template and returns no body (4.5845ms)
+✔ unlaunched private page URLs have a useful unavailable HTML state, no login form and no account lookup (6.848ms)
+✔ later approved Auth phase retains the exact account forms and navigation without catalog-only suppression (5.1191ms)
+✔ www GET and HEAD redirect to the exact apex with path/query intact and no Auth/D1/provider access or cookies (3.3533ms)
+✔ www mutations and unknown/non-HTTPS hosts stop before every shared-handler operation (14.6606ms)
+✔ publication runtime rejects a wrong resource pair and inconsistent feature phases before delegation (4.4891ms)
+✔ owner-setup permits only the real existing MFA routes while orders/messages/files and TOTP reset stay closed (4.9702ms)
+✔ isolated D1 identity enables the real Calculator V4 car renderer/assets without weakening exact production guards (114.8137ms)
+✔ publication generator preserves isolated Worker/D1/limiter and provider-backed V4 without R2 or mutation of private preflight (1.7722ms)
+✔ publication validator rejects staging or current production resource substitution, secrets, weakened guards and budgets (22.2177ms)
+✔ later publication phases need explicit isolated evidence and owner setup cannot skip verified subject/E2E/MFA gates (7.2899ms)
+✔ tracked portal without files matches confirmed recovery and owner MFA evidence and preserves the automatic recipe (135.3656ms)
+✔ explicit automatic recipe preserves stored public reads and isolated resource boundaries (4.5955ms)
+✔ automatic recipe composes with every evidence-gated Auth phase without changing targets, budgets or private feature gates (29.9715ms)
+✔ phase CLI opts into bounded refresh explicitly and refuses incomplete evidence without creating an output (260.1475ms)
+✔ approved Auth phases keep the scheduled handler working but HTTP catalogue reads remain read-only without fallback (44.2026ms)
+✔ scheduled handler alone dispatches refresh; HTTP browsing never enters provider scheduler (4.3534ms)
+✔ scheduled handler fails closed for disabled, mistargeted, unbounded and wrong cadence configurations (12.3413ms)
+✔ scheduled handler reports a safe failure without copying thrown secret-bearing details (3.1383ms)
+✔ real owner-setup administration bootstrap keeps portal closed but allows one QR enrollment and verification through the actual MFA handler (89.5723ms)
+✔ real owner-setup page preserves an already verified TOTP and completes only challenge/verify without reenrollment or reset (38.4139ms)
+✔ real owner-setup page denies anonymous and ordinary client MFA without QR, inputs or private portal requests (71.8099ms)
+✔ publication generator tolerates Git Windows line endings but rejects changed rates, targets and extra values (1.7086ms)
+✔ public discovery uses exact rexbid.pl only and never accesses catalog, assets, accounts or provider (17.0948ms)
+✔ budget and guide aliases share a canonical URL even with campaign parameters (76.1026ms)
+✔ catalog readiness needs saved observations and real HTML assets but no provider credential or network (3.7612ms)
+✔ readiness fails for empty D1, unavailable schema or broken HTML and keeps diagnostic details private (13.973ms)
+✔ automatic readiness exposes only schedule state and safe timestamps without provider calls or writes (26.9007ms)
+✔ Auth rollout readiness retains catalogue and Cron checks and validates Auth without contacting providers (19.6259ms)
+✔ readiness never reflects malformed stored timestamps and HEAD has no diagnostic body (5.7529ms)
+✔ catalog membership requires an explicit opt-in without changing the default automatic publication recipe (4.2668ms)
+✔ private attachment publication accepts its exact production profile and preserves scheduled feed authority (4.8001ms)
+✔ private attachment publication rejects missing storage, partial storage and inconsistent rollout flags before routing (15.0842ms)
+✔ Copart Gas fuel label matches the catalog without interpreting unknown fuel codes (104.5492ms)
+✔ normalized D1 details render vehicle specs and mileage units without losing source condition fields (39.5029ms)
+✔ confirmed ended sale remains the primary historical price while Buy Now stays separate from missing current bid (104.898ms)
+✔ contextual inquiry preserves exact identifiers and encodes hostile source title without adding executable markup (17.8096ms)
+✔ inquiry carries only the current vehicle's explicit budget and retains partial status (15.678ms)
+✔ read-only snapshots visibly date their data and never present an observed bid as live (23.6313ms)
+✔ production D1 freshness changes update dated price notice, labels and countdown without entering preview mode (35.1555ms)
+✔ unknown D1 freshness labels a retained date as saved and suppresses the countdown (16.1894ms)
+✔ inquiry exports validated observed price status separately from the selected price kind (14.1151ms)
+✔ inquiry keeps the selected delivery while the calculator is still loading (16.7464ms)
+✔ vehicle refresh forwards observed prices and freshness to its mounted calculator together (19.2301ms)
+✔ fresh detail with unknown availability preserves prices without implying live availability or countdown (27.6611ms)
+✔ source zero is unavailable and not selectable, Buy Now remains separate, details precede calculator (25.3221ms)
+✔ owner review: green insurer type requires explicit source type, preserves name and explains limits (50.78ms)
+✔ history renders unsold and conditional auction amounts separately from sales without shifting date (17.4039ms)
+✔ historical conditional offer explains unresolved outcome, preserves raw status and calendar day (14.7169ms)
+✔ history availability distinguishes never fetched, fetched empty and read failure, preserving observations (16.0249ms)
+✔ history uses exact LOT and platform for arbitrary listings, handles endpoint failure without false empty (11.7155ms)
+✔ stored partial auction events remain visible with their history read date, without replacing the earlier vehicle price (10.2569ms)
+✔ known damage and start codes have conservative Polish labels; unknown descriptions remain unchanged (40.1423ms)
+✔ catalog and vehicle use the same exact Polish damage labels, keeping unknown source descriptions (58.4055ms)
+✔ archival catalogue detail stays reachable without implying current availability or a live bid (11.244ms)
+✔ recorded bid context uses a source snapshot timestamp with the Polish time zone (19.0221ms)
+✔ exact source identity produces a stable canonical, truthful text, and a single lookup shared with the browser (452.1973ms)
+✔ inert snapshot and metadata encode source-controlled strings (97.2629ms)
+✔ confirmed absences have real 404, outages have 503 and unknown IDs keep the public legacy lookup (8.9303ms)
+ℹ tests 123
+ℹ suites 0
+ℹ pass 123
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5118.6392

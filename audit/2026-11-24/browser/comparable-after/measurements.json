@@ -1,0 +1,1077 @@
+{
+  "stamp": "2026-11-24T16:44:49.803Z",
+  "base": "http://127.0.0.1:49142",
+  "browser": "Chrome/157.0.8103.51",
+  "cache": "browser disabled; edge/CDN uncontrolled",
+  "throttle": "native network, CPU unthrottled",
+  "results": [
+    {
+      "key": "catalog",
+      "width": 390,
+      "height": 844,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1508,
+      "path": "/",
+      "title": "REXBID — Aukcje samochodów USA",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": 1200,
+      "searchPanelBottom": 313,
+      "mainPhotoTop": null,
+      "h1": [
+        "Znajdź samochód. Sprawdź szczegóły."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "← Strona główna",
+          "h": 18,
+          "w": 354
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 10,
+      "fcp": 136,
+      "lcp": 136,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 3,
+      "resourceCount": 21,
+      "biggest": [
+        [
+          "/rexbid-auth.js",
+          47898
+        ],
+        [
+          "/api/filters",
+          42206
+        ],
+        [
+          "/api/cars",
+          32055
+        ],
+        [
+          "/rexbid-brand.css",
+          24368
+        ],
+        [
+          "/rexbid-portal.css",
+          24332
+        ],
+        [
+          "/rexbid-catalog.css",
+          17633
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 13
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/780ce971385d4b2ab93d3108a5565313_ful.jpg",
+          "ms": 266
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/ae6592047b1541bc996b66f3c25a9523_ful.jpg",
+          "ms": 299
+        }
+      ],
+      "carCards": 20,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | ☰ | Zaloguj | Załóż konto | Znajdź samochód. Sprawdź szczegóły. | Szukaj ofert | Przejdź do wyników | ↓ | Dopasuj samochód do siebie | Pokaż filtry (2) | 2 aktywne filtry | Marka: Subaru | × | Rok od: 2025 | × | Wyczyść filtry | ← Strona główna | Katalog samo",
+      "networkCount": 22,
+      "encodedTransfer": 690929,
+      "imageTransfer": 260932,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 240
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 42122
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 2388
+        },
+        {
+          "route": "/api/cars",
+          "status": 200,
+          "bytes": 31971
+        },
+        {
+          "route": "/api/me",
+          "status": 401,
+          "bytes": 266
+        }
+      ],
+      "failures": [
+        {
+          "path": "/favicon.ico",
+          "status": 404
+        },
+        {
+          "path": "/api/me",
+          "status": 401
+        }
+      ]
+    },
+    {
+      "key": "car",
+      "width": 390,
+      "height": 844,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1513,
+      "path": "/car",
+      "title": "REXBID — samochód",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": 799,
+      "h1": [
+        "2014 IC CORPORATION BUS"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "REXBID",
+          "h": 18,
+          "w": 39
+        },
+        {
+          "label": "Samochody",
+          "h": 18,
+          "w": 62
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 3,
+      "fcp": 60,
+      "lcp": 196,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 41,
+      "biggest": [
+        [
+          "/rexbid-calculator-v4-rates.js",
+          256294
+        ],
+        [
+          "/api/car/47018496/history",
+          55798
+        ],
+        [
+          "/rexbid-auth.js",
+          47898
+        ],
+        [
+          "/rexbid-calculator-v4.js",
+          42674
+        ],
+        [
+          "/rexbid-calculator.js",
+          34241
+        ],
+        [
+          "/rexbid-delivered-view.js",
+          32211
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 12
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_ful.jpg",
+          "ms": 80
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_thb.jpg",
+          "ms": 68
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/0f908f6e3c6b4cd9a0e6f3015de12b8c_thb.jpg",
+          "ms": 57
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/82fea7fd42e449ae8b2cfa94abcc50e6_thb.jpg",
+          "ms": 62
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/887cf33e05ec48aaa1f63d6f0c064467_thb.jpg",
+          "ms": 64
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8687338c6b641e385ea4dbad574b8c7_thb.jpg",
+          "ms": 71
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/fc7417d017324df1ac3baea33c42ca6d_thb.jpg",
+          "ms": 82
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/eefad05d1092476193032d54188919f4_thb.jpg",
+          "ms": 81
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/52fb7b00c4b54995986a60d2d78000b1_thb.jpg",
+          "ms": 74
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do danych pojazdu | RYNEK AUKCYJNY USA | ☰ | Zaloguj | Załóż konto | ← Wróć do samochodów | REXBID | › | Samochody | › | COPART | › | 47018496 | COPART ↗ | 2014 IC CORPORATION BUS | Dane aukcji wymagają odświeżenia | Zapis danych aukcji z 08.11.2026, 09:18. Cena i dostępność do potwierdzenia",
+      "networkCount": 42,
+      "encodedTransfer": 1051992,
+      "imageTransfer": 192366,
+      "api": [
+        {
+          "route": "/api/car/47018496",
+          "status": 200,
+          "bytes": 4860
+        },
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 240
+        },
+        {
+          "route": "/api/me",
+          "status": 401,
+          "bytes": 266
+        },
+        {
+          "route": "/api/car/47018496/history",
+          "status": 200,
+          "bytes": 55714
+        }
+      ],
+      "failures": [
+        {
+          "path": "/api/me",
+          "status": 401
+        }
+      ]
+    },
+    {
+      "key": "catalog",
+      "width": 1366,
+      "height": 768,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1511,
+      "path": "/",
+      "title": "REXBID — Aukcje samochodów USA",
+      "viewport": 1366,
+      "clientWidth": 1351,
+      "scrollWidth": 1351,
+      "firstResultTop": 1131,
+      "searchPanelBottom": 226,
+      "mainPhotoTop": null,
+      "h1": [
+        "Znajdź samochód. Sprawdź szczegóły."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "← Strona główna",
+          "h": 18,
+          "w": 560
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 6,
+      "fcp": 76,
+      "lcp": 76,
+      "lcpEl": "H1",
+      "cls": 0.017,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 24,
+      "biggest": [
+        [
+          "/rexbid-auth.js",
+          47898
+        ],
+        [
+          "/api/filters",
+          42206
+        ],
+        [
+          "/api/cars",
+          32055
+        ],
+        [
+          "/rexbid-brand.css",
+          24368
+        ],
+        [
+          "/rexbid-portal.css",
+          24332
+        ],
+        [
+          "/rexbid-catalog.css",
+          17633
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 9
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/780ce971385d4b2ab93d3108a5565313_ful.jpg",
+          "ms": 133
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/ae6592047b1541bc996b66f3c25a9523_ful.jpg",
+          "ms": 249
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0926/7c05f13b513b413190cb35140592447e_ful.jpg",
+          "ms": 352
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0926/0cbbbdfe83e54311a1a7954531c6801b_ful.jpg",
+          "ms": 399
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0926/56373c3e33584bfb8e54f0f3cfd76e44_ful.jpg",
+          "ms": 502
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0926/c94c007eb3484771b65f98122f2e0ecb_ful.jpg",
+          "ms": 508
+        }
+      ],
+      "carCards": 20,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | Aukcje | Jak to działa | Ulubione | 0 | Konto | Pomoc | Kontakt | Zaloguj | Załóż konto | Znajdź samochód. Sprawdź szczegóły. | Szukaj ofert | → | Przejdź do wyników | ↓ | Dopasuj samochód do siebie | Wybierz lub wpisz markę i model. Podpowiedzi obejmują częś",
+      "networkCount": 25,
+      "encodedTransfer": 1319608,
+      "imageTransfer": 889754,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 240
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 42122
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 2388
+        },
+        {
+          "route": "/api/cars",
+          "status": 200,
+          "bytes": 31971
+        },
+        {
+          "route": "/api/me",
+          "status": 401,
+          "bytes": 266
+        }
+      ],
+      "failures": [
+        {
+          "path": "/api/me",
+          "status": 401
+        }
+      ]
+    },
+    {
+      "key": "car",
+      "width": 1366,
+      "height": 768,
+      "run": 1,
+      "ready": true,
+      "wallMs": 1491,
+      "path": "/car",
+      "title": "REXBID — samochód",
+      "viewport": 1366,
+      "clientWidth": 1351,
+      "scrollWidth": 1351,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": 528,
+      "h1": [
+        "2014 IC CORPORATION BUS"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "REXBID",
+          "h": 18,
+          "w": 39
+        },
+        {
+          "label": "Samochody",
+          "h": 18,
+          "w": 62
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 3,
+      "fcp": 44,
+      "lcp": 324,
+      "lcpEl": "IMG",
+      "cls": 0.409,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 43,
+      "biggest": [
+        [
+          "/rexbid-calculator-v4-rates.js",
+          256294
+        ],
+        [
+          "/api/car/47018496/history",
+          55798
+        ],
+        [
+          "/rexbid-auth.js",
+          47898
+        ],
+        [
+          "/rexbid-calculator-v4.js",
+          42674
+        ],
+        [
+          "/rexbid-calculator.js",
+          34241
+        ],
+        [
+          "/rexbid-delivered-view.js",
+          32211
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 10
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_hrs.jpg",
+          "ms": 155
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_thb.jpg",
+          "ms": 136
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/0f908f6e3c6b4cd9a0e6f3015de12b8c_thb.jpg",
+          "ms": 138
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8687338c6b641e385ea4dbad574b8c7_thb.jpg",
+          "ms": 181
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/82fea7fd42e449ae8b2cfa94abcc50e6_thb.jpg",
+          "ms": 182
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/887cf33e05ec48aaa1f63d6f0c064467_thb.jpg",
+          "ms": 182
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/fc7417d017324df1ac3baea33c42ca6d_thb.jpg",
+          "ms": 182
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/eefad05d1092476193032d54188919f4_thb.jpg",
+          "ms": 182
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/52fb7b00c4b54995986a60d2d78000b1_thb.jpg",
+          "ms": 182
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do danych pojazdu | RYNEK AUKCYJNY USA | Aukcje | Jak to działa | Ulubione | 0 | Konto | Pomoc | Kontakt | Zaloguj | Załóż konto | ← Wróć do samochodów | REXBID | › | Samochody | › | COPART | › | 47018496 | COPART ↗ | 2014 IC CORPORATION BUS | Dane aukcji wymagają odświeżenia | Zapis danych ",
+      "networkCount": 44,
+      "encodedTransfer": 1211539,
+      "imageTransfer": 351913,
+      "api": [
+        {
+          "route": "/api/car/47018496",
+          "status": 200,
+          "bytes": 4860
+        },
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 240
+        },
+        {
+          "route": "/api/me",
+          "status": 401,
+          "bytes": 266
+        },
+        {
+          "route": "/api/car/47018496/history",
+          "status": 200,
+          "bytes": 55714
+        }
+      ],
+      "failures": [
+        {
+          "path": "/api/me",
+          "status": 401
+        }
+      ]
+    },
+    {
+      "key": "catalog",
+      "width": 390,
+      "height": 844,
+      "run": 2,
+      "ready": true,
+      "wallMs": 1494,
+      "path": "/",
+      "title": "REXBID — Aukcje samochodów USA",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": 1200,
+      "searchPanelBottom": 313,
+      "mainPhotoTop": null,
+      "h1": [
+        "Znajdź samochód. Sprawdź szczegóły."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "← Strona główna",
+          "h": 18,
+          "w": 354
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 7,
+      "fcp": 48,
+      "lcp": 48,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 20,
+      "biggest": [
+        [
+          "/rexbid-auth.js",
+          47898
+        ],
+        [
+          "/api/filters",
+          42206
+        ],
+        [
+          "/api/cars",
+          32055
+        ],
+        [
+          "/rexbid-brand.css",
+          24368
+        ],
+        [
+          "/rexbid-portal.css",
+          24332
+        ],
+        [
+          "/rexbid-catalog.css",
+          17633
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 10
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/780ce971385d4b2ab93d3108a5565313_ful.jpg",
+          "ms": 121
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/ae6592047b1541bc996b66f3c25a9523_ful.jpg",
+          "ms": 146
+        }
+      ],
+      "carCards": 20,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | ☰ | Zaloguj | Załóż konto | Znajdź samochód. Sprawdź szczegóły. | Szukaj ofert | Przejdź do wyników | ↓ | Dopasuj samochód do siebie | Pokaż filtry (2) | 2 aktywne filtry | Marka: Subaru | × | Rok od: 2025 | × | Wyczyść filtry | ← Strona główna | Katalog samo",
+      "networkCount": 21,
+      "encodedTransfer": 690690,
+      "imageTransfer": 260836,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 240
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 42122
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 2388
+        },
+        {
+          "route": "/api/cars",
+          "status": 200,
+          "bytes": 31971
+        },
+        {
+          "route": "/api/me",
+          "status": 401,
+          "bytes": 266
+        }
+      ],
+      "failures": [
+        {
+          "path": "/api/me",
+          "status": 401
+        }
+      ]
+    },
+    {
+      "key": "car",
+      "width": 390,
+      "height": 844,
+      "run": 2,
+      "ready": true,
+      "wallMs": 1482,
+      "path": "/car",
+      "title": "REXBID — samochód",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": 799,
+      "h1": [
+        "2014 IC CORPORATION BUS"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "REXBID",
+          "h": 18,
+          "w": 39
+        },
+        {
+          "label": "Samochody",
+          "h": 18,
+          "w": 62
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 3,
+      "fcp": 36,
+      "lcp": 148,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 41,
+      "biggest": [
+        [
+          "/rexbid-calculator-v4-rates.js",
+          256294
+        ],
+        [
+          "/api/car/47018496/history",
+          55798
+        ],
+        [
+          "/rexbid-auth.js",
+          47898
+        ],
+        [
+          "/rexbid-calculator-v4.js",
+          42674
+        ],
+        [
+          "/rexbid-calculator.js",
+          34241
+        ],
+        [
+          "/rexbid-delivered-view.js",
+          32211
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 8
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_ful.jpg",
+          "ms": 110
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_thb.jpg",
+          "ms": 92
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/0f908f6e3c6b4cd9a0e6f3015de12b8c_thb.jpg",
+          "ms": 113
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/82fea7fd42e449ae8b2cfa94abcc50e6_thb.jpg",
+          "ms": 113
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8687338c6b641e385ea4dbad574b8c7_thb.jpg",
+          "ms": 115
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/887cf33e05ec48aaa1f63d6f0c064467_thb.jpg",
+          "ms": 113
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/fc7417d017324df1ac3baea33c42ca6d_thb.jpg",
+          "ms": 115
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/eefad05d1092476193032d54188919f4_thb.jpg",
+          "ms": 114
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/52fb7b00c4b54995986a60d2d78000b1_thb.jpg",
+          "ms": 114
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do danych pojazdu | RYNEK AUKCYJNY USA | ☰ | Zaloguj | Załóż konto | ← Wróć do samochodów | REXBID | › | Samochody | › | COPART | › | 47018496 | COPART ↗ | 2014 IC CORPORATION BUS | Dane aukcji wymagają odświeżenia | Zapis danych aukcji z 08.11.2026, 09:18. Cena i dostępność do potwierdzenia",
+      "networkCount": 42,
+      "encodedTransfer": 1052012,
+      "imageTransfer": 192386,
+      "api": [
+        {
+          "route": "/api/car/47018496",
+          "status": 200,
+          "bytes": 4860
+        },
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 240
+        },
+        {
+          "route": "/api/me",
+          "status": 401,
+          "bytes": 266
+        },
+        {
+          "route": "/api/car/47018496/history",
+          "status": 200,
+          "bytes": 55714
+        }
+      ],
+      "failures": [
+        {
+          "path": "/api/me",
+          "status": 401
+        }
+      ]
+    },
+    {
+      "key": "catalog",
+      "width": 390,
+      "height": 844,
+      "run": 3,
+      "ready": true,
+      "wallMs": 1502,
+      "path": "/",
+      "title": "REXBID — Aukcje samochodów USA",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": 1200,
+      "searchPanelBottom": 313,
+      "mainPhotoTop": null,
+      "h1": [
+        "Znajdź samochód. Sprawdź szczegóły."
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "← Strona główna",
+          "h": 18,
+          "w": 354
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 6,
+      "fcp": 60,
+      "lcp": 60,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 20,
+      "biggest": [
+        [
+          "/rexbid-auth.js",
+          47898
+        ],
+        [
+          "/api/filters",
+          42206
+        ],
+        [
+          "/api/cars",
+          32055
+        ],
+        [
+          "/rexbid-brand.css",
+          24368
+        ],
+        [
+          "/rexbid-portal.css",
+          24332
+        ],
+        [
+          "/rexbid-catalog.css",
+          17633
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 9
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/780ce971385d4b2ab93d3108a5565313_ful.jpg",
+          "ms": 174
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0826/ae6592047b1541bc996b66f3c25a9523_ful.jpg",
+          "ms": 213
+        }
+      ],
+      "carCards": 20,
+      "bodyExcerpt": "Przejdź do treści | RYNEK AUKCYJNY USA | ☰ | Zaloguj | Załóż konto | Znajdź samochód. Sprawdź szczegóły. | Szukaj ofert | Przejdź do wyników | ↓ | Dopasuj samochód do siebie | Pokaż filtry (2) | 2 aktywne filtry | Marka: Subaru | × | Rok od: 2025 | × | Wyczyść filtry | ← Strona główna | Katalog samo",
+      "networkCount": 21,
+      "encodedTransfer": 690327,
+      "imageTransfer": 260473,
+      "api": [
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 240
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 42122
+        },
+        {
+          "route": "/api/filters",
+          "status": 200,
+          "bytes": 2388
+        },
+        {
+          "route": "/api/cars",
+          "status": 200,
+          "bytes": 31971
+        },
+        {
+          "route": "/api/me",
+          "status": 401,
+          "bytes": 266
+        }
+      ],
+      "failures": [
+        {
+          "path": "/api/me",
+          "status": 401
+        }
+      ]
+    },
+    {
+      "key": "car",
+      "width": 390,
+      "height": 844,
+      "run": 3,
+      "ready": true,
+      "wallMs": 1494,
+      "path": "/car",
+      "title": "REXBID — samochód",
+      "viewport": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "firstResultTop": null,
+      "searchPanelBottom": null,
+      "mainPhotoTop": 799,
+      "h1": [
+        "2014 IC CORPORATION BUS"
+      ],
+      "lang": "pl",
+      "landmarks": 1,
+      "controlsWithoutName": [],
+      "formNames": [],
+      "tiny": [
+        {
+          "label": "REXBID",
+          "h": 18,
+          "w": 39
+        },
+        {
+          "label": "Samochody",
+          "h": 18,
+          "w": 62
+        }
+      ],
+      "invalidImages": 0,
+      "missingAlt": 0,
+      "ttfb": 3,
+      "fcp": 40,
+      "lcp": 132,
+      "lcpEl": "H1",
+      "cls": 0,
+      "longTaskBlockingAfterFCP": 0,
+      "resourceCount": 41,
+      "biggest": [
+        [
+          "/rexbid-calculator-v4-rates.js",
+          256294
+        ],
+        [
+          "/api/car/47018496/history",
+          55798
+        ],
+        [
+          "/rexbid-auth.js",
+          47898
+        ],
+        [
+          "/rexbid-calculator-v4.js",
+          42674
+        ],
+        [
+          "/rexbid-calculator.js",
+          34241
+        ],
+        [
+          "/rexbid-delivered-view.js",
+          32211
+        ]
+      ],
+      "photos": [
+        {
+          "path": "/rexbid-logo-20261117-dark.webp",
+          "ms": 10
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_ful.jpg",
+          "ms": 111
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8ceb5c82dd346f3be7c7e482d877149_thb.jpg",
+          "ms": 103
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/0f908f6e3c6b4cd9a0e6f3015de12b8c_thb.jpg",
+          "ms": 103
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/e8687338c6b641e385ea4dbad574b8c7_thb.jpg",
+          "ms": 103
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/82fea7fd42e449ae8b2cfa94abcc50e6_thb.jpg",
+          "ms": 110
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/887cf33e05ec48aaa1f63d6f0c064467_thb.jpg",
+          "ms": 110
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/fc7417d017324df1ac3baea33c42ca6d_thb.jpg",
+          "ms": 110
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/eefad05d1092476193032d54188919f4_thb.jpg",
+          "ms": 110
+        },
+        {
+          "path": "cs.copart.com/v1/AUTH_svc.pdoc00001/lpp/0326/52fb7b00c4b54995986a60d2d78000b1_thb.jpg",
+          "ms": 110
+        }
+      ],
+      "carCards": 0,
+      "bodyExcerpt": "Przejdź do danych pojazdu | RYNEK AUKCYJNY USA | ☰ | Zaloguj | Załóż konto | ← Wróć do samochodów | REXBID | › | Samochody | › | COPART | › | 47018496 | COPART ↗ | 2014 IC CORPORATION BUS | Dane aukcji wymagają odświeżenia | Zapis danych aukcji z 08.11.2026, 09:18. Cena i dostępność do potwierdzenia",
+      "networkCount": 42,
+      "encodedTransfer": 1052416,
+      "imageTransfer": 192790,
+      "api": [
+        {
+          "route": "/api/car/47018496",
+          "status": 200,
+          "bytes": 4860
+        },
+        {
+          "route": "/api/auth/config",
+          "status": 200,
+          "bytes": 240
+        },
+        {
+          "route": "/api/me",
+          "status": 401,
+          "bytes": 266
+        },
+        {
+          "route": "/api/car/47018496/history",
+          "status": 200,
+          "bytes": 55714
+        }
+      ],
+      "failures": [
+        {
+          "path": "/api/me",
+          "status": 401
+        }
+      ]
+    }
+  ]
+}

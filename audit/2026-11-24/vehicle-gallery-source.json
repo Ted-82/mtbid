@@ -1,0 +1,111 @@
+{
+  "at": "2026-11-24T16:53:32.494Z",
+  "rows": [
+    {
+      "lot": "46087626",
+      "vin": "2C4RDGBG4HR742563",
+      "publicItems": 0,
+      "publicThumbs": 0,
+      "sourceAt": "2026-11-24T15:40:59.000000Z",
+      "sourceMatch": true,
+      "sourceItems": 13,
+      "sourceThumbs": 13,
+      "sourceSeller": "nonempty other",
+      "byLot": {
+        "platform": "iaai",
+        "lot": "46087626",
+        "vin": "2T1BURHE5JC075043"
+      },
+      "byVin": {
+        "platform": "copart",
+        "lot": "46087626",
+        "vin": "2C4RDGBG4HR742563"
+      }
+    },
+    {
+      "lot": "46350466",
+      "vin": "1JJV532D6GL941901",
+      "publicItems": 0,
+      "publicThumbs": 0,
+      "sourceAt": "2026-11-24T15:31:40.000000Z",
+      "sourceMatch": true,
+      "sourceItems": 10,
+      "sourceThumbs": 10,
+      "sourceSeller": "placeholder",
+      "byLot": {
+        "platform": "iaai",
+        "lot": "46350466",
+        "vin": "SALVP2BG8EH896623"
+      },
+      "byVin": {
+        "platform": "copart",
+        "lot": "46350466",
+        "vin": "1JJV532D6GL941901"
+      }
+    },
+    {
+      "lot": "46995635",
+      "vin": "1XKFDP9X0DJ356766",
+      "publicItems": 0,
+      "publicThumbs": 0,
+      "sourceAt": "2026-11-24T15:45:55.000000Z",
+      "sourceMatch": true,
+      "sourceItems": 10,
+      "sourceThumbs": 10,
+      "sourceSeller": "placeholder",
+      "byLot": {
+        "platform": "copart",
+        "lot": "46995635",
+        "vin": "1XKFDP9X0DJ356766"
+      },
+      "byVin": {
+        "platform": "copart",
+        "lot": "46995635",
+        "vin": "1XKFDP9X0DJ356766"
+      }
+    },
+    {
+      "lot": "72024246",
+      "vin": "1GC4K0C89EF117156",
+      "publicItems": 0,
+      "publicThumbs": 0,
+      "sourceAt": "2026-11-24T15:40:59.000000Z",
+      "sourceMatch": true,
+      "sourceItems": 10,
+      "sourceThumbs": 10,
+      "sourceSeller": "nonempty other",
+      "byLot": {
+        "platform": "copart",
+        "lot": "72024246",
+        "vin": "1GC4K0C89EF117156"
+      },
+      "byVin": {
+        "platform": "copart",
+        "lot": "72024246",
+        "vin": "1GC4K0C89EF117156"
+      }
+    }
+  ],
+  "archive": {
+    "copart": {
+      "lot": "67597216",
+      "sourceMatch": true,
+      "cycle": null,
+      "publicCents": 195000,
+      "sourcePrice": 1950,
+      "confirmed": true,
+      "outcome": "Sold",
+      "historicalPrice": 1950
+    },
+    "iaai": {
+      "lot": "46440491",
+      "sourceMatch": true,
+      "cycle": null,
+      "publicCents": 1315000,
+      "sourcePrice": 13150,
+      "confirmed": true,
+      "outcome": "Sold",
+      "historicalPrice": 13150
+    }
+  }
+}

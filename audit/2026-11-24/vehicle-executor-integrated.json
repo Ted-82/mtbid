@@ -1,0 +1,41 @@
+{
+  "at": "2026-11-24T17:20:34.555Z",
+  "mode": "integrated",
+  "files": 45,
+  "code": 0,
+  "metrics": [
+    "ℹ 40 full creations / 460 existing groups: 2 calls, max475 SQL; one provider page",
+    "ℹ 500 full creations / 0 existing groups: 14 calls, max216 SQL; one provider page",
+    "ℹ 100-group mixed audit: file=18233 bytes, server=1012 bytes, saved=94.4%",
+    "ℹ 100 pure-price groups: server audit=403 bytes",
+    "ℹ 100 repeated pending tasks: 100 row rewrites avoided; all 100 price changes preserved. D1 index savings require production measurement.",
+    "ℹ 500 updates + 500 durable reconcile tasks: 582 SQL statements including reads and initial lease acquisition",
+    "ℹ 500 full creations: 7 invocations, one provider page, max 331 SQL statements per invocation; total 2064 SQL statements",
+    "ℹ 40 full creations + 460 known groups;500 price changes +500 queued needs: 1 invocations, max 726 SQL and 1196 SQLite table mutations",
+    "ℹ 80 full creations + 420 known groups;500 price changes +500 queued needs: 2 invocations, max 635 SQL and 908 SQLite table mutations",
+    "ℹ 500 full creations + 0 known groups;500 price changes +500 queued needs: 7 invocations, max 697 SQL and 1122 SQLite table mutations",
+    "ℹ hydration continuation SQL: 351 then 90; one changes fetch; delays1s/10s",
+    "ℹ partial continuation SQL: 618 then 295; one changes fetch; delays1s/10s",
+    "ℹ tests 716",
+    "ℹ suites 0",
+    "ℹ pass 716",
+    "ℹ fail 0",
+    "ℹ cancelled 0",
+    "ℹ skipped 0",
+    "ℹ todo 0",
+    "ℹ duration_ms 25316.4689"
+  ],
+  "withBaselineAndTargetHashes": [
+    {
+      "name": "sync/feed-active-reconcile.cjs",
+      "before": "64925be89868cbd7e2d428f9ed91298bcec37956a6d4ae66edefadf73b585f26",
+      "tested": "2cb3fa757a7bdc73f3967f6f60f43eb8aa8b01347a2327a6e3f4789ef2a209d7"
+    },
+    {
+      "name": "tests/feed-active-reconcile.test.cjs",
+      "before": "95fb593a8db0da2d85c132c14e638a1da213fa888a39b44457d5cc6a1c08c4f0",
+      "tested": "95c5e01f9bac4c29503b592a387c6f5452573505fe392e7295c0c742a05c3bfb"
+    }
+  ],
+  "failing": []
+}

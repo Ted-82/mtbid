@@ -1,0 +1,55 @@
+[
+  {
+    "lot": "66837846",
+    "budget": "30000",
+    "platform": "copart",
+    "lookup": "Symulacja według zapisanych danych z 27.10.2026. Dostępność pojazdu i stawki wymagają potwierdzenia przed licytacją.",
+    "selected": true,
+    "bid": "1562,00 USD",
+    "note": "Limit do pełnego dolara. Pozostaje 5 zł, w tym rezerwa 0 zł.",
+    "fields": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+    "ms": 810
+  },
+  {
+    "lot": "66837846",
+    "budget": "100000",
+    "platform": "copart",
+    "lookup": "Symulacja według zapisanych danych z 27.10.2026. Dostępność pojazdu i stawki wymagają potwierdzenia przed licytacją.",
+    "selected": true,
+    "bid": "12 105,00 USD",
+    "note": "Limit do pełnego dolara. Pozostaje 2 zł, w tym rezerwa 0 zł.",
+    "fields": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+    "ms": 576
+  },
+  {
+    "lot": "47018496",
+    "budget": "30000",
+    "platform": "copart",
+    "lookup": "Mamy zapis tej oferty. Katalog nie potwierdza obecnie możliwości licytacji.",
+    "selected": false,
+    "link": "/car?lot=47018496&platform=copart",
+    "ms": 349
+  },
+  {
+    "lot": "77039066",
+    "budget": "100000",
+    "platform": "copart",
+    "lookup": "",
+    "selected": true,
+    "bid": "13 882,00 USD",
+    "note": "Limit do pełnego dolara. Pozostaje 4 zł, w tym rezerwa 0 zł.",
+    "fields": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+    "ms": 490
+  },
+  {
+    "lot": "46533436",
+    "budget": "100000",
+    "platform": "iaai",
+    "lookup": "",
+    "selected": true,
+    "bid": "13 341,00 USD",
+    "note": "Limit do pełnego dolara. Pozostaje 1 zł, w tym rezerwa 0 zł.",
+    "fields": "Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.",
+    "ms": 890
+  }
+]

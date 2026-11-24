@@ -1,0 +1,633 @@
+TAP version 13
+# Subtest: home passenger-car selection excludes known motorcycles while retaining cars
+ok 1 - home passenger-car selection excludes known motorcycles while retaining cars
+  ---
+  duration_ms: 7.632
+  type: 'test'
+  ...
+# Subtest: catalog dates saved bids and Buy Now independently while stale or unknown D1 cannot advertise a live auction
+ok 2 - catalog dates saved bids and Buy Now independently while stale or unknown D1 cannot advertise a live auction
+  ---
+  duration_ms: 45.4871
+  type: 'test'
+  ...
+# Subtest: Home categories exclude stale and unknown records despite retained active source status and price
+ok 3 - Home categories exclude stale and unknown records despite retained active source status and price
+  ---
+  duration_ms: 5.0693
+  type: 'test'
+  ...
+# Subtest: freshly observed unknown availability does not make a retained bid, Buy Now or auxiliary date current
+ok 4 - freshly observed unknown availability does not make a retained bid, Buy Now or auxiliary date current
+  ---
+  duration_ms: 5.3031
+  type: 'test'
+  ...
+# Subtest: stored D1 observations and previews identify the saved bid while provider prices retain their own label
+ok 5 - stored D1 observations and previews identify the saved bid while provider prices retain their own label
+  ---
+  duration_ms: 3.8009
+  type: 'test'
+  ...
+# Subtest: fresh Home and catalog records retain observation time while source zero means unavailable bid
+ok 6 - fresh Home and catalog records retain observation time while source zero means unavailable bid
+  ---
+  duration_ms: 3.2649
+  type: 'test'
+  ...
+# Subtest: catalog coverage uses current completeness instead of a historical completed snapshot and validates stored counts
+ok 7 - catalog coverage uses current completeness instead of a historical completed snapshot and validates stored counts
+  ---
+  duration_ms: 3.1565
+  type: 'test'
+  ...
+# Subtest: current full coverage is displayed only with consistent scope metadata, while stale and unknown are explicit
+ok 8 - current full coverage is displayed only with consistent scope metadata, while stale and unknown are explicit
+  ---
+  duration_ms: 3.4904
+  type: 'test'
+  ...
+# Subtest: Home consumes coverage from its existing aisle response without any additional API requests
+ok 9 - Home consumes coverage from its existing aisle response without any additional API requests
+  ---
+  duration_ms: 5.3789
+  type: 'test'
+  ...
+# Subtest: partial coverage is distinct from the time of the newest saved offer in the results
+ok 10 - partial coverage is distinct from the time of the newest saved offer in the results
+  ---
+  duration_ms: 3.0039
+  type: 'test'
+  ...
+# Subtest: verified feed coverage displays completed scope while inconsistent platform coverage does not
+ok 11 - verified feed coverage displays completed scope while inconsistent platform coverage does not
+  ---
+  duration_ms: 2.5567
+  type: 'test'
+  ...
+# Subtest: catalog result fetch surfaces API coverage without changing result count or issuing a separate metadata request
+ok 12 - catalog result fetch surfaces API coverage without changing result count or issuing a separate metadata request
+  ---
+  duration_ms: 46.6175
+  type: 'test'
+  ...
+# Subtest: a regular session window never proves that bidding on the vehicle is underway
+ok 13 - a regular session window never proves that bidding on the vehicle is underway
+  ---
+  duration_ms: 0.2041
+  type: 'test'
+  ...
+# rex.bid.provider_request {"request_id":"d93f7067-e4a8-434b-85e9-619de3217ea6","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":5}
+# rex.bid.provider_request {"request_id":"e0b348ed-0478-449c-a7f0-5343f3045a8c","provider":"apibara","operation":"vehicleByIdentifier","route":"/api/car/:identifier","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+# rex.bid.provider_request {"request_id":"d19e99d1-4d61-4225-b057-f1d822026e69","provider":"apibara","operation":"searchVehicles","route":"/api/cars","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+# rex.bid.provider_request {"request_id":"5e00736a-614c-4482-a7fe-7f0934ba7611","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+# rex.bid.provider_request {"request_id":"af908aaa-a7a8-48a5-95a1-b0c3a339b0ab","provider":"apibara","operation":"listVehicles","route":"/api/cars","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":1}
+# rex.bid.provider_request {"request_id":"bb68e9bb-3e63-4122-a62d-7f23ee3c489d","provider":"apibara","operation":"vehicleFilters","route":"/api/filters","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":2}
+# rex.bid.provider_request {"request_id":"cbe65230-8904-4158-b2ed-52c504164ec8","provider":"apibara","operation":"vehicleByIdentifier","route":"/api/car/:identifier","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":1}
+# rex.bid.request {"request_id":"cc330884-73c2-48cd-8c0d-5c150bcc95b0","method":"GET","route":"/api/car/:identifier","status":200,"duration_ms":9,"provider_operation":"/api/car/:identifier","sync_operation":null,"auth_operation":null}
+# rex.bid.provider_request {"request_id":"2095d056-94bd-4634-ad53-c48ff6ef27cc","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+# rex.bid.request {"request_id":"4c0a286c-2c08-4e92-8c41-ffd3504c8eb2","method":"GET","route":"/api/car/:identifier/history","status":200,"duration_ms":7,"provider_operation":"/api/car/:identifier/history","sync_operation":null,"auth_operation":null}
+# rex.bid.provider_request {"request_id":"fc8cc45c-9b9d-4ae8-9273-f9456ead3e9a","provider":"apibara","operation":"listVehicles","route":"/api/cars","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+# rex.bid.request {"request_id":"ca952a8d-e413-483a-a9f8-f27ee0a0695d","method":"GET","route":"/api/cars","status":200,"duration_ms":2,"provider_operation":"/api/cars","sync_operation":null,"auth_operation":null}
+# rex.bid.request {"request_id":"1d9302b0-dfc5-4e24-add2-388b6ec6f4c1","method":"GET","route":"/api/:unmatched","status":200,"duration_ms":1,"provider_operation":"/api/:unmatched","sync_operation":null,"auth_operation":null}
+# rex.bid.request {"request_id":"9ea373ed-5740-4299-b72a-8513c1638ddc","method":"POST","route":"/api/sync/vehicle/:identifier","status":401,"duration_ms":1,"provider_operation":null,"sync_operation":"manual_sync","auth_operation":null,"safe_error_code":"request_rejected"}
+# rex.bid.request {"request_id":"29fb8adb-fd98-48ad-b525-d05e8bf51c90","method":"POST","route":"/api/sync/vehicle/:identifier","status":401,"duration_ms":0,"provider_operation":null,"sync_operation":"manual_sync","auth_operation":null,"safe_error_code":"request_rejected"}
+# rex.bid.request {"request_id":"5e2694b9-cdf7-4235-9e2a-92c213c1cbf9","method":"GET","route":"/api/sync/vehicle/:identifier","status":405,"duration_ms":0,"provider_operation":null,"sync_operation":"manual_sync","auth_operation":null,"safe_error_code":"method_not_allowed"}
+# rex.bid.request {"request_id":"49559f26-5f5a-4c76-b818-b31849806eb2","method":"POST","route":"/api/sync/vehicle/:identifier","status":503,"duration_ms":0,"provider_operation":null,"sync_operation":"manual_sync","auth_operation":null,"safe_error_code":"service_unavailable"}
+# rex.bid.provider_request {"request_id":"d5f18c9f-c34f-423d-b381-c308921bdd0d","provider":"apibara","operation":"vehicleByIdentifier","route":"/api/car/:identifier","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+# rex.bid.provider_request {"request_id":"add86436-3146-4c65-a171-b0988f907f08","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":1}
+# rex.bid.request {"request_id":"45bc4350-7c21-43f1-8e4d-86a51c7712a2","method":"POST","route":"/api/sync/vehicle/:identifier","status":200,"duration_ms":6,"provider_operation":null,"sync_operation":"manual_sync","auth_operation":null}
+# rex.bid.provider {"provider":"apibara","operation":"unknown","stage":"response","status":503,"safe_error_code":"UPSTREAM"}
+# rex.bid.provider_request {"request_id":"bf299670-6d82-4d81-b9c2-e6d30fe4d155","provider":"apibara","operation":"vehicleByIdentifier","route":"/api/car/:identifier","platform":"unknown","upstream_request":true,"outcome":"error","status":503,"safe_error_code":"UPSTREAM","duration_ms":1}
+# rex.bid.event {"event":"provider_direct_lookup_failed","safe_error_code":"UPSTREAM"}
+# rex.bid.request {"request_id":"5ccb9b7c-176b-4656-87e9-ffa3279bb7ac","method":"GET","route":"/api/car/:identifier","status":200,"duration_ms":3,"provider_operation":"/api/car/:identifier","sync_operation":null,"auth_operation":null}
+# rex.bid.provider {"provider":"apibara","operation":"unknown","stage":"response","status":503,"safe_error_code":"UPSTREAM"}
+# rex.bid.provider_request {"request_id":"ab48f32b-acee-4597-a86f-f2c6227c9958","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"error","status":503,"safe_error_code":"UPSTREAM","duration_ms":0}
+# rex.bid.event {"event":"provider_history_failed","safe_error_code":"UPSTREAM"}
+# rex.bid.request {"request_id":"82c683cb-e6b3-47db-bb7c-0fde7257808d","method":"GET","route":"/api/car/:identifier/history","status":200,"duration_ms":3,"provider_operation":"/api/car/:identifier/history","sync_operation":null,"auth_operation":null}
+# rex.bid.provider_request {"request_id":"90719d11-f4a1-4e80-b889-ff09115c5bf9","provider":"apibara","operation":"vehicleByIdentifier","route":"/api/car/:identifier","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+# rex.bid.provider_request {"request_id":"b7975d32-8e77-4a02-96ed-f604bfe17fae","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+# rex.bid.provider_request {"request_id":"cf1be4e9-ec52-41cf-ad2e-b0ccbd65abb4","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":1}
+# rex.bid.provider_request {"request_id":"8f28a16e-ab88-432f-a7c8-f09c8b21ab52","provider":"apibara","operation":"vehicleByIdentifier","route":"/api/car/:identifier","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":1}
+# rex.bid.provider_request {"request_id":"80aa8b93-cb4c-4975-91e5-c7a46d0d3307","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+# rex.bid.provider_request {"request_id":"20c1e375-3eb0-4ace-8905-e7985e265688","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+# rex.bid.provider_request {"request_id":"f99d12d7-67c0-4a9f-840b-a017d2aedd15","provider":"apibara","operation":"vehicleByIdentifier","route":"/api/car/:identifier","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+# rex.bid.provider_request {"request_id":"2264fd51-9747-4f2a-8a9f-93f5af8d834a","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+# rex.bid.provider_request {"request_id":"fd0ebba7-a71e-48bc-8ee6-7eadaed07a27","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+# rex.bid.provider_request {"request_id":"dc852e33-60af-484d-9329-1ebe1c663c77","provider":"apibara","operation":"vehicleByIdentifier","route":"/api/car/:identifier","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":1}
+# rex.bid.provider_request {"request_id":"2c138014-fbea-4301-92dc-11b3d748a31f","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":1}
+# rex.bid.provider {"provider":"apibara","operation":"unknown","stage":"response","status":503,"safe_error_code":"UPSTREAM"}
+# rex.bid.provider_request {"request_id":"30354cc0-bf12-4e2e-acb1-6410b675120e","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"error","status":503,"safe_error_code":"UPSTREAM","duration_ms":0}
+# rex.bid.provider {"provider":"apibara","operation":"unknown","stage":"response","status":429,"safe_error_code":"RATE_LIMITED"}
+# rex.bid.provider_request {"request_id":"80300303-450d-4591-ab14-41bf280cacd2","provider":"apibara","operation":"searchVehicles","route":"/api/cars","platform":"unknown","upstream_request":true,"outcome":"error","status":429,"safe_error_code":"RATE_LIMITED","duration_ms":1}
+# rex.bid.provider {"provider":"apibara","operation":"unknown","stage":"fetch","error_type":"unknown"}
+# rex.bid.provider_request {"request_id":"bbfa3fad-f4f2-4dd6-9c51-d3546c881912","provider":"apibara","operation":"vehicleByIdentifier","route":"/api/car/:identifier","platform":"unknown","upstream_request":true,"outcome":"error","status":null,"safe_error_code":"UPSTREAM","duration_ms":1}
+# rex.bid.provider_request {"request_id":"9db342db-1ff7-4c47-8fc1-eaeb18491c88","provider":"apibara","operation":"vehicleByIdentifier","route":"/api/car/:identifier","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+# rex.bid.request {"request_id":"3edee8b3-2669-4897-a079-f4b4dcda69f4","method":"GET","route":"/api/car/:identifier","status":200,"duration_ms":3,"provider_operation":"/api/car/:identifier","sync_operation":null,"auth_operation":null}
+# rex.bid.request {"request_id":"3e79b02e-46c0-430f-ad83-39bce04b0711","method":"GET","route":"/api/car/:identifier","status":200,"duration_ms":0,"provider_operation":"/api/car/:identifier","sync_operation":null,"auth_operation":null}
+# rex.bid.provider_request {"request_id":"18a6827e-efda-49bc-ae6a-d2ae9fd653c8","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+# rex.bid.request {"request_id":"693097c7-9d2f-440a-9a8a-1714b18d8558","method":"GET","route":"/api/car/:identifier/history","status":200,"duration_ms":2,"provider_operation":"/api/car/:identifier/history","sync_operation":null,"auth_operation":null}
+# rex.bid.request {"request_id":"cbeaa888-23b9-4ae6-80c3-2ebdb7beaa11","method":"GET","route":"/api/car/:identifier/history","status":200,"duration_ms":1,"provider_operation":"/api/car/:identifier/history","sync_operation":null,"auth_operation":null}
+# rex.bid.provider_request {"request_id":"0dacc4f9-4ead-4010-bc86-62053ea5f614","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+# rex.bid.request {"request_id":"27c21413-d7de-4bb2-81a2-a84496d41160","method":"GET","route":"/api/car/:identifier/history","status":200,"duration_ms":1,"provider_operation":"/api/car/:identifier/history","sync_operation":null,"auth_operation":null}
+# rex.bid.request {"request_id":"1804073b-bc70-447b-b63f-2ba84ce398f4","method":"GET","route":"/api/car/:identifier/history","status":200,"duration_ms":1,"provider_operation":"/api/car/:identifier/history","sync_operation":null,"auth_operation":null}
+# rex.bid.provider_request {"request_id":"80a0c80a-2ace-4315-8d76-88cde8438759","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+# rex.bid.request {"request_id":"75697829-5fde-46df-b747-57444632179e","method":"GET","route":"/api/car/:identifier/history","status":200,"duration_ms":2,"provider_operation":"/api/car/:identifier/history","sync_operation":null,"auth_operation":null}
+# rex.bid.request {"request_id":"4e901141-1170-4b78-a17b-7aae0995474c","method":"GET","route":"/api/car/:identifier/history","status":400,"duration_ms":1,"provider_operation":"/api/car/:identifier/history","sync_operation":null,"auth_operation":null,"safe_error_code":"request_rejected"}
+# rex.bid.provider_request {"request_id":"7a8382b1-10d0-4050-af8f-f8f38064ed78","provider":"apibara","operation":"vehicleHistory","route":"/api/car/:identifier/history","platform":"unknown","upstream_request":true,"outcome":"success","status":200,"safe_error_code":null,"duration_ms":0}
+# rex.bid.request {"request_id":"6445fdc6-7f14-48a9-9373-7a61fbabe600","method":"GET","route":"/api/car/:identifier/history","status":200,"duration_ms":1,"provider_operation":"/api/car/:identifier/history","sync_operation":null,"auth_operation":null}
+# Subtest: canonical normalization keeps prices separate, preserves raw JSON, and accepts missing price
+ok 14 - canonical normalization keeps prices separate, preserves raw JSON, and accepts missing price
+  ---
+  duration_ms: 90.7929
+  type: 'test'
+  ...
+# Subtest: requestApibara builds only approved endpoints, uses only the named secret, and forwards cursor opaquely
+ok 15 - requestApibara builds only approved endpoints, uses only the named secret, and forwards cursor opaquely
+  ---
+  duration_ms: 11.3709
+  type: 'test'
+  ...
+# Subtest: Apibara read helpers make no D1 access and keep endpoint persistence outside the read layer
+ok 16 - Apibara read helpers make no D1 access and keep endpoint persistence outside the read layer
+  ---
+  duration_ms: 5.8151
+  type: 'test'
+  ...
+# Subtest: filter metadata proxy uses the shared client, keeps documented response data and caches per make
+ok 17 - filter metadata proxy uses the shared client, keeps documented response data and caches per make
+  ---
+  duration_ms: 8.0694
+  type: 'test'
+  ...
+# Subtest: production GET routes use D1 SELECT only and preserve vehicle/history responses
+ok 18 - production GET routes use D1 SELECT only and preserve vehicle/history responses
+  ---
+  duration_ms: 25.5171
+  type: 'test'
+  ...
+# Subtest: manual synchronization trigger is authenticated, explicit, and persists only on authorized POST
+ok 19 - manual synchronization trigger is authenticated, explicit, and persists only on authorized POST
+  ---
+  duration_ms: 11.5012
+  type: 'test'
+  ...
+# Subtest: GET local fallback remains readable without schema creation or writes
+ok 20 - GET local fallback remains readable without schema creation or writes
+  ---
+  duration_ms: 8.9045
+  type: 'test'
+  ...
+# Subtest: syncVehicle upserts vehicles/history idempotently and snapshots only on fingerprint changes
+ok 21 - syncVehicle upserts vehicles/history idempotently and snapshots only on fingerprint changes
+  ---
+  duration_ms: 12.2759
+  type: 'test'
+  ...
+# Subtest: incomplete history pagination does not persist or report a completed sync
+ok 22 - incomplete history pagination does not persist or report a completed sync
+  ---
+  duration_ms: 6.3264
+  type: 'test'
+  ...
+# Subtest: requestApibara maps upstream errors without exposing response bodies and does not retry
+ok 23 - requestApibara maps upstream errors without exposing response bodies and does not retry
+  ---
+  duration_ms: 4.0314
+  type: 'test'
+  ...
+# Subtest: requestApibara logs safe fetch diagnostics and redacts secrets and upstream bodies
+ok 24 - requestApibara logs safe fetch diagnostics and redacts secrets and upstream bodies
+  ---
+  duration_ms: 3.6631
+  type: 'test'
+  ...
+# Subtest: requestApibara identifies URL-stage failures without logging credentials
+ok 25 - requestApibara identifies URL-stage failures without logging credentials
+  ---
+  duration_ms: 2.8582
+  type: 'test'
+  ...
+# Subtest: requestApibara timeout aborts the one request without retry
+ok 26 - requestApibara timeout aborts the one request without retry
+  ---
+  duration_ms: 3.7613
+  type: 'test'
+  ...
+# Subtest: fallback keys distinguish separate auctions for the same VIN and LOT
+ok 27 - fallback keys distinguish separate auctions for the same VIN and LOT
+  ---
+  duration_ms: 2.5225
+  type: 'test'
+  ...
+# Subtest: explicit event_key values remain distinct and stable across mutable fields
+ok 28 - explicit event_key values remain distinct and stable across mutable fields
+  ---
+  duration_ms: 2.6751
+  type: 'test'
+  ...
+# Subtest: auction history migration is additive and does not infer final price or delete legacy data
+ok 29 - auction history migration is additive and does not infer final price or delete legacy data
+  ---
+  duration_ms: 2.0125
+  type: 'test'
+  ...
+# Subtest: same event ID updates one D1 record when status and price change
+ok 30 - same event ID updates one D1 record when status and price change
+  ---
+  duration_ms: 4.9133
+  type: 'test'
+  ...
+# Subtest: public detail/history edge cache reduces repeat provider requests without caching across history cursors
+ok 31 - public detail/history edge cache reduces repeat provider requests without caching across history cursors
+  ---
+  duration_ms: 11.0699
+  type: 'test'
+  ...
+# Subtest: partial provider payload does not blank persisted good fields or erase raw source data
+ok 32 - partial provider payload does not blank persisted good fields or erase raw source data
+  ---
+  duration_ms: 4.1149
+  type: 'test'
+  ...
+# Subtest: Sold on Approval clears a previously persisted final price without assigning the event seller
+ok 33 - Sold on Approval clears a previously persisted final price without assigning the event seller
+  ---
+  duration_ms: 2.7245
+  type: 'test'
+  ...
+# Subtest: legacy D1 rows remain readable and generic price is not backfilled as final price
+ok 34 - legacy D1 rows remain readable and generic price is not backfilled as final price
+  ---
+  duration_ms: 3.3369
+  type: 'test'
+  ...
+# Subtest: history endpoint forwards an opaque cursor and returns canonical history with no-store
+ok 35 - history endpoint forwards an opaque cursor and returns canonical history with no-store
+  ---
+  duration_ms: 4.2743
+  type: 'test'
+  ...
+# Subtest: history endpoint validates per_page and ends pagination when cursor is null
+ok 36 - history endpoint validates per_page and ends pagination when cursor is null
+  ---
+  duration_ms: 4.5318
+  type: 'test'
+  ...
+# Subtest: vehicle history opens with one page and exposes the exact opaque next cursor
+ok 37 - vehicle history opens with one page and exposes the exact opaque next cursor
+  ---
+  duration_ms: 2.3192
+  type: 'test'
+  ...
+# Subtest: detail initialization loads one history page and shows the manual continuation control
+ok 38 - detail initialization loads one history page and shows the manual continuation control
+  ---
+  duration_ms: 2.6442
+  type: 'test'
+  ...
+# Subtest: manual older-history action requests one opaque cursor page, deduplicates, and preserves records on error
+ok 39 - manual older-history action requests one opaque cursor page, deduplicates, and preserves records on error
+  ---
+  duration_ms: 18.52
+  type: 'test'
+  ...
+# Subtest: vehicle detail does not duplicate the Worker exact-search fallback after 404 or transient API failure
+ok 40 - vehicle detail does not duplicate the Worker exact-search fallback after 404 or transient API failure
+  ---
+  duration_ms: 2.4995
+  type: 'test'
+  ...
+# Subtest: missing or failing media module degrades to an empty gallery without blocking vehicle data
+ok 41 - missing or failing media module degrades to an empty gallery without blocking vehicle data
+  ---
+  duration_ms: 2.5362
+  type: 'test'
+  ...
+# Subtest: primary vehicle detail renders before calculator/history work and never exits buildPage silently
+ok 42 - primary vehicle detail renders before calculator/history work and never exits buildPage silently
+  ---
+  duration_ms: 23.7844
+  type: 'test'
+  ...
+# Subtest: auction Buy Now price action outside the calculator panel changes V4 price basis
+ok 43 - auction Buy Now price action outside the calculator panel changes V4 price basis
+  ---
+  duration_ms: 2.2884
+  type: 'test'
+  ...
+# Subtest: auction refresh cadence is phase-aware and stops polling when no real start is known
+ok 44 - auction refresh cadence is phase-aware and stops polling when no real start is known
+  ---
+  duration_ms: 2.0719
+  type: 'test'
+  ...
+# Subtest: frontend history code consumes canonical pages, caps requests, guards cursor loops, and preserves date-only values
+ok 45 - frontend history code consumes canonical pages, caps requests, guards cursor loops, and preserves date-only values
+  ---
+  duration_ms: 7.395
+  type: 'test'
+  ...
+# Subtest: index list pagination appends by cursor, resets filters, deduplicates by platform/LOT, and preserves links on failure
+ok 46 - index list pagination appends by cursor, resets filters, deduplicates by platform/LOT, and preserves links on failure
+  ---
+  duration_ms: 22.6681
+  type: 'test'
+  ...
+# Subtest: index exposes only Worker-supported advanced filters and restores shareable filter URL state
+ok 47 - index exposes only Worker-supported advanced filters and restores shareable filter URL state
+  ---
+  duration_ms: 12.3788
+  type: 'test'
+  ...
+# Subtest: market category shortcuts use only supported list filters and always start at page one
+ok 48 - market category shortcuts use only supported list filters and always start at page one
+  ---
+  duration_ms: 9.6109
+  type: 'test'
+  ...
+# Subtest: filter metadata option text and values are escaped before select markup
+ok 49 - filter metadata option text and values are escaped before select markup
+  ---
+  duration_ms: 2.2938
+  type: 'test'
+  ...
+# Subtest: listing and detail price labels preserve price meaning and finished overrides a future auction date
+ok 50 - listing and detail price labels preserve price meaning and finished overrides a future auction date
+  ---
+  duration_ms: 26.3687
+  type: 'test'
+  ...
+# Subtest: unassigned upcoming detail shows an explicit unknown date without rendering a stale helper timestamp
+ok 51 - unassigned upcoming detail shows an explicit unknown date without rendering a stale helper timestamp
+  ---
+  duration_ms: 3.1824
+  type: 'test'
+  ...
+# Subtest: Car 2.0 keeps vehicle actions and media controls explicit without implying unavailable features work
+ok 52 - Car 2.0 keeps vehicle actions and media controls explicit without implying unavailable features work
+  ---
+  duration_ms: 2.3284
+  type: 'test'
+  ...
+# Subtest: title document guidance uses explicit registration and export flags with conservative term mapping
+ok 53 - title document guidance uses explicit registration and export flags with conservative term mapping
+  ---
+  duration_ms: 2.1794
+  type: 'test'
+  ...
+# Subtest: car detail keeps exact VIN and LOT selection and never falls back to the first list item
+ok 54 - car detail keeps exact VIN and LOT selection and never falls back to the first list item
+  ---
+  duration_ms: 1.7317
+  type: 'test'
+  ...
+# Subtest: detail price facts stay distinct and updateable, and missing final price labels history bid correctly
+ok 55 - detail price facts stay distinct and updateable, and missing final price labels history bid correctly
+  ---
+  duration_ms: 3.4825
+  type: 'test'
+  ...
+# Subtest: D1 snapshots display observed dates and prices separately from confirmed auction events
+ok 56 - D1 snapshots display observed dates and prices separately from confirmed auction events
+  ---
+  duration_ms: 2.6753
+  type: 'test'
+  ...
+# Subtest: live /api/filters shape yields searchable make/model and metadata ranges with manual fallback
+ok 57 - live /api/filters shape yields searchable make/model and metadata ranges with manual fallback
+  ---
+  duration_ms: 10.4007
+  type: 'test'
+  ...
+# Subtest: Home Timed Auction queries and renders timed listings from both supported platforms
+ok 58 - Home Timed Auction queries and renders timed listings from both supported platforms
+  ---
+  duration_ms: 4.8695
+  type: 'test'
+  ...
+# Subtest: history maps event price only when real event status confirms Sold; preserves unsold and approval prices separately
+ok 59 - history maps event price only when real event status confirms Sold; preserves unsold and approval prices separately
+  ---
+  duration_ms: 74.3527
+  type: 'test'
+  ...
+# Subtest: seller extraction retains full sourced names and drops masked placeholders
+ok 60 - seller extraction retains full sourced names and drops masked placeholders
+  ---
+  duration_ms: 9.6651
+  type: 'test'
+  ...
+# Subtest: history table shows untyped source price honestly and never renders masked seller as a name
+ok 61 - history table shows untyped source price honestly and never renders masked seller as a name
+  ---
+  duration_ms: 3.6786
+  type: 'test'
+  ...
+# Subtest: Timed IAAI presentation uses timed_end_at and secondary current bid without inventing an offer
+ok 62 - Timed IAAI presentation uses timed_end_at and secondary current bid without inventing an offer
+  ---
+  duration_ms: 7.4218
+  type: 'test'
+  ...
+# Subtest: past auction time with only OPEN status is unconfirmed and does not trigger live polling
+ok 63 - past auction time with only OPEN status is unconfirmed and does not trigger live polling
+  ---
+  duration_ms: 2.1354
+  type: 'test'
+  ...
+# Subtest: car shipping section reads branch state only from location fields, not the auction state
+ok 64 - car shipping section reads branch state only from location fields, not the auction state
+  ---
+  duration_ms: 1.9234
+  type: 'test'
+  ...
+# Subtest: Sold on Approval is pending in list/detail and never becomes confirmed sale pricing
+ok 65 - Sold on Approval is pending in list/detail and never becomes confirmed sale pricing
+  ---
+  duration_ms: 6.0791
+  type: 'test'
+  ...
+# Subtest: detail auction UI refresh updates status and prices without a missing DOM-label reference
+ok 66 - detail auction UI refresh updates status and prices without a missing DOM-label reference
+  ---
+  duration_ms: 3.1102
+  type: 'test'
+  ...
+# Subtest: all public product pages use the shared REXBID brand and mobile navigation
+ok 67 - all public product pages use the shared REXBID brand and mobile navigation
+  ---
+  duration_ms: 15.1504
+  type: 'test'
+  ...
+# Subtest: authentication navigation follows the approved REXBID navy and red palette
+ok 68 - authentication navigation follows the approved REXBID navy and red palette
+  ---
+  duration_ms: 2.3599
+  type: 'test'
+  ...
+# Subtest: legacy root HTML copies and project metadata use REXBID without changing favorite migration keys
+ok 69 - legacy root HTML copies and project metadata use REXBID without changing favorite migration keys
+  ---
+  duration_ms: 20.2407
+  type: 'test'
+  ...
+# Subtest: IAAI/Copart seller extraction prefers the full source name, maps INS, and ignores masked placeholders
+ok 70 - IAAI/Copart seller extraction prefers the full source name, maps INS, and ignores masked placeholders
+  ---
+  duration_ms: 5.26
+  type: 'test'
+  ...
+# Subtest: seller classification is not presented as a seller name when the source only provides a type
+ok 71 - seller classification is not presented as a seller name when the source only provides a type
+  ---
+  duration_ms: 2.2746
+  type: 'test'
+  ...
+# Subtest: title hints combine exact document names with source registration/export flags
+ok 72 - title hints combine exact document names with source registration/export flags
+  ---
+  duration_ms: 2.0948
+  type: 'test'
+  ...
+# Subtest: top vehicle highlights distinguish run state, keys and airbags without inventing missing values
+ok 73 - top vehicle highlights distinguish run state, keys and airbags without inventing missing values
+  ---
+  duration_ms: 2.5919
+  type: 'test'
+  ...
+# Subtest: Sold on Approval remains approval-pending, distinct from Not Sold, and never becomes a final sale
+ok 74 - Sold on Approval remains approval-pending, distinct from Not Sold, and never becomes a final sale
+  ---
+  duration_ms: 6.2259
+  type: 'test'
+  ...
+# Subtest: Buy Now market aisle shows the confirmed Buy Now price and keeps current bid separate
+ok 75 - Buy Now market aisle shows the confirmed Buy Now price and keeps current bid separate
+  ---
+  duration_ms: 27.9927
+  type: 'test'
+  ...
+# Subtest: home catalog uses four bounded sections backed only by supported Worker filters
+ok 76 - home catalog uses four bounded sections backed only by supported Worker filters
+  ---
+  duration_ms: 2.0832
+  type: 'test'
+  ...
+# Subtest: upcoming aisle only shows source-confirmed future date and never substitutes historical prices
+ok 77 - upcoming aisle only shows source-confirmed future date and never substitutes historical prices
+  ---
+  duration_ms: 2.6352
+  type: 'test'
+  ...
+# Subtest: home active aisles exclude expired listings and upcoming requires a future confirmed date
+ok 78 - home active aisles exclude expired listings and upcoming requires a future confirmed date
+  ---
+  duration_ms: 2.4282
+  type: 'test'
+  ...
+# Subtest: home puts search and aligned primary filters before the four discovery sections, with separated REXBID lockup
+ok 79 - home puts search and aligned primary filters before the four discovery sections, with separated REXBID lockup
+  ---
+  duration_ms: 0.7536
+  type: 'test'
+  ...
+# Subtest: the budget page loads an exact copart offer and calculates from the entered price
+ok 80 - the budget page loads an exact copart offer and calculates from the entered price
+  ---
+  duration_ms: 372.1545
+  type: 'test'
+  ...
+# Subtest: the budget page loads an exact iaai offer and calculates from the entered price
+ok 81 - the budget page loads an exact iaai offer and calculates from the entered price
+  ---
+  duration_ms: 152.2202
+  type: 'test'
+  ...
+# Subtest: multiple lots matching one VIN require a selection, and inconsistent detail is rejected
+ok 82 - multiple lots matching one VIN require a selection, and inconsistent detail is rejected
+  ---
+  duration_ms: 23.937
+  type: 'test'
+  ...
+# Subtest: incorrect identifiers and unrelated search results do not open a calculator
+ok 83 - incorrect identifiers and unrelated search results do not open a calculator
+  ---
+  duration_ms: 23.3063
+  type: 'test'
+  ...
+# Subtest: a missing calculator module gives the customer a readable recovery action
+ok 84 - a missing calculator module gives the customer a readable recovery action
+  ---
+  duration_ms: 22.2291
+  type: 'test'
+  ...
+# Subtest: a retained exact lot is reachable without advertising a bid after leaving the active list
+ok 85 - a retained exact lot is reachable without advertising a bid after leaving the active list
+  ---
+  duration_ms: 21.3209
+  type: 'test'
+  ...
+# Subtest: ending between search and detail suppresses the suggested bid
+ok 86 - ending between search and detail suppresses the suggested bid
+  ---
+  duration_ms: 30.2728
+  type: 'test'
+  ...
+# Subtest: a listed open vehicle keeps its budget simulation with a dated notice when the saved details are stale
+ok 87 - a listed open vehicle keeps its budget simulation with a dated notice when the saved details are stale
+  ---
+  duration_ms: 99.6127
+  type: 'test'
+  ...
+# Subtest: the retained lookup rejects mismatched identity and missing platform without guessing
+ok 88 - the retained lookup rejects mismatched identity and missing platform without guessing
+  ---
+  duration_ms: 43.1493
+  type: 'test'
+  ...
+# Subtest: customer budget follows the selected offer separately from the estimated total and disappears in forward mode
+ok 89 - customer budget follows the selected offer separately from the estimated total and disappears in forward mode
+  ---
+  duration_ms: 182.3655
+  type: 'test'
+  ...
+# Subtest: changing the budget after choosing a car recalculates the limit without another lookup
+ok 90 - changing the budget after choosing a car recalculates the limit without another lookup
+  ---
+  duration_ms: 120.6781
+  type: 'test'
+  ...
+# Subtest: catalog and homepage reject legacy source0 while preserving positive25 and secondary bids
+ok 91 - catalog and homepage reject legacy source0 while preserving positive25 and secondary bids
+  ---
+  duration_ms: 6.5503
+  type: 'test'
+  ...
+# Subtest: vehicle source bid selector returns unavailable0 and never steals final price or positive alternate
+ok 92 - vehicle source bid selector returns unavailable0 and never steals final price or positive alternate
+  ---
+  duration_ms: 3.7215
+  type: 'test'
+  ...
+# Subtest: comparison and favorites never format source0 as free car; mileage0 and positive prices stay valid
+ok 93 - comparison and favorites never format source0 as free car; mileage0 and positive prices stay valid
+  ---
+  duration_ms: 25.5526
+  type: 'test'
+  ...
+# Subtest: calculator source0 disables current preset but user custom0 survives source refresh and positive25 restores current
+ok 94 - calculator source0 disables current preset but user custom0 survives source refresh and positive25 restores current
+  ---
+  duration_ms: 270.912
+  type: 'test'
+  ...
+1..94
+# tests 94
+# suites 0
+# pass 94
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3458.6533
