@@ -1,0 +1,44 @@
+{
+  "at": "2026-11-24T20:47:18.455Z",
+  "controls": {
+    "source": [
+      12,
+      9,
+      153,
+      39
+    ],
+    "close": [
+      334,
+      6,
+      44,
+      44
+    ],
+    "exterior": [
+      53,
+      64,
+      144,
+      35
+    ],
+    "interior": [
+      197,
+      64,
+      140,
+      35
+    ]
+  },
+  "interiorClickable": true,
+  "paths": [
+    "https://vis.iaai.com/Home/ThreeSixtyView",
+    "https://vis.iaai.com/Home/InteriorView"
+  ],
+  "errors": [],
+  "images": [
+    {
+      "tag": "CANVAS",
+      "natural": null,
+      "w": 351,
+      "h": 788
+    }
+  ],
+  "receivedFrames": 12
+}

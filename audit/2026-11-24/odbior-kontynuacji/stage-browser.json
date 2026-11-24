@@ -1,0 +1,71 @@
+{
+  "at": "2026-11-24T20:46:55.217Z",
+  "rows": [
+    {
+      "width": 360,
+      "height": 800,
+      "code": 200,
+      "noindex": "noindex, nofollow, noarchive",
+      "vin": true,
+      "lot": true,
+      "date": true,
+      "fits": true,
+      "stage": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "code": 200,
+      "noindex": "noindex, nofollow, noarchive",
+      "vin": true,
+      "lot": true,
+      "date": true,
+      "fits": true,
+      "stage": true
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "code": 200,
+      "noindex": "noindex, nofollow, noarchive",
+      "vin": true,
+      "lot": true,
+      "date": true,
+      "fits": true,
+      "stage": true
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "code": 200,
+      "noindex": "noindex, nofollow, noarchive",
+      "vin": true,
+      "lot": true,
+      "date": true,
+      "fits": true,
+      "stage": true
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "code": 200,
+      "noindex": "noindex, nofollow, noarchive",
+      "vin": true,
+      "lot": true,
+      "date": true,
+      "fits": true,
+      "stage": true
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "code": 200,
+      "noindex": "noindex, nofollow, noarchive",
+      "vin": true,
+      "lot": true,
+      "date": true,
+      "fits": true,
+      "stage": true
+    }
+  ]
+}

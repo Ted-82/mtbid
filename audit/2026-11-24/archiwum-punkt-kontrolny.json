@@ -1,0 +1,14 @@
+{
+  "at": "2026-11-24T20:18:15.521Z",
+  "generation": 18278,
+  "offset": 105228496,
+  "waiting": 0,
+  "rootEntries": 84,
+  "segmentCount": 53,
+  "knownAllocatedBytes": 40614418768,
+  "newestSegmentSequence": 105223303,
+  "latestRootSequence": 105228496,
+  "latestRootTime": "2026-11-18T20:27:35.000Z",
+  "isLargestKnownSequence": true,
+  "rootReads": 1
+}

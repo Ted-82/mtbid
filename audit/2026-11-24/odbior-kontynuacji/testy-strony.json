@@ -1,0 +1,6 @@
+{
+  "pass": 2710,
+  "fail": 0,
+  "command": "node --test --test-concurrency=4, komplet plików tests/*.test.{cjs,js,mjs}",
+  "measuredAt": "2026-11-24T21:55:53.520Z"
+}

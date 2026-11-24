@@ -169,6 +169,11 @@ test('only the verified IAAI endpoint embeds and a lot number in a photo URL is 
   const viewer='https://vis.iaai.com/Home/ThreeSixtyView?itemId=example';
   assert.ok(canEmbed360(viewer));
   assert.ok(isViewer360Url(viewer));
+  const interior='https://vis.iaai.com/Home/InteriorView?itemId=example';
+  assert.ok(canEmbed360(interior));
+  assert.ok(isViewer360Url(interior));
+  assert.deepEqual(normalizeMedia({media:{items:[interior]}}),[]);
+  assert.equal(canEmbed360('https://vis.iaai.com/Home/InteriorViewer'),false);
   assert.equal(canEmbed360('https://vis.iaai.com.other.invalid/Home/ThreeSixtyView'),false);
   assert.equal(canEmbed360('https://vis.iaai.com/Home/ThreeSixtyViewCopy'),false);
   assert.equal(canEmbed360('https://vis.iaai.com:444/Home/ThreeSixtyView'),false);
@@ -182,8 +187,9 @@ test('embedded 360 has a direct source link and an isolated frame', async()=>{
   const children=[];
   const content={innerHTML:'',appendChild(node){children.push(node);}};
   const modal={classList:{add(){}},setAttribute(){}};
+  const sourceLink={};
   const context={window:{RexBidMedia:{canEmbed360}},document:{
-    getElementById(id){return id==='viewerContent'?content:modal;},
+    getElementById(id){return id==='viewerContent'?content:id==='viewerSourceLink'?sourceLink:modal;},
     createElement(tag){return {tag,style:{},setAttribute(key,value){this[key]=value;}};},
     body:{classList:{add(){}}}
   }};
@@ -192,11 +198,11 @@ test('embedded 360 has a direct source link and an isolated frame', async()=>{
   await context.open(viewer,'360');
   assert.equal(children[0].src,viewer);
   assert.equal(children[0].sandbox,'allow-scripts allow-same-origin');
-  assert.equal(children[1].href,viewer);
-  assert.equal(children[1].target,'_blank');
-  assert.equal(children[1].rel,'noopener noreferrer');
+  assert.equal(sourceLink.href,viewer);
+  assert.equal(sourceLink.hidden,false);
+  assert.match(html,/<div class="viewer-toolbar">\s*<a id="viewerSourceLink"[^>]+target="_blank" rel="noopener noreferrer"/);
   await context.open('https://other.invalid/ThreeSixtyView','360');
-  assert.equal(children.length,2);
+  assert.equal(children.length,1);
 });
 
 test('car gallery hides dead lightbox and navigation controls when media is absent', () => {

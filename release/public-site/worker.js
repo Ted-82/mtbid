@@ -1728,7 +1728,7 @@ async function applySecurityHeaders(response, request, { requestId = null, env =
     headers.delete("Content-Length");
     headers.delete("Content-Encoding");
     headers.delete("ETag");
-    const vehicleViewer = isCarPagePath(url.pathname) ? "; frame-src 'self' https://vis.iaai.com/Home/ThreeSixtyView" : "";
+    const vehicleViewer = isCarPagePath(url.pathname) ? "; frame-src 'self' https://vis.iaai.com/Home/ThreeSixtyView https://vis.iaai.com/Home/InteriorView" : "";
     headers.set("Content-Security-Policy", `default-src 'self'; script-src 'self' 'nonce-${nonce}'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; media-src 'self' https: blob:; font-src 'self' https: data:; connect-src 'self' wss://rexbid.pl; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'${vehicleViewer}`);
   } else {
     headers.set("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");

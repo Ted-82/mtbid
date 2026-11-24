@@ -1,0 +1,155 @@
+{
+  "at": "2026-11-24T20:34:13.060Z",
+  "rows": [
+    {
+      "platform": "iaai",
+      "lot": "46162264",
+      "vin": "3N1AB7AP2HY235605",
+      "site": {
+        "isTimed": true,
+        "scheduledAt": null,
+        "endsAt": "2026-11-24T23:55:00.000Z"
+      },
+      "source": {
+        "isTimed": true,
+        "scheduledAt": "2026-11-24T23:55:00+00:00",
+        "endsAt": "2026-11-24T23:55:00+00:00"
+      }
+    },
+    {
+      "platform": "iaai",
+      "lot": "46196877",
+      "vin": "19UUB1F30KA010092",
+      "site": {
+        "isTimed": true,
+        "scheduledAt": null,
+        "endsAt": "2026-11-24T23:56:00.000Z"
+      },
+      "source": {
+        "isTimed": true,
+        "scheduledAt": "2026-11-24T23:56:00+00:00",
+        "endsAt": "2026-11-24T23:56:00+00:00"
+      }
+    },
+    {
+      "platform": "iaai",
+      "lot": "46342287",
+      "vin": "JM1BPAML6T1868419",
+      "site": {
+        "isTimed": true,
+        "scheduledAt": null,
+        "endsAt": "2026-11-24T23:57:00.000Z"
+      },
+      "source": {
+        "isTimed": true,
+        "scheduledAt": "2026-11-24T23:57:00+00:00",
+        "endsAt": "2026-11-24T23:57:00+00:00"
+      }
+    },
+    {
+      "platform": "iaai",
+      "lot": "46344182",
+      "vin": "JTHBW1GG8E2057668",
+      "site": {
+        "isTimed": true,
+        "scheduledAt": null,
+        "endsAt": "2026-11-24T23:58:00.000Z"
+      },
+      "source": {
+        "isTimed": true,
+        "scheduledAt": "2026-11-24T23:58:00+00:00",
+        "endsAt": "2026-11-24T23:58:00+00:00"
+      }
+    },
+    {
+      "platform": "iaai",
+      "lot": "46410658",
+      "vin": "WAUC4DF58JA064291",
+      "site": {
+        "isTimed": true,
+        "scheduledAt": null,
+        "endsAt": "2026-11-24T23:59:00.000Z"
+      },
+      "source": {
+        "isTimed": true,
+        "scheduledAt": "2026-11-24T23:59:00+00:00",
+        "endsAt": "2026-11-24T23:59:00+00:00"
+      }
+    },
+    {
+      "platform": "iaai",
+      "lot": "46428418",
+      "vin": "1FTRX18L9XNC00041",
+      "site": {
+        "isTimed": true,
+        "scheduledAt": null,
+        "endsAt": "2026-11-25T00:00:00.000Z"
+      },
+      "source": {
+        "isTimed": true,
+        "scheduledAt": "2026-11-25T00:00:00+00:00",
+        "endsAt": "2026-11-25T00:00:00+00:00"
+      }
+    },
+    {
+      "platform": "iaai",
+      "lot": "46429374",
+      "vin": "WBSDE934X2CF91148",
+      "site": {
+        "isTimed": true,
+        "scheduledAt": null,
+        "endsAt": "2026-11-25T00:01:00.000Z"
+      },
+      "source": {
+        "isTimed": true,
+        "scheduledAt": "2026-11-25T00:01:00+00:00",
+        "endsAt": "2026-11-25T00:01:00+00:00"
+      }
+    },
+    {
+      "platform": "iaai",
+      "lot": "46430897",
+      "vin": "5UXCR4C07P9P67354",
+      "site": {
+        "isTimed": true,
+        "scheduledAt": null,
+        "endsAt": "2026-11-25T00:02:00.000Z"
+      },
+      "source": {
+        "isTimed": true,
+        "scheduledAt": "2026-11-25T00:02:00+00:00",
+        "endsAt": "2026-11-25T00:02:00+00:00"
+      }
+    },
+    {
+      "platform": "iaai",
+      "lot": "45160029",
+      "vin": "1HGCR2F36EA152769",
+      "site": {
+        "isTimed": true,
+        "scheduledAt": null,
+        "endsAt": "2026-11-25T00:03:00.000Z"
+      },
+      "source": {
+        "isTimed": true,
+        "scheduledAt": "2026-11-25T00:03:00+00:00",
+        "endsAt": "2026-11-25T00:03:00+00:00"
+      }
+    },
+    {
+      "platform": "iaai",
+      "lot": "46451932",
+      "vin": "1GNKRGKD2FJ343734",
+      "site": {
+        "isTimed": true,
+        "scheduledAt": null,
+        "endsAt": "2026-11-25T00:03:00.000Z"
+      },
+      "source": {
+        "isTimed": true,
+        "scheduledAt": "2026-11-25T00:03:00+00:00",
+        "endsAt": "2026-11-25T00:03:00+00:00"
+      }
+    }
+  ]
+}

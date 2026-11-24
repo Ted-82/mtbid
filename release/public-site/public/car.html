@@ -972,6 +972,9 @@
     .viewer-inner {
       width:100vw;
       height:100vh;
+      height:100dvh;
+      display:grid;
+      grid-template-rows:auto minmax(0,1fr);
       max-width:none;
       max-height:none;
       background:#000;
@@ -981,41 +984,33 @@
       position:relative;
     }
 
+    .viewer-toolbar {
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:8px;
+      padding:calc(6px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 6px max(12px,env(safe-area-inset-left,0px));
+      background:#101820;
+    }
+
     #viewerContent {
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
+      position:relative;
+      min-height:0;
+      min-width:0;
       background:#000;
     }
 
-    .viewer-close {
-      position:absolute;
-      right:14px;
-      top:14px;
-      z-index:20;
-      width:42px;
-      height:42px;
-      border:1px solid rgba(255,255,255,.35);
-      border-radius:50%;
-      background:rgba(0,0,0,.72);
-      color:#fff;
-      font-size:24px;
-    }
-
-    .viewer-fullscreen {
-      position:absolute;
-      right:64px;
-      top:14px;
-      z-index:20;
-      width:42px;
-      height:42px;
+    .viewer-close, .viewer-fullscreen {
+      flex:none;
+      width:44px;
+      height:44px;
       border:1px solid rgba(255,255,255,.35);
       border-radius:50%;
       background:rgba(0,0,0,.72);
       color:#fff;
       font-size:18px;
     }
+    .viewer-close { font-size:24px; }
 
     .viewer-inner iframe,
     .viewer-inner video {
@@ -1053,10 +1048,7 @@
     }
 
     .viewer-source-link {
-      position:absolute;
-      top:14px;
-      left:14px;
-      z-index:20;
+      margin-inline-end:auto;
       padding:9px 11px;
       border-radius:7px;
       background:rgba(0,0,0,.82);
@@ -1637,8 +1629,11 @@ main{padding-top:22px}
 
 <div id="viewerModal" class="viewer-modal" role="dialog" aria-modal="true" aria-label="Materiał z aukcji" aria-hidden="true">
   <div class="viewer-inner" id="viewerInner">
-    <button id="viewerFullscreen" class="viewer-fullscreen" title="Pełny ekran">⛶</button>
-    <button id="viewerClose" class="viewer-close" title="Zamknij">×</button>
+    <div class="viewer-toolbar">
+      <a id="viewerSourceLink" class="viewer-source-link" target="_blank" rel="noopener noreferrer" hidden>Otwórz na IAAI ↗</a>
+      <button id="viewerFullscreen" class="viewer-fullscreen" type="button" aria-label="Pełny ekran" title="Pełny ekran">⛶</button>
+      <button id="viewerClose" class="viewer-close" type="button" aria-label="Zamknij" title="Zamknij">×</button>
+    </div>
     <div id="viewerContent"></div>
   </div>
 </div>
@@ -1657,7 +1652,7 @@ main{padding-top:22px}
 <script src="/rexbid-auth.js?v=21437df8759b"></script>
 <script src="/rexbid-media.js?v=4"></script>
 <script src="/rexbid-gallery-gestures.js?v=5a00310a18"></script>
-<script src="/rexbid-market.js?v=8d2803c26d54"></script>
+<script src="/rexbid-market.js?v=de032632212a"></script>
 <script src="/rexbid-powertrain.js?v=3baadbf40a"></script>
 <link rel="stylesheet" href="/rexbid-compare.css?v=20261025">
 <script src="/rexbid-compare.js?v=37d22f982c37" defer></script>
@@ -2826,6 +2821,7 @@ main{padding-top:22px}
         ? "Źródło nie przekazało aktualnej oferty. W kalkulatorze możesz wpisać własną cenę zakupu."
         : "Aktualna oferta może się zmienić podczas licytacji. Opłaty i transport obliczysz poniżej.";
 
+    const bidObservation = globalThis.RexBidMarket?.priceObservationLabel?.(car, "current_bid", currentBidPrice) || "";
     const priceNote = auctionPhase() !== "ended" && (!isEmpty(currentBidPrice) || !isEmpty(buyNowPrice))
       ? [globalThis.RexBidMarket?.priceObservationLabel?.(car),priceMessage].filter(Boolean).join(" ") : priceMessage;
     const forecastAnchor = document.getElementById("page");
@@ -2936,7 +2932,7 @@ main{padding-top:22px}
             <div class="info-card-head"><h3 id="auctionPanelHeading">Cena i termin aukcji</h3></div>
             <div class="info-card-body">
               <div class="primary-auction">
-                <div class="auction-main"><div class="auction-prices" aria-label="Ceny aukcji"><div class="auction-price-option"><small id="bidLabel">${esc(auctionPhase() === "ended" ? auctionPrice.label : storedSnapshot ? "Ostatnia zapisana oferta" : "Aktualna oferta")}</small><strong class="auction-price${isEmpty(auctionPhase() === "ended" ? auctionPrice.value : currentBidPrice) ? " auction-price-missing" : ""}" id="currentBidPrice">${isEmpty(auctionPhase() === "ended" ? auctionPrice.value : currentBidPrice) ? "Brak danych o ofercie" : money(auctionPhase() === "ended" ? auctionPrice.value : currentBidPrice)}</strong><button type="button" class="auction-calc-price" data-calc-price-kind="current" aria-label="Policz koszt pod dom dla zapisanej oferty"${Number(currentBidPrice) > 0 ? "" : " disabled hidden"}>Policz koszt pod dom</button></div>${!isEmpty(buyNowPrice) ? `<div class="auction-price-option buy-now-option"><small id="buyNowLabel">${storedSnapshot ? "Kup teraz · zapis danych" : "Kup teraz"}</small><strong class="auction-price" id="buyNowPrice">${money(buyNowPrice)}</strong><button type="button" class="auction-calc-price" data-calc-price-kind="buy-now" aria-label="Policz koszt pod dom dla ceny Kup teraz">Policz koszt pod dom</button></div>` : ""}</div><a class="auction-calc-price auction-custom-estimate" href="#importCalculator" data-calc-price-kind="custom"${Number(currentBidPrice) > 0 || Number(buyNowPrice) > 0 ? " hidden" : ""}>Wpisz budżet i policz koszt pod dom</a><p class="auction-price-note" id="auctionPriceNote">${esc(priceNote)}</p><div class="auction-state ${auctionStatusClass()}" id="auctionStatusText">${esc(auctionStatusLabel())}</div><div class="auction-schedule" id="primaryAuctionSchedule" aria-label="Termin aukcji">${renderPrimaryAuctionScheduleHtml()}</div><div class="auction-countdown" id="auctionTimerBox"${scheduledStart || timedEnd ? "" : " style=\"display:none\""}><span id="countdownLabel">${car.auction?.is_timed === true ? "Koniec aukcji czasowej" : "Początek sesji aukcji"}</span>: <span id="countdown">${scheduledStart || timedEnd ? formatDate(timedEnd || scheduledStart) : ""}</span></div></div>
+                <div class="auction-main"><div class="auction-prices" aria-label="Ceny aukcji"><div class="auction-price-option"><small id="bidLabel">${esc(auctionPhase() === "ended" ? auctionPrice.label : storedSnapshot ? "Ostatnia zapisana oferta" : "Aktualna oferta")}</small><strong class="auction-price${isEmpty(auctionPhase() === "ended" ? auctionPrice.value : currentBidPrice) ? " auction-price-missing" : ""}" id="currentBidPrice">${isEmpty(auctionPhase() === "ended" ? auctionPrice.value : currentBidPrice) ? "Brak danych o ofercie" : money(auctionPhase() === "ended" ? auctionPrice.value : currentBidPrice)}</strong><small id="bidObservation"${bidObservation ? "" : " hidden"}>${esc(bidObservation)}</small><button type="button" class="auction-calc-price" data-calc-price-kind="current" aria-label="Policz koszt pod dom dla zapisanej oferty"${Number(currentBidPrice) > 0 ? "" : " disabled hidden"}>Policz koszt pod dom</button></div>${!isEmpty(buyNowPrice) ? `<div class="auction-price-option buy-now-option"><small id="buyNowLabel">${storedSnapshot ? "Kup teraz · zapis danych" : "Kup teraz"}</small><strong class="auction-price" id="buyNowPrice">${money(buyNowPrice)}</strong><button type="button" class="auction-calc-price" data-calc-price-kind="buy-now" aria-label="Policz koszt pod dom dla ceny Kup teraz">Policz koszt pod dom</button></div>` : ""}</div><a class="auction-calc-price auction-custom-estimate" href="#importCalculator" data-calc-price-kind="custom"${Number(currentBidPrice) > 0 || Number(buyNowPrice) > 0 ? " hidden" : ""}>Wpisz budżet i policz koszt pod dom</a><p class="auction-price-note" id="auctionPriceNote">${esc(priceNote)}</p><div class="auction-state ${auctionStatusClass()}" id="auctionStatusText">${esc(auctionStatusLabel())}</div><div class="auction-schedule" id="primaryAuctionSchedule" aria-label="Termin aukcji">${renderPrimaryAuctionScheduleHtml()}</div><div class="auction-countdown" id="auctionTimerBox"${scheduledStart || timedEnd ? "" : " style=\"display:none\""}><span id="countdownLabel">${car.auction?.is_timed === true ? "Koniec aukcji czasowej" : "Początek sesji aukcji"}</span>: <span id="countdown">${scheduledStart || timedEnd ? formatDate(timedEnd || scheduledStart) : ""}</span></div></div>
                 <section class="rex-live" id="liveAuctionPanel" aria-label="Podgląd licytacji live"></section>
                 <div class="price-facts" id="priceFacts" aria-label="Historia cen"${auctionPhase() === "ended" && priceFacts.length ? "" : " hidden"}>${renderAuctionPriceFactsHtml(priceFacts)}</div>
                 <div class="info-card-body vehicle-key-details" id="vehicleKeyDetails" style="padding-top:10px">
@@ -3357,6 +3353,8 @@ main{padding-top:22px}
 
     const modal = document.getElementById("viewerModal");
     const content = document.getElementById("viewerContent");
+    const sourceLink = document.getElementById("viewerSourceLink");
+    sourceLink.hidden = type !== "360";
     modal._rexbidPreviouslyFocused = document.activeElement;
 
     content.innerHTML = "";
@@ -3374,13 +3372,7 @@ main{padding-top:22px}
       iframe.style.display = "block";
       iframe.style.border = "0";
       content.appendChild(iframe);
-      const sourceLink = document.createElement("a");
-      sourceLink.className = "viewer-source-link";
       sourceLink.href = url;
-      sourceLink.target = "_blank";
-      sourceLink.rel = "noopener noreferrer";
-      sourceLink.textContent = "Otwórz na IAAI ↗";
-      content.appendChild(sourceLink);
     } else {
       const lower = String(url).toLowerCase();
       const directVideo = /\.(mp4|m3u8|webm|mov)(\?|#|$)/i.test(lower) ||
@@ -3762,6 +3754,12 @@ main{padding-top:22px}
       const value = phase === "ended" ? priceInfo.value : currentBid;
       bidNode.textContent = isEmpty(value) ? "Brak danych o ofercie" : money(value);
       bidNode.className = `auction-price${isEmpty(value) ? " auction-price-missing" : ""}`;
+    }
+    const bidObservationNode = document.getElementById("bidObservation");
+    if(bidObservationNode) {
+      const observed = globalThis.RexBidMarket?.priceObservationLabel?.(car, "current_bid", currentBid) || "";
+      bidObservationNode.textContent = observed;
+      bidObservationNode.hidden = !observed;
     }
     if (bidLabel) bidLabel.textContent = phase === "ended" ? priceInfo.label
       : storedSnapshot ? "Ostatnia zapisana oferta"

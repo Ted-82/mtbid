@@ -1,0 +1,480 @@
+{
+  "generatedAt": "2026-11-24T21:27:15.009Z",
+  "baseVersion": "11ee319d-be35-47c4-a06f-49da0464ae98",
+  "productionDeployment": false,
+  "readOnlyMeasurements": {
+    "budget": {
+      "at": "2026-11-24T20:35:26.340Z",
+      "quota": {
+        "quota_checked_at": "2026-11-23T02:18:04.294Z",
+        "quota_limit": 100000,
+        "quota_used": 23846,
+        "quota_left": 76154,
+        "quota_allowance": 66144,
+        "quota_plan": "Pro"
+      },
+      "budget": [
+        {
+          "budget_key": "month:2026-11",
+          "limit_count": 12000,
+          "consumed": 2086
+        }
+      ],
+      "allowance": {
+        "firstDay": "2026-11-06",
+        "day": "2026-11-24",
+        "writeLimit": 29293208,
+        "readLimit": 19255027912,
+        "writes": 20055200,
+        "reads": 372772527
+      },
+      "supplemental": false,
+      "today": [
+        {
+          "write_limit": 1000000,
+          "read_limit": 50000000,
+          "reserved_writes": 25000,
+          "reserved_reads": 250000,
+          "consumed_writes": 1764944,
+          "consumed_reads": 29026195,
+          "updated_at": "2026-11-24T20:30:59.265Z"
+        }
+      ],
+      "dbBytes": 2428416000,
+      "storageLimit": 8000000000,
+      "feedState": {
+        "committed_sequence": 118796735,
+        "active_generation": null,
+        "updated_at": "2026-11-24T20:19:02.043Z"
+      },
+      "cron": [
+        "*/5 * * * *"
+      ],
+      "recent": [
+        {
+          "generation_id": 23338,
+          "status": "complete",
+          "observed_at": "2026-11-24T20:05:53.318Z",
+          "updated_at": "2026-11-24T20:19:02.043Z"
+        },
+        {
+          "generation_id": 23316,
+          "status": "complete",
+          "observed_at": "2026-11-24T19:35:51.617Z",
+          "updated_at": "2026-11-24T19:49:14.857Z"
+        },
+        {
+          "generation_id": 23293,
+          "status": "complete",
+          "observed_at": "2026-11-24T19:05:55.947Z",
+          "updated_at": "2026-11-24T19:22:25.307Z"
+        },
+        {
+          "generation_id": 23271,
+          "status": "complete",
+          "observed_at": "2026-11-24T18:35:52.282Z",
+          "updated_at": "2026-11-24T18:52:21.162Z"
+        }
+      ],
+      "sparseClock": {
+        "status": "complete",
+        "last_success_at": "2026-11-22T18:56:00.699Z",
+        "next_due_at": "2026-11-22T19:11:00.591Z"
+      },
+      "openCoverage": "enabled",
+      "detail": "disabled"
+    },
+    "provider": {
+      "at": "2026-11-24T20:31:08.534Z",
+      "limit": 100000,
+      "used": 24660,
+      "left": 75340,
+      "allowance": 65339,
+      "plan": "Pro",
+      "derivedReserve": 10000
+    }
+  },
+  "changes": [
+    {
+      "file": "sync/feed-copart-relist.cjs",
+      "sha256": "1ed42219b47bae222d412fc0c7a111b9d7771dbc144aeb73daa685a477279f44"
+    },
+    {
+      "file": "sync/feed-relist-budget.cjs",
+      "sha256": "55c9c699c35b4e799f9c0e7811594d45a42281a088180f31697ec32a2453f146"
+    },
+    {
+      "file": "sync/feed-relist-maintenance.cjs",
+      "sha256": "9689fc527b1e0e887cf2c9778af1c61dfe9852b8bf704d30cdcd0d5b7cd7d7e2"
+    },
+    {
+      "file": "sync/feed-relist-review.cjs",
+      "sha256": "eca4a221caabb75ec39806e69833a891885096c239559333d909b1ce5cc1ac69"
+    },
+    {
+      "file": "sync/feed-server-runner.cjs",
+      "sha256": "a0f7517060e1c63c6bab84181853ff00a91529016c9ce1af78b18e6e838d7bea"
+    },
+    {
+      "file": "sync/feed-sparse-repair.cjs",
+      "sha256": "0f398cbfb1fc3aaf4f362d66b0e206dfc996f4365fdb50cc1ca034b23a0ec81e"
+    },
+    {
+      "file": "tests/feed-known-relist.test.cjs",
+      "sha256": "48b64756286e6ea9de479584ca09fa4c2c6dfe5eb0a10174217978cf10b76c6f"
+    },
+    {
+      "file": "tests/fixtures/copart-dakota-relist.json",
+      "sha256": "7ce6f504f936af6d5723215d3da84210be0213537ab2d0430ca821fe663a92d4"
+    }
+  ],
+  "tests": {
+    "focused": {
+      "pass": 103,
+      "fail": 0,
+      "scope": "candidate scheduler, sparse update, relists, identity, atomicity"
+    },
+    "initial": {
+      "file": "baseline-runtime.tap",
+      "sha256": "06d662998fc13d42a1478809ebafa12871542dbbecdd8cffde615806125fce2a",
+      "tests": 2553,
+      "pass": 2528,
+      "fail": 25,
+      "cancelled": 0,
+      "skipped": 0,
+      "failures": [
+        {
+          "file": "tests/auth-header-first-paint.test.cjs",
+          "test": "header styles reserve consistent account space and narrow phones wrap rather than overflow"
+        },
+        {
+          "file": "tests/car-gallery-focus-20261020.test.cjs",
+          "test": "Enter and Space activation preserve thumbnail keyboard focus and pressed state after rebuilding"
+        },
+        {
+          "file": "tests/catalog-refresh-campaign.test.cjs",
+          "test": "catalog journal keeps prior attempts and counts a bounded transient retry before transport"
+        },
+        {
+          "file": "tests/catalog-refresh-campaign.test.cjs",
+          "test": "catalog retry never exceeds the durable budget"
+        },
+        {
+          "file": "tests/catalog-refresh-campaign.test.cjs",
+          "test": "catalog authentication, exhausted quota and not found are not retried"
+        },
+        {
+          "file": "tests/catalog-refresh-campaign.test.cjs",
+          "test": "catalog persistence exception never retries a successful provider response"
+        },
+        {
+          "file": "tests/catalog-refresh-campaign.test.cjs",
+          "test": "catalog resume retains completed targets and cannot replace its manifest"
+        },
+        {
+          "file": "tests/catalog-taxonomy-cache.test.cjs",
+          "test": "seeded production taxonomy opt-ins retain exact isolated database and customer file boundaries"
+        },
+        {
+          "file": "tests/customer-asset-versions.test.cjs",
+          "test": "customer pages request current content version: rexbid-market.js"
+        },
+        {
+          "file": "tests/customer-asset-versions.test.cjs",
+          "test": "customer pages request current content version: rexbid-delivered-view.js"
+        },
+        {
+          "file": "tests/customer-guide.test.cjs",
+          "test": "new assets have matching content hashes and do not load external providers"
+        },
+        {
+          "file": "tests/launch-seller-schedule-20261031.test.cjs",
+          "test": "primary vehicle schedule keeps exact time visible beside countdown and refreshes future, unknown, ended and stale states"
+        },
+        {
+          "file": "tests/listing-display-facts.test.cjs",
+          "test": "normal feed stores both platforms and the detail template reads both confirmed facts; sparse updates and replay preserve them"
+        },
+        {
+          "file": "tests/local-storage.test.cjs",
+          "test": "favorites never show zero Buy Now or infer sale/current price from generic fields"
+        },
+        {
+          "file": "tests/local-storage.test.cjs",
+          "test": "favorite cards do not present elapsed unconfirmed auctions as upcoming and format dates for readers"
+        },
+        {
+          "file": "tests/media-gallery.test.cjs",
+          "test": "car gallery hides dead lightbox and navigation controls when media is absent"
+        },
+        {
+          "file": "tests/media-gallery.test.cjs",
+          "test": "cached broken thumbnail 17 and full image show readable states without losing gallery controls"
+        },
+        {
+          "file": "tests/media-gallery.test.cjs",
+          "test": "main and lightbox recover after transport errors through next-photo navigation and ignore old-source errors"
+        },
+        {
+          "file": "tests/media-gallery.test.cjs",
+          "test": "redisplaying or zooming a failed full image does not retry its URL"
+        },
+        {
+          "file": "tests/navigation-first-paint.test.cjs",
+          "test": "first paint navigation is complete and reused: car.html"
+        },
+        {
+          "file": "tests/product-feedback.test.cjs",
+          "test": "IAAI/Copart seller extraction prefers the full source name, maps INS, and ignores masked placeholders"
+        },
+        {
+          "file": "tests/publication-company.test.cjs",
+          "test": "changed shared CSS and navigation use matching versioned asset references"
+        },
+        {
+          "file": "tests/transport-calculator-v2.test.cjs",
+          "test": "source importer audits full land and sea tables and generated dataset is reproducible"
+        },
+        {
+          "file": "tests/vehicle-experience.test.cjs",
+          "test": "production D1 freshness changes update dated price notice, labels and countdown without entering preview mode"
+        },
+        {
+          "file": "tests/vehicle-experience.test.cjs",
+          "test": "source zero is unavailable and not selectable, Buy Now remains separate, details precede calculator"
+        }
+      ]
+    },
+    "originalWithScratch": {
+      "file": "baseline-proper.tap",
+      "sha256": "bf7e5e483c6eee668d362b3227ff14910ebeec8458aecf86902d5cf3c89575bc",
+      "tests": 2553,
+      "pass": 2533,
+      "fail": 20,
+      "cancelled": 0,
+      "skipped": 0,
+      "failures": [
+        {
+          "file": "tests/auth-header-first-paint.test.cjs",
+          "test": "header styles reserve consistent account space and narrow phones wrap rather than overflow"
+        },
+        {
+          "file": "tests/car-gallery-focus-20261020.test.cjs",
+          "test": "Enter and Space activation preserve thumbnail keyboard focus and pressed state after rebuilding"
+        },
+        {
+          "file": "tests/catalog-taxonomy-cache.test.cjs",
+          "test": "seeded production taxonomy opt-ins retain exact isolated database and customer file boundaries"
+        },
+        {
+          "file": "tests/customer-asset-versions.test.cjs",
+          "test": "customer pages request current content version: rexbid-market.js"
+        },
+        {
+          "file": "tests/customer-asset-versions.test.cjs",
+          "test": "customer pages request current content version: rexbid-delivered-view.js"
+        },
+        {
+          "file": "tests/customer-guide.test.cjs",
+          "test": "new assets have matching content hashes and do not load external providers"
+        },
+        {
+          "file": "tests/launch-seller-schedule-20261031.test.cjs",
+          "test": "primary vehicle schedule keeps exact time visible beside countdown and refreshes future, unknown, ended and stale states"
+        },
+        {
+          "file": "tests/listing-display-facts.test.cjs",
+          "test": "normal feed stores both platforms and the detail template reads both confirmed facts; sparse updates and replay preserve them"
+        },
+        {
+          "file": "tests/local-storage.test.cjs",
+          "test": "favorites never show zero Buy Now or infer sale/current price from generic fields"
+        },
+        {
+          "file": "tests/local-storage.test.cjs",
+          "test": "favorite cards do not present elapsed unconfirmed auctions as upcoming and format dates for readers"
+        },
+        {
+          "file": "tests/media-gallery.test.cjs",
+          "test": "car gallery hides dead lightbox and navigation controls when media is absent"
+        },
+        {
+          "file": "tests/media-gallery.test.cjs",
+          "test": "cached broken thumbnail 17 and full image show readable states without losing gallery controls"
+        },
+        {
+          "file": "tests/media-gallery.test.cjs",
+          "test": "main and lightbox recover after transport errors through next-photo navigation and ignore old-source errors"
+        },
+        {
+          "file": "tests/media-gallery.test.cjs",
+          "test": "redisplaying or zooming a failed full image does not retry its URL"
+        },
+        {
+          "file": "tests/navigation-first-paint.test.cjs",
+          "test": "first paint navigation is complete and reused: car.html"
+        },
+        {
+          "file": "tests/product-feedback.test.cjs",
+          "test": "IAAI/Copart seller extraction prefers the full source name, maps INS, and ignores masked placeholders"
+        },
+        {
+          "file": "tests/publication-company.test.cjs",
+          "test": "changed shared CSS and navigation use matching versioned asset references"
+        },
+        {
+          "file": "tests/transport-calculator-v2.test.cjs",
+          "test": "source importer audits full land and sea tables and generated dataset is reproducible"
+        },
+        {
+          "file": "tests/vehicle-experience.test.cjs",
+          "test": "production D1 freshness changes update dated price notice, labels and countdown without entering preview mode"
+        },
+        {
+          "file": "tests/vehicle-experience.test.cjs",
+          "test": "source zero is unavailable and not selectable, Buy Now remains separate, details precede calculator"
+        }
+      ]
+    },
+    "candidateWithScratch": {
+      "file": "final-release.tap",
+      "sha256": "859a0e0be8f2944e4063d8729879c7efd6024b4655ae6f69bb3e49399b3e0c11",
+      "tests": 2567,
+      "pass": 2547,
+      "fail": 20,
+      "cancelled": 0,
+      "skipped": 0,
+      "failures": [
+        {
+          "file": "tests/auth-header-first-paint.test.cjs",
+          "test": "header styles reserve consistent account space and narrow phones wrap rather than overflow"
+        },
+        {
+          "file": "tests/car-gallery-focus-20261020.test.cjs",
+          "test": "Enter and Space activation preserve thumbnail keyboard focus and pressed state after rebuilding"
+        },
+        {
+          "file": "tests/catalog-taxonomy-cache.test.cjs",
+          "test": "seeded production taxonomy opt-ins retain exact isolated database and customer file boundaries"
+        },
+        {
+          "file": "tests/customer-asset-versions.test.cjs",
+          "test": "customer pages request current content version: rexbid-market.js"
+        },
+        {
+          "file": "tests/customer-asset-versions.test.cjs",
+          "test": "customer pages request current content version: rexbid-delivered-view.js"
+        },
+        {
+          "file": "tests/customer-guide.test.cjs",
+          "test": "new assets have matching content hashes and do not load external providers"
+        },
+        {
+          "file": "tests/launch-seller-schedule-20261031.test.cjs",
+          "test": "primary vehicle schedule keeps exact time visible beside countdown and refreshes future, unknown, ended and stale states"
+        },
+        {
+          "file": "tests/listing-display-facts.test.cjs",
+          "test": "normal feed stores both platforms and the detail template reads both confirmed facts; sparse updates and replay preserve them"
+        },
+        {
+          "file": "tests/local-storage.test.cjs",
+          "test": "favorites never show zero Buy Now or infer sale/current price from generic fields"
+        },
+        {
+          "file": "tests/local-storage.test.cjs",
+          "test": "favorite cards do not present elapsed unconfirmed auctions as upcoming and format dates for readers"
+        },
+        {
+          "file": "tests/media-gallery.test.cjs",
+          "test": "car gallery hides dead lightbox and navigation controls when media is absent"
+        },
+        {
+          "file": "tests/media-gallery.test.cjs",
+          "test": "cached broken thumbnail 17 and full image show readable states without losing gallery controls"
+        },
+        {
+          "file": "tests/media-gallery.test.cjs",
+          "test": "main and lightbox recover after transport errors through next-photo navigation and ignore old-source errors"
+        },
+        {
+          "file": "tests/media-gallery.test.cjs",
+          "test": "redisplaying or zooming a failed full image does not retry its URL"
+        },
+        {
+          "file": "tests/navigation-first-paint.test.cjs",
+          "test": "first paint navigation is complete and reused: car.html"
+        },
+        {
+          "file": "tests/product-feedback.test.cjs",
+          "test": "IAAI/Copart seller extraction prefers the full source name, maps INS, and ignores masked placeholders"
+        },
+        {
+          "file": "tests/publication-company.test.cjs",
+          "test": "changed shared CSS and navigation use matching versioned asset references"
+        },
+        {
+          "file": "tests/transport-calculator-v2.test.cjs",
+          "test": "source importer audits full land and sea tables and generated dataset is reproducible"
+        },
+        {
+          "file": "tests/vehicle-experience.test.cjs",
+          "test": "production D1 freshness changes update dated price notice, labels and countdown without entering preview mode"
+        },
+        {
+          "file": "tests/vehicle-experience.test.cjs",
+          "test": "source zero is unavailable and not selectable, Buy Now remains separate, details precede calculator"
+        }
+      ]
+    },
+    "originalJournal": {
+      "file": "journal-before.tap",
+      "sha256": "d324b1398fb67c12d6104b1c614cb0d7c5f5e732dd1a1ece612c55b3fa672c51",
+      "tests": 21,
+      "pass": 21,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    "candidateJournal": {
+      "file": "journal-after.tap",
+      "sha256": "422be85ead3834e7e4eb5dd2cc442bd56d4b7bbf31ac82aadea483202ecbe6bf",
+      "tests": 21,
+      "pass": 21,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    "currentPublicAssets": {
+      "file": "canonical-public.tap",
+      "sha256": "06e0ebab8320dad8669a7ea1e10577991d0c2d41d3dd1be445c1766bc5a82e52",
+      "tests": 154,
+      "pass": 154,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    "currentPublicTaxonomy": {
+      "file": "taxonomy-website.tap",
+      "sha256": "6b8c2409efb253623bf7069f6e3e68509930d8c8f7de7ef25e704838df4fd09e",
+      "tests": 16,
+      "pass": 16,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    "taxonomy": {
+      "workerTest": "One assertion pins the retired database binding. The active binding is verified by production read-only and the archive release. The current website suite tests its own configuration.",
+      "report": "see release notes"
+    },
+    "comparisonLimit": "Tests share no production binding. The public website and server-side executor are separate releases.",
+    "comparison": {
+      "newFailures": [],
+      "clearedFailures": []
+    }
+  }
+}

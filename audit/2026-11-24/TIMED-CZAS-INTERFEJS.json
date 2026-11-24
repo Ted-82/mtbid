@@ -1,0 +1,49 @@
+{
+  "clock": "2026-11-24T20:48:34.300Z",
+  "kind": "Lokalne odtworzenie rekordu i odpowiedzi. Interfejs kandydata. Bez ruchu zewnętrznego.",
+  "source": {
+    "vin": "WAUC4DF58JA064291",
+    "lot": "46410658",
+    "sequence": 118801774,
+    "before": 8000,
+    "bid": 8100,
+    "observedAt": "2026-11-24T20:07:24.000Z",
+    "finalPrice": null
+  },
+  "runs": [
+    {
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "card": {
+        "bid": "$8,100",
+        "observed": "Odczyt kwoty licytacji z 24.11.2026, 21:07:24 GMT+1 (Polska).",
+        "snapshot": "Zapis danych oferty: 24.11.2026, 21:01 GMT+1 (Polska). Aktualna oferta może się zmienić podczas licytacji. Opłaty i transport obliczysz poniżej.",
+        "title": "2018 AUDI S5"
+      },
+      "list": {
+        "observation": "Odczyt kwoty licytacji z 24.11.2026, 21:07:24 GMT+1 (Polska).",
+        "bid": "Ostatnia zapisana oferta\n$8,100 USD\nZobacz ofertę →",
+        "snapshot": "Zapis danych z 24.11.2026, 21:01 (czas polski). Cena i dostępność do potwierdzenia."
+      }
+    },
+    {
+      "size": {
+        "width": 1366,
+        "height": 768
+      },
+      "card": {
+        "bid": "$8,100",
+        "observed": "Odczyt kwoty licytacji z 24.11.2026, 21:07:24 GMT+1 (Polska).",
+        "snapshot": "Zapis danych oferty: 24.11.2026, 21:01 GMT+1 (Polska). Aktualna oferta może się zmienić podczas licytacji. Opłaty i transport obliczysz poniżej.",
+        "title": "2018 AUDI S5"
+      },
+      "list": {
+        "observation": "Odczyt kwoty licytacji z 24.11.2026, 21:07:24 GMT+1 (Polska).",
+        "bid": "Ostatnia zapisana oferta\n$8,100 USD\nZobacz ofertę →",
+        "snapshot": "Zapis danych z 24.11.2026, 21:01 (czas polski). Cena i dostępność do potwierdzenia."
+      }
+    }
+  ]
+}

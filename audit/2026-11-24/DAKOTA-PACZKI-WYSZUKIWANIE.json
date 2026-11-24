@@ -1,0 +1,156 @@
+[
+  {
+    "checkedAt": "2026-11-24T20:20:52.755Z",
+    "vin": "1G1ZD5ST6KF110771",
+    "lot": "45833848",
+    "platform": "iaai",
+    "expectedActive": false,
+    "isIndependentControl": false,
+    "status": 200,
+    "resultCount": 0,
+    "identityMatched": false
+  },
+  {
+    "checkedAt": "2026-11-24T20:20:53.245Z",
+    "vin": "3C6UR5HJ4PG606545",
+    "lot": "62712606",
+    "platform": "copart",
+    "expectedActive": false,
+    "isIndependentControl": false,
+    "status": 200,
+    "resultCount": 0,
+    "identityMatched": false
+  },
+  {
+    "checkedAt": "2026-11-24T20:20:53.727Z",
+    "vin": "1B7GG32X82S697320",
+    "lot": "65917836",
+    "platform": "copart",
+    "expectedActive": false,
+    "isIndependentControl": false,
+    "status": 200,
+    "resultCount": 0,
+    "identityMatched": false
+  },
+  {
+    "checkedAt": "2026-11-24T20:20:54.218Z",
+    "vin": "2T1BU4EE6BC697126",
+    "lot": "75082896",
+    "platform": "copart",
+    "expectedActive": false,
+    "isIndependentControl": false,
+    "status": 200,
+    "resultCount": 0,
+    "identityMatched": false
+  },
+  {
+    "checkedAt": "2026-11-24T20:20:54.675Z",
+    "vin": "1HGCR2F33DA066124",
+    "lot": "46331966",
+    "platform": "iaai",
+    "expectedActive": false,
+    "isIndependentControl": false,
+    "status": 200,
+    "resultCount": 0,
+    "identityMatched": false
+  },
+  {
+    "checkedAt": "2026-11-24T20:20:55.152Z",
+    "vin": "1N4AL3AP9HN302240",
+    "lot": "46444541",
+    "platform": "iaai",
+    "expectedActive": false,
+    "isIndependentControl": false,
+    "status": 200,
+    "resultCount": 0,
+    "identityMatched": false
+  },
+  {
+    "checkedAt": "2026-11-24T20:20:55.627Z",
+    "vin": "2CNFLPEY9A6205555",
+    "lot": "46590142",
+    "platform": "iaai",
+    "expectedActive": false,
+    "isIndependentControl": false,
+    "status": 200,
+    "resultCount": 0,
+    "identityMatched": false
+  },
+  {
+    "checkedAt": "2026-11-24T20:20:56.155Z",
+    "vin": "JN1EV7EK9HM364256",
+    "lot": "46575567",
+    "platform": "iaai",
+    "expectedActive": false,
+    "isIndependentControl": false,
+    "status": 200,
+    "resultCount": 0,
+    "identityMatched": false
+  },
+  {
+    "checkedAt": "2026-11-24T20:20:57.029Z",
+    "vin": "3LNHL2GC1CR834820",
+    "lot": "46507697",
+    "platform": "iaai",
+    "expectedActive": false,
+    "isIndependentControl": false,
+    "status": 200,
+    "resultCount": 0,
+    "identityMatched": false
+  },
+  {
+    "checkedAt": "2026-11-24T20:20:58.148Z",
+    "vin": "JTHBA30G845052133",
+    "lot": "46440066",
+    "platform": "iaai",
+    "expectedActive": false,
+    "isIndependentControl": false,
+    "status": 200,
+    "resultCount": 0,
+    "identityMatched": false
+  },
+  {
+    "checkedAt": "2026-11-24T20:20:58.778Z",
+    "vin": "5XYZTDLB9HG444177",
+    "lot": "46499386",
+    "platform": "iaai",
+    "expectedActive": false,
+    "isIndependentControl": false,
+    "status": 200,
+    "resultCount": 0,
+    "identityMatched": false
+  },
+  {
+    "checkedAt": "2026-11-24T20:20:59.670Z",
+    "vin": "5FNRL5H67CB012186",
+    "lot": "46404762",
+    "platform": "iaai",
+    "expectedActive": false,
+    "isIndependentControl": false,
+    "status": 200,
+    "resultCount": 0,
+    "identityMatched": false
+  },
+  {
+    "checkedAt": "2026-11-24T20:21:00.461Z",
+    "vin": "2T3P1RFV0NW286972",
+    "lot": "70962556",
+    "platform": "copart",
+    "expectedActive": true,
+    "isIndependentControl": true,
+    "status": 200,
+    "resultCount": 1,
+    "identityMatched": true
+  },
+  {
+    "checkedAt": "2026-11-24T20:21:01.307Z",
+    "vin": "4T1DAACK0SU580701",
+    "lot": "46396135",
+    "platform": "iaai",
+    "expectedActive": true,
+    "isIndependentControl": true,
+    "status": 200,
+    "resultCount": 1,
+    "identityMatched": true
+  }
+]

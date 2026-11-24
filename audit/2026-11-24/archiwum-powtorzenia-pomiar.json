@@ -1,0 +1,50 @@
+{
+  "at": "2026-11-24T20:16:18.671Z",
+  "finished": "2026-11-24T20:16:37.361Z",
+  "r2IndexReads": 32,
+  "segmentPagesRead": 31,
+  "totalSegmentPages": 53,
+  "objectsInRoot": 13649,
+  "visibleEntriesInSample": 8017,
+  "firstAndLastRecordedAt": [
+    "2026-11-17T08:42:39+00:00",
+    "2026-11-18T20:27:05.000Z"
+  ],
+  "distinctVins": 8017,
+  "duplicateVins": 0,
+  "photosDownloaded": 0,
+  "publicSearch": [
+    {
+      "vin": "2FMPK3K99JBC38074",
+      "status": 200,
+      "matches": [
+        {
+          "platform": "copart",
+          "lot": "73099996",
+          "sequence": 105223309,
+          "recordedAt": "2026-11-18T20:16:48.000Z",
+          "status": "sold",
+          "saleCents": 200000,
+          "photos": 13
+        }
+      ],
+      "next": null
+    },
+    {
+      "vin": "3N1AB7AP5KY279945",
+      "status": 200,
+      "matches": [
+        {
+          "platform": "copart",
+          "lot": "71934516",
+          "sequence": 105225308,
+          "recordedAt": "2026-11-18T20:17:18.000Z",
+          "status": "sold",
+          "saleCents": 95000,
+          "photos": 13
+        }
+      ],
+      "next": null
+    }
+  ]
+}

@@ -88,6 +88,24 @@ function vehicle(overrides = {}) {
   };
 }
 
+test('the Timed detail places bid time next to its amount and clears it after a result or missing evidence',()=>{
+  const view=vehiclePage(), record=vehicle({title:'2018 Audi S5',platform:'iaai',lot_number:'46410658',vin:'WAUC4DF58JA064291',
+    auction:{state:'open',is_timed:true,timed_end_at:'2099-11-24T23:59:00Z'},
+    pricing:{current_bid_usd:8100,current_bid_source:'apibara_feed',current_bid_observed_at:'2026-11-24T20:07:24.000Z',buy_now_usd:9000},
+    read:{source:'d1',last_synced_at:'2026-11-24T20:01:32.326Z'}});
+  view.api.render(record);
+  assert.match(view.page.innerHTML,/id="currentBidPrice">[^<]*8,100<\/strong><small id="bidObservation">[^<]*21:07:24/);
+  assert.match(view.page.innerHTML,/Zapis danych oferty: [^<]*21:01/);
+  view.api.refresh(record);
+  assert.equal(view.node('bidObservation').hidden,false);
+  assert.match(view.node('bidObservation').textContent,/21:07:24/);
+  for(const update of [{...record,pricing:{buy_now_usd:8100}},{...record,auction:{state:'finished',phase:'finished',result_confirmed:true,outcome_status:'sold'}}]){
+    view.api.refresh(update);
+    assert.equal(view.node('bidObservation').hidden,true);
+    assert.equal(view.node('bidObservation').textContent,'');
+  }
+});
+
 test("normalized D1 details render vehicle specs and mileage units without losing source condition fields", () => {
   const view = vehiclePage();
   view.api.render(vehicle());

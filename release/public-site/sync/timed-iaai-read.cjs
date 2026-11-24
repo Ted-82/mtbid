@@ -3,6 +3,7 @@
 const {KEY,MAX_ROWS,MAX_BYTES,MAX_AGE}=require('./timed-iaai-refresh.cjs');
 const {queryOptions,homeCardDTO,catalogCardDTO}=require('../staging/d1-primary-reads.cjs');
 const {parseSort}=require('./catalog-order.cjs');
+const {priceRows}=require('./timed-bid-read.cjs');
 
 const memo=new WeakMap(), day=86400000;
 const low=v=>String(v??'').trim().toLowerCase();
@@ -115,7 +116,7 @@ function response(body,status=200){
   'Cache-Control':'private, no-store','X-RexBid-Read-Source':'apibara_timed_snapshot'}});
 }
 
-function list(request,data,now){
+async function list(request,data,now,db){
  const url=new URL(request.url),opts=queryOptions(url,now,true),q=url.searchParams;
  let sort,after;
  try{
@@ -123,10 +124,14 @@ function list(request,data,now){
   after=cursor(opts.cursor,sort);
  }catch(e){return response({ok:false,error:e.message.includes('cursor')?'invalid_catalog_cursor':'invalid_catalog_sort'},400);}
  if(opts.yearFrom!==null&&opts.yearTo!==null&&opts.yearFrom>opts.yearTo)return response({ok:false,error:'invalid_year_range'},400);
- const rows=[...data.index.values()].filter(r=>filter(r,opts,now)).sort((a,b)=>compare(sort,anchor(sort,a),anchor(sort,b)));
- const page=rows.filter(r=>!after||compare(sort,anchor(sort,r),after)>0).slice(0,opts.limit+1);
+ const byPrice=sort==='bid_asc'||sort==='bid_desc'||opts.priceMin!==null||opts.priceMax!==null;
+ let candidates=[...data.index.values()];
+ if(byPrice)candidates=await priceRows(db,candidates,data,now,true);
+ const rows=candidates.filter(r=>filter(r,opts,now)).sort((a,b)=>compare(sort,anchor(sort,a),anchor(sort,b)));
+ let page=rows.filter(r=>!after||compare(sort,anchor(sort,r),after)>0).slice(0,opts.limit+1);
  const more=page.length>opts.limit;
  if(more)page.pop();
+ if(!byPrice)page=await priceRows(db,page,data,now);
  const next=more?'ti1.'+btoa(JSON.stringify({sort,...anchor(sort,page.at(-1))})):null;
  return response({ok:true,data:page.map(r=>listRow(r,q.get('view'),data.saved.observed)),meta:{
   per_page:opts.limit,next_cursor:next,has_more_stored_rows:more,sort,metadata_complete:false,
@@ -145,13 +150,14 @@ async function readTimed(request,env,readNormal,now=Date.now()){
  if(!timedList&&(!id||(!isLot(id)&&!isVin(id))||isLot(id)&&!platform))return null;
  const data=await snapshot(env.REXBID_AUCTION_ARCHIVE,now);
  if(!data)return null;
- if(timedList)return {response:list(request,data,now),active:true};
+ if(timedList)return {response:await list(request,data,now,env.REXBID_ACTIVE_CATALOG),active:true};
  const identifier=id;
  const candidates=isLot(identifier)?[data.index.get(identifier)]:[...data.index.values()].filter(r=>low(r.vin)===low(identifier));
  const matches=candidates.filter(r=>active(r,now));
  if(matches.length!==1)return null;
  const result=await readNormal();
- const row=matches[0], observed=data.saved.observed, dto=decorate(row,observed);
+ const [row]=await priceRows(env.REXBID_ACTIVE_CATALOG,matches,data,now);
+ const observed=data.saved.observed, dto=decorate(row,observed);
  if(result.response?.ok){
   const saved=await result.response.clone().json().catch(()=>null),old=saved?.data;
   if(old?.platform!=='iaai'||String(old.lot_number)!==row.lot_number||low(old.vin)!==low(row.vin))return result;

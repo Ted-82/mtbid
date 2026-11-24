@@ -1018,7 +1018,7 @@
 <script src="/rexbid-storage.js?v=73c07260d040"></script>
 <script src="/rexbid-auth.js?v=21437df8759b"></script>
 <script src="/rexbid-powertrain.js?v=3baadbf40a"></script>
-<script src="/rexbid-market.js?v=8d2803c26d54"></script>
+<script src="/rexbid-market.js?v=de032632212a"></script>
 <script src="/rexbid-vehicle-labels.js?v=20261025-catalog-labels"></script>
 <script>
   document.addEventListener?.("error", event => {
@@ -1781,14 +1781,16 @@
       || /sold|not.?sold|no.?sale|unsold|closed|ended|complete|cancel|withdrawn/.test(auctionOutcome);
     const positive = (...values) => values.find(value => (typeof value === "number" || typeof value === "string" && value.trim() !== "") && Number.isFinite(Number(value)) && Number(value) > 0);
     const currentBid = positive(...(Object.prototype.hasOwnProperty.call(pricing, 'current_bid_usd') ? [pricing.current_bid_usd] : Object.prototype.hasOwnProperty.call(car || {}, 'current_bid_usd') ? [car.current_bid_usd] : [pricing.current_bid2_usd, car?.current_bid2_usd]));
+    const observed = !ended && globalThis.RexBidMarket?.priceObservationLabel?.(car, "current_bid", currentBid);
+    const bidEvidence = observed ? {bidObservation:observed} : {};
     if (kind === "buy-now") {
       const buyNow = ended ? undefined : positive(pricing.buy_now_usd, car?.buy_now_usd);
-      return { value: buyNow === undefined ? null : Number(buyNow), label: storedSnapshot ? "Kup teraz · zapis danych" : "Kup teraz", secondary: ended || currentBid === undefined ? "" : `${storedSnapshot ? "Ostatnia zapisana oferta" : "Aktualna oferta"} · ${formatMoney(currentBid)}` };
+      return { ...bidEvidence, value: buyNow === undefined ? null : Number(buyNow), label: storedSnapshot ? "Kup teraz · zapis danych" : "Kup teraz", secondary: ended || currentBid === undefined ? "" : `${storedSnapshot ? "Ostatnia zapisana oferta" : "Aktualna oferta"} · ${formatMoney(currentBid)}` };
     }
     if (ended) return {...getPriceInfo(car),secondary:""};
-    if (storedSnapshot && (currentBid !== undefined || kind === "upcoming" || kind === "timed")) return {value:currentBid === undefined ? null : Number(currentBid),label:currentBid === undefined ? "Brak danych o ofercie" : "Ostatnia zapisana oferta",secondary:""};
-    if (kind === "timed") return { value: currentBid === undefined ? null : Number(currentBid), label: "Aktualna oferta", secondary: "" };
-    if (kind === "upcoming") return { value: currentBid === undefined ? null : Number(currentBid), label: currentBid === undefined ? "Brak danych o ofercie" : "Aktualna oferta", secondary: "" };
+    if (storedSnapshot && (currentBid !== undefined || kind === "upcoming" || kind === "timed")) return {...bidEvidence,value:currentBid === undefined ? null : Number(currentBid),label:currentBid === undefined ? "Brak danych o ofercie" : "Ostatnia zapisana oferta",secondary:""};
+    if (kind === "timed") return { ...bidEvidence, value: currentBid === undefined ? null : Number(currentBid), label: "Aktualna oferta", secondary: "" };
+    if (kind === "upcoming") return { ...bidEvidence, value: currentBid === undefined ? null : Number(currentBid), label: currentBid === undefined ? "Brak danych o ofercie" : "Aktualna oferta", secondary: "" };
     const info = getPriceInfo(car);
     const buyNow = ended ? undefined : positive(pricing.buy_now_usd, car?.buy_now_usd);
     return {...info, secondary: currentBid !== undefined && buyNow !== undefined ? `${storedSnapshot ? "Kup teraz · zapis danych" : "Kup teraz"} · ${formatMoney(buyNow)}` : ""};
@@ -1813,7 +1815,7 @@
     const priceHtml = price.value === null
       ? `<div class="rex-card-price"><small>${escapeHtml(price.label === "Brak danych o ofercie" ? (dataRead ? "Zapis oferty" : "Aktualna oferta") : price.label)}</small><strong class="rex-price-missing">Brak danych o ofercie</strong></div>`
       : `<div class="rex-card-price"><small>${escapeHtml(price.label)}</small><strong>${escapeHtml(formatMoney(price.value))}<span> USD</span></strong></div>`;
-    return `<article class="market-aisle-card" data-auction-until="${homeAuctionWithinWeek(car, now, true) || ''}"><a href="${escapeHtml(href)}"><div class="aisle-photo">${image ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(getTitle(car))}" loading="lazy" decoding="async" data-fallback-image>` : ""}${imageFallback}<span class="rex-card-platform">${escapeHtml(getPlatform(car))}</span></div><div class="aisle-card-body"><div class="aisle-identity">LOT ${escapeHtml(lot || "—")}</div><h3 class="aisle-title">${escapeHtml(getTitle(car))}</h3><div class="rex-card-facts"><span>${escapeHtml(getMileage(car))}</span><span>${escapeHtml(getLocation(car))}</span></div><div class="aisle-status-text">${escapeHtml(status === "Status niedostępny" ? "Status do potwierdzenia" : status)}</div>${date ? `<div class="aisle-date">${car.auction?.is_timed === true && car.auction?.timed_end_at ? "Koniec aukcji czasowej" : "Termin aukcji"}: ${escapeHtml(date)}</div>` : ""}<div class="rex-card-bottom">${priceHtml}<span class="rex-card-open" aria-hidden="true">↗</span></div>${price.secondary ? `<div class="aisle-secondary-price">${escapeHtml(price.secondary)}</div>` : ""}${savedNote ? `<p class="aisle-secondary-price">${escapeHtml(savedNote)}</p>` : ""}</div></a></article>`;
+    return `<article class="market-aisle-card" data-auction-until="${homeAuctionWithinWeek(car, now, true) || ''}"><a href="${escapeHtml(href)}"><div class="aisle-photo">${image ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(getTitle(car))}" loading="lazy" decoding="async" data-fallback-image>` : ""}${imageFallback}<span class="rex-card-platform">${escapeHtml(getPlatform(car))}</span></div><div class="aisle-card-body"><div class="aisle-identity">LOT ${escapeHtml(lot || "—")}</div><h3 class="aisle-title">${escapeHtml(getTitle(car))}</h3><div class="rex-card-facts"><span>${escapeHtml(getMileage(car))}</span><span>${escapeHtml(getLocation(car))}</span></div><div class="aisle-status-text">${escapeHtml(status === "Status niedostępny" ? "Status do potwierdzenia" : status)}</div>${date ? `<div class="aisle-date">${car.auction?.is_timed === true && car.auction?.timed_end_at ? "Koniec aukcji czasowej" : "Termin aukcji"}: ${escapeHtml(date)}</div>` : ""}<div class="rex-card-bottom">${priceHtml}<span class="rex-card-open" aria-hidden="true">↗</span></div>${price.secondary ? `<div class="aisle-secondary-price">${escapeHtml(price.secondary)}</div>` : ""}${price.bidObservation ? `<p class="aisle-secondary-price">${escapeHtml(price.bidObservation)}</p>` : ""}${savedNote ? `<p class="aisle-secondary-price">${escapeHtml(savedNote)}</p>` : ""}</div></a></article>`;
   }
 
   function parseConfirmedAuctionDate(raw, dateOnlyAllowed = true) {
@@ -2610,7 +2612,10 @@
 
     if (!terminal) {
       const currentBid = positive(...(Object.prototype.hasOwnProperty.call(pricing, 'current_bid_usd') ? [pricing.current_bid_usd] : [pricing.current_bid2_usd]));
-      if (currentBid !== undefined) return { value: currentBid, label: storedSnapshot ? "Ostatnia zapisana oferta" : auction.is_timed ? "Aktualna oferta · Timed Auction" : "Aktualna oferta" };
+      if (currentBid !== undefined) {
+        const observed = globalThis.RexBidMarket?.priceObservationLabel?.(car, "current_bid", currentBid);
+        return { ...(observed ? {bidObservation:observed} : {}), value: currentBid, label: storedSnapshot ? "Ostatnia zapisana oferta" : auction.is_timed ? "Aktualna oferta · Timed Auction" : "Aktualna oferta" };
+      }
       const buyNow = positive(pricing.buy_now_usd);
       if (buyNow !== undefined) return { value: buyNow, label: storedSnapshot ? "Kup teraz · zapis danych" : "Kup teraz" };
     }
@@ -3207,6 +3212,7 @@
 
                 </div>
                 ${secondaryPrice ? `<span class="card-secondary-price">${escapeHtml(secondaryPrice)}</span>` : ""}
+                ${price.bidObservation ? `<small class="card-secondary-price">${escapeHtml(price.bidObservation)}</small>` : ""}
                 ${savedNote ? `<p class="card-saved-note">${escapeHtml(savedNote)}</p>` : ""}
 
               </div>

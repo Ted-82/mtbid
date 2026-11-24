@@ -1,0 +1,27 @@
+{
+  "event_id": "chg_118801774",
+  "sequence": 118801774,
+  "event": "bid.changed",
+  "recorded_at": "2026-11-24T20:07:24+00:00",
+  "terminal": false,
+  "vehicle_updated_at": "2026-11-24T22:07:24+02:00",
+  "changed_fields": [
+    "pricing.current_bid_usd",
+    "pricing.previous_bid_usd"
+  ],
+  "before": {
+    "pricing.current_bid_usd": 8000,
+    "pricing.previous_bid_usd": 8000
+  },
+  "after": {
+    "pricing.current_bid_usd": 8100,
+    "pricing.previous_bid_usd": 8100
+  },
+  "vehicle": {
+    "id": 4556903,
+    "platform": "iaai",
+    "platform_id": 2,
+    "lot_number": "46410658",
+    "vin": "WAUC4DF58JA064291"
+  }
+}

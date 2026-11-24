@@ -1,0 +1,82 @@
+{
+  "indexSources": [
+    {
+      "file": "archive-headroom-20261118/archive-index-before.json",
+      "qualifying": 1225
+    },
+    {
+      "file": "archive-storage-20261118/archive-index-before.json",
+      "qualifying": 2012
+    },
+    {
+      "file": "archive-storage-20261118/after/archive-index-before.json",
+      "qualifying": 2081
+    },
+    {
+      "file": "storage-continuity-20261122/archive-index-before.private.json",
+      "qualifying": 138
+    },
+    {
+      "file": "limit-audit-20261122/archive-index-before.private.json",
+      "qualifying": 68
+    }
+  ],
+  "distinctCycles": 2287,
+  "distinctVIN": 2287,
+  "withMoreThanOneCycle": 0,
+  "objectInventories": [
+    "archive-storage-20261118/rexbid-auction-history-private-inventory.json",
+    "archive-growth-20261118/rexbid-auction-history-private-inventory.json",
+    "archive-headroom-20261118/rexbid-auction-history-private-inventory.json",
+    "archive-storage-20261118/after/rexbid-auction-history-private-inventory.json"
+  ],
+  "distinctPlatformLotsInObjectInventory": 2184,
+  "objectInventoryLotsWithMultipleSequences": 0,
+  "example": {
+    "vin": "5NPD84LF2JH282518",
+    "lot": "46134715",
+    "platform": "iaai",
+    "year": 2018,
+    "title": "2018 HYUNDAI ELANTRA SEL",
+    "historyObservedAt": "2026-11-18T22:01:08.416Z",
+    "events": [
+      {
+        "date": "2026-11-12",
+        "sourceStatus": "Sold on Approval",
+        "sourceBidUsd": 1650,
+        "confirmedSalePriceUsd": null
+      },
+      {
+        "date": "2026-10-28",
+        "sourceStatus": "Sold on Approval",
+        "sourceBidUsd": 3000,
+        "confirmedSalePriceUsd": null
+      }
+    ],
+    "vehicleLevelPhotoCount": 20,
+    "perCyclePhotoIDsInHistory": [
+      [],
+      []
+    ]
+  },
+  "writesToProduction": 0,
+  "privateApiRequests": 0,
+  "photosDownloaded": 0,
+  "publicArchiveRequests": 2,
+  "publicArchive": {
+    "at": "2026-11-24T21:43:16.318Z",
+    "url": "https://rexbid.pl/api/archiwum?q=5NPD84LF2JH282518",
+    "requestParameter": "q",
+    "responseCollection": "entries",
+    "pages": [
+      {
+        "http": 200,
+        "entries": 0,
+        "next": null
+      }
+    ],
+    "exactMatches": [],
+    "uniqueCyclesWithGalleries": 0,
+    "firstAttempt": "Poprzedni odczyt zwrócił prawidłowy format. Powtórzenie powyżej odczytało wpisy i następne strony, jeśli były dostępne."
+  }
+}

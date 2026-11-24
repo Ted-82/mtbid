@@ -1,0 +1,71 @@
+{
+  "at": "2026-11-24T20:33:29.910Z",
+  "end": "2026-11-24T20:33:34.783Z",
+  "paired": 20,
+  "groups": {
+    "copart": 10,
+    "iaai": 10
+  },
+  "maxPairMs": 277,
+  "comparison": {
+    "bid": {
+      "samePopulated": 7,
+      "bothUnknown": 11,
+      "different": 2
+    },
+    "buyNow": {
+      "samePopulated": 1,
+      "bothUnknown": 19,
+      "different": 0
+    },
+    "final": {
+      "samePopulated": 0,
+      "bothUnknown": 20,
+      "different": 0
+    },
+    "state": {
+      "samePopulated": 20,
+      "bothUnknown": 0,
+      "different": 0
+    },
+    "result": {
+      "samePopulated": 0,
+      "bothUnknown": 0,
+      "different": 20
+    },
+    "has360": {
+      "samePopulated": 19,
+      "bothUnknown": 0,
+      "different": 1
+    },
+    "hasVideo": {
+      "samePopulated": 20,
+      "bothUnknown": 0,
+      "different": 0
+    },
+    "auctionAt": {
+      "samePopulated": 10,
+      "bothUnknown": 0,
+      "different": 10
+    }
+  },
+  "identicalTimedDeadlines": 10,
+  "priceDifferences": [
+    {
+      "platform": "copart",
+      "lot": "65054066",
+      "siteBid": null,
+      "sourceBid": 70,
+      "siteFullSync": "2026-11-08T09:28:07.000Z",
+      "sourceUpdate": "2026-11-24T13:03:37.000000Z"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46410658",
+      "siteBid": 8000,
+      "sourceBid": 8100,
+      "siteFullSync": "2026-11-24T20:01:32.326Z",
+      "sourceUpdate": "2026-11-24T20:30:20.000000Z"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "at": "2026-11-24T20:20:21.004Z",
+  "activeVersions": [
+    {
+      "id": "85aa5440-f186-43bc-ae45-f5139f381de1",
+      "percentage": 100
+    }
+  ],
+  "schedule": [
+    "*/5 * * * *"
+  ],
+  "matchesStoredRelease": true,
+  "prev": {
+    "capturedAt": "2026-11-22T18:44:23.816Z",
+    "recordedAt": "2026-11-18T03:07:15.000Z",
+    "generation": 17752,
+    "entries": 8004
+  },
+  "curr": {
+    "capturedAt": "2026-11-24T20:18:15.521Z",
+    "recordedAt": "2026-11-18T20:27:35.000Z",
+    "generation": 18278,
+    "entries": 13652
+  },
+  "sampleHours": 49.5643625,
+  "sourceHours": 17.33888888888889,
+  "lagGrowthHours": 32.22547361111111,
+  "publishedPerDay": 2734.8682231109096,
+  "storage": {
+    "measuredAt": "2026-11-24T20:16:28.589Z",
+    "galleries": 13652,
+    "remainingBytes": 255836818189,
+    "warning": null,
+    "trend": {
+      "sampleHours": 154.3278202777778,
+      "bytesPerDay": 5290543477.348443,
+      "daysRemaining": 48.379391490849386
+    }
+  }
+}

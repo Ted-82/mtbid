@@ -1,0 +1,79 @@
+{
+  "at": "2026-11-24T20:33:17.222Z",
+  "origin": "https://rexbid-audit-staging.tedn828.workers.dev",
+  "viewport": "390x844",
+  "rows": [
+    {
+      "platform": "copart",
+      "lot": "41810746",
+      "vin": "3N1AB7AP4JY338966",
+      "media": [],
+      "externalStatus": null,
+      "page": 200,
+      "video": {
+        "present": true,
+        "playback": {
+          "ready": 4,
+          "width": 640,
+          "seconds": 0.419086
+        }
+      },
+      "present": false
+    },
+    {
+      "platform": "copart",
+      "lot": "45488636",
+      "vin": "3N8AP6CB0SL303208",
+      "media": [],
+      "externalStatus": null,
+      "page": 200,
+      "video": {
+        "present": true,
+        "playback": {
+          "ready": 3,
+          "width": 640,
+          "seconds": 0.381763
+        }
+      },
+      "present": false
+    },
+    {
+      "platform": "copart",
+      "lot": "45885146",
+      "vin": "5TDDK3EH9CS111160",
+      "media": [],
+      "externalStatus": null,
+      "page": 200,
+      "video": {
+        "present": false
+      },
+      "present": false
+    },
+    {
+      "platform": "iaai",
+      "lot": "46162264",
+      "vin": "3N1AB7AP2HY235605",
+      "media": [],
+      "externalStatus": null,
+      "page": 200,
+      "video": {
+        "present": true,
+        "playback": {
+          "ready": 3,
+          "width": 1280,
+          "seconds": 0.384118
+        }
+      },
+      "present": true,
+      "tag": "BUTTON",
+      "host": "vis.iaai.com",
+      "observed": {
+        "loadedImages": 0,
+        "canvases": 1,
+        "blocked": false,
+        "stableBefore": true,
+        "changedAfterDrag": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "version": "85aa5440-f186-43bc-ae45-f5139f381de1",
+  "before": {
+    "tests": 43,
+    "pass": 43,
+    "fail": 0,
+    "skipped": 0
+  },
+  "beforeWithTwoRegressions": {
+    "tests": 2,
+    "pass": 0,
+    "fail": 2,
+    "skipped": 0
+  },
+  "after": {
+    "tests": 48,
+    "pass": 48,
+    "fail": 0,
+    "skipped": 0
+  },
+  "sources": [
+    {
+      "name": "sync/auction-archive-intake.cjs",
+      "originalSha": "579a38f9f7e59753ba716ed8cea2dc1fcfa60a7b084e51008849742e208ce683",
+      "afterSha": "55b88ce49b467be238d062c86d72173afa9d48121c7fba27fb60c8a20f5add8d",
+      "rollbackExact": true
+    },
+    {
+      "name": "tests/archive-auto-owner.test.cjs",
+      "originalSha": "7311c98e2e42d57d2cff3b8cffb2a733dfd9785e073815000c0822cb7f717369",
+      "afterSha": "73b644ee135a8809803269aa2f3cadd0d47c7912f571650492bd885d89597988",
+      "rollbackExact": true
+    },
+    {
+      "name": "tests/auction-archive-public.test.cjs",
+      "originalSha": "c72e4b4c3b22064f304c80a3256a15d8b03827ac731be553067169cbf8ee5f93",
+      "afterSha": "acfcefebc05efb97344d535e14eaae3bda7ce4bf6d76cf1b95587ae27c74b71f",
+      "rollbackExact": true
+    }
+  ],
+  "patchCheck": {
+    "apply": 0,
+    "forward": 0,
+    "undoCheck": 0,
+    "undo": 0
+  }
+}

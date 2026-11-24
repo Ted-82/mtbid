@@ -1,0 +1,17 @@
+{
+  "at": "2026-11-24T20:40:36.068Z",
+  "active": [
+    {
+      "id": "85aa5440-f186-43bc-ae45-f5139f381de1",
+      "percentage": 100
+    }
+  ],
+  "compatibilityDate": "2026-11-17",
+  "compatibilityFlags": [],
+  "remoteSha": "f81c9cd4880ad63206386d139d16f6764858ad1eff6374e0b3cc5322175de3c3",
+  "capturedBundleSha": "f81c9cd4880ad63206386d139d16f6764858ad1eff6374e0b3cc5322175de3c3",
+  "byteEqual": true,
+  "sameAfterRemovingMapFooterAndNormalizingEOL": true,
+  "remoteBytes": 81522,
+  "capturedBytes": 81522
+}

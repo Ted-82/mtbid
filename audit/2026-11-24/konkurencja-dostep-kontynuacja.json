@@ -1,0 +1,24 @@
+[
+  {
+    "name": "BidCars, konkretna karta",
+    "url": "https://bid.cars/pl/lot/0-46552401/2013-Ford-C-Max-1FADP5AU8DL509002",
+    "openedAt": "2026-11-24T20:09:44.448Z",
+    "response": 403,
+    "title": "Cierpliwości...",
+    "challenge": false,
+    "controls": [],
+    "error": null,
+    "hasCalculator": false
+  },
+  {
+    "name": "DreamBid, formularz wyceny",
+    "url": "https://dreambid.pl/pl/calculator",
+    "openedAt": "2026-11-24T20:09:48.174Z",
+    "response": 403,
+    "title": "Attention Required! | Cloudflare",
+    "challenge": true,
+    "controls": [],
+    "error": null,
+    "hasCalculator": false
+  }
+]

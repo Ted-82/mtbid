@@ -1,0 +1,119 @@
+{
+  "localSourcesCheckedAt": "2026-11-24T21:52:32.864Z",
+  "lot": "65054066",
+  "vin": "7SAYGDED8TA458053",
+  "platform": "copart",
+  "measurements": {
+    "first": {
+      "at": "2026-11-24T20:33:31.004Z",
+      "public": null,
+      "source": 70,
+      "sourceDate": "2026-11-25T06:00:00+00:00"
+    },
+    "second": {
+      "at": "2026-11-24T20:48:33.639Z",
+      "platform": "copart",
+      "vin": "7SAYGDED8TA458053",
+      "lot": "65054066",
+      "sourceUpdated": "2026-11-24T13:03:37.000000Z",
+      "sourceBid": 70,
+      "publicBid": null,
+      "publicRead": "2026-11-08T09:28:07.000Z",
+      "db": [
+        {
+          "auction_at": "2026-11-25T06:00:00.000Z",
+          "timed_end_at": null,
+          "current_bid_usd": null,
+          "current_bid2_usd": null,
+          "source_updated_at": "2026-11-08T09:28:07.000000Z",
+          "detail_synced_at": null,
+          "summary_synced_at": "2026-11-08T09:28:07.000Z",
+          "updated_at": "2026-11-08T09:28:07.000Z"
+        }
+      ],
+      "sourceState": "open"
+    },
+    "coverageAt": "2026-11-24T20:52:35.276Z",
+    "scopeReceipt": [],
+    "membershipAt": "2026-11-24T20:55:21.837Z",
+    "membership": [
+      {
+        "active": 1,
+        "last_sequence": 75639067
+      }
+    ],
+    "snapshots": []
+  },
+  "coverageScopes": [
+    {
+      "generation": 23038,
+      "first": 117290168,
+      "last": 117320977,
+      "verified": true,
+      "lines": 30805,
+      "matchesForThisLot": 0
+    },
+    {
+      "generation": 23058,
+      "first": 117320978,
+      "last": 117396649,
+      "verified": true,
+      "lines": 75637,
+      "matchesForThisLot": 0
+    },
+    {
+      "generation": 23338,
+      "first": 118680706,
+      "last": 118796735,
+      "verified": true,
+      "lines": 116000,
+      "matchesForThisLot": 0
+    },
+    {
+      "generation": 23361,
+      "first": 118796736,
+      "last": 118883756,
+      "verified": true,
+      "lines": 87000,
+      "matchesForThisLot": 0
+    }
+  ],
+  "executor": {
+    "baseRelease": "11ee319d-be35-47c4-a06f-49da0464ae98",
+    "readAt": "2026-11-24T20:35:26.340Z",
+    "allowSupplementalWrites": false,
+    "detailOptIn": "disabled",
+    "openCoverage": "enabled",
+    "assessedPaths": [
+      {
+        "file": "sync/feed-server-runner.cjs",
+        "lines": "407-417",
+        "finding": "Regular full detail requires explicit opt-in, free write allowance and pending reconcile task with feed eligibility. The separate open-coverage inventory is IAAI."
+      },
+      {
+        "file": "sync/feed-sparse-repair.cjs",
+        "symbol": "prepareSparseQueue",
+        "finding": "Schedules new cases for unknown_lot or updates existing pending sparse verification. A known, active row with missing price is not itself a qualifying trigger."
+      },
+      {
+        "file": "sync/feed-photo-repair.cjs",
+        "symbol": "repairPhoto",
+        "finding": "Normal gallery verification persists photo fields only."
+      },
+      {
+        "file": "sync/inventory-change-patch.cjs",
+        "symbol": "PRICES",
+        "finding": "An eligible bid change with a valid positive pricing.current_bid_usd can update the stored current bid. This protection treats zero and null according to their source meaning."
+      },
+      {
+        "file": "release/copart-relisting/executor/sync/feed-copart-relist.cjs",
+        "symbol": "relistEvidence",
+        "finding": "New relist verification requires reschedule evidence; this already-active Tesla and missing bid alone do not trigger recovery."
+      }
+    ]
+  },
+  "coveredConclusion": "W zbadanej konfiguracji zbliżająca się sesja i brak aktualnej oferty w znanym, aktywnym rekordzie Copart nie uruchamiają same ponownego pobrania ceny. Nie ma gwarancji odświeżenia przed 25.11 o 07:00 CET. Bez rewizji wszystkich dostaw lub źródłowej daty zmiany ceny nie można przypisać rozbieżności dostawcy ani pominięciu konkretnej paczki przez REXBID. Czas updated_at jest czasem rekordu, nie potwierdzonym momentem zmiany ceny.",
+  "productionRequests": 0,
+  "privateApiRequests": 0,
+  "productionWrites": 0
+}

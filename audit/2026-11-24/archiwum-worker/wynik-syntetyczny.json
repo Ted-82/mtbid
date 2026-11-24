@@ -1,0 +1,31 @@
+{
+  "mode": "synthetic",
+  "at": "2026-11-24T20:34:40.714Z",
+  "runtime": "5.20261006.1-alpha",
+  "engine": "workerd",
+  "compatibilityDate": "2026-10-01",
+  "flags": [
+    "nodejs_compat"
+  ],
+  "realEvents": 0,
+  "syntheticEvents": 3,
+  "rawReads": 1,
+  "rawObjectTransferBytes": 306,
+  "sampleGzipBytes": 306,
+  "galleries": 2,
+  "verifiedGalleriesAndPrices": 2,
+  "simulatedSourceJpegRequests": 4,
+  "unexpectedOutboundRequests": 0,
+  "lookupPhotoBytesVerified": true,
+  "completed": true,
+  "idleReads": 0,
+  "passes": [
+    {
+      "galleries": 2,
+      "offset": 0,
+      "generation": 17245,
+      "reads": 1,
+      "elapsedMs": 308
+    }
+  ]
+}

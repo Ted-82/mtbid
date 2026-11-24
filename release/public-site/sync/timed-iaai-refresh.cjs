@@ -35,7 +35,8 @@ function normalize(raw, started){
  dto.pricing={current_bid_usd:Number.isFinite(bid)&&bid>0?bid:null,current_bid2_usd:null,buy_now_usd:null,final_price_usd:null,source_price_usd:null};
  dto.media=compactMedia(dto.media);
  const updated=Date.parse(raw.updated_at);
- return {...dto,source_updated_at:Number.isFinite(updated)&&updated<=started?iso(updated):null};
+ const cycle=a.auction_id??raw.auction_id;
+ return {...dto,...(cycle==null?{}:{timed_source_cycle:String(cycle)}),source_updated_at:Number.isFinite(updated)&&updated<=started?iso(updated):null};
 }
 
 async function request(key,url,fetchImpl){

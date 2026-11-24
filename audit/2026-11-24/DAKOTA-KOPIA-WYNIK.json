@@ -1,0 +1,213 @@
+{
+  "startedAt": "2026-11-24T20:38:37.792Z",
+  "localRuntime": "workerd / Miniflare D1",
+  "environment": "local transport and source-response replay",
+  "scheduledIntervalsMinutes": 15,
+  "sourceGeneration": 23248,
+  "observations": [
+    {
+      "decisions": [
+        {
+          "platform": "iaai",
+          "lot": "45833848",
+          "queued": true,
+          "identityError": false,
+          "reasons": [
+            "schedule_on_inactive_lot"
+          ]
+        },
+        {
+          "platform": "copart",
+          "lot": "65917836",
+          "queued": true,
+          "identityError": false,
+          "reasons": [
+            "schedule_on_inactive_lot"
+          ]
+        },
+        {
+          "platform": "iaai",
+          "lot": "46162902",
+          "queued": true,
+          "identityError": false,
+          "reasons": [
+            "schedule_on_inactive_lot"
+          ]
+        }
+      ],
+      "statements": 1
+    },
+    {
+      "decisions": [
+        {
+          "platform": "iaai",
+          "lot": "45833848",
+          "queued": false,
+          "identityError": false,
+          "reasons": []
+        },
+        {
+          "platform": "copart",
+          "lot": "65917836",
+          "queued": false,
+          "identityError": false,
+          "reasons": []
+        },
+        {
+          "platform": "iaai",
+          "lot": "46162902",
+          "queued": true,
+          "identityError": false,
+          "reasons": [
+            "schedule_on_inactive_lot"
+          ]
+        }
+      ],
+      "statements": 1
+    }
+  ],
+  "calls": [
+    {
+      "identifier": "65917836",
+      "platform": "copart",
+      "matched": true
+    },
+    {
+      "identifier": "45833848",
+      "platform": "iaai",
+      "matched": true
+    }
+  ],
+  "poll": [
+    {
+      "platform": "copart",
+      "lot": "65917836",
+      "relisted": true
+    },
+    {
+      "platform": "iaai",
+      "lot": "45833848",
+      "relisted": true
+    },
+    {
+      "skipped": true
+    },
+    null
+  ],
+  "searches": [
+    {
+      "phase": "before",
+      "lot": "45833848",
+      "code": 200,
+      "error": null,
+      "source": "d1",
+      "rows": []
+    },
+    {
+      "phase": "before",
+      "lot": "65917836",
+      "code": 200,
+      "error": null,
+      "source": "d1",
+      "rows": []
+    },
+    {
+      "phase": "before",
+      "lot": "46162902",
+      "code": 200,
+      "error": null,
+      "source": "d1",
+      "rows": []
+    },
+    {
+      "phase": "after",
+      "lot": "45833848",
+      "code": 200,
+      "error": null,
+      "source": "d1",
+      "rows": [
+        {
+          "platform": "iaai",
+          "vin": "1G1ZD5ST6KF110771",
+          "lot": "45833848",
+          "date": "2026-12-03T14:30:00.000Z",
+          "amount": 1500
+        }
+      ]
+    },
+    {
+      "phase": "after",
+      "lot": "65917836",
+      "code": 200,
+      "error": null,
+      "source": "d1",
+      "rows": [
+        {
+          "platform": "copart",
+          "vin": "1B7GG32X82S697320",
+          "lot": "65917836",
+          "date": "2026-12-01T02:00:00.000Z",
+          "amount": 468
+        }
+      ]
+    },
+    {
+      "phase": "after",
+      "lot": "46162902",
+      "code": 200,
+      "error": null,
+      "source": "d1",
+      "rows": []
+    },
+    {
+      "phase": "replay",
+      "lot": "45833848",
+      "code": 200,
+      "error": null,
+      "source": "d1",
+      "rows": [
+        {
+          "platform": "iaai",
+          "vin": "1G1ZD5ST6KF110771",
+          "lot": "45833848",
+          "date": "2026-12-03T14:30:00.000Z",
+          "amount": 1500
+        }
+      ]
+    },
+    {
+      "phase": "replay",
+      "lot": "65917836",
+      "code": 200,
+      "error": null,
+      "source": "d1",
+      "rows": [
+        {
+          "platform": "copart",
+          "vin": "1B7GG32X82S697320",
+          "lot": "65917836",
+          "date": "2026-12-01T02:00:00.000Z",
+          "amount": 468
+        }
+      ]
+    },
+    {
+      "phase": "replay",
+      "lot": "46162902",
+      "code": 200,
+      "error": null,
+      "source": "d1",
+      "rows": []
+    }
+  ],
+  "passed": true,
+  "code": {
+    "recovery": "10afe3a3205712165b2576f2839de460be7de1a2266c7ba6e345fe02a736e5ca",
+    "eligibility": "aae90cdf546bceec7a3176c5999bd7f3ab0fdadf65944c90f5e6cdaff9f224c9",
+    "reader": "34792b246c425cc4bd8f630dd03c1541ca5880809902be1efdf5cfc8686508be",
+    "miniflare": "5.20261006.1-alpha"
+  },
+  "replayPreservedTasks": true,
+  "replayExtraCalls": 0,
+  "feedCursorPreserved": true
+}

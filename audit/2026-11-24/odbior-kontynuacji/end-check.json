@@ -1,0 +1,30 @@
+{
+  "at": "2026-11-24T21:56:52.234Z",
+  "searches": [
+    {
+      "platform": "copart",
+      "lot": "65917836",
+      "vin": "1B7GG32X82S697320",
+      "status": 200,
+      "returned": 0,
+      "exact": []
+    },
+    {
+      "platform": "iaai",
+      "lot": "46294903",
+      "vin": "JF2SLDTC5SH513294",
+      "status": 200,
+      "returned": 1,
+      "exact": [
+        {
+          "date": "2026-11-25T14:30:00.000Z",
+          "deadline": null
+        }
+      ]
+    }
+  ],
+  "staged": {
+    "dakota": true,
+    "timed": true
+  }
+}

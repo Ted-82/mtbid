@@ -57,6 +57,27 @@ test('authorized download decrypts correct object, verifies hash, and sends priv
   await assert.rejects(f.service.download({env:f.env,order:{id:ORDER},file:{...file,id:OTHER}}),/encryption_unavailable/);
   await assert.rejects(f.service.download({env:f.env,order:{id:ORDER},file:{...file,sha256:'0'.repeat(64)}}),/unavailable/);
 });
+test('a restored private file remains readable through attachment service after switching the active key',async()=>{
+  const original=fixture();
+  const before={...await upload(original),id:FILE,order_id:ORDER};
+  const backup=structuredClone(original.objects.get(before.object_key));
+  const restored=fixture();
+  restored.objects.set(before.object_key,backup);
+  const activeKey=Buffer.from(webcrypto.getRandomValues(new Uint8Array(32))).toString('base64url');
+  const keys={...JSON.parse(original.env.REXBID_PORTAL_DATA_KEYS),k2:activeKey};
+  const rotated={...restored.env,REXBID_PORTAL_ACTIVE_KEY_ID:'k2',REXBID_PORTAL_DATA_KEYS:JSON.stringify(keys)};
+  const options={env:rotated,order:{id:ORDER}};
+  const oldResponse=await restored.service.download({...options,file:before});
+  assert.deepEqual(new Uint8Array(await oldResponse.arrayBuffer()),PDF);
+
+  const second=await restored.service.upload({...options,fileId:OTHER,request:uploadRequest()});
+  const after={...second,id:OTHER,order_id:ORDER};
+  const newOnly={...rotated,REXBID_PORTAL_DATA_KEYS:JSON.stringify({k2:activeKey})};
+  const readNew=await restored.service.download({...options,env:newOnly,file:after});
+  assert.deepEqual(new Uint8Array(await readNew.arrayBuffer()),PDF);
+  await assert.rejects(restored.service.download({...options,env:newOnly,file:before}),/encryption_unavailable/);
+  assert.deepEqual(restored.objects.get(before.object_key),backup);
+});
 test('file type, magic, extension, unsafe names and visibility are rejected before R2 writes',async()=>{
   for (const [bytes,headers,status] of [
     [PDF,{'Content-Type':'image/svg+xml','X-File-Name':'vehicle.svg'},415],

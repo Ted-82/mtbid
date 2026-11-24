@@ -1,0 +1,36 @@
+# Powrót ofert z nowym terminem do publicznego katalogu
+
+## Co się stało
+
+Dodge Dakota, VIN 1B7GG32X82S697320, to bieżący Copart LOT 65917836. W paczce 23226 zakończyła się poprzednia aukcja. W paczce **23248**, partycja 72, zmiana **118299636** przekazała nowy termin **1 grudnia 2026 o 03:00 czasu polskiego**, opcję Kup teraz za 468 USD i flagę nadchodzącej aukcji. W paczce 23271 dostawca wyczyścił pola poprzedniego wyniku. Pełny odczyt źródłowy potwierdził planowaną aukcję i ofertę 225 USD. Ostatniej oferty ani poprzedniej sprzedaży warunkowej nie wolno wyświetlać jako potwierdzonej ceny sprzedaży. [Odczyt dostawcy i dziennik](DAKOTA-PACZKI.md)
+
+Po opublikowaniu 23248 wiersz w produkcyjnej D1 nadal wskazywał aukcję zakończoną, pusty termin i brak członkostwa w aktywnym katalogu. Zwykła wyszukiwarka po VIN zwracała zero wyników. Odtworzenie na pierwotnym kodzie wykazało następującą przyczynę. Import poprawnie rozpoznał prośbę o weryfikację terminu już zamkniętej aukcji. Ta decyzja nie zapisywała terminu. Włączony mechanizm uzupełniania szczątkowych danych kwalifikował inne przyczyny. Dodatkowe odczyty były wyłączone w zmierzonym stanie budżetu. Kluczowy dowód z pliku został więc przetworzony bez wznowienia oferty. Ograniczenie archiwum do roczników 2018+ działa w odrębnym miejscu.
+
+## Co zmienia kod wydania
+
+Zdarzenie o przyszłym terminie może dotyczyć zamkniętej aukcji albo auta, którego jeszcze w ogóle nie ma w D1. Zapisuje się atomowo przy zatwierdzeniu właściwego pliku. Zwykłe miejsca w kolejce cen są odrębne. W czasie wolnym od publikacji wykonawca pobiera właściwą ofertę i sprawdza platformę, LOT, VIN, termin, fazę aukcji, potwierdzenie wyniku, czas odczytu i wersję danych. Jeżeli pełny rekord i zmiana mają różne godziny, sygnał pozostaje do wyjaśnienia. Późniejsze zdarzenie o wyższej sekwencji może dostarczyć właściwy termin. Automatyczny przegląd zachowanych plików ma własne potwierdzenie postępu i odtwarza wszystkie kolejne generacje w zakresie. Zakres kontrolny obejmuje 23248–23316.
+
+Dla znanego rekordu poprawka aktualizuje tylko potwierdzone dane aktywnej aukcji. Czas sprawdzenia oraz zakres potwierdzonych pól zostają zapisane oddzielnie. Pełny wiersz nie dostaje sztucznej daty odświeżenia. Dla pojazdu dotąd nieznanego wymagany jest pełny, zgodny rekord i zwykła procedura utworzenia z limitem nowych ofert. Zakończenie, usunięcie, niezgodność tożsamości albo nowszy zapis w czasie sprawdzenia chronią rekord przed reaktywacją. Ponowienie tej samej już rozstrzygniętej sekwencji nie zamawia ponownie danych. [Kod i instrukcja odbioru](../../release/copart-relisting/README.md)
+
+## Co wykazano
+
+- W kontrolowanej próbie 35 potencjalnych kandydatów z jednej partycji 12 było otwartych i brakowało ich w katalogu, 21 miało już prawidłowy termin, a dwie aukcje były zakończone. Jej wynik nie jest procentem błędów całej bazy.
+- Oddzielny test przepuścił rzeczywiste zdarzenia i skopiowane odpowiedzi źródłowe przez lokalny Workers i izolowaną D1. Zwykłe wyszukiwanie po VIN znalazło 0 z 12 przed próbą, 8 z 12 po paczce 23248, a 12 z 12 po zastosowaniu kolejnych paczek 23271, 23293 i 23316. Dwa rekordy IAAI zostały utworzone od początku. Zakończony pojazd kontrolny pozostał niewidoczny. Powtórzenie nie spowodowało kolejnego odczytu dostawcy ani zmiany głównego kursora. Cztery rozbieżności o dwie godziny rozstrzygnęły nowe, rzeczywiste zmiany harmonogramu. [Próba zwykłej wyszukiwarki](DAKOTA-KOPIA-ROZSZERZENIE-WYNIK.json)
+- Na próbce wystąpiły zarówno kolizje numeru LOT między platformami, jak i kilka numerów LOT dla jednego VIN. Sam VIN Dakoty prowadził u źródła także do historycznego LOT 63030896. Import sprawdza pełną tożsamość z obu stron. Gdy LOT daje błędną tożsamość lub 404, może wykonać jedno dodatkowe sprawdzenie po VIN. [Kontrola tożsamości](DAKOTA-KOPIA-TOZSAMOSC.json)
+- Regresja wydania objęła 103 testy harmonogramu, importu, restartu, blokad, tożsamości, wyścigu z późniejszym wynikiem i ochrony kwot. Wszystkie przeszły. Test normalnej funkcji konserwacyjnej wykonał odczyt przez wspólny licznik mimo wyłączonej zwykłej funkcji pomocniczej. W obecności gotowego pliku nie wywołał źródła. Dzienny i miesięczny licznik zwiększyły się o jeden po prawidłowym odczycie.
+
+## Regresja bazowa i końcowa
+
+Pierwszy przebieg pełnego zestawu w rozpakowanym oryginale dał 2 528 zaliczonych testów z 2 553. W pięciu testach dziennika brakowało katalogu roboczego dla plików tymczasowych. Po jego przygotowaniu osobny przebieg dziennika dał 21/21 przed zmianą i po niej. Finalne źródła importera przeszły 2 547 z 2 567 testów, łącznie z 14 nowymi. Wśród 20 czerwonych wyników nie pojawiła się nowa nazwa testu. Dziewiętnaście asercji dotyczy m.in. formularza karty, nawigacji, galerii, stawek transportu i sposobu prezentacji ceny w zapisanych pojazdach. Zestawy zawierające te testy uruchomiono ponownie z rzeczywistymi plikami wydania publicznego. Przeszły 154/154. Ostatni test w rozpakowanej wiązce wykonawcy oczekuje historycznego identyfikatora D1 w obu profilach i wyłączonego harmonogramu w profilu wykonawcy. Zestaw tego komponentu publicznego przeszedł 16/16 w odpowiednim profilu. Są to osobne artefakty wdrożeniowe. Weryfikacja ich połączenia w produkcji wymaga obserwacji po autoryzowanym wydaniu. [Zestawienie i sumy kontrolne](IMPORT-REGRESJA-I-BUDZET.json)
+
+W powtórzonym pełnym porównaniu w identycznych warunkach oryginalny wykonawca uzyskał 2 533/2 553, a wydanie 2 547/2 567. Zbiory wszystkich 20 niezaliczonych testów są identyczne po nazwie i pliku. Zysk 14 pomyślnych testów pochodzi z nowego zestawu regresji.
+
+## Pojemność i koszty
+
+Pomiary z 24 listopada, godz. 21:31–21:35 czasu polskiego. D1 zajmowała 2 428 416 000 B, przy limicie operacyjnym REXBID 8 000 000 000 B. Wolne było 5 571 584 000 B. W oknie budżetowym importu pozostało 9 238 008 zapisów wierszy i 18 882 255 385 odczytów. W Apibara Pro pozostało 75 340 ze 100 000 wywołań. Wewnętrzny listopadowy licznik zużył 2 086 z 12 000. To różne liczniki. Samo odtworzenie przykładowej próby na kopii nie prognozuje miesięcznego zużycia całej platformy.
+
+Wykonawca korzysta z istniejącej rezerwacji i harmonogramu co pięć minut. Pierwszeństwo ma publikacja. Przy braku środków, wolnego miejsca, aktualnej informacji o kwocie lub ciągłości plików pozostawia sprawę do ponowienia. Podczas dobierania pracy zostawia m.in. 100 wywołań dziennie i 1 000 miesięcznie w wewnętrznym liczniku, minimum 30 000 w puli dostawcy i ponad 2,2 mln zapisów dla zwykłej publikacji. Kontrola licznika dostawcy po 24 h sama jest liczonym zapytaniem. W tej próbie nie zmieniono cen, limitów dostawcy ani abonamentów.
+
+## Zakres odbioru
+
+W produkcji przed zmianą automat ukończył 23316 o 20:49:14 i 23338 o 21:19:02 czasu polskiego. Od zarejestrowania dostawy do zapisu upłynęło odpowiednio 13 min 23 s i 13 min 09 s. To pomiar wcześniejszej wersji. Przed ewentualnym wdrożeniem produkcyjnym trzeba przygotować kopię D1 i wynik wyszukiwarki przed zmianą, zapisać identyfikator pracującej wersji, potwierdzić dostępność źródłowych manifestów w wybranym zakresie, a po wdrożeniu porównać dwie rzeczywiste publikacje, oba rodzaje cen i dokładny VIN/LOT. Przywrócenie wersji wykonawcy osobno od przywrócenia danych opisuje instrukcja wydania.

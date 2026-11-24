@@ -1,0 +1,10 @@
+{
+  "package": "@cloudflare/workerd-windows-64",
+  "version": "1.20261124.2",
+  "officialTarball": "https://registry.npmjs.org/@cloudflare/workerd-windows-64/-/workerd-windows-64-1.20261124.2.tgz",
+  "integrity": "sha512-zmBaiL57J8NWzwpyGPV1/sh5QFv5FqkyIpLpxAKiHLTBno19eT17LW84sQMpyBY4iTU8VX4h515yl+FJF3CtcA==",
+  "windowsExeSha256": "e958fdfadcd3eb33cd4662ad2e3c20380b3ed1483cf638d380847dd0d7e57d9b",
+  "reported": "workerd 2026-11-24",
+  "productionCompatibilityDate": "2026-11-17",
+  "productionFlags": []
+}

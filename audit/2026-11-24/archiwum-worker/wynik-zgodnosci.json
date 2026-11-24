@@ -1,0 +1,41 @@
+{
+  "mode": "synthetic",
+  "at": "2026-11-24T20:46:49.515Z",
+  "runtime": "5.20261006.1-alpha",
+  "engine": "workerd",
+  "compatibilityDate": "2026-11-17",
+  "flags": [],
+  "sourceRows": 3,
+  "realEvents": 0,
+  "syntheticEvents": 3,
+  "rawReads": 1,
+  "rawObjectTransferBytes": 306,
+  "sampleGzipBytes": 306,
+  "galleries": 2,
+  "verifiedGalleriesAndPrices": 2,
+  "simulatedSourceJpegRequests": 4,
+  "unexpectedOutboundRequests": 0,
+  "lookupPhotoBytesVerified": true,
+  "completed": true,
+  "idleReads": 0,
+  "rootGetBytes": 909,
+  "rootPutBytes": 2013,
+  "targetReads": 4,
+  "targetWrites": 10,
+  "maxRootBytes": 853,
+  "measuredMetadataBytes": 3228,
+  "passes": [
+    {
+      "galleries": 2,
+      "offset": 0,
+      "generation": 17245,
+      "reads": 1,
+      "rootGetBytes": 909,
+      "rootPutBytes": 2013,
+      "targetReads": 4,
+      "targetWrites": 10,
+      "largestRoot": 853,
+      "elapsedMs": 1385
+    }
+  ]
+}

@@ -1,5 +1,7 @@
 # REXBID. Stan polecenia z 17:34, 24 listopada 2026
 
+**Aktualizacja wieczorna.** Znaleziono źródłową paczkę Dakoty i przyczynę w importerze. Próba na kopii odzyskała 12/12 otwartych pojazdów. Na zdalnym stagingu naprawiono oba widoki panoramy IAAI. Archiwum ma zmierzoną rosnącą zaległość. Poniższa tabela zachowuje stan sprzed tych prób. [Najnowszy odbiór i warunki wydania](ODBIOR-DANE-I-MEDIA.md)
+
 **Pełny zakres pozostaje otwarty.** Można pokazywać klientom produkcyjny katalog, karty i kalkulator w ramach demonstracji. Przed przyjmowaniem odpłatnych zleceń najważniejsze są próba obsługi rzeczywistej rozmowy na aktualnej wersji, kontrola jednej wyceny z dokumentami oraz zatwierdzenie strony umowy i zasad rozliczeń.
 
 ## Zakres i kryteria odbioru
@@ -30,7 +32,7 @@ Przy ponownym odczycie metadanych GitHub domyślna gałąź publicznego repozyto
 - **Aukcje Live.** Między 20:54 a 20:56 sprawdzono po jednym aktywnym torze Copart i IAAI. Publiczny strumień REXBID pokazał odpowiednio 4 i 5 kolejno licytowanych aut oraz 5 i 4 zmiany ofert na tym samym aucie. Ta próba zamyka punkt obserwacji zmiany auta i ceny na obu platformach. Pokrycie wszystkich torów oraz porównanie każdego przebicia z domem aukcyjnym wykraczają poza tę obserwację. [Dowody Live](PROBA-LIVE.md)
 - **Galeria.** W Chrome i WebKit na dwóch szerokościach zaliczono 32/32 sprawdzenia obsługi klawiaturą na zwykłej produkcyjnej karcie. Sprawdzono m.in. wybór kolejnego zdjęcia, utrzymanie fokusu w otwartej galerii i jego powrót po jej zamknięciu. [Sprawdzenie dostępności](DOSTEPNOSC-PRODUKCJA.md)
 
-- **Ponowne wystawienie.** U dostawcy potwierdzono dwa osobne LOT-y tego samego Dodge’a Dakota. W produkcyjnych bazach tylko nowszy LOT miał rekord, a jego data była pusta, chociaż źródło podawało 1 grudnia. O 20:56 wyszukiwarka REXBID nie zwróciła tego VIN-u. Nie określono jeszcze, która odebrana paczka powinna przenieść tę datę. Auto jest z 2002 r., więc sprawdzenie własnego archiwum 2018+ na dwóch cyklach nadal wymaga innego pojazdu. [Próba i warunek odbioru](POWTORNE-WYSTAWIENIE.md)
+- **Ponowne wystawienie.** O 20:56 w produkcyjnej D1 brakowało daty Dakoty, a wyszukiwanie po VIN było puste. Późniejsze sprawdzenie oryginału dostawy ustaliło paczkę **23248** i sekwencję **118299636**. Naprawiony automat na kopii odzyskał 12/12 kontrolnych aukcji. Dakota jest z 2002 r. i służy do sprawdzania katalogu aktywnego. [Pierwszy odczyt](POWTORNE-WYSTAWIENIE.md) · [Przyczyna, poprawka i testy](NAPRAWA-PONOWNYCH-AUKCJI.md)
 
 ## Kolejność do obsługi płacącego klienta
 

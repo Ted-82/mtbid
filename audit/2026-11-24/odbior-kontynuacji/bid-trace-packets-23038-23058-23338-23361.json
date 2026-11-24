@@ -1,0 +1,73 @@
+{
+  "at": "2026-11-24T20:54:01.419Z",
+  "packs": [
+    {
+      "generation": 23038,
+      "observed_at": "2026-11-24T13:05:54.641Z",
+      "first": 117290168,
+      "last": 117320977,
+      "verified": true,
+      "lines": 30805,
+      "matches": []
+    },
+    {
+      "generation": 23058,
+      "observed_at": "2026-11-24T13:35:51.966Z",
+      "first": 117320978,
+      "last": 117396649,
+      "verified": true,
+      "lines": 75637,
+      "matches": [
+        {
+          "platform": "iaai",
+          "lot": "46410658",
+          "vin": "WAUC4DF58JA064291",
+          "sequence": 117348484,
+          "recorded_at": "2026-11-24T13:12:25+00:00",
+          "event": "bid.changed",
+          "terminal": false,
+          "changed": [
+            "pricing.current_bid_usd",
+            "pricing.previous_bid_usd"
+          ],
+          "before": 6800,
+          "after": 6900
+        }
+      ]
+    },
+    {
+      "generation": 23338,
+      "observed_at": "2026-11-24T20:05:53.318Z",
+      "first": 118680706,
+      "last": 118796735,
+      "verified": true,
+      "lines": 116000,
+      "matches": []
+    },
+    {
+      "generation": 23361,
+      "observed_at": "2026-11-24T20:35:51.900Z",
+      "first": 118796736,
+      "last": 118883756,
+      "verified": true,
+      "lines": 87000,
+      "matches": [
+        {
+          "platform": "iaai",
+          "lot": "46410658",
+          "vin": "WAUC4DF58JA064291",
+          "sequence": 118801774,
+          "recorded_at": "2026-11-24T20:07:24+00:00",
+          "event": "bid.changed",
+          "terminal": false,
+          "changed": [
+            "pricing.current_bid_usd",
+            "pricing.previous_bid_usd"
+          ],
+          "before": 8000,
+          "after": 8100
+        }
+      ]
+    }
+  ]
+}

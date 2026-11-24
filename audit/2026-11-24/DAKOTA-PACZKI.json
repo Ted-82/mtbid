@@ -1,0 +1,322 @@
+{
+  "lot": "65917836",
+  "vin": "1B7GG32X82S697320",
+  "since": "2026-11-24T16:30:00Z",
+  "until": "2026-11-24T20:20:00Z",
+  "startedAt": "2026-11-24T20:09:43.720Z",
+  "records": [
+    {
+      "g": 23178,
+      "observed": "2026-11-24T16:35:56.158Z",
+      "published": "2026-11-24T17:12:09.782Z",
+      "status": "complete",
+      "first": 117759752,
+      "last": 117886312,
+      "rawHash": "1fc2cad3eff9ad4000fa3f3c7a16c61a49849130c28d75ab58e0d9ea7f459eee",
+      "hits": [
+        {
+          "sequence": 117868127,
+          "type": "lot.updated",
+          "id": "chg_117868127",
+          "recorded": "2026-11-24T16:30:39+00:00",
+          "updated": "2026-11-24T18:30:39+02:00",
+          "vin": "1B7GG32X82S697320",
+          "prior": {
+            "auction.upcoming": 1,
+            "details.source_sale_type": "On Minimum Bid"
+          },
+          "next": {
+            "auction.upcoming": 0,
+            "details.source_sale_type": "O"
+          },
+          "record": null
+        },
+        {
+          "sequence": 117878651,
+          "type": "lot.updated",
+          "id": "chg_117878651",
+          "recorded": "2026-11-24T16:31:32+00:00",
+          "updated": "2026-11-24T17:31:32+02:00",
+          "vin": "1B7GG32X82S697320",
+          "prior": {
+            "auction.upcoming": 0,
+            "details.source_sale_type": "O"
+          },
+          "next": {
+            "auction.upcoming": 1,
+            "details.source_sale_type": "On Minimum Bid"
+          },
+          "record": null
+        }
+      ],
+      "bucket": 72,
+      "scanned": 1008,
+      "manifestHash": "fc61b4a72b9eadf2c5b18feca845bc511323d243bbe384de5af741f284a69ed6",
+      "complete": true
+    },
+    {
+      "g": 23201,
+      "observed": "2026-11-24T17:05:53.792Z",
+      "published": "2026-11-24T17:39:41.839Z",
+      "status": "complete",
+      "first": 117886313,
+      "last": 118030465,
+      "rawHash": "86593ec692e321732353f6e356a2824d29464401cddd9a59d80e2043d872ecec",
+      "hits": [
+        {
+          "sequence": 117953779,
+          "type": "buy_now.changed",
+          "id": "chg_117953779",
+          "recorded": "2026-11-24T16:46:03+00:00",
+          "updated": "2026-11-24T17:46:03+02:00",
+          "vin": "1B7GG32X82S697320",
+          "prior": {
+            "auction.is_buy_now": 1,
+            "pricing.buy_now_usd": 468
+          },
+          "next": {
+            "auction.is_buy_now": 0,
+            "pricing.buy_now_usd": null
+          },
+          "record": null
+        }
+      ],
+      "bucket": 72,
+      "scanned": 1114,
+      "manifestHash": "377a2a34e514662192c39d219cc7e16e68517634e0950f21b128bcc913f62e11",
+      "complete": true
+    },
+    {
+      "g": 23226,
+      "observed": "2026-11-24T17:35:53.375Z",
+      "published": "2026-11-24T17:55:40.664Z",
+      "status": "complete",
+      "first": 118030466,
+      "last": 118174499,
+      "rawHash": "5f0968d738e5565ac8281b6c27c5c37e951ae9ee7c98e8fcabba354e95acfed4",
+      "hits": [
+        {
+          "sequence": 118041345,
+          "type": "buy_now.changed",
+          "id": "chg_118041345",
+          "recorded": "2026-11-24T17:08:01+00:00",
+          "updated": "2026-11-24T19:08:01+02:00",
+          "vin": "1B7GG32X82S697320",
+          "prior": {
+            "auction.upcoming": 1,
+            "pricing.buy_now_usd": null,
+            "details.sale_status": null,
+            "details.source_sale_type": "On Minimum Bid"
+          },
+          "next": {
+            "auction.upcoming": 0,
+            "pricing.buy_now_usd": null,
+            "details.sale_status": "Minimum Bid",
+            "details.source_sale_type": "O"
+          },
+          "record": null
+        },
+        {
+          "sequence": 118063260,
+          "type": "buy_now.changed",
+          "id": "chg_118063260",
+          "recorded": "2026-11-24T17:10:59+00:00",
+          "updated": "2026-11-24T18:10:59+02:00",
+          "vin": "1B7GG32X82S697320",
+          "prior": {
+            "pricing.buy_now_usd": null,
+            "details.source_sale_type": "O"
+          },
+          "next": {
+            "pricing.buy_now_usd": null,
+            "details.source_sale_type": "On Minimum Bid"
+          },
+          "record": null
+        },
+        {
+          "sequence": 118077155,
+          "type": "auction.ended",
+          "id": "chg_118077155",
+          "recorded": "2026-11-24T17:13:50+00:00",
+          "updated": "2026-11-24T19:13:50+02:00",
+          "vin": "1B7GG32X82S697320",
+          "prior": {
+            "auction.has_status": 0,
+            "auction.last_sold_day": null,
+            "auction.last_sold_status": null,
+            "pricing.last_sold_price_usd": null
+          },
+          "next": {
+            "auction.has_status": 1,
+            "auction.last_sold_day": "2026-11-24",
+            "auction.last_sold_status": "Sold on Approval",
+            "pricing.last_sold_price_usd": 225
+          },
+          "record": null
+        }
+      ],
+      "bucket": 72,
+      "scanned": 1125,
+      "manifestHash": "6920266fa0610ca1c0143bd847fab85abe03c9cb334267d9d5d19d9a9d0e7687",
+      "complete": true
+    },
+    {
+      "g": 23248,
+      "observed": "2026-11-24T18:05:55.551Z",
+      "published": "2026-11-24T18:22:45.098Z",
+      "status": "complete",
+      "first": 118174500,
+      "last": 118318554,
+      "rawHash": "ec3a9bc5864f2c6a7880529ca9527a3ff8ee515f1269386afa19aac544e9cb5d",
+      "hits": [
+        {
+          "sequence": 118299636,
+          "type": "auction.rescheduled",
+          "id": "chg_118299636",
+          "recorded": "2026-11-24T18:01:57+00:00",
+          "updated": "2026-11-24T19:01:57+02:00",
+          "vin": "1B7GG32X82S697320",
+          "prior": {
+            "auction.auction_at": "2026-11-24T17:00:00+00:00",
+            "auction.is_buy_now": 0,
+            "auction.upcoming": 0,
+            "pricing.buy_now_usd": null,
+            "auction.auction_date_pending": false
+          },
+          "next": {
+            "auction.auction_at": "2026-12-01T02:00:00+00:00",
+            "auction.is_buy_now": 1,
+            "auction.upcoming": 1,
+            "pricing.buy_now_usd": 468,
+            "auction.auction_date_pending": false
+          },
+          "record": null
+        }
+      ],
+      "bucket": 72,
+      "scanned": 1115,
+      "manifestHash": "83e505c718673c20830a59baf91f0d4e56298d8cd0b537ed292736def85af9f4",
+      "complete": true
+    },
+    {
+      "g": 23271,
+      "observed": "2026-11-24T18:35:52.282Z",
+      "published": "2026-11-24T18:52:21.162Z",
+      "status": "complete",
+      "first": 118318555,
+      "last": 118444612,
+      "rawHash": "c5acb5779a84f2b242ce49d070e720ecd8bc292587569d0164808ee372c831dc",
+      "hits": [
+        {
+          "sequence": 118318605,
+          "type": "lot.updated",
+          "id": "chg_118318605",
+          "recorded": "2026-11-24T18:04:06+00:00",
+          "updated": "2026-11-24T20:04:06+02:00",
+          "vin": "1B7GG32X82S697320",
+          "prior": {
+            "auction.has_status": 1,
+            "auction.last_sold_day": "2026-11-24",
+            "auction.last_sold_status": "Sold on Approval",
+            "pricing.last_sold_price_usd": 225
+          },
+          "next": {
+            "auction.has_status": 0,
+            "auction.last_sold_day": null,
+            "auction.last_sold_status": null,
+            "pricing.last_sold_price_usd": null
+          },
+          "record": null
+        }
+      ],
+      "bucket": 72,
+      "scanned": 936,
+      "manifestHash": "5dfcf5b1af6bded266f32de7690ede40d8bdf796a9e62bc889ceccabac46e055",
+      "complete": true
+    },
+    {
+      "g": 23293,
+      "observed": "2026-11-24T19:05:55.947Z",
+      "published": "2026-11-24T19:22:25.307Z",
+      "status": "complete",
+      "first": 118444613,
+      "last": 118562645,
+      "rawHash": "afc86776de4b6a21c27c38ab1d6545cb3c7353a296442a70233e1fc5afdab89a",
+      "hits": [],
+      "bucket": 72,
+      "scanned": 913,
+      "manifestHash": "454c7c2691c61bf02a13587f316889f3e964a0101bc2edd1e45d10d0e8f72178",
+      "complete": true
+    },
+    {
+      "g": 23316,
+      "observed": "2026-11-24T19:35:51.617Z",
+      "published": "2026-11-24T19:49:14.857Z",
+      "status": "complete",
+      "first": 118562646,
+      "last": 118680705,
+      "rawHash": "879d4c54eed6783e281e912260056e0b5305c7dad4cf2a77df408405224c696b",
+      "hits": [],
+      "bucket": 72,
+      "scanned": 907,
+      "manifestHash": "fae532c38b8282b2dd36e0a5c06be0a821e255ff6f72f43d3355052839ffecce",
+      "complete": true
+    },
+    {
+      "g": 23338,
+      "observed": "2026-11-24T20:05:53.318Z",
+      "published": "2026-11-24T20:09:45.297Z",
+      "status": "applying",
+      "first": 118680706,
+      "last": 118796735,
+      "rawHash": "9779324e7cc4f9d49c493b33993ad9faf9c54a7ed37e762f3f8e4fa3c85dd4c3",
+      "hits": []
+    }
+  ],
+  "requests": 89,
+  "bytes": 29461147,
+  "meterRowsRead": 628,
+  "proposed": [
+    [
+      23178,
+      "2026-11-24T16:35:56.158Z",
+      "complete"
+    ],
+    [
+      23201,
+      "2026-11-24T17:05:53.792Z",
+      "complete"
+    ],
+    [
+      23226,
+      "2026-11-24T17:35:53.375Z",
+      "complete"
+    ],
+    [
+      23248,
+      "2026-11-24T18:05:55.551Z",
+      "complete"
+    ],
+    [
+      23271,
+      "2026-11-24T18:35:52.282Z",
+      "complete"
+    ],
+    [
+      23293,
+      "2026-11-24T19:05:55.947Z",
+      "complete"
+    ],
+    [
+      23316,
+      "2026-11-24T19:35:51.617Z",
+      "complete"
+    ],
+    [
+      23338,
+      "2026-11-24T20:05:53.318Z",
+      "applying"
+    ]
+  ],
+  "finishedAt": "2026-11-24T20:11:12.868Z"
+}

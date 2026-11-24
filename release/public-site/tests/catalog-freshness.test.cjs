@@ -72,6 +72,32 @@ test("catalog dates saved bids and Buy Now independently while stale or unknown 
   }
 });
 
+test('list and Home put the feed time on the observed Timed bid and keep the general snapshot separate',()=>{
+  const view=catalog();
+  const record=car({platform:'iaai',lot_number:'46410658',vin:'WAUC4DF58JA064291',title:'2018 Audi S5',
+    auction:{is_timed:true,state:'open',timed_end_at:'2099-11-24T23:59:00Z'},
+    pricing:{current_bid_usd:8100,buy_now_usd:11000,current_bid_source:'apibara_feed',current_bid_observed_at:'2026-11-24T20:07:24.000Z'},
+    read:{source:'d1',freshness:'fresh',last_synced_at:'2026-11-24T20:01:32.326Z'}});
+  for(const kind of ['timed','buy-now']){
+    view.context.lotStatus.value=kind==='buy-now'?'Buy Now':'Timed';
+    view.api.render([record]);
+    for(const html of [view.cars.innerHTML,view.api.homeCard(record,kind)]){
+      assert.match(html,/Odczyt kwoty licytacji z [^<]*21:07:24/);
+      assert.match(html,/Zapis danych z [^<]*21:01/);
+      assert.match(html,/\$8,100/);
+    }
+  }
+  const buyOnly={...record,pricing:{...record.pricing,current_bid_usd:null,buy_now_usd:8100}};
+  view.api.render([buyOnly]);
+  assert.doesNotMatch(view.cars.innerHTML,/Odczyt kwoty licytacji/);
+  assert.doesNotMatch(view.api.homeCard(buyOnly,'buy-now'),/Odczyt kwoty licytacji/);
+  const sold={...record,auction:{state:'finished',result_confirmed:true,outcome_status:'sold'},pricing:{...record.pricing,sale_price_usd:8100}};
+  view.context.lotStatus.value='';
+  view.api.render([sold]);
+  assert.doesNotMatch(view.cars.innerHTML,/Odczyt kwoty licytacji/);
+  assert.doesNotMatch(view.api.homeCard(sold,'timed'),/Odczyt kwoty licytacji/);
+});
+
 test("Home categories exclude stale and unknown records despite retained active source status and price", () => {
   const view = catalog();
   const now = Date.now();

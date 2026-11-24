@@ -1,0 +1,572 @@
+{
+  "at": "2026-11-24T20:15:47.858Z",
+  "restCalls": 1,
+  "d1Rows": 694,
+  "r2Gets": 1,
+  "detail": {
+    "checkedAt": "2026-11-24T20:15:51.006Z",
+    "vin": "1B7GG32X82S697320",
+    "lot": "65917836",
+    "sourceUpdatedAt": "2026-11-24T17:16:21.000000Z",
+    "auction": {
+      "state": "open",
+      "phase": "scheduled",
+      "result_confirmed": false,
+      "outcome_status": null,
+      "completion_source": null,
+      "lot_removed": false,
+      "auction_at": "2026-12-01T02:00:00+00:00",
+      "auction_date_pending": false,
+      "is_buy_now": true,
+      "upcoming": "(missing)",
+      "is_timed": false
+    },
+    "pricing": {
+      "current_bid": "(missing)",
+      "current_bid_usd": 225,
+      "buy_now": "(missing)",
+      "buy_now_usd": 468,
+      "last_sold_price_usd": null
+    }
+  },
+  "raw": {
+    "generation": 23248,
+    "bytes": 5549537,
+    "sha256": "ec3a9bc5864f2c6a7880529ca9527a3ff8ee515f1269386afa19aac544e9cb5d",
+    "records": 144000
+  },
+  "selection": {
+    "allReschedules": 5417,
+    "newFutureTerm": 5404,
+    "patchOnly": 5404,
+    "withIdentity": 5404,
+    "partition": 72,
+    "uniqueSample": 35
+  },
+  "plan": [
+    "SEARCH l USING INDEX sqlite_autoindex_auction_listings_1 (listing_id=?)",
+    "SEARCH m USING PRIMARY KEY (baseline_id=? AND listing_id=?) LEFT-JOIN"
+  ],
+  "sample": [
+    {
+      "platform": "copart",
+      "lot": "70962556",
+      "vin": "2T3P1RFV0NW286972",
+      "sequence": 118175010,
+      "date": "2026-11-30T15:00:00+00:00",
+      "local": {
+        "vin": "2T3P1RFV0NW286972",
+        "auction_at": "2026-11-30T15:00:00.000Z",
+        "auction_state": "open",
+        "active": 1,
+        "last_sequence": 75639067
+      },
+      "classification": "active_exact"
+    },
+    {
+      "platform": "iaai",
+      "lot": "45833848",
+      "vin": "1G1ZD5ST6KF110771",
+      "sequence": 118178646,
+      "date": "2026-12-03T14:30:00+00:00",
+      "local": {
+        "vin": "1G1ZD5ST6KF110771",
+        "auction_at": null,
+        "auction_state": "ended",
+        "active": 0,
+        "last_sequence": 93734812
+      },
+      "classification": "inactive_older_than_reschedule"
+    },
+    {
+      "platform": "copart",
+      "lot": "75431766",
+      "vin": "5XXGU4L34GG114673",
+      "sequence": 118180634,
+      "date": "2026-12-02T15:00:00+00:00",
+      "local": {
+        "vin": "5XXGU4L34GG114673",
+        "auction_at": "2026-12-02T15:00:00.000Z",
+        "auction_state": "open",
+        "active": 1,
+        "last_sequence": 106823443
+      },
+      "classification": "active_exact"
+    },
+    {
+      "platform": "copart",
+      "lot": "76269916",
+      "vin": "1C4BJWEGXJL836669",
+      "sequence": 118185576,
+      "date": "2026-11-25T18:00:00+00:00",
+      "local": {
+        "vin": "1C4BJWEGXJL836669",
+        "auction_at": "2026-11-25T18:00:00.000Z",
+        "auction_state": "open",
+        "active": 1,
+        "last_sequence": 115777406
+      },
+      "classification": "active_exact"
+    },
+    {
+      "platform": "copart",
+      "lot": "71533066",
+      "vin": "1C4PJMMX7MD136974",
+      "sequence": 118204916,
+      "date": "2026-12-03T15:00:00+00:00",
+      "local": {
+        "vin": "1C4PJMMX7MD136974",
+        "auction_at": "2026-12-03T15:00:00.000Z",
+        "auction_state": "open",
+        "active": 1,
+        "last_sequence": 103389472
+      },
+      "classification": "active_exact"
+    },
+    {
+      "platform": "copart",
+      "lot": "62712606",
+      "vin": "3C6UR5HJ4PG606545",
+      "sequence": 118206572,
+      "date": "2026-12-03T18:00:00+00:00",
+      "local": {
+        "vin": "3C6UR5HJ4PG606545",
+        "auction_at": null,
+        "auction_state": "ended",
+        "active": 0,
+        "last_sequence": 94159224
+      },
+      "classification": "inactive_older_than_reschedule"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46132499",
+      "vin": "2GNFLEEK7E6288579",
+      "sequence": 118207759,
+      "date": "2026-12-01T12:30:00+00:00",
+      "local": null,
+      "classification": "no_local_listing"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46396135",
+      "vin": "4T1DAACK0SU580701",
+      "sequence": 118210214,
+      "date": "2026-12-01T12:30:00+00:00",
+      "local": {
+        "vin": "4T1DAACK0SU580701",
+        "auction_at": "2026-12-01T14:30:00.000Z",
+        "auction_state": "open",
+        "active": 1,
+        "last_sequence": 118210214
+      },
+      "classification": "other_requires_review"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46435558",
+      "vin": "5NMS53AD7KH033724",
+      "sequence": 118212074,
+      "date": "2026-12-01T12:30:00+00:00",
+      "local": {
+        "vin": "5NMS53AD7KH033724",
+        "auction_at": "2026-12-01T14:30:00.000Z",
+        "auction_state": "open",
+        "active": 1,
+        "last_sequence": 118212074
+      },
+      "classification": "other_requires_review"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46570587",
+      "vin": "1FTRF12W89KB50520",
+      "sequence": 118217354,
+      "date": "2026-12-01T12:30:00+00:00",
+      "local": {
+        "vin": "1FTRF12W89KB50520",
+        "auction_at": "2026-12-01T14:30:00.000Z",
+        "auction_state": "open",
+        "active": 1,
+        "last_sequence": 118217354
+      },
+      "classification": "other_requires_review"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46443386",
+      "vin": "KMHH35LE2JU030606",
+      "sequence": 118221680,
+      "date": "2026-12-01T12:30:00+00:00",
+      "local": {
+        "vin": "KMHH35LE2JU030606",
+        "auction_at": "2026-12-01T14:30:00.000Z",
+        "auction_state": "open",
+        "active": 1,
+        "last_sequence": 118221680
+      },
+      "classification": "other_requires_review"
+    },
+    {
+      "platform": "copart",
+      "lot": "75082896",
+      "vin": "2T1BU4EE6BC697126",
+      "sequence": 118222404,
+      "date": "2026-12-01T15:00:00+00:00",
+      "local": {
+        "vin": "2T1BU4EE6BC697126",
+        "auction_at": null,
+        "auction_state": "ended",
+        "active": 0,
+        "last_sequence": 118125615
+      },
+      "classification": "inactive_older_than_reschedule"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46331966",
+      "vin": "1HGCR2F33DA066124",
+      "sequence": 118226395,
+      "date": "2026-12-01T12:30:00+00:00",
+      "local": null,
+      "classification": "no_local_listing"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46370570",
+      "vin": "KNMAT2MV9KP543922",
+      "sequence": 118230658,
+      "date": "2026-12-01T12:30:00+00:00",
+      "local": {
+        "vin": "KNMAT2MV9KP543922",
+        "auction_at": "2026-12-01T14:30:00.000Z",
+        "auction_state": "open",
+        "active": 1,
+        "last_sequence": 118230658
+      },
+      "classification": "other_requires_review"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46341607",
+      "vin": "3GNAXUEV1LS583792",
+      "sequence": 118236954,
+      "date": "2026-12-01T12:30:00+00:00",
+      "local": {
+        "vin": "3GNAXUEV1LS583792",
+        "auction_at": "2026-12-01T14:30:00.000Z",
+        "auction_state": "open",
+        "active": 1,
+        "last_sequence": 118236954
+      },
+      "classification": "other_requires_review"
+    },
+    {
+      "platform": "iaai",
+      "lot": "45941800",
+      "vin": "1FMCU0F73DUA30254",
+      "sequence": 118237311,
+      "date": "2026-12-01T12:30:00+00:00",
+      "local": {
+        "vin": "1FMCU0F73DUA30254",
+        "auction_at": "2026-12-01T14:30:00.000Z",
+        "auction_state": "open",
+        "active": 1,
+        "last_sequence": 118237311
+      },
+      "classification": "other_requires_review"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46444541",
+      "vin": "1N4AL3AP9HN302240",
+      "sequence": 118238116,
+      "date": "2026-12-03T12:30:00+00:00",
+      "local": {
+        "vin": "1N4AL3AP9HN302240",
+        "auction_at": null,
+        "auction_state": "ended",
+        "active": 0,
+        "last_sequence": 117498835
+      },
+      "classification": "inactive_older_than_reschedule"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46285209",
+      "vin": "1GC4YNE78NF167840",
+      "sequence": 118239453,
+      "date": "2026-12-01T12:30:00+00:00",
+      "local": {
+        "vin": "1GC4YNE78NF167840",
+        "auction_at": "2026-12-01T14:30:00.000Z",
+        "auction_state": "open",
+        "active": 1,
+        "last_sequence": 118239453
+      },
+      "classification": "other_requires_review"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46590142",
+      "vin": "2CNFLPEY9A6205555",
+      "sequence": 118239809,
+      "date": "2026-12-03T12:30:00+00:00",
+      "local": {
+        "vin": "2CNFLPEY9A6205555",
+        "auction_at": null,
+        "auction_state": "ended",
+        "active": 0,
+        "last_sequence": 117500556
+      },
+      "classification": "inactive_older_than_reschedule"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46575567",
+      "vin": "JN1EV7EK9HM364256",
+      "sequence": 118240221,
+      "date": "2026-12-03T12:30:00+00:00",
+      "local": {
+        "vin": "JN1EV7EK9HM364256",
+        "auction_at": null,
+        "auction_state": "ended",
+        "active": 0,
+        "last_sequence": 117486337
+      },
+      "classification": "inactive_older_than_reschedule"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46573862",
+      "vin": "KM8J3CA2XGU032319",
+      "sequence": 118244440,
+      "date": "2026-12-01T15:30:00+00:00",
+      "local": {
+        "vin": "KM8J3CA2XGU032319",
+        "auction_at": "2026-12-01T15:30:00.000Z",
+        "auction_state": "open",
+        "active": 1,
+        "last_sequence": 117869399
+      },
+      "classification": "active_exact"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46366446",
+      "vin": "19XFC2F67LE015602",
+      "sequence": 118298826,
+      "date": "2026-12-01T15:30:00+00:00",
+      "local": {
+        "vin": "19XFC2F67LE015602",
+        "auction_at": "2026-12-01T15:30:00.000Z",
+        "auction_state": "open",
+        "active": 1,
+        "last_sequence": 118245325
+      },
+      "classification": "active_exact"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46248903",
+      "vin": "3GCPCREC3FG166336",
+      "sequence": 118248386,
+      "date": "2026-12-01T13:30:00+00:00",
+      "local": {
+        "vin": "3GCPCREC3FG166336",
+        "auction_at": "2026-12-01T15:30:00.000Z",
+        "auction_state": "open",
+        "active": 1,
+        "last_sequence": 118248386
+      },
+      "classification": "other_requires_review"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46311700",
+      "vin": "JTMB6RFV3SD163039",
+      "sequence": 118255680,
+      "date": "2026-12-01T13:30:00+00:00",
+      "local": {
+        "vin": "JTMB6RFV3SD163039",
+        "auction_at": "2026-12-01T15:30:00.000Z",
+        "auction_state": "open",
+        "active": 1,
+        "last_sequence": 118255680
+      },
+      "classification": "other_requires_review"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46507697",
+      "vin": "3LNHL2GC1CR834820",
+      "sequence": 118255794,
+      "date": "2026-12-01T13:30:00+00:00",
+      "local": {
+        "vin": "3LNHL2GC1CR834820",
+        "auction_at": null,
+        "auction_state": "ended",
+        "active": 0,
+        "last_sequence": 117967548
+      },
+      "classification": "inactive_older_than_reschedule"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46284838",
+      "vin": "1C4PJMCS0GW156014",
+      "sequence": 118260042,
+      "date": "2026-12-01T13:30:00+00:00",
+      "local": {
+        "vin": "1C4PJMCS0GW156014",
+        "auction_at": "2026-12-01T15:30:00.000Z",
+        "auction_state": "open",
+        "active": 1,
+        "last_sequence": 118260042
+      },
+      "classification": "other_requires_review"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46675210",
+      "vin": "WMWZB3C58FWR45100",
+      "sequence": 118260641,
+      "date": "2026-12-03T13:30:00+00:00",
+      "local": {
+        "vin": "WMWZB3C58FWR45100",
+        "auction_at": "2026-12-03T13:30:00.000Z",
+        "auction_state": "open",
+        "active": 1,
+        "last_sequence": 118260641
+      },
+      "classification": "active_exact"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46162902",
+      "vin": "5GAKVCKD6HJ137124",
+      "sequence": 118263124,
+      "date": "2026-12-03T14:30:00+00:00",
+      "local": {
+        "vin": "5GAKVCKD6HJ137124",
+        "auction_at": null,
+        "auction_state": "ended",
+        "active": 0,
+        "last_sequence": 118724646
+      },
+      "classification": "later_membership_update_requires_review"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46440066",
+      "vin": "JTHBA30G845052133",
+      "sequence": 118263421,
+      "date": "2026-12-01T15:30:00+00:00",
+      "local": null,
+      "classification": "no_local_listing"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46499386",
+      "vin": "5XYZTDLB9HG444177",
+      "sequence": 118265147,
+      "date": "2026-12-03T14:30:00+00:00",
+      "local": {
+        "vin": "5XYZTDLB9HG444177",
+        "auction_at": null,
+        "auction_state": "ended",
+        "active": 0,
+        "last_sequence": 117975366
+      },
+      "classification": "inactive_older_than_reschedule"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46404762",
+      "vin": "5FNRL5H67CB012186",
+      "sequence": 118269316,
+      "date": "2026-12-01T15:30:00+00:00",
+      "local": {
+        "vin": "5FNRL5H67CB012186",
+        "auction_at": null,
+        "auction_state": "ended",
+        "active": 0,
+        "last_sequence": 103517643
+      },
+      "classification": "inactive_older_than_reschedule"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46202141",
+      "vin": "3C4NJDBN5RT601228",
+      "sequence": 118271890,
+      "date": "2026-12-01T15:30:00+00:00",
+      "local": {
+        "vin": "3C4NJDBN5RT601228",
+        "auction_at": "2026-12-01T15:30:00.000Z",
+        "auction_state": "open",
+        "active": 1,
+        "last_sequence": 118271890
+      },
+      "classification": "active_exact"
+    },
+    {
+      "platform": "iaai",
+      "lot": "46634784",
+      "vin": "1FAHP34N66W114618",
+      "sequence": 118273232,
+      "date": "2026-12-03T15:30:00+00:00",
+      "local": {
+        "vin": "1FAHP34N66W114618",
+        "auction_at": "2026-12-03T15:30:00.000Z",
+        "auction_state": "open",
+        "active": 1,
+        "last_sequence": 118273232
+      },
+      "classification": "active_exact"
+    },
+    {
+      "platform": "copart",
+      "lot": "74252176",
+      "vin": "JTDKARFU1H3046256",
+      "sequence": 118288985,
+      "date": "2026-12-01T18:00:00+00:00",
+      "local": {
+        "vin": "JTDKARFU1H3046256",
+        "auction_at": "2026-12-01T18:00:00.000Z",
+        "auction_state": "open",
+        "active": 1,
+        "last_sequence": 75639067
+      },
+      "classification": "active_exact"
+    },
+    {
+      "platform": "copart",
+      "lot": "65917836",
+      "vin": "1B7GG32X82S697320",
+      "sequence": 118299636,
+      "date": "2026-12-01T02:00:00+00:00",
+      "local": {
+        "vin": "1B7GG32X82S697320",
+        "auction_at": null,
+        "auction_state": "ended",
+        "active": 0,
+        "last_sequence": 118077155
+      },
+      "classification": "inactive_older_than_reschedule"
+    }
+  ],
+  "results": {
+    "active_exact": 10,
+    "inactive_older_than_reschedule": 10,
+    "no_local_listing": 3,
+    "other_requires_review": 11,
+    "later_membership_update_requires_review": 1
+  },
+  "retentionMetadata": {
+    "oldestUnretired": 13389,
+    "maxRetiredEstimate": 17518,
+    "retainedComplete": 298,
+    "generationRows": 628
+  }
+}

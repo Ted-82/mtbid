@@ -1,0 +1,262 @@
+diff --git a/sync/auction-archive-intake.cjs b/sync/auction-archive-intake.cjs
+index 5115f32..47e1288 100644
+--- a/sync/auction-archive-intake.cjs
++++ b/sync/auction-archive-intake.cjs
+@@ -14,6 +14,7 @@ const MAX_FEED=32*1024*1024;
+ const MAX_DECODED_FEED=256*1024*1024;
+ const MAX_FEED_LINE=1024*1024;
+ const MAX_WORK=38;
++const WINDOW_EVENTS=3*MAX_WORK+1;
+ const MAX_PUBLISHED_PER_CYCLE=10;
+ const MAX_GALLERY_PHOTOS=22;
+ const waitExpiry=2*86_400_000;
+@@ -35,8 +36,14 @@ function parseEvent(value,generation) {
+     ? Math.round(amount*100):null;
+   const recordedAt=new Date(value.recorded_at).toISOString();
+   const day=after?.['auction.last_sold_day'];
++  const timestamp=after?.['auction.last_sold_at'];
++  const preciseSale=status==='sold'&&typeof timestamp==='string'&&
++    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/i.test(timestamp)&&
++    Number.isFinite(Date.parse(timestamp));
+   return {platform:vehicle.platform,lot:String(vehicle.lot_number),vin:vehicle.vin,recordedAt,status,saleCents,
+     sequence:value.sequence,generation:generation.generation_id,
++    ...(preciseSale?{sourceSoldAt:new Date(timestamp).toISOString(),
++      saleTransition:[false,0,'0'].includes(value.before?.['auction.lot_sold'])}:{}),
+     eventDay:typeof day==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(day)?day:recordedAt.slice(0,10)};
+ }
+ 
+@@ -62,7 +69,7 @@ async function readCapped(stream,cap) {
+   return bytes;
+ }
+ 
+-async function publishedEvents(bucket,generation,afterSequence=0) {
++async function publishedEvents(bucket,generation,afterSequence=0,limit=MAX_WORK+1) {
+   const key=generation.raw_key;
+   if(typeof key!=='string'||!key||!Number.isSafeInteger(generation.compressed_bytes)||generation.compressed_bytes>MAX_FEED)
+     throw Error('archive_feed_limit');
+@@ -87,11 +94,11 @@ async function publishedEvents(bucket,generation,afterSequence=0) {
+     const event=parseEvent(JSON.parse(line),generation);
+     if(!event||event.sequence<=afterSequence) return;
+     // Keep only the next bounded set, including one event that proves more work remains.
+-    if(events.length===MAX_WORK+1&&event.sequence>=events.at(-1).sequence) return;
++    if(events.length===limit&&event.sequence>=events.at(-1).sequence) return;
+     const insertion=events.findIndex(item=>item.sequence>event.sequence);
+     if(insertion<0) events.push(event);
+     else events.splice(insertion,0,event);
+-    if(events.length>MAX_WORK+1) events.pop();
++    if(events.length>limit) events.pop();
+   }
+   try {
+     while(true) {
+@@ -189,6 +196,30 @@ function earliestPending(index) {
+   return {generation:index.generation+1,offset:0};
+ }
+ 
++async function terminalWindow(index,source,generation,after) {
++  // For a small compressed file the repeated root writes can exceed the input that caching would save.
++  if(generation.compressed_bytes<1024*1024){
++    delete index.terminalWindow;
++    const events=await publishedEvents(source,generation,after);
++    return {events,mayContinue:events.length===MAX_WORK+1};
++  }
++  const cached=index.terminalWindow;
++  if(cached?.version===1&&cached.generation===generation.generation_id&&cached.rawSha===generation.sha256&&
++      cached.start<=after&&Array.isArray(cached.events)&&cached.events.length>0&&cached.events.length<=WINDOW_EVENTS&&
++      cached.events.at(-1).sequence>after&&cached.checksum===await hash(JSON.stringify(cached.events))){
++    const remaining=cached.events.filter(event=>event.sequence>after);
++    const mayContinue=cached.events.length===WINDOW_EVENTS;
++    // Refresh a short, incomplete tail before this tick so the same 38 candidates are available.
++    if(!mayContinue||remaining.length>MAX_WORK) return {events:remaining,mayContinue};
++  }
++  const events=await publishedEvents(source,generation,after,WINDOW_EVENTS);
++  if(events.length&&JSON.stringify(events).length*32<=generation.compressed_bytes){
++    index.terminalWindow={version:1,generation:generation.generation_id,rawSha:generation.sha256,
++      start:after,events,checksum:await hash(JSON.stringify(events))};
++  }else delete index.terminalWindow;
++  return {events,mayContinue:events.length===WINDOW_EVENTS};
++}
++
+ async function runArchive(env,{
+   now=()=>Date.now(),fetchImage=(input,init)=>globalThis.fetch(input,init),maximumBytes=MAX_ARCHIVE_BYTES
+ }={}) {
+@@ -219,7 +250,8 @@ async function runArchive(env,{
+       etag=await saveIndex(target,index,etag);
+     }
+     ({index,etag}=await purgeObjects(target,index,etag));
+-    const events=generation?await publishedEvents(source,generation,cursor.offset):[];
++    const window=generation?await terminalWindow(index,source,generation,cursor.offset):{events:[],mayContinue:false};
++    const events=window.events;
+     const queue=[...(atCapacity?[]:waiting.slice(0,2)).map(event=>({event,retry:true})),...events.map(event=>({event,retry:false}))];
+     let processed=0, throttle=false;
+     for(const {event,retry} of queue){
+@@ -229,12 +261,27 @@ async function runArchive(env,{
+       if(retry) index.waiting=index.waiting.filter(x=>x.sequence!==event.sequence);
+       else {index.generation=event.generation;index.offset=event.sequence;}
+       if(index.hidden.includes(await hash(event.vin))){ignored++;continue;}
+-      const existing=(await queryEntries(target,index,{q:event.vin})).find(entry=>entry.platform===event.platform&&entry.lot===event.lot&&entry.vin===event.vin&&
+-        (entry.eventDay||entry.recordedAt.slice(0,10))===event.eventDay);
++      const byLot=(await queryEntries(target,index,{q:event.vin})).filter(entry=>entry.platform===event.platform&&entry.lot===event.lot&&entry.vin===event.vin);
++      const exact=byLot.find(entry=>entry.sequence===event.sequence || (event.sourceSoldAt&&entry.sourceSoldAt===event.sourceSoldAt));
++      const byDay=byLot.filter(entry=>(entry.eventDay||entry.recordedAt.slice(0,10))===event.eventDay);
++      // Older records lack an exact sale time. Retain their existing date-based identity.
++      // A second sale on the same day needs a separate source time AND a new unsold-to-sold transition.
++      const newSale=event.saleTransition===true&&byDay.every(entry=>entry.sourceSoldAt&&entry.saleTransition===true);
++      if(!exact&&byDay.length&&!newSale&&(
++        byDay.length!==1 || (event.sourceSoldAt&&byDay[0].sourceSoldAt&&event.sourceSoldAt!==byDay[0].sourceSoldAt))){
++        ignored++;continue;
++      }
++      const existing=exact||(!newSale&&byDay.length===1?byDay[0]:null);
+       if(existing) {
+-        if((!existing.status||existing.status==='ended_unknown')&&event.status!=='ended_unknown'&&existing.saleCents===null){
++        const confirmedOutcome=(!existing.status||existing.status==='ended_unknown')&&event.status!=='ended_unknown';
++        const fillSalePrice=exact&&existing.status==='sold'&&event.status==='sold'&&event.saleCents!==null;
++        if(existing.saleCents==null&&(confirmedOutcome||fillSalePrice)){
+           existing.status=event.status;
+           existing.saleCents=event.saleCents;
++          if(event.sourceSoldAt){
++            existing.sourceSoldAt=event.sourceSoldAt;
++            existing.saleTransition=existing.saleTransition===true||event.saleTransition;
++          }
+           await updateEntry(target,index,existing);
+         }
+         ignored++;
+@@ -297,7 +344,11 @@ async function runArchive(env,{
+       index.entries.push(entry);
+       saved++;
+     }
+-    if(generation&&!throttle) {index.offset=0;index.generation=generation.generation_id;}
++    if(generation&&!throttle&&window.mayContinue) throttle=true;
++    if(generation&&!throttle) {
++      delete index.terminalWindow;
++      index.offset=0;index.generation=generation.generation_id;
++    }
+     delete index.lock;
+     etag=await saveIndex(target,index,etag);
+     return {status:atCapacity?'archive_capacity':throttle?'partial':'complete',generation:index.generation,offset:index.offset,
+diff --git a/tests/archive-auto-owner.test.cjs b/tests/archive-auto-owner.test.cjs
+index a1aaa0c..c66a8e3 100644
+--- a/tests/archive-auto-owner.test.cjs
++++ b/tests/archive-auto-owner.test.cjs
+@@ -33,14 +33,15 @@ function bucket(){
+     return {etag};
+   },async delete(keys){for(const key of keys){values.delete(key);revisions.delete(key);}}};
+ }
+-async function fixture({row=archiveRow,legacyRows=null,terminal=true,fetchImage=async()=>new Response(JPEG,{headers:{'Content-Type':'image/jpeg'}})}={}){
++async function fixture({row=archiveRow,legacyRows=null,terminal=true,events=null,fetchImage=async()=>new Response(JPEG,{headers:{'Content-Type':'image/jpeg'}})}={}){
+   const target=bucket(),feed=bucket();
+   await target.put(INDEX,JSON.stringify({version:1,entries:[]}));
+-  const payload=gzipSync(JSON.stringify({sequence:10,event:'lot.sold',reason:'source_outcome',
++  const changes=events??[{sequence:10,event:'lot.sold',reason:'source_outcome',
+     terminal,vehicle:sample,recorded_at:'2026-11-17T11:58:20Z',
+-    after:{'auction.lot_sold':'1','auction.last_sold_status':'Sold','pricing.last_sold_price_usd':2200}})+'\n');
++    after:{'auction.lot_sold':'1','auction.last_sold_status':'Sold','pricing.last_sold_price_usd':2200}}];
++  const payload=gzipSync(changes.map(change=>JSON.stringify(change)).join('\n')+'\n');
+   await feed.put('raw.gz',payload);
+-  const generation={generation_id:17245,first_sequence:10,last_sequence:10,raw_key:'raw.gz',
++  const generation={generation_id:17245,first_sequence:changes[0].sequence,last_sequence:changes.at(-1).sequence,raw_key:'raw.gz',
+     compressed_bytes:payload.length,sha256:await hash(payload)};
+   const env={REXBID_AUCTION_ARCHIVE:target,REXBID_ARCHIVE_FEED:feed,AUTH_CANONICAL_ORIGIN:'https://rexbid.pl',
+     REXBID_OWNER_USER_ID:'owner',REXBID_ARCHIVE_CATALOG:{prepare(query){
+@@ -85,6 +86,75 @@ test('streams a pack larger than 52 MB and returns the earliest unprocessed outc
+   assert.deepEqual(last.map(x=>x.sequence),Array.from({length:23},(_,i)=>i+44));
+   await assert.rejects(publishedEvents(feed,{...generation,sha256:'0'.repeat(64)},43),/archive_feed_checksum/);
+ });
++function saleObservation(sequence, sourceTime, price, wasSold) {
++  const after={'auction.lot_sold':true,'auction.last_sold_status':'Sold','auction.last_sold_day':'2026-11-17',
++    'pricing.last_sold_price_usd':price};
++  if(sourceTime!==null)after['auction.last_sold_at']=sourceTime;
++  return {sequence,terminal:true,event:'lot.sold',reason:'source_outcome',vehicle:sample,
++    recorded_at:'2026-11-17T11:58:20Z',before:{'auction.lot_sold':wasSold},after};
++}
++
++test('one VIN and LOT retains two source-backed sales on the same day and fills only a matching sale time',async()=>{
++  const firstTime='2026-11-17T09:00:00Z', secondTime='2026-11-17T10:00:00Z';
++  const f=await fixture({events:[
++    saleObservation(10,firstTime,null,false),saleObservation(11,secondTime,3200,false),
++    saleObservation(12,'2026-11-17T10:00:00+01:00',2200,true),
++    saleObservation(13,firstTime,12000,true),saleObservation(14,null,18000,true)
++  ]});
++  assert.equal((await f.run()).saved,2);
++  for(const query of [VIN,lot]){
++    const r=await handleArchive(new Request('https://rexbid.pl/api/archiwum?q='+query),f.env,new Date(now));
++    const {entries}=await r.json();assert.deepEqual(entries.map(e=>[e.sequence,e.saleCents]),[[11,320000],[10,220000]]);
++    assert.notEqual(entries[0].photos[0],entries[1].photos[0]);
++  }
++  assert.equal((await f.run()).status,'idle');
++});
++
++test('a later confirmation of the exact sale fills its missing price without downloading another gallery',async()=>{
++  const firstTime='2026-11-17T09:00:00Z';
++  const f=await fixture({events:[saleObservation(10,firstTime,null,false),saleObservation(11,firstTime,2200,true)]});
++  assert.equal((await f.run()).saved,1);
++  const {entries}=await(await f.target.get(INDEX)).json();
++  assert.deepEqual(entries.map(e=>[e.sequence,e.saleCents]),[[10,220000]]);
++  assert.equal(f.target.values.size,3);
++});
++
++test('sale without a precise match stays unpriced after an ambiguous value arrives',async()=>{
++  const f=await fixture({events:[
++    saleObservation(10,null,null,false),saleObservation(11,null,7200,true)
++  ]});
++  assert.equal((await f.run()).saved,1);
++  const {entries}=await(await f.target.get(INDEX)).json();
++  assert.equal(entries.length,1);assert.equal(entries[0].saleCents,null);
++});
++
++test('bounded source window survives restarts, recovers from corrupt cached data and keeps the full per-tick allowance',async()=>{
++  const start=Date.parse('2026-11-17T00:00:00Z');
++  const events=Array.from({length:132},(_,i)=>saleObservation(100+i,new Date(start+i*1000).toISOString(),2100+i,false));
++  // Keep the frame representative of a large mixed change file, with four bounded non-outcome rows.
++  events.splice(1,0,...Array.from({length:4},()=>({sequence:100,event:'vehicle.changed',terminal:false,
++    testPadding:require('node:crypto').randomBytes(390_000).toString('base64')})));
++  const {env,run,target}=await fixture({events});
++  const raw=env.REXBID_ARCHIVE_FEED;
++  const get=raw.get.bind(raw);
++  let reads=0;
++  raw.get=(...args)=>{reads++;return get(...args);};
++  const perTick=[];
++  for(let n=0;n<16;n++){
++    const r=await run();perTick.push(r.saved);
++    if(n===0){
++      const state=await(await target.get(INDEX)).json();
++      assert.equal(state.terminalWindow.events.length,115);
++      state.terminalWindow.events[20].saleCents=999999;
++      await target.put(INDEX,JSON.stringify(state));
++    }
++    if(r.offset===0)break;
++  }
++  assert.deepEqual(perTick,[...Array(13).fill(10),2]);assert.ok(reads<=4);
++  const state=await(await target.get(INDEX)).json();assert.equal(state.terminalWindow,undefined);
++  assert.deepEqual(state.entries.map(e=>e.saleCents),events.filter(e=>e.terminal).map(e=>e.after['pricing.last_sold_price_usd']*100));
++});
++
+ test('packed galleries return exactly one JPEG, with its original bytes and public URL',async()=>{
+   const second=JPEG.slice();
+   second[4]=123;
+diff --git a/tests/auction-archive-public.test.cjs b/tests/auction-archive-public.test.cjs
+index d68db51..1e98a5c 100644
+--- a/tests/auction-archive-public.test.cjs
++++ b/tests/auction-archive-public.test.cjs
+@@ -33,6 +33,22 @@ test('VIN and LOT find two separate auctions and publish only archive URLs',asyn
+   }
+ });
+ 
++test('VIN and LOT page all 19 matching history entries without mixing unrelated entries',async()=>{
++  const wanted=Array.from({length:19},(_,i)=>({...other,status:'sold',sequence:500+i*2,saleCents:10000+i}));
++  const unrelated=wanted.map(e=>({...e,vin:'2FMPK3K99JBC38074',lot:'73099996',sequence:e.sequence+1}));
++  const {env}=fixture([...unrelated,...wanted]);
++  for(const q of [other.vin,other.lot]){
++    const url='/api/archiwum?q='+q;
++    const page=async path=>(await handleArchive(request(path),env,new Date('2026-11-17'))).json();
++    const first=await page(url);
++    assert.equal(first.entries.length,12);assert.ok(first.next);
++    const second=await page(url+'&before='+first.next);
++    assert.equal(second.entries.length,7);assert.equal(second.next,null);
++    const results=[...first.entries,...second.entries];
++    assert.deepEqual(results.map(e=>[e.vin,e.lot,e.sequence,e.saleCents]),wanted.toReversed().map(e=>[e.vin,e.lot,e.sequence,e.saleCents]));
++  }
++});
++
+ test('both lookup and direct photo enforce visibility and model-year rollover',async()=>{
+   const {env,requests}=fixture();
+   assert.equal((await handleArchive(request(image),env,new Date('2027-01-01T00:00:01+01:00'))).status,404);

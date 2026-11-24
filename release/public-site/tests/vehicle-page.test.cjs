@@ -14,6 +14,16 @@ test('recorded bid context uses a source snapshot timestamp with the Polish time
  assert.match(label({last_synced_at:'2026-11-17T15:46:07'}),/nieustalony/);
 });
 const publicShell=fs.readFileSync(require.resolve('../public/car.html'),'utf8');
+test('a provider bid timestamp is bound to the displayed current amount and includes seconds in Warsaw',()=>{
+ const label=require('../public/rexbid-market.js').priceObservationLabel;
+ const input={read:{last_synced_at:'2026-11-24T20:01:32.326Z'},pricing:{current_bid_usd:8100,current_bid_source:'apibara_feed',current_bid_observed_at:'2026-11-24T20:07:24.000Z'}};
+ assert.match(label(input,'current_bid',8100),/24\.11\.2026.*21:07:24.*(?:GMT|UTC)\+1/);
+ assert.match(label(input),/21:01/);
+ assert.equal(label(input,'current_bid',8000),'');
+ assert.equal(label(input,'buy_now',8100),'');
+ for(const override of [{current_bid_source:'other'}, {current_bid_usd:null},{current_bid_usd:true},{current_bid_observed_at:'2026-11-24T20:07:24'},{current_bid_observed_at:null}])
+   assert.equal(label({...input,pricing:{...input.pricing,...override}},'current_bid',8100),'');
+});
 const fixture=async(query=id,{status=200,json={ok:true,data:car},method='GET',offline=false}={})=>{
  let calls=0;
  const r=await vehiclePage(new Request('https://rexbid.pl/car'+query,{method}),{

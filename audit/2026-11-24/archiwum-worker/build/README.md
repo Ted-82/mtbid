@@ -1,0 +1,1 @@
+This folder contains the built output assets for the worker "rexbid-auction-archive-auto" generated at 2026-11-24T20:41:39.419Z.

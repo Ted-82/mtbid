@@ -1,0 +1,51 @@
+{
+  "at": "2026-11-24T20:42:35.798Z",
+  "controls": {
+    "source": [
+      12,
+      9,
+      153,
+      39
+    ],
+    "close": [
+      334,
+      6,
+      44,
+      44
+    ],
+    "exterior": [
+      53,
+      64,
+      144,
+      35
+    ],
+    "interior": [
+      197,
+      64,
+      140,
+      35
+    ]
+  },
+  "interiorClickable": true,
+  "paths": [
+    "https://vis.iaai.com/Home/ThreeSixtyView"
+  ],
+  "errors": [
+    "Framing 'https://vis.iaai.com/' violates the following Content Security Policy directive: \"frame-src 'self' https://vis.iaai.com/Home/ThreeSixtyView\". The request has been blocked.\n"
+  ],
+  "images": [
+    {
+      "tag": "IMG",
+      "natural": 1233,
+      "w": 0,
+      "h": 0
+    },
+    {
+      "tag": "IMG",
+      "natural": 2446,
+      "w": 0,
+      "h": 0
+    }
+  ],
+  "receivedFrames": 6
+}

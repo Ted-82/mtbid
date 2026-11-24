@@ -1,0 +1,91 @@
+{
+  "mode": "genuine",
+  "at": "2026-11-24T20:39:55.972Z",
+  "runtime": "5.20261006.1-alpha",
+  "engine": "workerd",
+  "compatibilityDate": "2026-10-01",
+  "flags": [
+    "nodejs_compat"
+  ],
+  "sourceRows": 42,
+  "realEvents": 42,
+  "syntheticEvents": 0,
+  "rawReads": 5,
+  "rawObjectTransferBytes": 8400,
+  "sampleGzipBytes": 1680,
+  "galleries": 42,
+  "verifiedGalleriesAndPrices": 42,
+  "simulatedSourceJpegRequests": 84,
+  "unexpectedOutboundRequests": 0,
+  "lookupPhotoBytesVerified": true,
+  "completed": true,
+  "idleReads": 0,
+  "rootGetBytes": 75525,
+  "rootPutBytes": 353653,
+  "targetReads": 20,
+  "targetWrites": 142,
+  "maxRootBytes": 13022,
+  "measuredMetadataBytes": 437578,
+  "passes": [
+    {
+      "galleries": 10,
+      "offset": 68854623,
+      "generation": 9987,
+      "reads": 1,
+      "rootGetBytes": 3255,
+      "rootPutBytes": 20324,
+      "targetReads": 4,
+      "targetWrites": 34,
+      "largestRoot": 3200,
+      "elapsedMs": 1954
+    },
+    {
+      "galleries": 20,
+      "offset": 68857143,
+      "generation": 9987,
+      "reads": 1,
+      "rootGetBytes": 9468,
+      "rootPutBytes": 57248,
+      "targetReads": 4,
+      "targetWrites": 33,
+      "largestRoot": 6268,
+      "elapsedMs": 1979
+    },
+    {
+      "galleries": 30,
+      "offset": 68861188,
+      "generation": 9987,
+      "reads": 1,
+      "rootGetBytes": 15609,
+      "rootPutBytes": 94082,
+      "targetReads": 4,
+      "targetWrites": 33,
+      "largestRoot": 9341,
+      "elapsedMs": 2496
+    },
+    {
+      "galleries": 40,
+      "offset": 68877055,
+      "generation": 9987,
+      "reads": 1,
+      "rootGetBytes": 21756,
+      "rootPutBytes": 130970,
+      "targetReads": 4,
+      "targetWrites": 33,
+      "largestRoot": 12415,
+      "elapsedMs": 2357
+    },
+    {
+      "galleries": 42,
+      "offset": 0,
+      "generation": 9987,
+      "reads": 1,
+      "rootGetBytes": 25437,
+      "rootPutBytes": 51029,
+      "targetReads": 4,
+      "targetWrites": 9,
+      "largestRoot": 13022,
+      "elapsedMs": 863
+    }
+  ]
+}

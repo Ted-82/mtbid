@@ -1,0 +1,68 @@
+{
+  "origin": "https://rexbid-audit-staging.tedn828.workers.dev",
+  "requestedRelease": "f2a176fa",
+  "started": "2026-11-24T21:38:58.886Z",
+  "name": "firefox",
+  "runs": [
+    {
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "checks": {
+        "budget": {
+          "passed": true,
+          "budgets": [
+            {
+              "budgetPLN": 30000,
+              "bid": "1699,00 USD",
+              "value": 1699,
+              "note": "Limit do pełnego dolara. Pozostaje 55 zł, w tym rezerwa 0 zł.",
+              "state": "",
+              "submitted": true
+            },
+            {
+              "budgetPLN": 100000,
+              "bid": "12 265,00 USD",
+              "value": 12265,
+              "note": "Limit do pełnego dolara. Pozostaje 2 zł, w tym rezerwa 0 zł.",
+              "state": "",
+              "submitted": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "size": {
+        "width": 1366,
+        "height": 768
+      },
+      "checks": {
+        "budget": {
+          "passed": true,
+          "budgets": [
+            {
+              "budgetPLN": 30000,
+              "bid": "1699,00 USD",
+              "value": 1699,
+              "note": "Limit do pełnego dolara. Pozostaje 55 zł, w tym rezerwa 0 zł.",
+              "state": "",
+              "submitted": true
+            },
+            {
+              "budgetPLN": 100000,
+              "bid": "12 265,00 USD",
+              "value": 12265,
+              "note": "Limit do pełnego dolara. Pozostaje 2 zł, w tym rezerwa 0 zł.",
+              "state": "",
+              "submitted": false
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "version": "159.0",
+  "finished": "2026-11-24T21:39:16.499Z"
+}

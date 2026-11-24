@@ -1,0 +1,45 @@
+{
+  "at": "2026-11-24T20:36:31.900Z",
+  "controls": {
+    "source": [
+      14,
+      14,
+      153,
+      39
+    ],
+    "close": [
+      332,
+      14,
+      44,
+      44
+    ],
+    "exterior": [
+      53,
+      8,
+      144,
+      35
+    ],
+    "interior": [
+      197,
+      8,
+      140,
+      35
+    ]
+  },
+  "interiorClickable": true,
+  "images": [
+    {
+      "tag": "IMG",
+      "natural": 1233,
+      "w": 0,
+      "h": 0
+    },
+    {
+      "tag": "IMG",
+      "natural": 2446,
+      "w": 0,
+      "h": 0
+    }
+  ],
+  "receivedFrames": 7
+}

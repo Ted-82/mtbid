@@ -1,0 +1,74 @@
+{
+  "at": "2026-11-24T20:48:34.978Z",
+  "generations": [
+    {
+      "generation_id": 23361,
+      "status": "complete",
+      "observed_at": "2026-11-24T20:35:51.900Z",
+      "updated_at": "2026-11-24T20:47:48.616Z",
+      "last_sequence": 118883756
+    },
+    {
+      "generation_id": 23338,
+      "status": "complete",
+      "observed_at": "2026-11-24T20:05:53.318Z",
+      "updated_at": "2026-11-24T20:19:02.043Z",
+      "last_sequence": 118796735
+    },
+    {
+      "generation_id": 23316,
+      "status": "complete",
+      "observed_at": "2026-11-24T19:35:51.617Z",
+      "updated_at": "2026-11-24T19:49:14.857Z",
+      "last_sequence": 118680705
+    }
+  ],
+  "rows": [
+    {
+      "at": "2026-11-24T20:48:33.639Z",
+      "platform": "copart",
+      "vin": "7SAYGDED8TA458053",
+      "lot": "65054066",
+      "sourceUpdated": "2026-11-24T13:03:37.000000Z",
+      "sourceBid": 70,
+      "publicBid": null,
+      "publicRead": "2026-11-08T09:28:07.000Z",
+      "db": [
+        {
+          "auction_at": "2026-11-25T06:00:00.000Z",
+          "timed_end_at": null,
+          "current_bid_usd": null,
+          "current_bid2_usd": null,
+          "source_updated_at": "2026-11-08T09:28:07.000000Z",
+          "detail_synced_at": null,
+          "summary_synced_at": "2026-11-08T09:28:07.000Z",
+          "updated_at": "2026-11-08T09:28:07.000Z"
+        }
+      ],
+      "sourceState": "open"
+    },
+    {
+      "at": "2026-11-24T20:48:34.300Z",
+      "platform": "iaai",
+      "vin": "WAUC4DF58JA064291",
+      "lot": "46410658",
+      "sourceUpdated": "2026-11-24T20:30:20.000000Z",
+      "sourceBid": 8100,
+      "publicBid": 8000,
+      "publicRead": "2026-11-24T20:01:32.326Z",
+      "db": [
+        {
+          "auction_at": null,
+          "timed_end_at": "2026-11-24T23:59:00.000Z",
+          "current_bid_usd": 8100,
+          "current_bid2_usd": 25,
+          "source_updated_at": "2026-11-22T06:28:14.000Z",
+          "detail_synced_at": null,
+          "summary_synced_at": "2026-11-22T06:28:14.000Z",
+          "updated_at": "2026-11-22T06:28:14.000Z"
+        }
+      ],
+      "sourceState": "open"
+    }
+  ]
+}

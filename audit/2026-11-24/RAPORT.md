@@ -1,5 +1,7 @@
 # REXBID. Odbiór wersji testowej z 24 listopada 2026
 
+**Najnowsze pomiary z 24 listopada** obejmują produkcyjne rozbieżności cen, tempo archiwum, naprawę ponownego wystawienia na kopii oraz zdalny odbiór galerii IAAI. [Kontynuacja odbioru](ODBIOR-DANE-I-MEDIA.md)
+
 **Aktualny stan całego polecenia z 17:34** uwzględnia późniejsze wdrożenia na rexbid.pl, trzy opublikowane paczki i sprawdzenie galerii Copart na produkcji. Poniższe wyniki zachowują datę i zakres pierwotnego odbioru stagingu. [Rejestr ukończonych i otwartych punktów](STAN-AUDYTU-1734.md)
 
 **Można rozpocząć odbiór portalu na telefonie i komputerze.** Najważniejsza zmiana chroni kupującego przed zalicytowaniem powyżej jego budżetu. Drugą jest prawidłowe rozpoznanie auta, gdy Copart i IAAI mają różne pojazdy o identycznym numerze LOT. Trzecią jest szybsza karta z datowaną ceną, którą można ocenić jeszcze przed załadowaniem całej galerii. W publicznej edycji testowej można przejść od wyboru auta przez zdjęcia do wyceny. Przekazywanie danych klienta i uruchamianie importu zostało oddzielone od podglądu. [Otwórz staging](https://rexbid-audit-staging.tedn828.workers.dev/) · [Otwórz kalkulator](https://rexbid-audit-staging.tedn828.workers.dev/kalkulator-budzet)

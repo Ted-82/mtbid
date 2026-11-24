@@ -1,0 +1,10 @@
+{
+  "tests": 795,
+  "pass": 795,
+  "fail": 0,
+  "skipped": 0,
+  "cancelled": 0,
+  "measuredAt": "2026-11-24T21:44:02.644Z",
+  "baseline": "11ee319d-be35-47c4-a06f-49da0464ae98",
+  "scope": "Nakładka cenowa na potwierdzonej wersji z naprawą ponownych wystawień. Testy feed, inventory, Timed oraz odczytu ceny po migracji i przed nią."
+}

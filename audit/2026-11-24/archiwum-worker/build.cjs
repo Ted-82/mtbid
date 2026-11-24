@@ -1,0 +1,15 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),crypto=require('node:crypto'),{spawnSync}=require('node:child_process'),assert=require('node:assert/strict');
+const root=__dirname,src=path.join(root,'src'),proof=require('./pochodzenie.json');
+const digest=b=>crypto.createHash('sha256').update(b).digest('hex');
+for(const [file,hash] of Object.entries(proof.candidateDependencies))assert.equal(digest(fs.readFileSync(path.join(src,file))),hash,file);
+const cache=process.env.NODE_PATH?.split(path.delimiter)??[];
+const pkg=require.resolve('wrangler/package.json',{paths:[root,...cache]});
+const version=JSON.parse(fs.readFileSync(pkg,'utf8')).version;
+assert.equal(version,'4.149.0');
+const out=path.join(root,'build');
+const result=spawnSync(process.execPath,[path.join(path.dirname(pkg),'bin/wrangler.js'),'deploy','--dry-run','--config',path.join(root,'wrangler.archiwum.json'),'--outdir',out],{cwd:root,windowsHide:true,encoding:'utf8',env:{...process.env,WRANGLER_SEND_METRICS:'false',WRANGLER_LOG_PATH:path.join(os.tmpdir(),'rexbid-archive-dry-run.log')}});
+if(result.status!==0)throw Error(result.stderr||result.stdout);
+const entry=path.join(out,'worker.archive-auto.js'),bytes=fs.readFileSync(entry);
+fs.writeFileSync(path.join(root,'wynik-budowy.json'),JSON.stringify({worker:require('./wrangler.archiwum.json').name,base:proof.basedOnVersion,wrangler:version,bytes:bytes.length,sha256:digest(bytes),deployDryRun:true},null,2)+'\n');
+console.log('Zweryfikowana kompilacja lokalna: '+bytes.length+' B, SHA-256 '+digest(bytes));

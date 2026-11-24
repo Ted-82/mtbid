@@ -1,0 +1,62 @@
+{
+  "at": "2026-11-24T21:57:30.141Z",
+  "version": "f1460889-3904-449f-8096-a17ce2bf08b6",
+  "cases": [
+    {
+      "name": "chrome",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "pages": [
+        {
+          "route": "/audyt/cena-timed",
+          "htmlStatus": 200,
+          "fits": true,
+          "noindex": true
+        },
+        {
+          "route": "/audyt/ponowne-wystawienie",
+          "htmlStatus": 200,
+          "fits": true,
+          "noindex": true
+        },
+        {
+          "route": "/car?platform=iaai&lot=46294903&vin=JF2SLDTC5SH513294",
+          "htmlStatus": 200,
+          "fits": true,
+          "noindex": true
+        }
+      ],
+      "marketAsset": "/rexbid-market.js?v=de032632212a"
+    },
+    {
+      "name": "webkit",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "pages": [
+        {
+          "route": "/audyt/cena-timed",
+          "htmlStatus": 200,
+          "fits": true,
+          "noindex": true
+        },
+        {
+          "route": "/audyt/ponowne-wystawienie",
+          "htmlStatus": 200,
+          "fits": true,
+          "noindex": true
+        },
+        {
+          "route": "/car?platform=iaai&lot=46294903&vin=JF2SLDTC5SH513294",
+          "htmlStatus": 200,
+          "fits": true,
+          "noindex": true
+        }
+      ],
+      "marketAsset": "/rexbid-market.js?v=de032632212a"
+    }
+  ]
+}

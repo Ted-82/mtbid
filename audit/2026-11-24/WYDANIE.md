@@ -1,5 +1,7 @@
 # Wydanie REXBID i wycofanie zmian
 
+**Którą instrukcję zastosować.** Ten dokument opisuje pierwsze wydanie z 24 listopada. Interfejs i część wcześniejszych poprawek importu zostały następnie opublikowane za zgodą właściciela. Najnowsza korekta ponownych wystawień, panoramy IAAI i archiwizatora ma inny stan wyjściowy. Przed podjęciem decyzji zajrzyj do [bieżącego odbioru](ODBIOR-DANE-I-MEDIA.md) i [instrukcji aktualnej nakładki importu](../../release/copart-relisting/README.md). Historyczne identyfikatory poniżej służą do odtworzenia tamtego audytu. Bezpośrednio przed każdym wydaniem zapisz wersje faktycznie obsługujące ruch.
+
 **Właściciel może zatwierdzić samą publiczną stronę.** Wydanie procesora paczek, migracji D1 i automatu zdjęć wymaga osobnego odbioru. Na 24 listopada 2026 r. zmiany audytowe udostępniono na stagingu. Poniższe czynności produkcyjne czekają na zatwierdzenie.
 
 ## Wersje wyjściowe

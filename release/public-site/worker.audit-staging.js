@@ -1,6 +1,8 @@
 import website from './worker.js';
 import vehiclePages from './sync/vehicle-page.cjs';
 import verifiedFields from './staging/audit-verified-fields.json';
+import relistingReplay from './staging/relisting-replay.cjs';
+import timedBid from './staging/timed-bid-replay.cjs';
 
 const origin = 'https://rexbid.pl';
 const publicData = new Set(['/api/cars', '/api/filters', '/api/archiwum', '/api/exchange-rates']);
@@ -22,6 +24,8 @@ function mark(response) {
 async function preview(request, env, ctx) {
   const url = new URL(request.url);
   if (!['GET','HEAD'].includes(request.method)) return json({error:'Podgląd umożliwia wyłącznie odczyt.'}, 405);
+  if (url.pathname === '/audyt/ponowne-wystawienie') return relistingReplay.stagingReplay(request);
+  if (url.pathname === '/audyt/cena-timed') return timedBid.timedBidReplay(request);
   if (url.pathname === '/robots.txt') return new Response('User-agent: *\nDisallow: /\n', {headers:{'Content-Type':'text/plain'}});
   if (url.pathname === '/api/auth/config' || url.pathname === '/api/contact/config' || url.pathname === '/api/portal/config') return json({ok:true,enabled:false});
   if (url.pathname === '/api/me') return json({ok:false,authenticated:false},401);

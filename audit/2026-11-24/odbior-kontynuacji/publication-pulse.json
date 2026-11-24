@@ -1,0 +1,62 @@
+{
+  "at": "2026-11-24T21:51:56.528Z",
+  "rowsRead": 6,
+  "written": 0,
+  "dbBytes": 2435391488,
+  "records": [
+    {
+      "id": 23407,
+      "status": "complete",
+      "received": "2026-11-24T21:35:51.309Z",
+      "updated": "2026-11-24T21:48:27.602Z",
+      "seq": 119059296,
+      "error": null,
+      "secondsToPublish": 756
+    },
+    {
+      "id": 23384,
+      "status": "complete",
+      "received": "2026-11-24T21:05:51.982Z",
+      "updated": "2026-11-24T21:17:16.388Z",
+      "seq": 118975851,
+      "error": null,
+      "secondsToPublish": 684
+    },
+    {
+      "id": 23361,
+      "status": "complete",
+      "received": "2026-11-24T20:35:51.900Z",
+      "updated": "2026-11-24T20:47:48.616Z",
+      "seq": 118883756,
+      "error": null,
+      "secondsToPublish": 717
+    },
+    {
+      "id": 23338,
+      "status": "complete",
+      "received": "2026-11-24T20:05:53.318Z",
+      "updated": "2026-11-24T20:19:02.043Z",
+      "seq": 118796735,
+      "error": null,
+      "secondsToPublish": 789
+    },
+    {
+      "id": 23316,
+      "status": "complete",
+      "received": "2026-11-24T19:35:51.617Z",
+      "updated": "2026-11-24T19:49:14.857Z",
+      "seq": 118680705,
+      "error": null,
+      "secondsToPublish": 803
+    },
+    {
+      "id": 23293,
+      "status": "complete",
+      "received": "2026-11-24T19:05:55.947Z",
+      "updated": "2026-11-24T19:22:25.307Z",
+      "seq": 118562645,
+      "error": null,
+      "secondsToPublish": 989
+    }
+  ]
+}

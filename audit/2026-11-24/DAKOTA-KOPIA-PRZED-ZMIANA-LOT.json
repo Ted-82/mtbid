@@ -1,0 +1,197 @@
+{
+  "startedAt": "2026-11-24T20:34:07.693Z",
+  "localRuntime": "workerd / Miniflare D1",
+  "environment": "local transport and source-response replay",
+  "scheduledIntervalsMinutes": 15,
+  "sourceGeneration": 23248,
+  "observations": [
+    {
+      "decisions": [
+        {
+          "platform": "iaai",
+          "lot": "45833848",
+          "queued": true,
+          "identityError": false,
+          "reasons": [
+            "schedule_on_inactive_lot"
+          ]
+        },
+        {
+          "platform": "copart",
+          "lot": "65917836",
+          "queued": true,
+          "identityError": false,
+          "reasons": [
+            "schedule_on_inactive_lot"
+          ]
+        },
+        {
+          "platform": "iaai",
+          "lot": "46162902",
+          "queued": true,
+          "identityError": false,
+          "reasons": [
+            "schedule_on_inactive_lot"
+          ]
+        }
+      ],
+      "statements": 1
+    },
+    {
+      "decisions": [
+        {
+          "platform": "iaai",
+          "lot": "45833848",
+          "queued": false,
+          "identityError": false,
+          "reasons": []
+        },
+        {
+          "platform": "copart",
+          "lot": "65917836",
+          "queued": true,
+          "identityError": false,
+          "reasons": [
+            "schedule_on_inactive_lot"
+          ]
+        },
+        {
+          "platform": "iaai",
+          "lot": "46162902",
+          "queued": true,
+          "identityError": false,
+          "reasons": [
+            "schedule_on_inactive_lot"
+          ]
+        }
+      ],
+      "statements": 0
+    }
+  ],
+  "calls": [
+    {
+      "identifier": "1B7GG32X82S697320",
+      "platform": "copart",
+      "matched": false
+    },
+    {
+      "identifier": "1G1ZD5ST6KF110771",
+      "platform": "iaai",
+      "matched": true
+    },
+    {
+      "identifier": "5GAKVCKD6HJ137124",
+      "platform": "iaai",
+      "matched": true
+    }
+  ],
+  "poll": [
+    {
+      "error": "FEED_SPARSE_IDENTITY"
+    },
+    {
+      "platform": "iaai",
+      "lot": "45833848",
+      "relisted": true
+    },
+    {
+      "platform": "iaai",
+      "lot": "46162902",
+      "skipped": true
+    },
+    null
+  ],
+  "searches": [
+    {
+      "phase": "before",
+      "lot": "45833848",
+      "code": 200,
+      "error": null,
+      "source": "d1",
+      "rows": []
+    },
+    {
+      "phase": "before",
+      "lot": "65917836",
+      "code": 200,
+      "error": null,
+      "source": "d1",
+      "rows": []
+    },
+    {
+      "phase": "before",
+      "lot": "46162902",
+      "code": 200,
+      "error": null,
+      "source": "d1",
+      "rows": []
+    },
+    {
+      "phase": "after",
+      "lot": "45833848",
+      "code": 200,
+      "error": null,
+      "source": "d1",
+      "rows": [
+        {
+          "platform": "iaai",
+          "vin": "1G1ZD5ST6KF110771",
+          "lot": "45833848",
+          "date": "2026-12-03T14:30:00.000Z",
+          "amount": 1500
+        }
+      ]
+    },
+    {
+      "phase": "after",
+      "lot": "65917836",
+      "code": 200,
+      "error": null,
+      "source": "d1",
+      "rows": []
+    },
+    {
+      "phase": "after",
+      "lot": "46162902",
+      "code": 200,
+      "error": null,
+      "source": "d1",
+      "rows": []
+    },
+    {
+      "phase": "replay",
+      "lot": "45833848",
+      "code": 200,
+      "error": null,
+      "source": "d1",
+      "rows": [
+        {
+          "platform": "iaai",
+          "vin": "1G1ZD5ST6KF110771",
+          "lot": "45833848",
+          "date": "2026-12-03T14:30:00.000Z",
+          "amount": 1500
+        }
+      ]
+    },
+    {
+      "phase": "replay",
+      "lot": "65917836",
+      "code": 200,
+      "error": null,
+      "source": "d1",
+      "rows": []
+    },
+    {
+      "phase": "replay",
+      "lot": "46162902",
+      "code": 200,
+      "error": null,
+      "source": "d1",
+      "rows": []
+    }
+  ],
+  "passed": false,
+  "feedCursorPreserved": true,
+  "error": "wrong result after 65917836\n\n0 !== 1\n"
+}

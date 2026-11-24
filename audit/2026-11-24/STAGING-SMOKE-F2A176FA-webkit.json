@@ -1,0 +1,233 @@
+{
+  "origin": "https://rexbid-audit-staging.tedn828.workers.dev",
+  "requestedRelease": "f2a176fa",
+  "started": "2026-11-24T21:36:26.456Z",
+  "name": "webkit",
+  "runs": [
+    {
+      "size": {
+        "width": 390,
+        "height": 844
+      },
+      "checks": {
+        "budget": {
+          "passed": false,
+          "error": "page.goto: SSL connect error\nCall log:\n\u001b[2m  - navigating to \"https://rexbid-audit-staging.tedn828.workers.dev/?rex_traffic_test=1\", waiting until \"domcontentloaded\"\u001b[22m\n",
+          "lastPath": "blank",
+          "lastHeadings": []
+        },
+        "identifiers": {
+          "passed": true,
+          "identifiers": [
+            {
+              "input": "46294903",
+              "keys": [
+                "iaai:46294903:JF2SLDTC5SH513294"
+              ],
+              "title": "2025 SUBARU FORESTER TOURING",
+              "timeLabels": [
+                "Aukcja: 25.11.2026, 15:30 · Polska: CET (UTC+01:00)",
+                "25.11.2026, 15:30 · Polska: CET (UTC+01:00)",
+                "25.11.2026, 15:30 · Polska: CET (UTC+01:00)"
+              ],
+              "detail": "/car?platform=iaai&lot=46294903&vin=JF2SLDTC5SH513294"
+            },
+            {
+              "input": "jf2sldtc5sh513294",
+              "keys": [
+                "iaai:46294903:JF2SLDTC5SH513294"
+              ],
+              "title": "2025 SUBARU FORESTER TOURING",
+              "timeLabels": [
+                "Aukcja: 25.11.2026, 15:30 · Polska: CET (UTC+01:00)",
+                "25.11.2026, 15:30 · Polska: CET (UTC+01:00)",
+                "25.11.2026, 15:30 · Polska: CET (UTC+01:00)"
+              ],
+              "detail": "/car?platform=iaai&lot=46294903&vin=JF2SLDTC5SH513294"
+            }
+          ]
+        },
+        "filters": {
+          "passed": true,
+          "filteredBefore": {
+            "make": "Subaru",
+            "from": "2025",
+            "results": 20,
+            "keys": [
+              "iaai:46087206",
+              "iaai:46605098",
+              "iaai:45951595",
+              "iaai:46381398",
+              "iaai:45791961",
+              "iaai:46072394",
+              "iaai:46294903",
+              "iaai:46437122",
+              "iaai:46453695",
+              "copart:62063866",
+              "copart:63523846",
+              "copart:71075076",
+              "copart:72554926",
+              "copart:72605296",
+              "copart:72685906",
+              "copart:73797836",
+              "copart:73814636",
+              "copart:74282056",
+              "copart:75613176",
+              "copart:75698746"
+            ],
+            "url": "/?catalog=1&make=Subaru&year_from=2025"
+          },
+          "returnHref": "/?catalog=1&make=Subaru&year_from=2025#results",
+          "filteredAfter": {
+            "make": "Subaru",
+            "from": "2025",
+            "results": 20,
+            "keys": [
+              "iaai:46087206",
+              "iaai:46605098",
+              "iaai:45951595",
+              "iaai:46381398",
+              "iaai:45791961",
+              "iaai:46072394",
+              "iaai:46294903",
+              "iaai:46437122",
+              "iaai:46453695",
+              "copart:62063866",
+              "copart:63523846",
+              "copart:71075076",
+              "copart:72554926",
+              "copart:72605296",
+              "copart:72685906",
+              "copart:73797836",
+              "copart:73814636",
+              "copart:74282056",
+              "copart:75613176",
+              "copart:75698746"
+            ],
+            "url": "/?catalog=1&make=Subaru&year_from=2025"
+          }
+        }
+      }
+    },
+    {
+      "size": {
+        "width": 1366,
+        "height": 768
+      },
+      "checks": {
+        "budget": {
+          "passed": true,
+          "budgets": [
+            {
+              "budgetPLN": 30000,
+              "bid": "1699,00 USD",
+              "value": 1699,
+              "note": "Limit do pełnego dolara. Pozostaje 55 zł, w tym rezerwa 0 zł.",
+              "state": ""
+            },
+            {
+              "budgetPLN": 100000,
+              "bid": "12 265,00 USD",
+              "value": 12265,
+              "note": "Limit do pełnego dolara. Pozostaje 2 zł, w tym rezerwa 0 zł.",
+              "state": ""
+            }
+          ]
+        },
+        "identifiers": {
+          "passed": true,
+          "identifiers": [
+            {
+              "input": "46294903",
+              "keys": [
+                "iaai:46294903:JF2SLDTC5SH513294"
+              ],
+              "title": "2025 SUBARU FORESTER TOURING",
+              "timeLabels": [
+                "Aukcja: 25.11.2026, 15:30 · Polska: CET (UTC+01:00)",
+                "25.11.2026, 15:30 · Polska: CET (UTC+01:00)",
+                "25.11.2026, 15:30 · Polska: CET (UTC+01:00)"
+              ],
+              "detail": "/car?platform=iaai&lot=46294903&vin=JF2SLDTC5SH513294"
+            },
+            {
+              "input": "jf2sldtc5sh513294",
+              "keys": [
+                "iaai:46294903:JF2SLDTC5SH513294"
+              ],
+              "title": "2025 SUBARU FORESTER TOURING",
+              "timeLabels": [
+                "Aukcja: 25.11.2026, 15:30 · Polska: CET (UTC+01:00)",
+                "25.11.2026, 15:30 · Polska: CET (UTC+01:00)",
+                "25.11.2026, 15:30 · Polska: CET (UTC+01:00)"
+              ],
+              "detail": "/car?platform=iaai&lot=46294903&vin=JF2SLDTC5SH513294"
+            }
+          ]
+        },
+        "filters": {
+          "passed": true,
+          "filteredBefore": {
+            "make": "Subaru",
+            "from": "2025",
+            "results": 20,
+            "keys": [
+              "iaai:46087206",
+              "iaai:46605098",
+              "iaai:45951595",
+              "iaai:46381398",
+              "iaai:45791961",
+              "iaai:46072394",
+              "iaai:46294903",
+              "iaai:46437122",
+              "iaai:46453695",
+              "copart:62063866",
+              "copart:63523846",
+              "copart:71075076",
+              "copart:72554926",
+              "copart:72605296",
+              "copart:72685906",
+              "copart:73797836",
+              "copart:73814636",
+              "copart:74282056",
+              "copart:75613176",
+              "copart:75698746"
+            ],
+            "url": "/?catalog=1&make=Subaru&year_from=2025"
+          },
+          "returnHref": "/?catalog=1&make=Subaru&year_from=2025#results",
+          "filteredAfter": {
+            "make": "Subaru",
+            "from": "2025",
+            "results": 20,
+            "keys": [
+              "iaai:46087206",
+              "iaai:46605098",
+              "iaai:45951595",
+              "iaai:46381398",
+              "iaai:45791961",
+              "iaai:46072394",
+              "iaai:46294903",
+              "iaai:46437122",
+              "iaai:46453695",
+              "copart:62063866",
+              "copart:63523846",
+              "copart:71075076",
+              "copart:72554926",
+              "copart:72605296",
+              "copart:72685906",
+              "copart:73797836",
+              "copart:73814636",
+              "copart:74282056",
+              "copart:75613176",
+              "copart:75698746"
+            ],
+            "url": "/?catalog=1&make=Subaru&year_from=2025"
+          }
+        }
+      }
+    }
+  ],
+  "version": "27.2",
+  "finished": "2026-11-24T21:37:53.672Z"
+}

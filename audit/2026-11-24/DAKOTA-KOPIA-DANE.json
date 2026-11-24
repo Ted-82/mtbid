@@ -1,0 +1,713 @@
+{
+  "generation": 23248,
+  "observedAt": "2026-11-24T18:05:55.551Z",
+  "first": 118174500,
+  "last": 118318554,
+  "sha256": "ec3a9bc5864f2c6a7880529ca9527a3ff8ee515f1269386afa19aac544e9cb5d",
+  "records": [
+    {
+      "row": {
+        "listing_id": "listing|apibara|iaai|source|45833848",
+        "source_key": "source|apibara|iaai|vehicle|2019-chevrolet-malibu-lt-1G1ZD5ST6KF110771",
+        "platform": "iaai",
+        "lot": "45833848",
+        "vin_normalized": "1G1ZD5ST6KF110771",
+        "vehicle_title": "2019 CHEVROLET MALIBU LT",
+        "make": "CHEVROLET",
+        "model": "MALIBU",
+        "year": 2019,
+        "identity_state": "resolved",
+        "source_updated_at": "2026-11-08T01:58:12.000000Z",
+        "summary_synced_at": "2026-11-08T01:58:12.000Z",
+        "detail_synced_at": null,
+        "last_seen_at": "2026-11-08T01:58:12.000Z",
+        "updated_at": "2026-11-08T01:58:12.000Z",
+        "auction_state": "ended",
+        "source_status": "Ended",
+        "auction_at": null,
+        "is_timed": 0,
+        "timed_end_at": null,
+        "current_bid_usd": 600,
+        "current_bid2_usd": null,
+        "buy_now_usd": 1500,
+        "final_price_usd": null,
+        "source_price_usd": null
+      },
+      "member": {
+        "active": 0,
+        "last_sequence": 93734812
+      },
+      "raw": {
+        "platform": "iaai",
+        "vin": "1G1ZD5ST6KF110771",
+        "updated_at": "2026-11-24T18:49:35.000000Z",
+        "lot_number": "45833848",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "result_confirmed": false,
+          "outcome_status": null,
+          "completion_source": null,
+          "lot_removed": false,
+          "auction_at": "2026-12-03T14:30:00+00:00",
+          "auction_date_pending": false,
+          "is_buy_now": true,
+          "is_timed": false
+        },
+        "pricing": {
+          "current_bid_usd": null,
+          "current_bid2_usd": null,
+          "buy_now_usd": 1500,
+          "last_sold_price_usd": null
+        }
+      },
+      "observedAt": "2026-11-24T20:26:59.092Z",
+      "events": [
+        {
+          "event": "auction.rescheduled",
+          "event_id": "chg_118178646",
+          "sequence": 118178646,
+          "recorded_at": "2026-11-24T17:34:55+00:00",
+          "vehicle_updated_at": "2026-11-24T19:34:55+02:00",
+          "terminal": false,
+          "changed_fields": [
+            "auction.auction_at",
+            "pricing.current_bid_usd",
+            "pricing.previous_bid_usd"
+          ],
+          "after": {
+            "auction.auction_at": "2026-12-03T14:30:00+00:00",
+            "pricing.current_bid_usd": null,
+            "pricing.previous_bid_usd": 0,
+            "auction.auction_date_pending": false
+          },
+          "before": {
+            "auction.auction_at": "2026-12-03T12:30:00+00:00",
+            "pricing.current_bid_usd": 600,
+            "pricing.previous_bid_usd": 600,
+            "auction.auction_date_pending": false
+          },
+          "vehicle": {
+            "platform": "iaai",
+            "lot_number": "45833848",
+            "vin": "1G1ZD5ST6KF110771"
+          }
+        }
+      ]
+    },
+    {
+      "row": {
+        "listing_id": "listing|apibara|copart|source|62712606",
+        "source_key": "source|apibara|copart|vehicle|2023-ram-2500-tradesman-3C6UR5HJ4PG606545",
+        "platform": "copart",
+        "lot": "62712606",
+        "vin_normalized": "3C6UR5HJ4PG606545",
+        "vehicle_title": "2023 RAM 2500 TRADESMAN",
+        "make": "RAM",
+        "model": "2500",
+        "year": 2023,
+        "identity_state": "resolved",
+        "source_updated_at": "2026-11-08T08:18:49.000000Z",
+        "summary_synced_at": "2026-11-08T08:18:49.000Z",
+        "detail_synced_at": null,
+        "last_seen_at": "2026-11-08T08:18:49.000Z",
+        "updated_at": "2026-11-08T08:18:49.000Z",
+        "auction_state": "ended",
+        "source_status": "Ended",
+        "auction_at": null,
+        "is_timed": 0,
+        "timed_end_at": null,
+        "current_bid_usd": 6600,
+        "current_bid2_usd": 7300,
+        "buy_now_usd": null,
+        "final_price_usd": null,
+        "source_price_usd": null
+      },
+      "member": {
+        "active": 0,
+        "last_sequence": 94159224
+      },
+      "raw": {
+        "platform": "copart",
+        "vin": "3C6UR5HJ4PG606545",
+        "updated_at": "2026-11-24T20:21:47.000000Z",
+        "lot_number": "62712606",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "result_confirmed": false,
+          "outcome_status": null,
+          "completion_source": null,
+          "lot_removed": false,
+          "auction_at": "2026-12-03T18:00:00+00:00",
+          "auction_date_pending": false,
+          "is_buy_now": true,
+          "is_timed": false
+        },
+        "pricing": {
+          "current_bid_usd": null,
+          "current_bid2_usd": null,
+          "buy_now_usd": 8400,
+          "last_sold_price_usd": null
+        }
+      },
+      "observedAt": "2026-11-24T20:26:59.688Z",
+      "events": [
+        {
+          "event": "auction.rescheduled",
+          "event_id": "chg_118206572",
+          "sequence": 118206572,
+          "recorded_at": "2026-11-24T17:40:57+00:00",
+          "vehicle_updated_at": "2026-11-24T19:40:57+02:00",
+          "terminal": false,
+          "changed_fields": [
+            "auction.auction_at",
+            "auction.upcoming",
+            "pricing.current_bid_usd",
+            "details.source_sale_type"
+          ],
+          "after": {
+            "auction.auction_at": "2026-12-03T18:00:00+00:00",
+            "auction.upcoming": 0,
+            "pricing.current_bid_usd": null,
+            "details.source_sale_type": "O",
+            "auction.auction_date_pending": false
+          },
+          "before": {
+            "auction.auction_at": "2026-11-27T18:00:00+00:00",
+            "auction.upcoming": 1,
+            "pricing.current_bid_usd": 0,
+            "details.source_sale_type": "On Minimum Bid",
+            "auction.auction_date_pending": false
+          },
+          "vehicle": {
+            "platform": "copart",
+            "lot_number": "62712606",
+            "vin": "3C6UR5HJ4PG606545"
+          }
+        },
+        {
+          "event": "bid.changed",
+          "event_id": "chg_118225710",
+          "sequence": 118225710,
+          "recorded_at": "2026-11-24T17:46:06+00:00",
+          "vehicle_updated_at": "2026-11-24T18:46:06+02:00",
+          "terminal": false,
+          "changed_fields": [
+            "auction.upcoming",
+            "pricing.current_bid_usd",
+            "details.source_sale_type"
+          ],
+          "after": {
+            "auction.upcoming": 1,
+            "pricing.current_bid_usd": 0,
+            "details.source_sale_type": "On Minimum Bid"
+          },
+          "before": {
+            "auction.upcoming": 0,
+            "pricing.current_bid_usd": null,
+            "details.source_sale_type": "O"
+          },
+          "vehicle": {
+            "platform": "copart",
+            "lot_number": "62712606",
+            "vin": "3C6UR5HJ4PG606545"
+          }
+        }
+      ]
+    },
+    {
+      "row": {
+        "listing_id": "listing|apibara|copart|source|65917836",
+        "source_key": "source|apibara|copart|vehicle|2002-dodge-dakota-sport-1B7GG32X82S697320",
+        "platform": "copart",
+        "lot": "65917836",
+        "vin_normalized": "1B7GG32X82S697320",
+        "vehicle_title": "2002 DODGE DAKOTA SPORT",
+        "make": "DODGE",
+        "model": "DAKOTA",
+        "year": 2002,
+        "identity_state": "resolved",
+        "source_updated_at": "2026-11-08T08:18:56.000000Z",
+        "summary_synced_at": "2026-11-08T08:18:56.000Z",
+        "detail_synced_at": null,
+        "last_seen_at": "2026-11-08T08:18:56.000Z",
+        "updated_at": "2026-11-08T08:18:56.000Z",
+        "auction_state": "ended",
+        "source_status": "Ended",
+        "auction_at": null,
+        "is_timed": 0,
+        "timed_end_at": null,
+        "current_bid_usd": 225,
+        "current_bid2_usd": null,
+        "buy_now_usd": null,
+        "final_price_usd": null,
+        "source_price_usd": null
+      },
+      "member": {
+        "active": 0,
+        "last_sequence": 118077155
+      },
+      "raw": {
+        "platform": "copart",
+        "vin": "1B7GG32X82S697320",
+        "updated_at": "2026-11-24T17:16:21.000000Z",
+        "lot_number": "65917836",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "result_confirmed": false,
+          "outcome_status": null,
+          "completion_source": null,
+          "lot_removed": false,
+          "auction_at": "2026-12-01T02:00:00+00:00",
+          "auction_date_pending": false,
+          "is_buy_now": true,
+          "is_timed": false
+        },
+        "pricing": {
+          "current_bid_usd": 225,
+          "current_bid2_usd": 225,
+          "buy_now_usd": 468,
+          "last_sold_price_usd": null
+        }
+      },
+      "observedAt": "2026-11-24T20:27:00.423Z",
+      "events": [
+        {
+          "event": "auction.rescheduled",
+          "event_id": "chg_118299636",
+          "sequence": 118299636,
+          "recorded_at": "2026-11-24T18:01:57+00:00",
+          "vehicle_updated_at": "2026-11-24T19:01:57+02:00",
+          "terminal": false,
+          "changed_fields": [
+            "auction.auction_at",
+            "auction.is_buy_now",
+            "auction.upcoming",
+            "pricing.buy_now_usd"
+          ],
+          "after": {
+            "auction.auction_at": "2026-12-01T02:00:00+00:00",
+            "auction.is_buy_now": 1,
+            "auction.upcoming": 1,
+            "pricing.buy_now_usd": 468,
+            "auction.auction_date_pending": false
+          },
+          "before": {
+            "auction.auction_at": "2026-11-24T17:00:00+00:00",
+            "auction.is_buy_now": 0,
+            "auction.upcoming": 0,
+            "pricing.buy_now_usd": null,
+            "auction.auction_date_pending": false
+          },
+          "vehicle": {
+            "platform": "copart",
+            "lot_number": "65917836",
+            "vin": "1B7GG32X82S697320"
+          }
+        }
+      ]
+    },
+    {
+      "row": {
+        "listing_id": "listing|apibara|copart|source|75082896",
+        "source_key": "source|apibara|copart|vehicle|2011-toyota-corolla-le-2T1BU4EE6BC697126",
+        "platform": "copart",
+        "lot": "75082896",
+        "vin_normalized": "2T1BU4EE6BC697126",
+        "vehicle_title": "2011 TOYOTA COROLLA LE",
+        "make": "TOYOTA",
+        "model": "COROLLA",
+        "year": 2011,
+        "identity_state": "resolved",
+        "source_updated_at": "2026-11-20T17:53:47.000Z",
+        "summary_synced_at": "2026-11-20T17:53:47.000Z",
+        "detail_synced_at": null,
+        "last_seen_at": "2026-11-20T17:53:47.000Z",
+        "updated_at": "2026-11-20T17:53:47.000Z",
+        "auction_state": "ended",
+        "source_status": "Ended",
+        "auction_at": null,
+        "is_timed": 0,
+        "timed_end_at": null,
+        "current_bid_usd": 13500,
+        "current_bid2_usd": null,
+        "buy_now_usd": null,
+        "final_price_usd": null,
+        "source_price_usd": null
+      },
+      "member": {
+        "active": 0,
+        "last_sequence": 118125615
+      },
+      "raw": {
+        "platform": "copart",
+        "vin": "2T1BU4EE6BC697126",
+        "updated_at": "2026-11-24T19:16:04.000000Z",
+        "lot_number": "75082896",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "result_confirmed": false,
+          "outcome_status": null,
+          "completion_source": null,
+          "lot_removed": false,
+          "auction_at": "2026-12-01T15:00:00+00:00",
+          "auction_date_pending": false,
+          "is_buy_now": true,
+          "is_timed": false
+        },
+        "pricing": {
+          "current_bid_usd": null,
+          "current_bid2_usd": null,
+          "buy_now_usd": 2050,
+          "last_sold_price_usd": null
+        }
+      },
+      "observedAt": "2026-11-24T20:27:00.986Z",
+      "events": [
+        {
+          "event": "auction.rescheduled",
+          "event_id": "chg_118222404",
+          "sequence": 118222404,
+          "recorded_at": "2026-11-24T17:45:57+00:00",
+          "vehicle_updated_at": "2026-11-24T18:45:57+02:00",
+          "terminal": false,
+          "changed_fields": [
+            "auction.auction_at",
+            "auction.is_buy_now",
+            "auction.upcoming",
+            "pricing.current_bid_usd",
+            "pricing.previous_bid_usd",
+            "pricing.buy_now_usd"
+          ],
+          "after": {
+            "auction.auction_at": "2026-12-01T15:00:00+00:00",
+            "auction.is_buy_now": 1,
+            "auction.upcoming": 1,
+            "pricing.current_bid_usd": 0,
+            "pricing.previous_bid_usd": 0,
+            "pricing.buy_now_usd": 2050,
+            "auction.auction_date_pending": false
+          },
+          "before": {
+            "auction.auction_at": "2026-11-24T15:00:00+00:00",
+            "auction.is_buy_now": 0,
+            "auction.upcoming": 0,
+            "pricing.current_bid_usd": 13500,
+            "pricing.previous_bid_usd": 13500,
+            "pricing.buy_now_usd": null,
+            "auction.auction_date_pending": false
+          },
+          "vehicle": {
+            "platform": "copart",
+            "lot_number": "75082896",
+            "vin": "2T1BU4EE6BC697126"
+          }
+        }
+      ]
+    },
+    {
+      "row": {
+        "listing_id": "listing|apibara|iaai|source|46507697",
+        "source_key": "source|apibara|iaai|vehicle|2012-lincoln-mkz-3LNHL2GC1CR834820",
+        "platform": "iaai",
+        "lot": "46507697",
+        "vin_normalized": "3LNHL2GC1CR834820",
+        "vehicle_title": "2012 LINCOLN MKZ",
+        "make": "LINCOLN",
+        "model": "MKZ",
+        "year": 2012,
+        "identity_state": "resolved",
+        "source_updated_at": "2026-11-19T04:32:49.000Z",
+        "summary_synced_at": "2026-11-19T04:32:49.000Z",
+        "detail_synced_at": null,
+        "last_seen_at": "2026-11-19T04:32:49.000Z",
+        "updated_at": "2026-11-19T04:32:49.000Z",
+        "auction_state": "ended",
+        "source_status": "Ended",
+        "auction_at": null,
+        "is_timed": 0,
+        "timed_end_at": null,
+        "current_bid_usd": 425,
+        "current_bid2_usd": null,
+        "buy_now_usd": 900,
+        "final_price_usd": null,
+        "source_price_usd": null
+      },
+      "member": {
+        "active": 0,
+        "last_sequence": 117967548
+      },
+      "raw": {
+        "platform": "iaai",
+        "vin": "3LNHL2GC1CR834820",
+        "updated_at": "2026-11-24T17:53:45.000000Z",
+        "lot_number": "46507697",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "result_confirmed": false,
+          "outcome_status": null,
+          "completion_source": null,
+          "lot_removed": false,
+          "auction_at": "2026-12-01T13:30:00+00:00",
+          "auction_date_pending": false,
+          "is_buy_now": true,
+          "is_timed": false
+        },
+        "pricing": {
+          "current_bid_usd": 425,
+          "current_bid2_usd": 425,
+          "buy_now_usd": 900,
+          "last_sold_price_usd": null
+        }
+      },
+      "observedAt": "2026-11-24T20:27:01.545Z",
+      "events": [
+        {
+          "event": "buy_now.changed",
+          "event_id": "chg_118254852",
+          "sequence": 118254852,
+          "recorded_at": "2026-11-24T17:53:27+00:00",
+          "vehicle_updated_at": "2026-11-24T19:53:26+02:00",
+          "terminal": false,
+          "changed_fields": [
+            "auction.is_buy_now",
+            "pricing.buy_now_usd"
+          ],
+          "after": {
+            "auction.is_buy_now": 1,
+            "pricing.buy_now_usd": 900
+          },
+          "before": {
+            "auction.is_buy_now": 0,
+            "pricing.buy_now_usd": null
+          },
+          "vehicle": {
+            "platform": "iaai",
+            "lot_number": "46507697",
+            "vin": "3LNHL2GC1CR834820"
+          }
+        },
+        {
+          "event": "auction.rescheduled",
+          "event_id": "chg_118255794",
+          "sequence": 118255794,
+          "recorded_at": "2026-11-24T17:53:45+00:00",
+          "vehicle_updated_at": "2026-11-24T19:53:45+02:00",
+          "terminal": false,
+          "changed_fields": [
+            "auction.auction_at",
+            "auction.has_status",
+            "auction.last_sold_day",
+            "auction.last_sold_status",
+            "pricing.last_sold_price_usd"
+          ],
+          "after": {
+            "auction.auction_at": "2026-12-01T13:30:00+00:00",
+            "auction.has_status": 0,
+            "auction.last_sold_day": null,
+            "auction.last_sold_status": null,
+            "pricing.last_sold_price_usd": null,
+            "auction.auction_date_pending": false
+          },
+          "before": {
+            "auction.auction_at": "2026-11-24T15:30:00+00:00",
+            "auction.has_status": 1,
+            "auction.last_sold_day": "2026-11-24",
+            "auction.last_sold_status": "Sold on Approval",
+            "pricing.last_sold_price_usd": 425,
+            "auction.auction_date_pending": false
+          },
+          "vehicle": {
+            "platform": "iaai",
+            "lot_number": "46507697",
+            "vin": "3LNHL2GC1CR834820"
+          }
+        }
+      ]
+    },
+    {
+      "row": {
+        "listing_id": "listing|apibara|iaai|source|46162902",
+        "source_key": "source|apibara|iaai|vehicle|2017-buick-enclave-premium-5GAKVCKD6HJ137124",
+        "platform": "iaai",
+        "lot": "46162902",
+        "vin_normalized": "5GAKVCKD6HJ137124",
+        "vehicle_title": "2017 BUICK ENCLAVE PREMIUM",
+        "make": "BUICK",
+        "model": "ENCLAVE",
+        "year": 2017,
+        "identity_state": "resolved",
+        "source_updated_at": "2026-11-10T08:15:46.000Z",
+        "summary_synced_at": "2026-11-10T08:15:46.000Z",
+        "detail_synced_at": null,
+        "last_seen_at": "2026-11-10T08:15:46.000Z",
+        "updated_at": "2026-11-10T08:15:46.000Z",
+        "auction_state": "ended",
+        "source_status": "Removed",
+        "auction_at": null,
+        "is_timed": 0,
+        "timed_end_at": null,
+        "current_bid_usd": 500,
+        "current_bid2_usd": null,
+        "buy_now_usd": null,
+        "final_price_usd": null,
+        "source_price_usd": null
+      },
+      "member": {
+        "active": 0,
+        "last_sequence": 118724646
+      },
+      "raw": {
+        "platform": "iaai",
+        "vin": "5GAKVCKD6HJ137124",
+        "updated_at": "2026-11-24T19:45:58.000000Z",
+        "lot_number": "46162902",
+        "auction": {
+          "state": "finished",
+          "phase": "finished",
+          "result_confirmed": true,
+          "outcome_status": "Sold",
+          "completion_source": "source_marker",
+          "lot_removed": true,
+          "auction_at": "2026-11-24T19:45:58+00:00",
+          "auction_date_pending": false,
+          "is_buy_now": true,
+          "is_timed": false
+        },
+        "pricing": {
+          "current_bid_usd": 500,
+          "current_bid2_usd": 500,
+          "buy_now_usd": 500,
+          "last_sold_price_usd": 500
+        }
+      },
+      "observedAt": "2026-11-24T20:27:02.048Z",
+      "events": [
+        {
+          "event": "auction.rescheduled",
+          "event_id": "chg_118263124",
+          "sequence": 118263124,
+          "recorded_at": "2026-11-24T17:56:12+00:00",
+          "vehicle_updated_at": "2026-11-24T19:56:12+02:00",
+          "terminal": false,
+          "changed_fields": [
+            "auction.auction_at",
+            "auction.has_status",
+            "auction.last_sold_day",
+            "auction.last_sold_status",
+            "pricing.last_sold_price_usd"
+          ],
+          "after": {
+            "auction.auction_at": "2026-12-03T14:30:00+00:00",
+            "auction.has_status": 0,
+            "auction.last_sold_day": null,
+            "auction.last_sold_status": null,
+            "pricing.last_sold_price_usd": null,
+            "auction.auction_date_pending": false
+          },
+          "before": {
+            "auction.auction_at": "2026-11-24T16:30:00+00:00",
+            "auction.has_status": 1,
+            "auction.last_sold_day": "2026-11-24",
+            "auction.last_sold_status": "Sold on Approval",
+            "pricing.last_sold_price_usd": 275,
+            "auction.auction_date_pending": false
+          },
+          "vehicle": {
+            "platform": "iaai",
+            "lot_number": "46162902",
+            "vin": "5GAKVCKD6HJ137124"
+          }
+        }
+      ]
+    },
+    {
+      "row": {
+        "listing_id": "listing|apibara|iaai|source|46404762",
+        "source_key": "source|apibara|iaai|vehicle|2012-honda-odyssey-ex-l-5FNRL5H67CB012186",
+        "platform": "iaai",
+        "lot": "46404762",
+        "vin_normalized": "5FNRL5H67CB012186",
+        "vehicle_title": "2012 HONDA ODYSSEY EX-L",
+        "make": "HONDA",
+        "model": "ODYSSEY",
+        "year": 2012,
+        "identity_state": "resolved",
+        "source_updated_at": "2026-11-08T01:43:39.000000Z",
+        "summary_synced_at": "2026-11-08T01:43:39.000Z",
+        "detail_synced_at": null,
+        "last_seen_at": "2026-11-08T01:43:39.000Z",
+        "updated_at": "2026-11-08T01:43:39.000Z",
+        "auction_state": "ended",
+        "source_status": "Ended",
+        "auction_at": null,
+        "is_timed": 0,
+        "timed_end_at": null,
+        "current_bid_usd": 325,
+        "current_bid2_usd": null,
+        "buy_now_usd": null,
+        "final_price_usd": null,
+        "source_price_usd": null
+      },
+      "member": {
+        "active": 0,
+        "last_sequence": 103517643
+      },
+      "raw": {
+        "platform": "iaai",
+        "vin": "5FNRL5H67CB012186",
+        "updated_at": "2026-11-24T17:58:35.000000Z",
+        "lot_number": "46404762",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "result_confirmed": false,
+          "outcome_status": null,
+          "completion_source": null,
+          "lot_removed": false,
+          "auction_at": "2026-12-01T15:30:00+00:00",
+          "auction_date_pending": false,
+          "is_buy_now": true,
+          "is_timed": false
+        },
+        "pricing": {
+          "current_bid_usd": null,
+          "current_bid2_usd": null,
+          "buy_now_usd": 1125,
+          "last_sold_price_usd": null
+        }
+      },
+      "observedAt": "2026-11-24T20:27:02.632Z",
+      "events": [
+        {
+          "event": "auction.rescheduled",
+          "event_id": "chg_118269316",
+          "sequence": 118269316,
+          "recorded_at": "2026-11-24T17:58:35+00:00",
+          "vehicle_updated_at": "2026-11-24T19:58:35+02:00",
+          "terminal": false,
+          "changed_fields": [
+            "auction.auction_at"
+          ],
+          "after": {
+            "auction.auction_at": "2026-12-01T15:30:00+00:00",
+            "auction.auction_date_pending": false
+          },
+          "before": {
+            "auction.auction_at": "2026-12-01T05:30:00+00:00",
+            "auction.auction_date_pending": false
+          },
+          "vehicle": {
+            "platform": "iaai",
+            "lot_number": "46404762",
+            "vin": "5FNRL5H67CB012186"
+          }
+        }
+      ]
+    }
+  ]
+}

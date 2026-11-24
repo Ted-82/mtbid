@@ -1,0 +1,142 @@
+[
+  {
+    "expected": "45833848",
+    "platform": "iaai",
+    "vin": "1G1ZD5ST6KF110771",
+    "at": "2026-11-24T20:28:50.596Z",
+    "response": {
+      "vin": {
+        "platform": "iaai",
+        "lot": "45833848",
+        "vin": "1G1ZD5ST6KF110771",
+        "matched": true
+      },
+      "lot": {
+        "platform": "iaai",
+        "lot": "45833848",
+        "vin": "1G1ZD5ST6KF110771",
+        "matched": true
+      }
+    }
+  },
+  {
+    "expected": "62712606",
+    "platform": "copart",
+    "vin": "3C6UR5HJ4PG606545",
+    "at": "2026-11-24T20:28:50.981Z",
+    "response": {
+      "vin": {
+        "platform": "copart",
+        "lot": "62712606",
+        "vin": "3C6UR5HJ4PG606545",
+        "matched": true
+      },
+      "lot": {
+        "platform": "copart",
+        "lot": "62712606",
+        "vin": "3C6UR5HJ4PG606545",
+        "matched": true
+      }
+    }
+  },
+  {
+    "expected": "65917836",
+    "platform": "copart",
+    "vin": "1B7GG32X82S697320",
+    "at": "2026-11-24T20:28:51.329Z",
+    "response": {
+      "vin": {
+        "platform": "copart",
+        "lot": "63030896",
+        "vin": "1B7GG32X82S697320",
+        "matched": false
+      },
+      "lot": {
+        "platform": "copart",
+        "lot": "65917836",
+        "vin": "1B7GG32X82S697320",
+        "matched": true
+      }
+    }
+  },
+  {
+    "expected": "75082896",
+    "platform": "copart",
+    "vin": "2T1BU4EE6BC697126",
+    "at": "2026-11-24T20:28:51.656Z",
+    "response": {
+      "vin": {
+        "platform": "copart",
+        "lot": "75082896",
+        "vin": "2T1BU4EE6BC697126",
+        "matched": true
+      },
+      "lot": {
+        "platform": "copart",
+        "lot": "75082896",
+        "vin": "2T1BU4EE6BC697126",
+        "matched": true
+      }
+    }
+  },
+  {
+    "expected": "46507697",
+    "platform": "iaai",
+    "vin": "3LNHL2GC1CR834820",
+    "at": "2026-11-24T20:28:52.042Z",
+    "response": {
+      "vin": {
+        "platform": "iaai",
+        "lot": "46507697",
+        "vin": "3LNHL2GC1CR834820",
+        "matched": true
+      },
+      "lot": {
+        "platform": "iaai",
+        "lot": "46507697",
+        "vin": "3LNHL2GC1CR834820",
+        "matched": true
+      }
+    }
+  },
+  {
+    "expected": "46162902",
+    "platform": "iaai",
+    "vin": "5GAKVCKD6HJ137124",
+    "at": "2026-11-24T20:28:52.447Z",
+    "response": {
+      "vin": {
+        "platform": "iaai",
+        "lot": "46162902",
+        "vin": "5GAKVCKD6HJ137124",
+        "matched": true
+      },
+      "lot": {
+        "platform": "iaai",
+        "lot": "46162902",
+        "vin": "5GAKVCKD6HJ137124",
+        "matched": true
+      }
+    }
+  },
+  {
+    "expected": "46404762",
+    "platform": "iaai",
+    "vin": "5FNRL5H67CB012186",
+    "at": "2026-11-24T20:28:52.831Z",
+    "response": {
+      "vin": {
+        "platform": "iaai",
+        "lot": "46404762",
+        "vin": "5FNRL5H67CB012186",
+        "matched": true
+      },
+      "lot": {
+        "platform": "iaai",
+        "lot": "46404762",
+        "vin": "5FNRL5H67CB012186",
+        "matched": true
+      }
+    }
+  }
+]

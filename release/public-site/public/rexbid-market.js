@@ -68,11 +68,21 @@
   function confirmedSale(car){
     return car?.auction?.result_confirmed===true && lower(car.auction.outcome_status)==='sold';
   }
-  function priceObservationLabel(car){
-    const observed=car?.read?.last_synced_at ?? car?.preview?.last_synced_at ?? car?.last_synced_at;
-    if(typeof observed!=='string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})$/i.test(observed) || !Number.isFinite(Date.parse(observed))) return 'Czas zapisu danych nieustalony.';
-    const formatter=new Intl.DateTimeFormat('pl-PL',{timeZone:'Europe/Warsaw',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'shortOffset'});
-    return 'Zapis danych oferty: '+formatter.format(new Date(observed))+' (Polska).';
+  const polishTime = {timeZone:'Europe/Warsaw',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'shortOffset'};
+  const snapshotTime = new Intl.DateTimeFormat('pl-PL',polishTime);
+  const bidTime = new Intl.DateTimeFormat('pl-PL',{...polishTime,second:'2-digit'});
+  function priceObservationLabel(car, kind='snapshot', displayedBid=null){
+    const bid = kind === 'current_bid';
+    const pricing = car?.pricing;
+    if(!bid && kind !== 'snapshot') return '';
+    if(bid && (pricing?.current_bid_source !== 'apibara_feed' || !['number','string'].includes(typeof pricing.current_bid_usd) ||
+       !['number','string'].includes(typeof displayedBid) || !(Number(displayedBid) > 0) ||
+       !Number.isFinite(Number(displayedBid)) || Number(displayedBid) !== Number(pricing.current_bid_usd))) return '';
+    const observed = bid ? pricing.current_bid_observed_at : car?.read?.last_synced_at ?? car?.preview?.last_synced_at ?? car?.last_synced_at;
+    if(typeof observed!=='string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})$/i.test(observed) || !Number.isFinite(Date.parse(observed))) return bid ? '' : 'Czas zapisu danych nieustalony.';
+    const date = new Date(observed);
+    if(bid) return 'Odczyt kwoty licytacji z ' + bidTime.format(date) + ' (Polska).';
+    return 'Zapis danych oferty: '+snapshotTime.format(date)+' (Polska).';
   }
   function resolve(value){return categories.some(c=>c.id===value)?value:'current';}
   function fromParams(params){

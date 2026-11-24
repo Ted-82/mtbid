@@ -1,0 +1,8 @@
+# These release inputs are verified byte-for-byte before assembly and rollback.
+release/copart-relisting/executor/** -text whitespace=cr-at-eol
+release/timed-bid-observation/executor/** -text whitespace=cr-at-eol
+audit/2026-11-24/archiwum-worker/src/** -text whitespace=cr-at-eol,-blank-at-eof
+audit/2026-11-24/archiwum-worker/wersja-odniesienia/** -text whitespace=cr-at-eol,-blank-at-eof
+audit/2026-11-24/archiwum-worker/build/*.js* -text whitespace=cr-at-eol
+# Blank context lines in the archived unified diff carry their required single prefix.
+audit/2026-11-24/archiwum-korekta-cykli.patch -text whitespace=cr-at-eol,-blank-at-eol

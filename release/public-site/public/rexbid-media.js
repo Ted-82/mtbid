@@ -19,7 +19,7 @@
     // Leave them available to their dedicated controls on the vehicle page.
     return !/\.(?:mp4|m3u8|webm|mov)(?:[?#]|$)/i.test(url)
       && !isIaaiVideoUrl(url)
-      && !/^https:\/\/vis\.iaai\.com\/home\/threesixtyview(?:[?#]|$)/i.test(url);
+      && !/^https:\/\/vis\.iaai\.com\/home\/(?:threesixtyview|interiorview)(?:[?#]|$)/i.test(url);
   }
 
   function canEmbed360(value) {
@@ -27,7 +27,7 @@
     try {
       const url = new URL(value);
       return url.origin === "https://vis.iaai.com" && !url.username && !url.password &&
-        url.pathname === "/Home/ThreeSixtyView";
+        (url.pathname === "/Home/ThreeSixtyView" || url.pathname === "/Home/InteriorView");
     } catch { return false; }
   }
 
@@ -35,7 +35,7 @@
     if (!isHttpUrl(value)) return false;
     try {
       const url = new URL(value);
-      return !url.username && !url.password && /(?:threesixty(?:view)?|view[-_]?360|360[-_]?view|panorama|equirect|virtualtour|\/360(?:\/|$))/i.test(url.pathname);
+      return !url.username && !url.password && (canEmbed360(value) || /(?:threesixty(?:view)?|view[-_]?360|360[-_]?view|panorama|equirect|virtualtour|\/360(?:\/|$))/i.test(url.pathname));
     } catch { return false; }
   }
 

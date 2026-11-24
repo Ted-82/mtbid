@@ -1,0 +1,20 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),os=require('node:os'),{spawnSync}=require('node:child_process'),assert=require('node:assert/strict');
+const version='1.20261124.2',name='@cloudflare/workerd-windows-64';
+(async()=>{
+ if(process.platform!=='win32'||process.arch!=='x64')throw Error('Ten pomocnik jest przeznaczony dla Windows x64.');
+ const r=await fetch('https://registry.npmjs.org/'+name+'/'+version,{signal:AbortSignal.timeout(20000)});
+ assert.equal(r.status,200);const meta=await r.json();assert.equal(meta.version,version);assert.equal(meta.name,name);
+ const pinned=require('./silnik-listopadowy.json');
+ assert.equal(meta.dist.integrity,pinned.integrity);
+ const dest=process.argv[2]||path.join(os.tmpdir(),'rexbid-staging-workerd-'+version);
+ fs.mkdirSync(dest,{recursive:true});
+ const url=new URL(meta.dist.tarball);assert.equal(url.origin,'https://registry.npmjs.org');
+ const blob=await fetch(url,{signal:AbortSignal.timeout(120000)});assert.equal(blob.status,200);
+ const bytes=Buffer.from(await blob.arrayBuffer());assert.equal('sha512-'+crypto.createHash('sha512').update(bytes).digest('base64'),meta.dist.integrity);
+ const tgz=path.resolve(dest,'workerd-windows.tgz');fs.writeFileSync(tgz,bytes);
+ const tar=spawnSync('tar.exe',['-xf',tgz,'-C',dest,'package/bin/workerd.exe'],{windowsHide:true,encoding:'utf8'});if(tar.status!==0)throw Error(tar.stderr);
+ const file=path.resolve(dest,'package/bin/workerd.exe');assert.equal(crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'),pinned.windowsExeSha256);
+ const result=spawnSync(file,['--version'],{windowsHide:true,encoding:'utf8'});if(result.status!==0)throw Error(result.stderr);
+ console.log(JSON.stringify({version,officialTarball:url.href,integrity:meta.dist.integrity,sha256:crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'),binary:file,reported:result.stdout.trim()}));
+})().catch(e=>{console.error(e.message);process.exitCode=1;});

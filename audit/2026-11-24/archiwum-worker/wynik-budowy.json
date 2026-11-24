@@ -1,0 +1,8 @@
+{
+  "worker": "rexbid-auction-archive-auto",
+  "base": "85aa5440-f186-43bc-ae45-f5139f381de1",
+  "wrangler": "4.149.0",
+  "bytes": 84928,
+  "sha256": "6eccaf774c0cdc262542fe88979be7fac1daad583f88c123e67939f46c965430",
+  "deployDryRun": true
+}

@@ -271,7 +271,8 @@ test("real car HTML gates partner transport and Calculator V3/V4 by environment 
   const context = loadWorker({ assets: { fetch: async () => new Response(carHtml, { status: 200, headers: { "Content-Type": "text/html; charset=utf-8" } }) } });
   const production = await context.__worker.fetch(new Request("https://mtbid.tedn828.workers.dev/car.html?vin=TESTVIN"), { ...context.__env, REXBID_CALCULATOR_V3_ENABLED: "enabled" });
   const productionHtml = await production.text();
-  assert.match(production.headers.get("Content-Security-Policy"), /frame-src 'self' https:\/\/vis\.iaai\.com\/Home\/ThreeSixtyView(?:;|$)/);
+  const frames = production.headers.get("Content-Security-Policy").split(";").map(value => value.trim()).find(value => value.startsWith("frame-src "));
+  assert.equal(frames, "frame-src 'self' https://vis.iaai.com/Home/ThreeSixtyView https://vis.iaai.com/Home/InteriorView");
   assert.match(production.headers.get("Content-Security-Policy"), /frame-ancestors 'none'/);
   assert.doesNotMatch(productionHtml, /id="partnerTransportCalculator"|rexbid-transport-(?:rates|engine)\.js|rexbid-calculator-v3-rates\.js|rexbid-calculator-v4(?:-rates)?\.js|data-calculator-v3-only|RexBidCalculatorV3Enabled=true|RexBidCalculatorV4Enabled=true/);
   assert.match(productionHtml, /property="og:title"/);

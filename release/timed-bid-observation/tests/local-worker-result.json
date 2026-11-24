@@ -1,0 +1,73 @@
+{
+  "testedAt": "2026-11-24T21:50:53.833Z",
+  "entryPoints": [
+    {
+      "url": "/api/car/WAUC4DF58JA064291?platform=iaai",
+      "bid": 8100,
+      "bidAt": "2026-11-24T20:07:24.000Z",
+      "snapshot": "2026-11-24T20:01:32.326Z"
+    },
+    {
+      "url": "/api/car/46410658?platform=iaai",
+      "bid": 8100,
+      "bidAt": "2026-11-24T20:07:24.000Z",
+      "snapshot": "2026-11-24T20:01:32.326Z"
+    },
+    {
+      "url": "/api/cars?category=timed&sort=bid_desc&price_min=8100",
+      "bid": 8100,
+      "bidAt": "2026-11-24T20:07:24.000Z",
+      "snapshot": "2026-11-24T20:01:32.326Z"
+    },
+    {
+      "url": "/api/cars?category=timed&view=showcase",
+      "bid": 8100,
+      "bidAt": "2026-11-24T20:07:24.000Z",
+      "snapshot": "2026-11-24T20:01:32.326Z"
+    }
+  ],
+  "evidenceBytes": 143,
+  "measurements": [
+    {
+      "lots": 1,
+      "paramBytes": 12,
+      "resultBytes": 371,
+      "rowsRead": 4,
+      "rowsWritten": 0,
+      "elapsedMs": 6
+    },
+    {
+      "lots": 24,
+      "paramBytes": 265,
+      "resultBytes": 8881,
+      "rowsRead": 96,
+      "rowsWritten": 0,
+      "elapsedMs": 7
+    },
+    {
+      "lots": 3405,
+      "paramBytes": 37456,
+      "resultBytes": 1259851,
+      "rowsRead": 13620,
+      "rowsWritten": 0,
+      "elapsedMs": 35
+    },
+    {
+      "lots": 4769,
+      "paramBytes": 52460,
+      "resultBytes": 1764531,
+      "rowsRead": 19076,
+      "rowsWritten": 0,
+      "elapsedMs": 54
+    },
+    {
+      "lots": 6000,
+      "paramBytes": 66001,
+      "resultBytes": 2220001,
+      "rowsRead": 23999,
+      "rowsWritten": 0,
+      "elapsedMs": 54
+    }
+  ],
+  "externalRequests": 0
+}
