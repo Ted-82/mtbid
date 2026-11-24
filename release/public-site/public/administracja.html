@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="same-origin">
+  <title>Obsługa importów | REXBID</title>
+  <link rel="stylesheet" href="/rexbid-brand.css?v=20261117-integrated">
+  <link rel="stylesheet" href="/rexbid-client-portal.css?v=20261118-owner-contact">
+  <link rel="stylesheet" href="/rexbid-traffic.css?v=2">
+  <link rel="stylesheet" href="/rexbid-owner-tools.css?v=20261118-accounts">
+  <script src="/rexbid-owner-mfa.js?v=eec0cf23a9a9" defer></script>
+  <script src="/rexbid-client-portal.js?v=20261118-owner-contact" defer></script>
+  <script src="/rexbid-archive-owner.js?v=20261118-compact" defer></script>
+</head>
+<body data-portal-view="owner">
+  <a class="portal-skip" href="#portalMain">Przejdź do treści</a>
+  <header class="portal-header">
+    <div class="header-inner">
+      <a class="logo" href="/" aria-label="REXBID — strona główna"><img class="rexbid-brand-image" src="/rexbid-logo-20261117-dark.webp" width="420" height="159" alt=""><span class="brand-note">RYNEK AUKCYJNY USA</span></a>
+      <span class="portal-header-label">Panel właściciela</span>
+      <nav aria-label="Nawigacja panelu">
+        <a href="/?catalog=1#results">Aukcje</a>
+        <a href="/panel.html" >Moje importy</a>
+        <a href="/konto.html">Konto</a>
+      </nav>
+    </div>
+  </header>
+  <main id="portalMain" class="portal-main">
+    <div class="portal-heading">
+      <div><p class="portal-eyebrow">REXBID · centrum obsługi</p><h1>Obsługa importów</h1><p class="portal-intro">Aktualizuj realizacje i przekazuj klientom sprawdzone informacje o ich pojazdach.</p></div>
+      <a id="portalOwnerLink" class="portal-button portal-button-secondary" href="/administracja.html" hidden>Panel właściciela</a>
+    </div>
+    <div id="portalNotice" class="portal-notice" role="status" aria-live="polite">Sprawdzam dostęp do panelu…</div>
+    <div id="rexbid-owner-mfa"></div>
+    <section id="portalGate" class="portal-gate" hidden aria-labelledby="portalGateTitle">
+      <div class="portal-gate-icon" aria-hidden="true">↗</div>
+      <h2 id="portalGateTitle"></h2><p id="portalGateText"></p>
+      <a id="portalLogin" class="portal-button" href="/logowanie.html?return_to=%2Fadministracja.html" hidden>Zaloguj się do REXBID</a>
+    </section>
+    <section id="portalWorkspace" hidden aria-label="Realizacja importu">
+      <div class="portal-owner-tools-grid" aria-label="Narzędzia administratora">
+      <details class="portal-gate portal-owner-tool" id="ownerRegistrations" name="owner-tools" hidden>
+        <summary><strong>Rejestracje i konta klientów</strong><span>Zgłoszenia i potwierdzone konta</span></summary>
+        <div class="portal-owner-tool-content"><p>Potwierdzenie e-maila uruchamia konto i ulubione. Realizację importu przypisujesz osobno. Rejestracja nie daje prawa do licytacji ani dostępu do cudzych danych.</p><button id="ownerRegistrationsRefresh" type="button" class="portal-button portal-button-secondary">Odśwież rejestracje</button><div id="ownerRegistrationsResult" aria-live="polite"></div></div>
+      </details>
+      <details class="portal-gate portal-owner-tool" id="ownerStorage" name="owner-tools">
+        <summary><strong id="ownerStorageHeading">Miejsce na zdjęcia archiwalne</strong><span id="ownerArchiveStorageSummary">Zapas miejsca i budżet</span></summary>
+        <div class="portal-owner-tool-content">
+        <p id="ownerArchiveStorage">Sprawdź ostatni automatyczny pomiar miejsca.</p>
+        <button id="ownerArchiveStorageRefresh" type="button" class="portal-button portal-button-secondary">Sprawdź miejsce i budżet</button>
+        <p id="ownerArchiveStorageFeedback" class="portal-owner-tool-feedback" role="status" aria-live="polite"></p>
+        </div>
+      </details>
+      <details class="portal-gate portal-traffic portal-owner-tool" id="portalTraffic" name="owner-tools">
+        <summary><strong>Statystyki odwiedzin</strong><span>Wizyty, źródła i lokalizacje</span></summary>
+        <div class="portal-owner-tool-content">
+        <div class="portal-traffic-toolbar">
+          <label>Zakres <select id="portalTrafficDays"><option value="today">Dziś</option><option value="yesterday">Wczoraj</option><option value="7" selected>Ostatnie 7 dni</option><option value="30">Ostatnie 30 dni</option></select></label>
+          <button type="button" id="portalTrafficRefresh" class="portal-button portal-button-secondary">Odśwież statystyki</button>
+        </div>
+        <div id="portalTrafficResult" aria-live="polite"></div>
+        <p class="portal-traffic-note">Dni liczymy według czasu polskiego. Lokalizacja jest przybliżona. Ta przeglądarka jest pomijana po otwarciu raportu lub zalogowaniu na konto właściciela.</p>
+        </div>
+      </details>
+      <details class="portal-gate portal-owner-tool" id="ownerArchive" name="owner-tools">
+        <summary><strong>Zarządzaj archiwum</strong><span>Wyszukaj VIN i usuń wpisy</span></summary>
+        <div class="portal-owner-tool-content">
+        <form id="ownerArchiveLookup"><label for="ownerArchiveVin">VIN pojazdu</label>
+          <input id="ownerArchiveVin" required minlength="17" maxlength="17" autocomplete="off" placeholder="Wpisz 17 znaków">
+          <button class="portal-button portal-button-secondary" type="submit">Znajdź wpisy</button>
+        </form>
+        <p id="ownerArchiveStatus" role="status" aria-live="polite"></p>
+        <ul id="ownerArchiveResults"></ul>
+        <form id="ownerArchiveRemove" hidden>
+          <label>Powód <select id="ownerArchiveReason"><option value="ownership">Zweryfikowano własność</option><option value="request">Uprawnione zgłoszenie</option><option value="correction">Korekta wpisu</option></select></label>
+          <label>Potwierdź pełnym VIN-em <input id="ownerArchiveConfirm" required minlength="17" maxlength="17" autocomplete="off"></label>
+          <button class="portal-button" type="submit">Usuń wpisy i zdjęcia tego VIN</button>
+          <p>Usunięcie dotyczy archiwum. Automat nie opublikuje ponownie wpisów tego VIN-u.</p>
+        </form>
+        </div>
+      </details>
+      </div>
+      <div class="portal-summary" id="portalSummary"></div>
+      <section id="ownerRegisterTools" class="owner-register-tools" hidden aria-label="Wyszukiwanie i rejestr importów">
+        <nav class="owner-register-nav" aria-label="Widok realizacji"><button type="button" id="ownerViewService" class="portal-button" aria-pressed="true">Obsługa klientów</button><button type="button" id="ownerViewRegister" class="portal-button portal-button-secondary" aria-pressed="false">Rejestr importów</button></nav>
+        <form id="ownerOrderSearch" class="owner-order-search" role="search"><label>Szukaj klienta lub auta<input id="ownerOrderQuery" name="q" type="search" maxlength="80" placeholder="Nazwisko, e-mail, telefon, auto, VIN, LOT lub numer sprawy" autocomplete="off"></label><label>Sprawy<select id="ownerOrderKind"><option value="all">Wszystkie</option><option value="real">Rzeczywiste</option><option value="test">Testowe</option></select></label><label>Etap<select id="ownerOrderStage"><option value="">Wszystkie etapy</option></select></label><button class="portal-button" type="submit">Szukaj</button><button class="portal-button portal-button-secondary" type="button" id="ownerOrderClear">Wyczyść</button></form>
+        <p id="ownerRegisterCount" class="portal-form-feedback" role="status" aria-live="polite"></p>
+      </section>
+      <section id="ownerRegisterPanel" class="owner-register-panel" hidden aria-label="Rejestr importów"><h2>Rejestr importów</h2><p>Daty zakupu i wydania są potwierdzonymi datami. Przewidywany termin dostawy nie jest datą zakończenia. Sprawy testowe nie zwiększają statystyk.</p><div id="ownerRegisterTable" class="owner-register-table"></div><div class="portal-pagination"><button id="ownerRegisterPrevious" class="portal-button portal-button-secondary" type="button" hidden>Poprzednia strona rejestru</button><button id="ownerRegisterNext" class="portal-button portal-button-secondary" type="button" hidden>Następna strona rejestru</button></div></section>
+      <div class="portal-workspace" id="ownerServiceWorkspace">
+        <aside class="portal-orders-panel" aria-labelledby="portalOrdersTitle">
+          <div class="portal-panel-heading"><div><p class="portal-eyebrow">Zamówienia klientów</p><h2 id="portalOrdersTitle">Importy</h2></div><button id="portalRefresh" class="portal-icon-button" type="button" aria-label="Odśwież listę importów">↻</button></div>
+          <div id="portalOrders" class="portal-orders"></div>
+          <div class="portal-pagination"><button id="portalPrevious" class="portal-button portal-button-secondary" type="button" hidden>Poprzednie</button><button id="portalNext" class="portal-button portal-button-secondary" type="button" hidden>Kolejne</button></div>
+          <div id="portalCreateMount"></div>
+        </aside>
+        <div id="portalDetail" class="portal-detail" tabindex="-1"></div>
+      </div>
+    </section>
+  </main>
+  <footer class="portal-footer"><div><strong>REX<span>BID</span></strong><span>Import samochodów z USA</span></div><a href="/kontakt.html">Kontakt z REXBID</a><span>© 2026 REXBID</span></footer>
+</body>
+</html>

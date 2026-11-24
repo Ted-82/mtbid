@@ -1,0 +1,455 @@
+/* Shared REXBID brand and responsive header for all public pages. */
+header {
+  background: #0f2030 !important;
+  color: #f8fafc !important;
+  border-bottom: 1px solid rgba(255,255,255,.1) !important;
+  box-shadow: 0 5px 22px rgba(8,13,20,.16);
+}
+
+header .header-inner,
+header .header {
+  position: relative;
+  box-sizing: border-box;
+  width: min(100%, 1280px);
+  min-height: 68px;
+  margin: 0 auto;
+  padding: 0 24px;
+  gap: 20px;
+}
+
+header .logo,
+header a.logo {
+  color: #fff !important;
+  font-weight: 900 !important;
+  letter-spacing: -1.2px;
+  text-decoration: none !important;
+  white-space: nowrap;
+}
+
+header .logo span,
+header a.logo span,
+footer .footer-logo span {
+  color: #e43b51 !important;
+}
+
+header nav.rex-primary-nav {
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-end;
+  gap: clamp(12px, 2vw, 24px);
+  margin-left: auto;
+}
+
+header nav.rex-primary-nav a {
+  color: #dce2e9 !important;
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: none !important;
+  white-space: nowrap;
+}
+
+header nav.rex-primary-nav a:hover,
+header nav.rex-primary-nav a:focus-visible {
+  color: #e43b51 !important;
+}
+
+header nav.rex-primary-nav a[aria-current="page"] {
+  color: #fff !important;
+  box-shadow: inset 0 -2px #e43b51;
+}
+
+header nav.rex-primary-nav [data-rexbid-count="favorites"] {
+  display: inline-grid;
+  min-width: 18px;
+  height: 18px;
+  margin-left: 3px;
+  padding: 0 4px;
+  place-items: center;
+  border-radius: 10px;
+  background: #d52c43;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.rex-menu-toggle {
+  display: none;
+  width: 42px;
+  height: 40px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255,255,255,.24);
+  border-radius: 9px;
+  background: #1b2027;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.rex-menu-toggle:hover,
+.rex-menu-toggle:focus-visible {
+  border-color: #e43b51;
+  color: #ff6679;
+}
+
+@media (max-width: 1000px) {
+  header .header-inner,
+  header .header {
+    min-height: 62px;
+    padding: 0 16px;
+    gap: 12px;
+  }
+
+  header .rex-menu-toggle { display: inline-flex; margin-left: auto; }
+
+  header nav.rex-primary-nav {
+    display: none !important;
+    position: absolute;
+    z-index: 1200;
+    top: calc(100% + 1px);
+    right: 12px;
+    left: 12px;
+    width: auto;
+    margin: 0;
+    padding: 8px;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 0 0 12px 12px;
+    background: #0f2030;
+    box-shadow: 0 18px 28px rgba(0,0,0,.24);
+  }
+
+  header nav.rex-primary-nav.is-open { display: grid !important; gap: 2px; }
+  header nav.rex-primary-nav a { display: block; padding: 12px 13px; border-radius: 7px; font-size: 14px; }
+  header nav.rex-primary-nav a:hover,
+  header nav.rex-primary-nav a:focus-visible { background: rgba(213,44,67,.14); }
+  header .auth { display: none !important; }
+  header a.back { display: none; }
+}
+.rexbid-d1-partial-badge{position:fixed;z-index:1000;right:12px;bottom:12px;padding:5px 9px;border:1px solid #d52c43;border-radius:999px;background:#fff;color:#17263a;font:600 11px/1.3 system-ui,sans-serif;box-shadow:0 2px 8px #0002}
+@media(max-width:640px){.rexbid-d1-partial-badge{top:72px;right:10px;bottom:auto;pointer-events:none}}
+
+/* V4 presentation refinement. All selectors below are tied to existing V4
+   components; navigation state, offer data and calculator behavior are unchanged. */
+:root {
+  --rex-focus: #287bc1;
+  --rex-ink: #17263a;
+  --rex-support: #536477;
+}
+
+header .rex-menu-toggle { width: 44px; height: 44px; }
+header nav.rex-primary-nav a { min-height: 44px; display: inline-flex; align-items: center; }
+header .brand-note { color: #b7c2cf; font-size: 10px; line-height: 1.4; }
+
+/* Keep focus visible on the light panels and the dark header. */
+header :is(a, button):focus-visible {
+  outline: 3px solid #ffb6c1;
+  outline-offset: 3px;
+}
+:is(#search, .filter-section, .catalog-results, .marketplace-aisles, #page)
+  :is(a, button, input, select, summary):focus-visible,
+:is(.lightbox, .viewer-modal) button:focus-visible {
+  outline: 3px solid var(--rex-focus);
+  outline-offset: 3px;
+}
+:is(#search, .filter-section, #page) :is(input, select)::placeholder { color: #6b7886; }
+
+/* Homepage: clear hierarchy and comfortable supporting text. */
+#search.hero { padding: 36px 0 30px; }
+#search .hero-copy { max-width: 860px; }
+#search .hero-copy h1 { margin-inline: auto; line-height: 1.14; }
+#search .hero-copy > p { margin-inline: auto; font-size: 15px; }
+#search .eyebrow { font-size: 12px; letter-spacing: .1em; }
+#search .search-panel { padding: 18px; border-radius: 16px; }
+#search .search-panel h2 { margin-bottom: 12px; font-size: 14px; }
+#search .search-box input { height: 52px; padding-inline: 15px; font-size: 16px; }
+#search .search-box .btn { height: 52px; font-size: 14px; }
+#search .search-hint { color: #536477; font-size: 12px; line-height: 1.5; }
+
+/* A result view retains the full search form in a shorter horizontal hero.
+   setCatalogMode() explicitly sets #catalogResults.hidden, so this rule follows
+   actual catalog state, including searches performed without navigation. */
+@supports selector(body:has(#catalogResults:not([hidden]))) {
+  @media (min-width: 901px) {
+    body:has(#catalogResults:not([hidden])) #search.hero { padding: 22px 0; }
+    body:has(#catalogResults:not([hidden])) #search .hero-copy {
+      display: grid;
+      grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+      grid-template-areas: "eyebrow search" "title search" "text search";
+      align-content: center;
+      align-items: center;
+      column-gap: 34px;
+      max-width: 1120px;
+      text-align: left;
+    }
+    body:has(#catalogResults:not([hidden])) #search .eyebrow { grid-area: eyebrow; margin-bottom: 7px; }
+    body:has(#catalogResults:not([hidden])) #search h1 { grid-area: title; margin: 0; font-size: 28px; }
+    body:has(#catalogResults:not([hidden])) #search .hero-copy > p { grid-area: text; margin: 9px 0 0; font-size: 13px; }
+    body:has(#catalogResults:not([hidden])) #search .search-panel { grid-area: search; margin-top: 0; }
+  }
+}
+
+.filter-section .filters { padding: 22px; }
+.filter-section .filters-heading h2 { font-size: 16px; }
+.filter-section :is(.filters-heading p, .filter-field label, .filter-note, .active-filter-summary) {
+  color: var(--rex-support);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.filter-section .filter-field label { letter-spacing: 0; }
+.filter-section :is(input, select) { min-height: 46px; font-size: 14px; }
+.filter-section .filters button { min-height: 44px; font-size: 13px; }
+.filter-section .advanced-filters > summary { min-height: 48px; font-size: 13px; padding-block: 13px; }
+.filter-section .advanced-filters > summary::after { color: #536477; }
+.filter-section .advanced-actions .btn { align-self: auto; white-space: nowrap; }
+.filter-section .active-filters { margin: 14px 0 0; }
+.filter-section .filter-chip { padding: 4px 8px 4px 12px; font-size: 12px; }
+.filter-section .filter-chip button { width: 32px; min-height: 32px; height: 32px; font-size: 20px; color: #762638; }
+.filter-section .clear-filters { min-height: 44px; padding: 10px 12px; font-size: 12px; }
+
+/* Cards: price, identity and source status stay readable without motion. */
+.marketplace-aisles { gap: 34px; padding-top: 28px; }
+:is(.marketplace-aisles, .catalog-results) .results-kicker { font-size: 12px; letter-spacing: .08em; }
+.marketplace-aisles .aisle-more { min-height: 44px; font-size: 12px; }
+.marketplace-aisles .market-aisle-card { border-radius: 14px; transition: border-color .18s, box-shadow .18s; }
+.marketplace-aisles .market-aisle-card:hover { transform: none; border-color: #c4d0dc; box-shadow: 0 7px 20px rgba(20,39,56,.09); }
+.marketplace-aisles .aisle-photo { height: auto; aspect-ratio: 16 / 10; overflow: hidden; }
+.marketplace-aisles .aisle-photo img { display: block; }
+.marketplace-aisles .aisle-card-body { gap: 8px; padding: 14px; }
+.marketplace-aisles .aisle-title { min-height: 40px; font-size: 15px; line-height: 1.4; }
+.marketplace-aisles :is(.aisle-identity, .aisle-status-text, .aisle-secondary-price, .aisle-date) {
+  color: var(--rex-support);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.marketplace-aisles .aisle-status-text { color: #374d62; }
+:is(.marketplace-aisles, .catalog-results) :is(.aisle-price-overlay, .car-price-overlay) { padding: 9px 11px; }
+:is(.marketplace-aisles, .catalog-results) :is(.aisle-price-overlay, .car-price-overlay) small { font-size: 12px; }
+:is(.marketplace-aisles, .catalog-results) :is(.aisle-price-overlay, .car-price-overlay) strong { font-size: 19px; }
+.catalog-results .market-shortcuts { gap: 10px; padding-bottom: 18px; }
+.catalog-results .market-shortcuts button { min-height: 44px; padding: 10px 15px; font-size: 13px; }
+.catalog-results .car-card { border-radius: 14px; transition: border-color .18s, box-shadow .18s; }
+.catalog-results .car-card:hover { transform: none; box-shadow: 0 7px 20px rgba(20,39,56,.09); }
+.catalog-results .car-card:hover .car-image img { transform: none; }
+.catalog-results .car-image { height: auto; aspect-ratio: 16 / 10; }
+.catalog-results .car-content { padding: 17px; }
+.catalog-results .car-title { min-height: 44px; font-size: 17px; line-height: 1.35; }
+.catalog-results :is(.car-vin, .auction-date-row, .card-source-status, .card-secondary-price, .price-unavailable, .spec small) {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.catalog-results :is(.car-vin, .card-source-status, .spec small) { color: var(--rex-support); }
+.catalog-results .card-source-status { gap: 5px 12px; margin-bottom: 7px; }
+.catalog-results .spec strong { font-size: 14px; white-space: normal; overflow-wrap: anywhere; line-height: 1.4; }
+.catalog-results .details-btn { display: inline-flex; align-items: center; min-height: 44px; font-size: 12px; }
+.catalog-results .card-local-actions { padding: 0 17px 17px; }
+.catalog-results .card-local-actions button { min-height: 44px; font-family: inherit; font-size: 13px; }
+.catalog-results .status { color: var(--rex-support); font-size: 13px; line-height: 1.5; }
+
+/* Vehicle details: maintain the existing responsive section order. */
+body:has(#page) > main > .container { width: min(1320px, calc(100% - 48px)); }
+#page :is(.detail-layout, .vehicle-head) { gap: 22px; }
+#page .vehicle-head { background: #fff; border-color: #dce3ea; }
+#page .breadcrumbs { font-size: 12px; line-height: 1.5; }
+#page :is(.vehicle-meta, .vehicle-highlight, .vehicle-highlight small, .vehicle-highlight b) { font-size: 12px; line-height: 1.5; }
+#page .vehicle-highlight.damage-highlight b { white-space: normal; overflow-wrap: anywhere; }
+#page .head-chip { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; font-size: 12px; }
+#page .head-chip:hover { transform: none; }
+#page .back { color: var(--rex-support); }
+body:has(#page) .back { min-height: 44px; align-items: center; font-size: 12px; }
+body:has(#page) .back:hover { color: #17263a; }
+#page .platform-link { min-height: 44px; font-size: 12px; }
+#page .main-photo { height: auto; aspect-ratio: 4 / 3; min-height: 0; max-height: none; background: #eef2f6; }
+#page .main-photo img { height: 100%; width: 100%; }
+#page .gallery-arrow { width: 44px; height: 44px; }
+#page :is(.gallery-badge, .photo-count) { font-size: 12px; }
+#page .thumbs { grid-template-columns: repeat(8, minmax(58px, 1fr)); max-height: 128px; }
+#page .thumb { min-height: 44px; }
+#page .thumb.active { outline: 2px solid #d52c43; outline-offset: -2px; }
+#page .media-btn { min-height: 44px; font-size: 12px; }
+#page .media-btn:hover { transform: none; }
+#page .media-btn.accent { color: #fff; }
+#page .section { padding: 18px; }
+#page :is(.section-title span, .spec small, .seller-note, .condition-disclaimer, .history-count, .condition-title-badge, .mini-stat small) {
+  color: var(--rex-support);
+  font-size: 12px;
+  line-height: 1.5;
+}
+#page :is(.spec strong, .condition-summary-row strong, .mini-stat strong) { font-size: 13px; line-height: 1.4; overflow-wrap: anywhere; }
+#page .condition-summary-row { padding: 12px 0; line-height: 1.6; }
+#page :is(.condition-more, .spec-more) > summary { min-height: 44px; padding-block: 12px; font-size: 12px; }
+#page :is(.jump-links a, a.jump-links) { min-height: 44px; display: inline-flex; align-items: center; font-size: 12px; }
+#page .auction-price-option small { font-size: 12px; }
+#page .auction-calc-price { min-height: 44px; width: 100%; font-size: 12px; }
+#page .vehicle-actions .action { min-height: 44px; font-size: 12px; }
+#page :is(.local-storage-note, .price-fact small, .auction-state) { font-size: 12px; line-height: 1.5; }
+#page .history-table :is(th, td) { font-size: 12px; padding: 12px; }
+#page :is(.history-platform, .history-status) { font-size: 12px; }
+#page .history-price small { font-size: 12px !important; }
+#page #loadOlderAuctionHistory { min-height: 44px; font-size: 12px; }
+
+/* Calculator typography and layout, without changing amounts or claims. */
+#page .calc-v4-head { flex-direction: column; gap: 8px; }
+#page .calc-v4-head h2 { line-height: 1.3; }
+#page .calc-v4-source { border: 1px solid #dfe6ec; background: #f1f4f7; color: #526579; font-size: 12px; white-space: normal; line-height: 1.5; }
+#page :is(.calc-v4-kicker, .calc-v4-intro, .calc-v4-note, .calc-v4-price-grid label,
+  .calc-v4-detail-grid label, .calc-v4-price-grid small, .calc-v4-result small,
+  .calc-v4-result span, .calc-field label, .calc-field-note, .calc-note, .calc-sub) {
+  font-size: 12px;
+  line-height: 1.6;
+}
+#page :is(.calc-v4-price-grid, .calc-v4-detail-grid) :is(input, select) { min-height: 46px; height: auto; font-size: 14px; }
+#page .calc-v4-price-grid input[data-v4-price] { font-size: 22px; font-weight: 800; }
+#page .calc-v4-result { padding: 17px; border: 1px solid #dfe6ec; background: #f2f6fa; }
+#page .calc-v4-result strong { font-size: 28px; line-height: 1.2; color: var(--rex-ink); overflow-wrap: anywhere; }
+#page .calc-v4-lines { grid-template-columns: minmax(0, 1fr); }
+#page :is(.calc-v4-lines > div, [data-v4-component-lines] > div) { padding-block: 11px; font-size: 13px; }
+#page :is(.calc-v4-details, .strict-estimate-mode, .calc-details, .calc-detail-group) > summary { min-height: 44px; padding-block: 12px; font-size: 12px; line-height: 1.5; }
+#page [data-v4-route-details] p { font-size: 12px; line-height: 1.6; }
+#page .calc-warning { font-size: 12px; line-height: 1.6; }
+:is(#lbPrev, #lbNext, #lbClose, #lbMinus, #lbReset, #lbPlus, #viewerClose, #viewerFullscreen) {
+  min-width: 44px;
+  min-height: 44px;
+}
+body:has(#searchForm) footer { font-size: 12px; line-height: 1.6; }
+
+@media (max-width: 1100px) {
+  .catalog-results .cars { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 960px) {
+  .marketplace-aisles .market-aisle-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+}
+@media (max-width: 760px) {
+  #search.hero { padding: 28px 0 22px; }
+  #search .hero-copy > p { font-size: 14px; }
+  #search .search-panel { padding: 15px; }
+  .filter-section .filters { padding: 17px; }
+  .filter-section .filter-chip button { width: 44px; min-height: 44px; height: 44px; }
+  .filter-section .advanced-actions .btn { width: 100%; }
+  .catalog-results .car-content { padding: 15px; }
+  .catalog-results .car-title { font-size: 16px; }
+  .catalog-results .spec strong { font-size: 13px; }
+  body:has(#page) > main > .container { width: calc(100% - 28px); }
+  #page .vehicle-head { gap: 14px; }
+  #page .section { padding: 15px; }
+  #page .thumbs { grid-template-columns: repeat(5, minmax(44px, 1fr)); max-height: 112px; }
+  #page .media-toolbar { grid-template-columns: minmax(0, 1fr); }
+  #page .media-btn.accent { grid-column: auto; }
+  #page :is(.calc-v4-price-grid, .calc-v4-detail-grid) { grid-template-columns: minmax(0, 1fr); }
+  #page .calc-v4-result { grid-column: auto; }
+  #page .calc-v4-result strong { font-size: 26px; }
+}
+@media (max-width: 620px) {
+  .catalog-results .cars { grid-template-columns: minmax(0, 1fr); }
+  .catalog-results .car-title { min-height: 0; font-size: 18px; }
+  .catalog-results .car-bottom { flex-direction: row; align-items: center; }
+  .catalog-results .spec strong { font-size: 14px; }
+}
+@media (max-width: 560px) {
+  .marketplace-aisles .market-aisle-grid { grid-template-columns: minmax(0, 1fr); }
+  .marketplace-aisles .aisle-photo { aspect-ratio: 16 / 10; }
+  .marketplace-aisles .aisle-title { min-height: 0; font-size: 17px; }
+  .marketplace-aisles .market-aisle-heading { align-items: center; gap: 10px; }
+  #search .search-box { flex-direction: column; }
+  #search .search-box .btn { width: 100%; }
+  #search .search-hint { flex-wrap: wrap; gap: 3px 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(header, #search, .filter-section, .marketplace-aisles, .catalog-results, #page)
+    :is(a, button, input, img, article) { transition: none !important; }
+  :is(.car-card, .market-aisle-card, .head-chip, .media-btn, .btn):hover { transform: none !important; }
+}
+
+/* Working budget: each manually entered fee stays visible beside the estimate. */
+#page .import-budget { margin-top: 16px; padding-top: 3px; border-top: 1px solid #dfe6ed; }
+#page .import-budget > summary { min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; cursor: pointer; color: #233f58; font-size: 13px; font-weight: 750; line-height: 1.5; list-style: none; }
+#page .import-budget > summary::-webkit-details-marker { display: none; }
+#page .import-budget > summary::after { content: "+"; color: #61778c; font-size: 20px; }
+#page .import-budget[open] > summary::after { content: "−"; }
+#page .import-budget-intro { margin: 0 0 16px; color: #536a80; font-size: 12px; line-height: 1.7; }
+#page .import-budget-grid { display: grid; grid-template-columns: minmax(0,1fr); gap: 14px; }
+#page .import-budget-grid > label { display: grid; gap: 6px; min-width: 0; color: #405a70; font-size: 12px; font-weight: 650; line-height: 1.5; }
+#page .import-budget-grid :is(input, select) { width: 100%; min-width: 0; min-height: 48px; padding: 10px 12px; border: 1px solid #cfdbe5; border-radius: 8px; background: #fff; color: #19364f; font: inherit; font-size: 14px; }
+#page .import-budget-grid :is(input, select):focus-visible { outline: 3px solid #287bc1; outline-offset: 2px; }
+#page .import-budget-result { display: grid; gap: 7px; margin-top: 18px; padding: 18px; border: 1px solid #d8e3ed; border-radius: 11px; background: #f2f6fa; color: #45617a; }
+#page .import-budget-result > span { font-size: 12px; font-weight: 700; line-height: 1.5; }
+#page .import-budget-result > strong { color: #17334c; font-size: 27px; line-height: 1.3; letter-spacing: -.025em; overflow-wrap: anywhere; }
+#page .import-budget-result p { margin: 0; color: #566f85; font-size: 12px; line-height: 1.7; }
+#page .import-budget-actions { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 8px; margin-top: 14px; }
+#page .import-budget-actions button { min-width: 0; min-height: 44px; padding: 10px 9px; border: 1px solid #cfdce7; border-radius: 8px; background: #fff; color: #294b65; cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 700; line-height: 1.5; }
+#page .import-budget-actions button:hover { background: #eef4f9; border-color: #aebfd0; }
+#page .import-budget-status { margin: 9px 0 0; min-height: 18px; color: #496a83; font-size: 12px; line-height: 1.5; }
+@media (min-width: 1200px) {
+  #page .main-column .import-budget-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 430px) {
+  #page .import-budget-actions { grid-template-columns: minmax(0,1fr); }
+  #page .import-budget-result { padding: 15px; }
+}
+
+/* Operator and address explicitly confirmed by the owner; registry/tax identifiers remain unconfirmed. */
+footer .rex-operator{width:min(1280px,100%);margin:22px auto 0;padding:18px 24px 0;border-top:1px solid #9aafc133;font:12px/1.65 system-ui,sans-serif;display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px 24px;color:inherit;overflow-wrap:anywhere}footer .rex-operator strong{font-weight:650}footer .rex-legal-links{display:flex;flex-wrap:wrap;gap:10px 20px;margin:0;padding:0}footer .rex-legal-links a{color:inherit;text-decoration:underline;text-underline-offset:3px;min-height:30px}footer .rex-legal-links a:focus-visible{outline:3px solid #4e7db1;outline-offset:3px}.rex-document-status{padding:16px 20px;border:1px solid #e6c282;border-radius:12px;background:#fff6e7;color:#795424;font-size:14px;line-height:1.65;margin:0 0 28px}.rex-document-status strong{display:block}.rex-guide .rex-legal-content h2{margin-top:32px}.rex-guide .rex-legal-content h2:first-child{margin-top:0}.rex-guide .rex-legal-content ul{padding-left:22px}.rex-guide .rex-legal-content li{margin:10px 0}.rex-guide .rex-legal-content a{overflow-wrap:anywhere}@media(max-width:640px){footer .rex-operator{padding:16px 18px 0;display:grid;gap:12px}footer .rex-legal-links{gap:8px 16px}.rex-document-status{padding:14px 16px}}
+
+.rex-company-address{font-style:normal;line-height:1.65;margin:12px 0 20px;overflow-wrap:anywhere}footer .rex-company-address{margin:6px 0 0;font-size:12px}
+
+/* Reserve account controls before asynchronous session discovery. */
+header .rexbid-auth-nav{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-left:auto;inline-size:190px;min-block-size:38px;flex:0 0 190px;box-sizing:border-box}
+header .rexbid-auth-nav a,header .rexbid-auth-nav button{font:700 13px Arial,sans-serif;color:inherit;background:transparent;border:1px solid currentColor;border-radius:8px;padding:9px 12px;text-decoration:none;cursor:pointer;white-space:nowrap}
+header .rexbid-auth-nav a:last-child{background:#d52c43;color:#fff;border-color:#d52c43}
+header .rexbid-auth-nav a:last-child:hover{background:#ee4a5e;border-color:#ee4a5e}
+header:has([data-rexbid-auth-nav]) .auth{display:none!important}
+html[data-rexbid-publication-phase="catalog"] header .rexbid-auth-nav{display:none}
+@media(max-width:700px){header .rexbid-auth-nav{gap:5px;inline-size:164px;flex-basis:164px;min-block-size:34px}header .rexbid-auth-nav a,header .rexbid-auth-nav button{padding:7px 8px;font-size:12px}}
+@media(max-width:420px){header:has([data-rexbid-auth-nav]) .header-inner,header:has([data-rexbid-auth-nav]) .header,header:has([data-rexbid-auth-nav]) .bar{flex-wrap:wrap;padding-top:10px;padding-bottom:10px}header .rexbid-auth-nav{flex:1 0 100%;inline-size:100%;margin-left:0}}
+
+/* Shared integrated logo lockup on dark header surfaces. */
+header { isolation: isolate; }
+header :is(.header-inner,.header,.bar) {
+  min-height: 84px;
+}
+header .brand-lockup {
+  display: block;
+  flex: 0 0 auto;
+}
+header a.logo:has(.rexbid-brand-image) {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 5px;
+  width: 156px;
+  flex: 0 0 156px;
+  padding: 10px 0;
+  line-height: 1;
+}
+header .rexbid-brand-image {
+  display: block;
+  width: 156px;
+  height: auto;
+  border-radius: 0;
+  mix-blend-mode: screen;
+}
+header a.logo .brand-note {
+  display: block;
+  width: 100%;
+  padding-left: .13em;
+  box-sizing: border-box;
+  color: #c4ced9 !important;
+  font: 650 8px/1.4 Arial, sans-serif;
+  letter-spacing: .13em;
+  text-align: center;
+  white-space: nowrap;
+}
+@media (max-width: 1000px) {
+  header :is(.header-inner,.header,.bar) { min-height: 76px; }
+  header a.logo:has(.rexbid-brand-image) {
+    width: 128px;
+    flex-basis: 128px;
+    gap: 4px;
+    padding: 8px 0;
+  }
+  header .rexbid-brand-image { width: 128px; }
+  header a.logo .brand-note { font-size: 7px; letter-spacing: .11em; }
+}

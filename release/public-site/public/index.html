@@ -1,0 +1,3893 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>REXBID — Aukcje samochodów USA</title>
+
+  <meta
+    name="description"
+    content="Wyszukaj samochód z aukcji Copart i IAAI. Sprawdź VIN, zdjęcia i koszt transportu. Zaplanuj import z USA z REXBID."
+  />
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #f4f6f8;
+      --panel: #ffffff;
+      --panel2: #f8f9fb;
+      --border: #dfe4e9;
+      --text: #17202a;
+      --muted: #687581;
+      --accent: #d52c43;
+      --accent2: #ee4a5e;
+      --green: #1f9d5b;
+      --red: #d94a4a;
+      --blue: #287bc1;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(1440px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    /* HEADER */
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      white-space: nowrap;
+    }
+
+    .logo span {
+      color: var(--accent);
+    }
+
+    .nav {
+      display: flex;
+      gap: 24px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .nav a:hover {
+      color: white;
+    }
+
+    /* HERO */
+
+    .hero {
+      padding: 64px 0 36px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(36px, 6vw, 68px);
+      line-height: 1;
+      letter-spacing: -3px;
+    }
+
+    .hero h1 span {
+      color: var(--accent);
+    }
+
+    .hero p {
+      max-width: 680px;
+      margin: 20px auto 30px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    /* SEARCH */
+
+    .search-box {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      gap: 10px;
+    }
+
+    .search-box input {
+      flex: 1;
+      min-width: 0;
+      height: 58px;
+      padding: 0 20px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      outline: none;
+      background: var(--panel);
+      color: var(--text);
+      font-size: 16px;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent);
+    }
+
+    .btn {
+      height: 58px;
+      border: 0;
+      border-radius: 12px;
+      padding: 0 26px;
+      cursor: pointer;
+      font-weight: 800;
+      transition: 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #111;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent2);
+      transform: translateY(-1px);
+    }
+
+    /* FILTERS */
+
+    .filters {
+      margin: 24px 0 34px;
+      padding: 18px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns:
+        1.2fr
+        1fr
+        1fr
+        1fr
+        1fr
+        auto;
+      gap: 10px;
+    }
+
+    .filters input,
+    .filters select {
+      width: 100%;
+      height: 46px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: var(--panel2);
+      color: var(--text);
+      outline: none;
+    }
+
+    .filters button {
+      height: 46px;
+    }
+
+    /* RESULTS */
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      gap: 15px;
+    }
+
+    .results-header h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .status {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .cars {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .car-card {
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--panel);
+      transition: 0.2s;
+    }
+
+    .car-card:hover {
+      border-color: #c7cfd7;
+      transform: translateY(-2px);
+    }
+
+    .car-image {
+      position: relative;
+      height: 230px;
+      background: #e9edf1;
+      overflow: hidden;
+    }
+
+    .car-image img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .platform {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 6px 9px;
+      border-radius: 7px;
+      background: rgba(17, 19, 21, 0.82);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .status-badge {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      padding: 6px 9px;
+      border-radius: 7px;
+      background: rgba(31, 157, 91, 0.92);
+      color: #07140d;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .car-content {
+      padding: 18px;
+    }
+
+    .car-title {
+      margin: 0 0 6px;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .car-vin {
+      color: var(--muted);
+      font-size: 12px;
+      word-break: break-all;
+    }
+
+    .car-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .spec small {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .spec strong {
+      font-size: 14px;
+    }
+
+    .car-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-top: 15px;
+      border-top: 1px solid var(--border);
+    }
+
+    .price {
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .price-label {
+      display: block;
+      margin-bottom: 3px;
+      color: #68717b;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .details-btn {
+      padding: 10px 14px;
+      border-radius: 9px;
+      background: var(--accent);
+      color: #111;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    /* EMPTY / LOADING */
+
+    .message {
+      padding: 50px 20px;
+      text-align: center;
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+      color: var(--muted);
+    }
+
+    .spinner {
+      width: 30px;
+      height: 30px;
+      margin: 0 auto 15px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* FOOTER */
+
+    footer {
+      margin-top: 80px;
+      padding: 35px 0;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    /* LIGHT THEME REFINEMENTS */
+
+    header {
+      box-shadow: 0 1px 8px rgba(20, 30, 40, 0.05);
+    }
+
+    .hero h1 {
+      color: #17202a;
+    }
+
+    .search-box input::placeholder,
+    .filters input::placeholder {
+      color: #8a949e;
+    }
+
+    .filters,
+    .car-card {
+      box-shadow: 0 2px 10px rgba(20, 30, 40, 0.04);
+    }
+
+    .car-title,
+    .spec strong,
+    .price,
+    .results-header h2 {
+      color: #17202a;
+    }
+
+    .car-bottom {
+      border-top-color: #e1e5e9;
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 1100px) {
+      .cars {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .filters-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 700px) {
+      .container {
+        width: min(100% - 20px, 1440px);
+      }
+
+      .header-inner {
+        min-height: 62px;
+      }
+
+      .nav {
+        display: none;
+      }
+
+      .hero {
+        padding-top: 42px;
+      }
+
+      .hero h1 {
+        letter-spacing: -2px;
+      }
+
+      .search-box {
+        flex-direction: column;
+      }
+
+      .filters-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .cars {
+        grid-template-columns: 1fr;
+      }
+
+      .car-image {
+        height: 250px;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .filters-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* REXBID 2.0 — listing experience */
+    :root {
+      --bg: #f3f5f7;
+      --panel: #ffffff;
+      --panel2: #f7f8fa;
+      --border: #e0e5ea;
+      --text: #172432;
+      --muted: #647381;
+      --accent: #d52c43;
+      --accent2: #ee4a5e;
+      --green: #13845b;
+      --navy: #102234;
+      --navy-soft: #19344c;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .container { width: min(1320px, calc(100% - 48px)); }
+
+    header {
+      background: rgba(15, 32, 48, 0.97);
+      border-bottom: 1px solid rgba(255,255,255,.09);
+      box-shadow: 0 8px 28px rgba(8, 24, 39, .13);
+    }
+
+    .header-inner { min-height: 76px; gap: 32px; }
+    .brand-lockup { display:grid; flex:0 0 auto; justify-items:start; gap:2px; }
+    .logo { color: #fff; font-size: 26px; letter-spacing: -1.4px; }
+    .logo span { color: var(--accent); }
+    .brand-note {
+      color: rgba(255,255,255,.52);
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      white-space:nowrap;
+    }
+    .nav { align-items: center; gap: clamp(16px, 2.2vw, 32px); color: rgba(255,255,255,.72); font-size: 13px; font-weight: 650; }
+    .nav a { transition: color .18s ease; }
+    .nav a:hover, .nav a:focus-visible { color: #fff; }
+    .nav .nav-account { color: #fff; padding: 10px 15px; border: 1px solid rgba(255,255,255,.24); border-radius: 9px; }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 24px 0;
+      color: #fff;
+      text-align: left;
+      background:
+        radial-gradient(ellipse at 83% 12%, rgba(206, 40, 62, .25), transparent 34%),
+        linear-gradient(122deg, #111b2a 0%, #17263a 62%, #202d40 100%);
+    }
+    .hero::after {
+      position: absolute;
+      right: -100px;
+      bottom: -240px;
+      width: 590px;
+      height: 590px;
+      content: "";
+      border: 1px solid rgba(255,255,255,.075);
+      border-radius: 50%;
+      box-shadow: 0 0 0 42px rgba(255,255,255,.025), 0 0 0 90px rgba(255,255,255,.02);
+      pointer-events: none;
+    }
+    .hero-inner { position:relative; z-index:1; display:flex; justify-content:center; }
+    .hero-copy { width:100%; max-width:820px; min-width:0; text-align:center; margin:auto; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 8px; color: #ff6879; font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    .eyebrow::before { width: 22px; height: 2px; content: ""; background: currentColor; }
+    .hero h1 { max-width: 690px; margin: 0; color: #fff; font-size: clamp(30px, 3.5vw, 46px); font-weight: 790; line-height: 1.08; letter-spacing: -.04em; }
+    .hero h1 span { color: #f04b61; }
+    .hero p { max-width: 620px; margin: 10px 0 0; color: rgba(239,245,249,.8); font-size: 15px; line-height: 1.55; }
+    .hero-points { display: none; }
+    .hero-points span { display: inline-flex; align-items: center; gap: 8px; }
+    .hero-points span::before { width: 6px; height: 6px; content: ""; border-radius: 50%; background: var(--accent); }
+    .search-panel { margin-top:18px; padding:15px; border:1px solid rgba(255,255,255,.72); border-radius:14px; background:#fff; box-shadow:0 12px 30px rgba(5,13,23,.2); }
+    .search-panel h2 { margin: 0 0 9px; color: #1c2c3b; font-size: 13px; letter-spacing: -.02em; }
+    .search-panel > p { margin: 0 0 9px; color: #84909b; font-size: 11px; line-height: 1.45; }
+    .search-box { max-width: none; margin: 0; gap: 9px; }
+    .search-box input { height: 48px; padding: 0 12px; border: 1px solid #dfe5ea; border-radius: 9px; background: #fafbfc; color: #182837; font-size: 14px; }
+    .search-box input:focus { border-color: #d52c43; box-shadow: 0 0 0 3px rgba(213,44,67,.14); }
+    .btn { border-radius: 10px; transition: transform .18s ease, background .18s ease, box-shadow .18s ease; }
+    .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 7px 18px rgba(213,44,67,.18); }
+    .btn-primary:hover { background: var(--accent2); box-shadow: 0 10px 22px rgba(213,44,67,.24); }
+    .search-hint { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 12px; margin-top: 8px; color: #84909b; font-size: 10px; }
+
+    .filter-section { padding-top: 16px; }
+    .filter-section .filters { margin-bottom:0; }
+    .filter-submit-field .btn { width:100%; height:45px; }
+    .listing-section { padding-top: 28px; }
+    .catalog-results[hidden], #marketSections[hidden] { display:none !important; }
+    .filters { margin: 0 0 30px; padding: 21px 22px 22px; border: 1px solid #e3e8ed; border-radius: 14px; background: #fff; box-shadow: 0 8px 28px rgba(20,39,56,.045); }
+    .filters-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 15px; }
+    .filters-heading h2 { margin: 0; color: #1c2c3b; font-size: 14px; font-weight: 800; }
+    .filters-heading p { margin: 0; color: #84909b; font-size: 11px; }
+    .filters-grid { grid-template-columns: 1fr 1.15fr 1.15fr .72fr .72fr auto; gap: 9px; align-items:end; }
+    .advanced-filters { margin-top: 15px; border-top: 1px solid #edf0f2; }
+    .advanced-filters summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 1px 3px; color: #304455; cursor: pointer; font-size: 12px; font-weight: 750; list-style: none; }
+    .advanced-filters summary::-webkit-details-marker { display: none; }
+    .advanced-filters summary::after { content: "+"; color: #956109; font-size: 18px; font-weight: 500; }
+    .advanced-filters[open] summary::after { content: "−"; }
+    .advanced-count { display: inline-grid; place-items: center; min-width: 19px; height: 19px; margin-left: 7px; padding: 0 5px; border-radius: 20px; background: #fff0f2; color: #92243a; font-size: 10px; }
+    .advanced-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 13px 11px; padding: 17px 0 4px; }
+    .filter-field { display: grid; align-content: start; gap: 6px; min-width: 0; }
+    .filter-field label { color: #647381; font-size: 10px; font-weight: 750; letter-spacing: .035em; }
+    .filter-field input, .filter-field select { width: 100%; height: 40px; padding: 0 10px; border: 1px solid #dfe5ea; border-radius: 8px; background: #fafbfc; color: #233443; font: inherit; font-size: 12px; }
+    .filter-range { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 7px; }
+    .advanced-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 13px; }
+    .filter-note { color: #8a959e; font-size: 10px; line-height: 1.5; }
+    .advanced-actions .btn { height: 40px; padding: 0 17px; font-size: 11px; }
+    .active-filters { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin: -13px 0 24px; }
+    .active-filters[hidden] { display: none; }
+    .active-filter-list { display: grid; gap: 7px; min-width: 0; }
+    .active-filter-summary { color: #758391; font-size: 10px; font-weight: 700; }
+    .active-filter-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .filter-chip { display: inline-flex; align-items: center; gap: 7px; padding: 6px 9px; border: 1px solid #ecc2c9; border-radius: 20px; background: #fff6f7; color: #762638; font-size: 10px; }
+    .filter-chip strong { font-weight: 800; }
+    .filter-chip button { display: inline-grid; place-items: center; width: 16px; height: 16px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #7b642d; cursor: pointer; font-size: 14px; line-height: 1; }
+    .filter-chip button:hover { background: #f8dfe3; }
+    .clear-filters { flex: 0 0 auto; padding: 5px 0; border: 0; background: none; color: #788592; cursor: pointer; font-size: 10px; font-weight: 700; }
+    .clear-filters:hover:not(:disabled) { color: #b5223b; }
+    .clear-filters:disabled { cursor: default; opacity: .45; }
+    .market-shortcuts { display:flex; align-items:center; gap:8px; overflow-x:auto; padding:0 0 12px; margin-top:-3px; scrollbar-width:thin; }
+    .market-shortcuts button { flex:0 0 auto; padding:8px 12px; border:1px solid #dbe2e8; border-radius:999px; background:#fff; color:#435566; font-size:11px; font-weight:750; cursor:pointer; }
+    .market-shortcuts button[aria-pressed="true"] { border-color:#d52c43; background:#fff0f2; color:#8a1f31; }
+    .cars { grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
+    .car-card { border-radius:11px; }
+    .car-image { height:190px; }
+    .platform,.status-badge { top:9px; padding:5px 7px; font-size:8px; letter-spacing:.025em; }
+    .platform { left:9px; }
+    .status-badge { right:9px; max-width:62%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .car-content { padding:13px 13px 12px; }
+    .car-title { min-height:39px; font-size:14px; }
+    .car-vin { font-size:9px; }
+    .auction-date-row { flex-wrap:wrap; gap:5px; font-size:10px; }
+    .car-grid { gap:9px 8px; margin:12px 0; }
+    .spec small { font-size:8px; }
+    .spec strong { font-size:11px; }
+    .car-bottom { min-height:49px; padding-top:10px; }
+    .price { font-size:18px; }
+    .details-btn { padding:8px 9px; font-size:10px; }
+    .filters input, .filters select { height: 45px; padding: 0 12px; border-color: #dfe5ea; border-radius: 9px; background: #fafbfc; color: #233443; font-size: 13px; }
+    .filters input:focus, .filters select:focus { border-color: #d52c43; outline: 3px solid rgba(213,44,67,.14); }
+    .filters button { height: 45px; padding: 0 19px; font-size: 12px; }
+    .results-header { align-items: end; margin-bottom: 17px; }
+    .results-heading { display: flex; flex-direction: column; gap: 5px; }
+    .results-kicker { color: #a52c40; font-size: 10px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+    #filterSection { scroll-margin-top: 96px; }
+    .catalog-edit-filters { display: none; }
+    @media (max-width:760px) {
+      .catalog-edit-filters { display:inline-flex;align-items:center;min-height:44px;padding:8px 12px;border:1px solid #ccd9e3;border-radius:8px;background:#fff;color:#142b40;font-weight:750;cursor:pointer; }
+    }
+    .results-header h2 { color: #1a2b3b; font-size: 25px; letter-spacing: -.035em; }
+    .status { color: #758391; font-size: 12px; }
+    .cars { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+    .car-card { border-color: #e0e6eb; border-radius: 13px; box-shadow: 0 4px 16px rgba(20,39,56,.055); transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+    .car-card:hover { border-color: #cad4dd; box-shadow: 0 14px 30px rgba(20,39,56,.12); transform: translateY(-4px); }
+    .car-card > a { display: block; height: 100%; }
+    .car-image { height: 218px; background: linear-gradient(135deg,#e5eaf0,#f4f6f8); }
+    .car-image img { transition: transform .45s ease; }
+    .car-card:hover .car-image img { transform: scale(1.035); }
+    .platform { top: 13px; left: 13px; padding: 7px 10px; border: 1px solid rgba(255,255,255,.16); border-radius: 6px; background: rgba(16,34,52,.88); color: #fff; font-size: 9px; letter-spacing: .08em; }
+    .status-badge { top: 13px; right: 13px; padding: 7px 9px; border: 1px solid rgba(255,255,255,.2); border-radius: 6px; background: rgba(19,132,91,.94); color: #fff; font-size: 9px; letter-spacing: .04em; }
+    .status-badge.status-finished { background: rgba(49,66,82,.94); }
+    .status-badge.status-upcoming { background: rgba(177,119,20,.96); }
+    .car-content { padding: 17px 17px 16px; }
+    .car-title { min-height: 42px; margin-bottom: 8px; color: #1b2c3b; font-size: 16px; line-height: 1.32; letter-spacing: -.025em; }
+    .car-vin { overflow: hidden; color: #798693; font-size: 10px; letter-spacing: .035em; text-overflow: ellipsis; white-space: nowrap; }
+    .auction-date-row { display: flex; align-items: center; gap: 7px; margin-top: 10px; color: #566879; font-size: 11px; }
+    .auction-date-row strong { color: #293b4a; font-weight: 750; }
+    .auction-date-icon { color: #b52b40; font-size: 13px; }
+    .car-grid { gap: 13px 10px; margin: 17px 0; }
+    .spec small { margin-bottom: 4px; color: #8b96a0; font-size: 9px; font-weight: 750; letter-spacing: .075em; text-transform: uppercase; }
+    .spec strong { display: block; overflow: hidden; color: #293b4a; font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    .car-bottom { min-height: 44px; align-items:center; flex-wrap:wrap; gap:8px; padding-top: 10px; border-top-color: #e8ecef; }
+    .price { color: #172b3d; font-size: 21px; letter-spacing: -.04em; }
+    .price-label { color: #81909d; font-size: 9px; letter-spacing: .04em; text-transform: uppercase; }
+    .card-source-status { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:5px 10px; margin-top:8px; color:#627181; font-size:10px; line-height:1.4; }
+    .card-status-text { color:#47586a; font-weight:750; }
+    .card-secondary-price { color:#a62339; font-size:11px; font-weight:800; }
+    .price-unavailable { color:#6d7884; font-size:11px; font-weight:700; }
+    .details-btn { padding: 10px 12px; border-radius: 8px; background: #142c41; color: #fff; font-size: 11px; transition: background .18s ease; }
+    .car-card:hover .details-btn { background: #234762; }
+    .card-local-actions { display:flex; gap:8px; padding:0 14px 14px; }
+    .card-local-actions button { flex:1; min-height:36px; border:1px solid #dbe2e8; border-radius:7px; background:#fff; color:#405261; font:700 11px Arial,sans-serif; cursor:pointer; }
+    .card-local-actions button:hover,.card-local-actions button[aria-pressed="true"] { border-color:#e2a0aa; background:#fff5f6; color:#8a1f31; }
+    .local-nav-link { display:inline-flex; align-items:center; gap:5px; }
+    .message { min-height: 190px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px dashed #cbd5de; border-radius: 13px; background: rgba(255,255,255,.72); color: #6f7e8b; font-size: 13px; line-height: 1.6; }
+    .message strong { margin-bottom: 5px; color: #263847; font-size: 16px; }
+    .spinner { border-color: #e4e9ee; border-top-color: #d52c43; }
+    #loadMoreButton { display: flex; align-items: center; justify-content: center; min-width: 190px; margin: 30px auto 0 !important; padding: 0 23px; font-size: 13px; }
+    #loadMoreButton:disabled { cursor: wait; opacity: .7; }
+    footer { margin-top: 68px; padding: 27px 0; border-top-color: #dfe5ea; background: #edf1f4; color: #72808c; text-align: left; font-size: 11px; }
+    footer .container { display: flex; justify-content: space-between; gap: 18px; }
+
+    @media (max-width: 1000px) {
+      .hero-inner { position:relative; z-index:1; display:flex; justify-content:center; }
+      .hero { padding: 28px 0 20px; }
+      .filters-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+      .advanced-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+      .cars { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .brand-note { display: block; font-size: 7px; letter-spacing:.08em; }
+    }
+    @media (max-width: 850px) {
+      .hero-inner { position:relative; z-index:1; display:flex; justify-content:center; }
+      .hero-copy { width:100%; max-width:820px; min-width:0; text-align:center; margin:auto; }
+    }
+    @media (max-width: 700px) {
+      .container { width: min(100% - 28px, 1320px); }
+      .header-inner { min-height: 62px; gap: 10px; }
+      .logo { font-size: 23px; line-height:1; }
+      .nav { display: flex; gap: 15px; overflow-x: auto; font-size: 11px; white-space: nowrap; }
+      .nav { max-width: 58vw; }
+
+      .nav .nav-account { padding: 8px 10px; }
+      .hero { padding: 22px 0 12px; }
+      .hero-inner { position:relative; z-index:1; display:flex; justify-content:center; }
+      .hero h1 { max-width: 520px; font-size: clamp(25px, 7vw, 34px); letter-spacing: -.045em; }
+      .hero p { margin-top: 7px; font-size: 12px; }
+      .search-panel { margin-top:13px; padding:12px; border-radius:12px; }
+      .search-box { flex-direction: row; }
+      .search-box input { height: 45px; font-size: 13px; }
+      .search-box .btn { height: 45px; padding: 0 15px; font-size: 12px; }
+      .search-hint { font-size: 10px; }
+      .filter-section { padding-top: 8px; }
+      .listing-section { padding-top: 22px; }
+      .filters { margin-bottom: 14px; padding: 15px; }
+      .filters-heading { align-items: flex-start; flex-direction: column; gap: 4px; }
+      .filters-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .filters-grid #filterButton { grid-column: 1/-1; }
+      .advanced-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .advanced-actions { align-items: stretch; flex-direction: column; }
+      .advanced-actions .btn { align-self: flex-end; }
+      .active-filters { flex-direction: column; gap: 8px; }
+      .market-shortcuts { flex-wrap: wrap; overflow: visible; }
+      .market-shortcuts button { flex: 0 0 auto; white-space: nowrap; }
+      .results-header { align-items: flex-start; flex-direction: column; gap: 8px; }
+      .results-header h2 { font-size: 22px; }
+      .cars { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+      .car-image { height: clamp(140px, 32vw, 205px); }
+      .platform, .status-badge { top: 8px; padding: 6px 7px; font-size: 8px; }
+      .platform { left: 8px; }
+      .status-badge { right: 8px; }
+      .car-content { padding: 12px; }
+      .car-title { min-height: 38px; font-size: 13px; }
+      .car-vin { font-size: 8px; }
+      .car-grid { gap: 10px 7px; margin: 12px 0; }
+      .spec small { font-size: 8px; }
+      .spec strong { font-size: 10px; }
+      .car-bottom { align-items: flex-start; flex-direction: column; gap: 10px; }
+      .price { font-size: 19px; }
+      .details-btn { display: inline-flex; }
+      footer { margin-top: 42px; }
+      footer .container { flex-direction: column; gap: 6px; }
+    }
+    @media (max-width: 430px) {
+      .container { width: min(100% - 22px, 1320px); }
+      .nav { gap: 9px; }
+      .nav .nav-account { font-size: 10px; }
+      .hero-points { flex-direction: column; }
+      .search-box { flex-direction: column; }
+      .search-box .btn { width: 100%; }
+      .filters-grid { grid-template-columns: 1fr 1fr; }
+      .advanced-grid { grid-template-columns: 1fr 1fr; }
+      .cars { grid-template-columns: 1fr; }
+      .car-image { height: 220px; }
+      .car-content { padding: 15px; }
+      .car-title { min-height: 0; font-size: 16px; }
+      .car-vin { font-size: 10px; }
+      .car-grid { gap: 12px; margin: 15px 0; }
+      .spec small { font-size: 9px; }
+      .spec strong { font-size: 12px; }
+      .car-bottom { align-items: center; flex-direction: row; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+    @media (max-width: 1100px) { .cars { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+    @media (max-width: 700px) { .cars { grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; } .car-image{height:clamp(135px,30vw,190px)} }
+    @media (max-width: 430px) { .cars { grid-template-columns:1fr; } .car-image{height:210px} }
+    .marketplace-aisles { display:grid; gap:26px; padding-top:22px; }
+    .market-aisle { min-width:0; }
+    .market-aisle-heading { display:flex; align-items:end; justify-content:space-between; gap:15px; margin-bottom:12px; }
+    .market-aisle-heading h2 { margin:3px 0 0; color:#1c2c3b; font-size:clamp(18px,2.2vw,23px); letter-spacing:-.5px; }
+    .aisle-more { display:inline-flex; align-items:center; gap:8px; padding:8px 11px; border:1px solid #e3e8ed; border-radius:9px; background:#fff; color:#304456; font-size:11px; font-weight:800; }
+    .aisle-more:hover { border-color:#e5a4ae; color:#8a1f31; }
+    .market-aisle-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+    .aisle-message { grid-column:1/-1; padding:17px; border:1px solid #e3e8ed; border-radius:11px; background:#fff; color:#687581; font-size:12px; }
+    .market-aisle-card { min-width:0; overflow:hidden; border:1px solid #e3e8ed; border-radius:12px; background:#fff; box-shadow:0 3px 12px rgba(20,39,56,.045); color:#17202a; }
+    .market-aisle-card:hover { border-color:#e5a4ae; box-shadow:0 8px 22px rgba(20,39,56,.1); transform:translateY(-2px); }
+    .market-aisle-card a { display:block; color:inherit; text-decoration:none; }
+    .aisle-photo { position:relative; height:clamp(120px,14vw,175px); background:#e9edf1; }
+    .aisle-photo img { width:100%; height:100%; object-fit:cover; }
+    .aisle-price-overlay,.car-price-overlay { position:absolute; left:10px; bottom:10px; display:grid; gap:1px; max-width:calc(100% - 20px); padding:7px 10px; border:1px solid rgba(255,255,255,.76); border-radius:9px; background:rgba(255,255,255,.96); color:#17263a; box-shadow:0 3px 12px rgba(0,0,0,.16); }
+    .aisle-price-overlay small,.car-price-overlay small { color:#586779; font-size:9px; font-weight:750; line-height:1.2; }
+    .aisle-price-overlay strong,.car-price-overlay strong { color:#17263a; font-size:15px; font-weight:900; line-height:1.2; }
+    .aisle-card-body { display:grid; gap:8px; padding:11px; }
+    .aisle-title { min-height:32px; margin:0; color:#1c2c3b; font-size:12px; font-weight:800; line-height:1.35; }
+    .aisle-identity { color:#74818d; font-size:9px; }
+    .aisle-status-text { color:#536477; font-size:10px; font-weight:700; }
+    .aisle-secondary-price { color:#536477; font-size:10px; font-weight:700; }
+    .aisle-date { color:#647381; font-size:10px; }
+    @media(max-width:950px){.market-aisle-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(max-width:650px){.market-aisle-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.aisle-photo{height:clamp(115px,34vw,155px)}.aisle-card-body{padding:9px}.aisle-title{font-size:11px}.aisle-price-overlay,.car-price-overlay{left:7px;bottom:7px;padding:6px 8px}.marketplace-aisles{gap:22px}}
+    @media(max-width:390px){.market-aisle-grid{grid-template-columns:1fr}.aisle-photo{height:190px}.market-aisle-heading{align-items:center}.aisle-more{font-size:10px;padding:7px}}
+  .budget-hero-card{display:flex;align-items:center;gap:12px;margin-top:16px;padding:17px 14px;background:#142b40;color:#fff!important;border-radius:10px;text-decoration:none;border:2px solid #d42b49}.budget-hero-card strong{display:block;font-size:16px;line-height:1.3}.budget-hero-card small{display:block;margin-top:5px;color:#d7e4ef;font-size:12px}.budget-hero-card .budget-hero-icon{display:grid;place-items:center;min-width:42px;height:42px;background:#d42b49;border-radius:8px;font-weight:800;font-size:13px}.budget-hero-card:focus-visible{outline:3px solid #d42b49;outline-offset:3px}.budget-hero-card>span:last-child{margin-left:auto;font-size:23px}
+</style>
+
+<link rel="stylesheet" href="/rexbid-brand.css?v=20261117-integrated" />
+<link rel="stylesheet" href="/rexbid-explore.css?v=a97ea38cec" />
+<link rel="stylesheet" href="/rexbid-portal.css?v=23d9f487b2" />
+<link rel="stylesheet" href="/rexbid-catalog.css?v=f7114707e426" />
+<script src="/rexbid-mobile-nav.js?v=baf47bbe1e" defer></script>
+<noscript data-rex-navigation-fallback><style>header .rex-menu-toggle{display:none!important}header .header-inner,header .header,header .bar{flex-wrap:wrap}header nav.rex-primary-nav{display:flex!important;position:static;flex-wrap:wrap;width:auto;box-shadow:none}</style></noscript></head>
+
+<body class="rex-portal">
+
+<a class="rex-skip-link" href="#mainContent">Przejdź do treści</a>
+
+<header>
+  <div class="container header-inner">
+
+    <div class="brand-lockup">
+      <a href="/" class="logo" aria-label="REXBID — strona główna"><img class="rexbid-brand-image" src="/rexbid-logo-20261117-dark.webp" width="420" height="159" alt=""><span class="brand-note">RYNEK AUKCYJNY USA</span></a>
+    </div>
+
+    <button class="rex-menu-toggle" type="button" aria-label="Otwórz menu główne" aria-expanded="false" aria-controls="rexPrimaryNav">☰</button><nav class="rex-primary-nav" id="rexPrimaryNav" aria-label="Nawigacja główna"><a href="/?catalog=1#results">Aukcje</a><a href="/jak-to-dziala">Jak to działa</a><a href="/ulubione">Ulubione <span data-rexbid-count="favorites">0</span></a><a href="/konto">Konto</a><a href="/pomoc">Pomoc</a><a href="/kontakt">Kontakt</a></nav>
+
+  <div class="rexbid-auth-nav" data-rexbid-auth-nav aria-label="Konto użytkownika"></div></div>
+</header>
+
+
+<main id="mainContent">
+
+  <section class="hero" id="search">
+    <div class="container hero-inner">
+      <div class="hero-copy">
+        <div class="eyebrow">Samochody z USA · Copart i IAAI</div>
+        <h1 id="heroTitle">Wybierz wymarzony pojazd. <span>My zajmiemy się resztą.</span></h1>
+        <p id="heroLead">Aukcje w USA, transport i formalności — z naszym wsparciem na każdym etapie.</p>
+        <div class="search-panel">
+          <h2>Znajdź swój samochód</h2>
+          <form class="search-box" id="searchForm">
+            <label class="rex-search-field" for="searchInput"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="searchInput" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="search" aria-label="Szukaj po VIN, LOT, marce lub modelu" placeholder="VIN, numer LOT, marka lub model" /></label>
+            <button class="btn btn-primary" type="submit">Szukaj ofert <span aria-hidden="true">→</span></button>
+          </form>
+          <a class="budget-hero-card" href="/kalkulator-budzet"><span class="budget-hero-icon" aria-hidden="true">PLN</span><span><strong>Masz budżet? Sprawdź, ile licytować</strong><small>Wpisz np. 30 000 zł · policz zakup i import pod dom</small></span><span aria-hidden="true">→</span></a>
+          <div class="search-hint"><span>Masz konkretny pojazd? Wpisz pełny VIN lub LOT.</span><a href="/?catalog=1#results">Przeglądaj cały katalog <span aria-hidden="true">↗</span></a></div>
+        </div>
+        <div class="hero-benefits" data-home-only aria-label="Funkcje REXBID"><span><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m4 12 5 5L20 6"/></svg>Zdjęcia i dane pojazdu</span><span><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m4 12 5 5L20 6"/></svg>Kalkulator transportu</span><span><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m4 12 5 5L20 6"/></svg>Ulubione oferty</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container filter-section" id="filterSection" aria-labelledby="filterSectionHeading">
+    <div class="filters">
+      <div class="filters-heading">
+        <div><h2 id="filterSectionHeading" tabindex="-1">Dopasuj samochód do siebie</h2><p id="filterMetadataHint">Wybierz lub wpisz markę i model. Podpowiedzi obejmują częściowy katalog.</p></div>
+        <button id="filterPanelToggle" class="filter-panel-toggle" type="button" aria-expanded="false" aria-controls="filterControls">Pokaż filtry</button>
+      </div>
+      <p id="filterValidationMessage" class="filter-validation-message" role="alert" hidden></p>
+      <div id="filterControls" class="is-collapsed">
+      <div class="filters-grid">
+        <div class="filter-field"><label for="platform">Platforma</label><select id="platform" aria-label="Platforma aukcyjna"><option value="">Obie platformy</option><option value="iaai">IAAI</option><option value="copart">COPART</option></select></div>
+        <div class="filter-field"><label for="make">Marka</label><input id="make" type="text" list="makeOptions" autocomplete="off" placeholder="Wszystkie marki" aria-label="Marka — wybierz lub wpisz" /><datalist id="makeOptions"></datalist></div>
+        <div class="filter-field"><label for="model">Model</label><input id="model" type="text" list="modelOptions" autocomplete="off" placeholder="Wpisz lub wybierz model" aria-label="Model — wybierz lub wpisz" /><datalist id="modelOptions"></datalist></div>
+        <div class="filter-field"><label for="yearFrom">Rok od</label><select id="yearFrom" aria-label="Rok od"><option value="">Dowolny</option></select></div>
+        <div class="filter-field"><label for="yearTo">Rok do</label><select id="yearTo" aria-label="Rok do"><option value="">Dowolny</option></select></div>
+        <div class="filter-field filter-submit-field"><label for="filterButton">&nbsp;</label><button id="filterButton" aria-label="Filtruj" class="btn btn-primary" type="button">Filtruj</button></div>
+      </div>
+      <div class="filter-field" style="max-width:19rem;margin-block:.65rem"><label for="photoFilter">Zdjęcia w ofercie</label><select id="photoFilter"><option value="">Wszystkie oferty</option><option value="1">Tylko oferty ze zdjęciami</option></select></div>
+      <details class="advanced-filters" id="advancedFilters">
+        <summary><span>Więcej filtrów <span class="advanced-count" id="advancedFilterCount">0</span></span></summary>
+        <div class="advanced-grid">
+          <div class="filter-field"><label for="lotStatus">Rodzaj oferty</label><select id="lotStatus"><option value="">Wszystkie rodzaje</option><option value="Timed">Aukcja czasowa</option><option value="Buy Now">Kup teraz</option></select></div>
+          <div class="filter-field"><label for="lotSubStatus">Status aukcji</label><select id="lotSubStatus"><option value="">Wszystkie statusy</option><option value="Open">Otwarte</option><option value="Live">Okno sesji</option><option value="Ended">Zakończone</option></select></div>
+          <div class="filter-field"><label>Cena w USD</label><div class="filter-range"><input id="priceMin" type="number" min="0" step="100" aria-label="Cena minimalna w USD" placeholder="Od" /><input id="priceMax" type="number" min="0" step="100" aria-label="Cena maksymalna w USD" placeholder="Do" /></div></div>
+          <div class="filter-field"><label>Przebieg w milach</label><div class="filter-range"><input id="odometerFrom" type="number" min="0" step="1000" aria-label="Przebieg od w milach" placeholder="Od" /><input id="odometerTo" type="number" min="0" step="1000" aria-label="Przebieg do w milach" placeholder="Do" /></div></div>
+          <div class="filter-field"><label for="fuelType">Paliwo</label><select id="fuelType"><option value="">Dowolne</option><option value="Electric">Elektryczny — BEV</option></select></div>
+          <div class="filter-field"><label for="transmission">Skrzynia biegów</label><select id="transmission"><option value="">Dowolna</option></select></div>
+          <div class="filter-field"><label for="driveType">Napęd</label><select id="driveType"><option value="">Dowolny</option></select></div>
+          <div class="filter-field"><label for="runCond">Stan pracy</label><select id="runCond"><option value="">Dowolny</option></select></div>
+          <div class="filter-field"><label for="vehicleType">Rodzaj pojazdu / nadwozie</label><select id="vehicleType"><option value="">Dowolny</option></select></div>
+          <div class="filter-field"><label for="damage">Uszkodzenie</label><select id="damage"><option value="">Dowolne</option></select></div>
+          <div class="filter-field"><label for="sellerType">Typ sprzedawcy</label><select id="sellerType"><option value="">Dowolny</option></select></div>
+          <div class="filter-field"><label for="saleDocument">Dokument sprzedaży</label><select id="saleDocument"><option value="">Dowolny</option></select></div>
+          <div class="filter-field"><label for="locationState">Stan / lokalizacja</label><select id="locationState"><option value="">Dowolna</option></select></div>
+        </div>
+        <div class="advanced-actions"><span class="filter-note">Kwoty są w USD, przebieg w milach. Filtr ceny nie oznacza pełnego kosztu importu.</span><button class="btn btn-primary" id="advancedFilterButton" type="button">Zastosuj filtry</button></div>
+      </details>
+      </div>
+    </div>
+    <div class="active-filters" id="activeFilters" hidden>
+      <div class="active-filter-list"><span class="active-filter-summary" id="activeFilterSummary" aria-live="polite"></span><div class="active-filter-chips" id="activeFilterChips" aria-label="Aktywne filtry"></div></div>
+      <button class="clear-filters" id="clearFiltersButton" type="button">Wyczyść filtry</button>
+    </div>
+  </section>
+
+  <nav class="container rex-category-nav" data-home-only aria-label="Wybierz kategorię samochodów">
+    <a href="/?catalog=1&amp;category=current#results"><span class="rex-category-symbol" aria-hidden="true">↗</span><span><strong>Aktualne aukcje</strong><small>Otwarte oferty z obu platform</small></span><span class="rex-category-arrow" aria-hidden="true">→</span></a>
+    <a href="/?catalog=1&amp;category=timed#results"><span class="rex-category-symbol" aria-hidden="true">◷</span><span><strong>Timed Auction</strong><small>Aukcje z określonym czasem</small></span><span class="rex-category-arrow" aria-hidden="true">→</span></a>
+    <a href="/?catalog=1&amp;category=buy-now#results"><span class="rex-category-symbol" aria-hidden="true">$</span><span><strong>Kup teraz</strong><small>Oferty z podaną ceną zakupu</small></span><span class="rex-category-arrow" aria-hidden="true">→</span></a>
+    <a href="/?catalog=1&amp;category=electric#results"><span class="rex-category-symbol" aria-hidden="true">ϟ</span><span><strong>Elektryczne</strong><small>Potwierdzony napęd BEV</small></span><span class="rex-category-arrow" aria-hidden="true">→</span></a>
+  </nav>
+
+  <section class="marketplace-aisles container" id="marketSections" aria-label="Kategorie aukcji">
+    <p id="homeCatalogCoverage" class="catalog-coverage" role="status" aria-live="polite" hidden></p>
+    <section class="market-aisle" data-market-aisle data-kind="current" data-query="lot_sub_status=Open" data-title="Aktualne aukcje" data-href="lot_sub_status=Open">
+      <div class="market-aisle-heading"><div><span class="results-kicker">Katalog REXBID</span><h2>Aktualne aukcje</h2></div><a class="aisle-more" href="/?catalog=1&amp;lot_sub_status=Open">Zobacz wszystkie <span aria-hidden="true">→</span></a></div>
+      <div class="market-aisle-grid" data-aisle-results><div class="aisle-message">Ładowanie ofert…</div></div>
+    </section>
+    <section class="market-aisle" data-market-aisle data-kind="timed" data-query="lot_status=Timed" data-title="Timed Auction" data-href="lot_status=Timed">
+      <div class="market-aisle-heading"><div><span class="results-kicker">Aukcje czasowe</span><h2>Timed Auction</h2></div><a class="aisle-more" href="/?catalog=1&amp;lot_status=Timed">Zobacz wszystkie <span aria-hidden="true">→</span></a></div>
+      <div class="market-aisle-grid" data-aisle-results><div class="aisle-message">Ładowanie ofert…</div></div>
+    </section>
+    <section class="market-aisle" data-market-aisle data-kind="buy-now" data-query="lot_status=Buy%20Now" data-title="Kup teraz" data-href="lot_status=Buy%20Now">
+      <div class="market-aisle-heading"><div><span class="results-kicker">Oferta bez licytacji</span><h2>Kup teraz</h2></div><a class="aisle-more" href="/?catalog=1&amp;lot_status=Buy%20Now">Zobacz wszystkie <span aria-hidden="true">→</span></a></div>
+      <div class="market-aisle-grid" data-aisle-results><div class="aisle-message">Ładowanie ofert…</div></div>
+    </section>
+    <section class="market-aisle" data-market-aisle data-kind="electric" data-query="fuel_type=Electric" data-title="Samochody elektryczne" data-href="fuel_type=Electric">
+      <div class="market-aisle-heading"><div><span class="results-kicker">Potwierdzony napęd elektryczny</span><h2>Samochody elektryczne</h2></div><a class="aisle-more" href="/?catalog=1&amp;fuel_type=Electric">Zobacz wszystkie <span aria-hidden="true">→</span></a></div>
+      <div class="market-aisle-grid" data-aisle-results><div class="aisle-message">Ładowanie ofert…</div></div>
+    </section>
+  </section>
+
+
+  <section class="container listing-section catalog-results" id="catalogResults" aria-label="Katalog samochodów" hidden>
+
+    <div class="results-header" id="results">
+
+      <div class="results-heading">
+        <a class="rex-home-return" href="/">← Strona główna</a>
+        <h2 id="catalogResultsTitle" tabindex="-1">Katalog samochodów</h2>
+        <p class="catalog-result-note">Pokazane ceny są w USD i dotyczą pojazdu. Koszty importu sprawdzisz w kalkulatorze na karcie auta.</p>
+      </div>
+
+      <div class="catalog-count"><span>Wczytane wyniki</span><div
+        id="resultStatus"
+        class="status"
+        role="status"
+        aria-live="polite"
+      >
+        Ładowanie...
+      </div></div>
+      <button id="catalogEditFilters" class="catalog-edit-filters" type="button" aria-controls="filterControls" aria-expanded="false">Edytuj filtry</button>
+
+    </div>
+
+
+    <p id="catalogCoverage" class="catalog-coverage" role="status" aria-live="polite" hidden></p>
+    <div class="catalog-toolbar" aria-label="Kolejność i widok ofert">
+      <div class="catalog-sort-field">
+        <label for="catalogSort">Sortuj oferty</label>
+        <select id="catalogSort" aria-describedby="catalogSortNote">
+          <option value="">Termin licytacji: najbliższe</option>
+          <option value="auction_later">Termin licytacji: najdalsze</option>
+          <option value="recent">Ostatnio zapisane</option>
+          <option value="year_desc">Rocznik: od najnowszych</option>
+          <option value="year_asc">Rocznik: od najstarszych</option>
+          <option value="mileage_asc">Przebieg: od najmniejszego</option>
+          <option value="bid_asc">Zapisana oferta: od najniższej</option>
+          <option value="bid_desc">Zapisana oferta: od najwyższej</option>
+          <option value="buy_now_asc">Kup teraz: od najniższej</option>
+        </select>
+      </div>
+      <input id="catalogView" type="hidden" value="">
+      <div class="catalog-view-controls" role="group" aria-label="Widok wyników">
+        <button type="button" data-catalog-view="" aria-pressed="true">Kafelki</button>
+        <button type="button" data-catalog-view="list" aria-pressed="false">Lista</button>
+      </div>
+      <p id="catalogSortNote">Od najbliższej licytacji lub zakończenia aukcji czasowej.</p>
+    </div>
+    <div class="market-shortcuts" id="marketShortcuts" role="group" aria-label="Skróty kategorii aukcji">
+      <button type="button" data-market-filter="all" aria-pressed="false">Wszystkie oferty</button>
+      <button type="button" data-market-filter="current" aria-pressed="false">Aktualne aukcje</button>
+      <button type="button" data-market-filter="timed" aria-pressed="false">Timed Auction</button>
+      <button type="button" data-market-filter="buy-now" aria-pressed="false">Kup teraz</button>
+      <button type="button" data-market-filter="electric" aria-pressed="false">Samochody elektryczne</button>
+    </div>
+
+    <div
+      id="cars"
+      class="cars"
+      aria-busy="false"
+    ></div>
+
+    <button
+      id="loadMoreButton"
+      class="btn btn-primary"
+      type="button"
+      hidden
+      style="display:none;margin:24px auto 0"
+    >
+      Załaduj więcej
+    </button>
+
+  </section>
+
+  <section class="container rex-import-section" data-home-only aria-labelledby="importStepsTitle">
+    <div class="rex-section-heading"><div><span class="results-kicker">Twój plan importu</span><h2 id="importStepsTitle">Od znalezienia auta do decyzji.</h2></div><a class="aisle-more" href="/jak-to-dziala.html">Jak to działa <span aria-hidden="true">→</span></a></div>
+    <ol class="rex-import-steps">
+      <li><span class="rex-step-number" aria-hidden="true">01</span><h3>Wybierz pojazd</h3><p>Porównaj oferty Copart i IAAI. Zapisz interesujące auta w ulubionych.</p></li>
+      <li><span class="rex-step-number" aria-hidden="true">02</span><h3>Sprawdź szczegóły</h3><p>Przejrzyj zdjęcia, VIN, uszkodzenia i dokument sprzedaży na karcie pojazdu.</p></li>
+      <li><span class="rex-step-number" aria-hidden="true">03</span><h3>Zaplanuj budżet</h3><p>Oblicz transport z lokalizacji auta. Uzupełnij koszty importu przed ustaleniem limitu.</p></li>
+      <li><span class="rex-step-number" aria-hidden="true">04</span><h3>Przygotuj zapytanie</h3><p>Zbierz dane wybranego auta i założenia budżetu do omówienia kolejnych kroków.</p></li>
+    </ol>
+  </section>
+
+  <section class="container rex-client-tools" data-home-only aria-labelledby="clientToolsTitle">
+    <div class="rex-section-heading"><div><span class="results-kicker">Twoje następne kroki</span><h2 id="clientToolsTitle">Wybierz auto. Przygotuj dobry plan.</h2></div></div>
+    <div class="rex-client-tools-grid">
+      <a href="/porownaj.html"><span class="rex-tool-number" aria-hidden="true">01 / WYBÓR</span><h3>Porównaj samochody</h3><p>Zestaw do trzech aut: ceny, dane i daty obserwacji obok siebie. Wybrane pojazdy dodasz z katalogu lub karty.</p><span class="rex-tool-link">Otwórz porównanie →</span></a>
+      <a href="/jak-to-dziala.html"><span class="rex-tool-number" aria-hidden="true">02 / PLAN</span><h3>Poznaj przebieg importu</h3><p>Sprawdź, co przygotować przed zakupem i jakie ustalenia są potrzebne od odbioru z aukcji do dostawy.</p><span class="rex-tool-link">Przejdź przez etapy →</span></a>
+      <a href="/pomoc"><span class="rex-tool-number" aria-hidden="true">03 / ODPOWIEDZI</span><h3>Znajdź odpowiedź</h3><p>Ceny aukcji, kalkulator, ulubione, konto i realizacje. Pomoc z wyszukiwaniem najważniejszych tematów.</p><span class="rex-tool-link">Otwórz centrum pomocy →</span></a>
+    </div>
+  </section>
+  <section class="container rex-support-cta" aria-label="Pomoc przy wyborze samochodu"><div><span class="results-kicker">REXBID · Import z USA</span><h2>Masz konkretny samochód na oku?</h2><p>Przygotuj zapytanie z numerem LOT i założeniami importu.</p></div><a class="rex-cta-button" href="/kontakt.html">Przygotuj zapytanie <span aria-hidden="true">→</span></a></section>
+
+</main>
+
+
+<footer>
+  <div class="container rex-footer-grid">
+    <div><a class="footer-logo" href="/" aria-label="REXBID — strona główna">REX<span>BID</span></a><p>Samochody z aukcji USA.<br>Informacje, które pomagają podjąć decyzję.</p></div>
+    <nav aria-label="Nawigacja w stopce"><a href="/?catalog=1#results">Katalog samochodów</a><a href="/ulubione.html">Ulubione</a><a href="/porownaj.html">Porównanie</a><a href="/jak-to-dziala.html">Jak to działa</a><a href="/pomoc">Pomoc</a><a href="/kontakt.html">Kontakt</a></nav>
+    <p class="rex-footer-note">Ceny ofert są w USD. Dane, terminy oraz dostępność wymagają potwierdzenia przed zakupem. Wynik kalkulatora zależy od wybranych założeń.</p>
+  </div>
+<div class="rex-operator"><div><span>Podmiot prowadzący REXBID: <strong>REX AUTO CARGOLOOP L.L.C</strong></span><address class="rex-company-address">1209 Mountain Road Pl NE, Ste N<br>Albuquerque, NM 87110, United States</address></div><nav class="rex-legal-links" aria-label="Informacje o serwisie"><a href="/o-nas.html">O nas</a><a href="/kontakt.html">Kontakt</a><a href="/warunki.html">Warunki korzystania</a><a href="/prywatnosc.html">Prywatność</a> <a href="/archiwum">Archiwum aukcji</a></nav></div></footer>
+
+
+<link rel="stylesheet" href="/rexbid-compare.css?v=20261025">
+<script src="/rexbid-compare.js?v=20261114-sections" defer></script>
+<script src="/rexbid-storage.js?v=61ff9ecd8bc8"></script>
+<script src="/rexbid-auth.js?v=21437df8759b"></script>
+<script src="/rexbid-powertrain.js?v=3baadbf40a"></script>
+<script src="/rexbid-market.js?v=3b276ed707ea"></script>
+<script src="/rexbid-vehicle-labels.js?v=20261025-catalog-labels"></script>
+<script>
+  document.addEventListener?.("error", event => {
+    const image = event.target;
+    if (!(image instanceof HTMLImageElement) || !image.hasAttribute("data-fallback-image")) return;
+    const card = image.closest(".market-aisle-card");
+    if (card) {
+      const section = card.closest("[data-market-aisle]");
+      let spare = section && homeAisleImageReserves.get(section)?.shift();
+      while (spare && Number(spare.content.firstElementChild?.dataset.auctionUntil) <= Date.now()) spare = homeAisleImageReserves.get(section)?.shift();
+      if (spare) { card.replaceWith(spare.content.firstElementChild); scheduleHomeAisleExpiry(); }
+      else card.remove();
+      const grid = section?.querySelector("[data-aisle-results]");
+      if (grid && !grid.querySelector(".market-aisle-card") && !grid.querySelector(".aisle-message")) {
+        const notice = document.createElement("div");
+        notice.className = "aisle-message";
+        notice.textContent = "Zdjęcia ofert są chwilowo niedostępne. Więcej aut znajdziesz w katalogu.";
+        grid.append(notice);
+      }
+      return;
+    }
+    image.style.display = "none";
+    if (image.nextElementSibling) image.nextElementSibling.style.display = "flex";
+  }, true);
+
+  const API_BASE = "/api";
+  const homeAisleImageReserves = new WeakMap();
+  const homeAisleQueue = new Map();
+  let homeAislesStarted = false, homeAisleRequests = 0, homeAisleExpiryTimer = null;
+
+  const carsContainer =
+    document.getElementById("cars");
+
+  const resultStatus =
+    document.getElementById("resultStatus");
+
+  const searchForm =
+    document.getElementById("searchForm");
+
+  const searchInput =
+    document.getElementById("searchInput");
+
+  const platform =
+    document.getElementById("platform");
+
+  const make =
+    document.getElementById("make");
+
+  const model =
+    document.getElementById("model");
+
+  const yearFrom =
+    document.getElementById("yearFrom");
+
+  const yearTo =
+    document.getElementById("yearTo");
+  const selectableYears = Array.from({length:new Date().getFullYear()+2-1886+1},(_,i)=>new Date().getFullYear()+2-i).map(value=>({value:String(value),label:String(value)}));
+  setMetadataOptions(yearFrom, selectableYears, "Dowolny");
+  setMetadataOptions(yearTo, selectableYears, "Dowolny");
+
+  const lotStatus = document.getElementById("lotStatus");
+  const lotSubStatus = document.getElementById("lotSubStatus");
+  const priceMin = document.getElementById("priceMin");
+  const priceMax = document.getElementById("priceMax");
+  const odometerFrom = document.getElementById("odometerFrom");
+  const odometerTo = document.getElementById("odometerTo");
+  const fuelType = document.getElementById("fuelType");
+  const transmission = document.getElementById("transmission");
+  const driveType = document.getElementById("driveType");
+  const runCond = document.getElementById("runCond");
+  const vehicleType = document.getElementById("vehicleType");
+  const damage = document.getElementById("damage");
+  const sellerType = document.getElementById("sellerType");
+  const saleDocument = document.getElementById("saleDocument");
+  const locationState = document.getElementById("locationState");
+
+  const filterButton =
+    document.getElementById("filterButton");
+
+  const advancedFilterButton = document.getElementById("advancedFilterButton");
+  const activeFiltersElement = document.getElementById("activeFilters");
+  const activeFilterChips = document.getElementById("activeFilterChips");
+  const activeFilterSummary = document.getElementById("activeFilterSummary");
+  const advancedFilterCount = document.getElementById("advancedFilterCount");
+  const clearFiltersButton = document.getElementById("clearFiltersButton");
+  const advancedFiltersElement = document.getElementById("advancedFilters");
+
+  const loadMoreButton =
+    document.getElementById("loadMoreButton");
+  const marketShortcuts = document.getElementById("marketShortcuts");
+  const catalogResults = document.getElementById("catalogResults");
+  const marketSections = document.getElementById("marketSections");
+
+  const localStorageApi = typeof window !== "undefined" ? window.RexBidStorage : null;
+
+  let listCursor = null;
+  let listedCars = [];
+  let listCatalogPartial = false;
+  let activeListQuery = null;
+  let listRequestId = 0;
+  let currentCatalogRequest = null;
+  let activeCatalogController = null;
+  let filterMetadataRequestId = 0;
+  let displayedModelScope = "";
+  let displayedFilterOptions = null;
+  let displayedAdvancedOptions = null;
+  const savedFilterMetadata = new Map();
+  const pendingFilterMetadata = new Map();
+  const FILTER_METADATA_TTL_MS = 30_000;
+  let loadingMore = false;
+  let listLoadedAt = 0;
+  let listPageCount = 0;
+  const CATALOG_RETURN_KEY = "rexbid.catalog-return.v1";
+  const CATALOG_RETURN_TTL = 30 * 60 * 1000;
+  const CATALOG_RETURN_MAX_PAGES = 10;
+  const filterPanelToggle = document.getElementById("filterPanelToggle");
+  const catalogEditFilters = document.getElementById("catalogEditFilters");
+  const filterControls = document.getElementById("filterControls");
+
+  const categoryInput = {value: ""};
+  // Retain old shared links as an explicitly separate, removable code filter.
+  // A colour code must never become a document name or silently disappear.
+  const legacyDocumentInput = {value: ""};
+  const catalogSort = document.getElementById("catalogSort");
+  const catalogView = document.getElementById("catalogView");
+  const filterDefinitions = [
+    {id:"catalogSort",element:catalogSort,param:"sort",viewOption:true},
+    {id:"catalogView",element:catalogView,param:"view",viewOption:true},
+    {id:"category", element:categoryInput, param:"category", label:"Kategoria", advanced:false},
+    { id: "searchInput", element: searchInput, param: "s", label: "Szukaj", advanced: false },
+    { id: "platform", element: platform, param: "platform", label: "Platforma", advanced: false },
+    { id: "make", element: make, param: "make", label: "Marka", advanced: false },
+    { id: "model", element: model, param: "model", label: "Model", advanced: false },
+    { id: "yearFrom", element: yearFrom, param: "year_from", label: "Rok od", advanced: false },
+    { id: "yearTo", element: yearTo, param: "year_to", label: "Rok do", advanced: false },
+    { id: "photoFilter", element: document.getElementById("photoFilter"), param: "with_photo", label: "Zdjęcia", advanced: false },
+    { id: "lotStatus", element: lotStatus, param: "lot_status", label: "Rodzaj", advanced: true },
+    { id: "lotSubStatus", element: lotSubStatus, param: "lot_sub_status", label: "Status", advanced: true },
+    { id: "priceMin", element: priceMin, param: "price_min", label: "Cena od", advanced: true },
+    { id: "priceMax", element: priceMax, param: "price_max", label: "Cena do", advanced: true },
+    { id: "odometerFrom", element: odometerFrom, param: "odometer_from", label: "Przebieg od", advanced: true },
+    { id: "odometerTo", element: odometerTo, param: "odometer_to", label: "Przebieg do", advanced: true },
+    { id: "fuelType", element: fuelType, param: "fuel_type", label: "Paliwo", advanced: true },
+    { id: "transmission", element: transmission, param: "transmission", label: "Skrzynia", advanced: true },
+    { id: "driveType", element: driveType, param: "drive_type", label: "Napęd", advanced: true },
+    { id: "runCond", element: runCond, param: "run_cond", label: "Stan pracy", advanced: true },
+    { id: "vehicleType", element: vehicleType, param: "type", label: "Rodzaj pojazdu", advanced: true },
+    { id: "damage", element: damage, param: "damage", label: "Uszkodzenie", advanced: true },
+    { id: "sellerType", element: sellerType, param: "seller_type", label: "Typ sprzedawcy", advanced: true },
+    { id: "saleDocument", element: saleDocument, param: "sale_document_name", label: "Dokument sprzedaży", advanced: true },
+    { id: "legacyDocument", element: legacyDocumentInput, param: "sale_document_type", label: "Starszy kod dokumentu", advanced: true },
+    { id: "locationState", element: locationState, param: "loc_state", label: "Stan / lokalizacja", advanced: true }
+  ];
+
+  function metadataRoot(payload) {
+    let data = payload;
+    for (let depth = 0; depth < 4 && data && typeof data === "object"; depth++) {
+      if (data.response && typeof data.response === "object" && data.response.data && typeof data.response.data === "object") {
+        data = data.response.data;
+        continue;
+      }
+      if (data.data && typeof data.data === "object") {
+        data = data.data;
+        continue;
+      }
+      if (data.filters && typeof data.filters === "object") {
+        data = data.filters;
+        continue;
+      }
+      break;
+    }
+    return data && typeof data === "object" ? data : {};
+  }
+
+  function metadataOption(item) {
+    if (typeof item === "string" || typeof item === "number") return { value: String(item), label: String(item) };
+    if (!item || typeof item !== "object") return null;
+    const value = item.value ?? item.code ?? item.name ?? item.label ?? item.make ?? item.model ?? item.type ?? item.state ?? item.fuel_type ?? item.transmission ?? item.drive_type ?? item.body_style ?? item.damage ?? item.seller_type ?? item.sale_document_type ?? item.id ?? item.year;
+    const label = item.label ?? item.name ?? item.display ?? item.value ?? item.model ?? item.make ?? value;
+    return value === null || value === undefined ? null : { value: String(value), label: String(label) };
+  }
+
+  function metadataOptions(root, keys) {
+    for (const key of keys) {
+      const source = root && root[key];
+      if (Array.isArray(source)) return source.map(metadataOption).filter(Boolean);
+      if (source && typeof source === "object") {
+        if (Array.isArray(source.options)) return source.options.map(metadataOption).filter(Boolean);
+        const values = Object.entries(source).flatMap(([name, value]) => {
+          if (Array.isArray(value)) return value.map(metadataOption).filter(Boolean);
+          if (value && typeof value === "object") {
+            const option = metadataOption({ value: name, ...value });
+            return option ? [option] : [];
+          }
+          return metadataOption({ value: name, label: value }) ? [metadataOption({ value: name, label: value })] : [];
+        });
+        if (values.length) return values;
+      }
+    }
+    return [];
+  }
+
+  function setMetadataOptions(element, options, placeholder, selectedValue = "", source = null) {
+    if (!element) return;
+    const unique = new Map();
+    const labelKind = {runCond:"run", driveType:"drive", fuelType:"fuel", transmission:"transmission",
+      damage:"damage", vehicleType:"body", sellerType:"seller", saleDocument:"document"}[element.id];
+    // Identical display labels do not prove identical backend predicates.
+    // Preserve raw values; only the helper's verified D1 drive groups may merge.
+    const labelled = element.id === "saleDocument" ? options
+      : globalThis.RexBidVehicleLabels?.options(labelKind, options, {...source, selectedValue}) || options;
+    for (const item of labelled) if (item.value.trim()) unique.set(item.value, item.label);
+    if (element.id === "fuelType") unique.set("Electric", unique.get("Electric") || "Elektryczny — BEV");
+    if (element.tagName === "INPUT") {
+      const list = document.getElementById(element.getAttribute("list"));
+      if (list) list.innerHTML = [...unique].map(([value, label]) => `<option value="${escapeHtml(value)}" label="${escapeHtml(label)}"></option>`).join("");
+      element.placeholder = placeholder;
+      if (selectedValue && !element.value) element.value = selectedValue;
+      return;
+    }
+    if (selectedValue && !unique.has(selectedValue)) unique.set(selectedValue,
+      element.id === "saleDocument" ? selectedValue : globalThis.RexBidVehicleLabels?.label(labelKind, selectedValue) || selectedValue);
+    if (element.id === "saleDocument") {
+      const available = labelled.some(item => item.value.trim());
+      element.disabled = !available && !selectedValue;
+      if (!available) placeholder = "Dokument — sprawdź kartę auta";
+      let note = document.getElementById("saleDocumentNote");
+      if (!note) {
+        note = document.createElement("small"); note.id = "saleDocumentNote";
+        element.insertAdjacentElement("afterend", note);
+      }
+      element.setAttribute("aria-describedby", note.id);
+      note.textContent = available ? "Oryginalne nazwy ze źródła. Nazwa nie potwierdza możliwości rejestracji."
+        : selectedValue ? "Zachowana nazwa z linku. Obecna lista jej nie potwierdza; wynik może być pusty."
+          : "Brak nazw dokumentów w dostępnych filtrach. Sprawdź kartę auta.";
+    }
+    element.innerHTML = `<option value="">${escapeHtml(placeholder)}</option>` +
+      [...unique].map(([value, label]) => `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`).join("");
+    if (selectedValue && unique.has(selectedValue)) element.value = selectedValue;
+  }
+
+  function modelOptionsFor(root, selectedMake) {
+    const groups = root.make_model && typeof root.make_model === "object" ? root.make_model : root;
+    const models = groups.models_by_make || groups.models || groups.model_options || [];
+    if (Array.isArray(models)) {
+      if(models.some(item=>item?.model)) return models.filter(item=>!selectedMake||String(item.make).toLowerCase()===String(selectedMake).toLowerCase()).map(item=>({value:item.model,label:item.model}));
+      const group = models.find(item => item && typeof item === "object" && String(item.make ?? item.make_name ?? "").toLowerCase() === String(selectedMake || "").toLowerCase());
+      if (group) return metadataOptions({ models: group.models || group.options || group.values || [] }, ["models"]);
+      return models.map(metadataOption).filter(Boolean);
+    }
+    if (models && typeof models === "object") {
+      const key = Object.keys(models).find(name => name.toLowerCase() === String(selectedMake || "").toLowerCase());
+      if (key) return metadataOptions({ models: models[key] }, ["models"]);
+    }
+    const bySeries = groups.models_by_series || groups.series_by_make || root.models_by_series || root.series_by_make;
+    if (bySeries && typeof bySeries === "object") {
+      const makeKey = Object.keys(bySeries).find(name => name.toLowerCase() === String(selectedMake || "").toLowerCase());
+      if (makeKey) {
+        const grouped = bySeries[makeKey];
+        if (Array.isArray(grouped)) return grouped.flatMap(item => metadataOptions({ models: item?.models || item?.options || item?.values || [item] }, ["models"]));
+        if (grouped && typeof grouped === "object") return Object.values(grouped).flatMap(values => metadataOptions({ models: values }, ["models"]));
+      }
+    }
+    return [];
+  }
+
+  function metadataRange(root, keys) {
+    for (const key of keys) {
+      const ranges = root && root.ranges && typeof root.ranges === "object" ? root.ranges : {};
+      const source = root && root[key] !== undefined ? root[key] : ranges[key];
+      const entries = Array.isArray(source) ? source : source && typeof source === "object" ? [source] : [];
+      const bounds = entries.flatMap(entry => {
+        if (typeof entry === "number") return [entry];
+        if (typeof entry === "string") return [...entry.matchAll(/\d+/g)].map(match => Number(match[0]));
+        if (!entry || typeof entry !== "object") return [];
+        return [entry.min, entry.max, entry.from, entry.to, entry.start, entry.end, entry.min_value, entry.max_value, entry.min_price, entry.max_price, entry.min_odometer, entry.max_odometer].map(Number).filter(Number.isFinite);
+      }).filter(value => Number.isFinite(value) && value >= 0);
+      if (bounds.length) return { min: Math.min(...bounds), max: Math.max(...bounds) };
+    }
+    return null;
+  }
+
+  function filterMetadataKey(requestedMake, requestedPlatform) {
+    return JSON.stringify([requestedPlatform, requestedMake.toUpperCase()]);
+  }
+
+  function fetchFilterMetadata(requestedMake, requestedPlatform, view = requestedMake ? "models" : "basic") {
+    const now = Date.now();
+    const key = JSON.stringify([view, requestedPlatform, requestedMake.toUpperCase()]);
+    const saved = savedFilterMetadata.get(key);
+    if (saved && now >= saved.startedAt && now < saved.startedAt + FILTER_METADATA_TTL_MS) return Promise.resolve(saved);
+    savedFilterMetadata.delete(key);
+    if (pendingFilterMetadata.has(key)) return pendingFilterMetadata.get(key);
+    const params = new URLSearchParams({view});
+    if (requestedMake) params.set("make", requestedMake.toUpperCase());
+    if (requestedPlatform) params.set("platform", requestedPlatform);
+    const controller = typeof AbortController === "function" ? new AbortController() : null;
+    const timeout = controller ? setTimeout(() => controller.abort(), 15_000) : null;
+    const request = (async () => {
+      const response = await fetch(`${API_BASE}/filters?${params.toString()}`, {credentials:"omit", headers:{Accept:"application/json"},
+        ...(controller ? {signal:controller.signal} : {})});
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const payload = await response.json();
+      if (payload?.ok === false) throw new Error("Nie udało się pobrać metadanych.");
+      const source = payload?.ok === true && payload?.meta?.read_source === "d1" && payload.meta.known_rows_only === true
+        && payload.data && typeof payload.data === "object" && !Array.isArray(payload.data)
+        ? {read_source:"d1", known_rows_only:true, taxonomyFrom:payload.meta.taxonomy_as_of?.from} : null;
+      const result = {root: metadataRoot(payload), source, startedAt:now};
+      if (source) {
+        savedFilterMetadata.set(key, result);
+        if (savedFilterMetadata.size > 24) savedFilterMetadata.delete(savedFilterMetadata.keys().next().value);
+      }
+      return result;
+    })().finally(() => {
+      if (timeout !== null) clearTimeout(timeout);
+      pendingFilterMetadata.delete(key);
+    });
+    pendingFilterMetadata.set(key, request);
+    return request;
+  }
+
+  async function loadFilterMetadata(selectedModel = "") {
+    const requestId = ++filterMetadataRequestId;
+    const requestedMake = make.value.trim();
+    const requestedPlatform = platform.value;
+    const scope = requestedPlatform || "all";
+    const modelScope = requestedMake ? filterMetadataKey(requestedMake, requestedPlatform) : "";
+    const jobs = [];
+    jobs.push(fetchFilterMetadata("", requestedPlatform).then(result => {
+      if (requestedPlatform === platform.value && displayedFilterOptions !== result) {
+        applyFilterOptions(result.root, result.source, scope);
+        displayedFilterOptions = result;
+      }
+    }));
+    if (displayedModelScope !== modelScope) {
+      displayedModelScope = "";
+      document.getElementById(model.getAttribute("list"))?.replaceChildren();
+    }
+    if (requestedMake) jobs.push(fetchFilterMetadata(requestedMake, requestedPlatform).then(({root}) => {
+      if (requestId !== filterMetadataRequestId || requestedMake !== make.value.trim() || requestedPlatform !== platform.value) return;
+      setMetadataOptions(model, modelOptionsFor(root, requestedMake), "Wpisz lub wybierz model", model.value || selectedModel);
+      displayedModelScope = modelScope;
+    }));
+    await Promise.all(jobs);
+  }
+
+  function applyFilterOptions(root, source, scope) {
+    const hint = document.getElementById("filterMetadataHint");
+    if (hint) {
+      const from = Date.parse(source?.taxonomyFrom);
+      hint.textContent = Date.now() - from > 86_400_000
+        ? "Podpowiedzi pochodzą z wcześniejszego zapisu. Możesz też wpisać markę i model."
+        : "Wybierz lub wpisz markę i model. Podpowiedzi obejmują częściowy katalog.";
+    }
+    {
+      const makeModel = root.make_model && typeof root.make_model === "object" ? root.make_model : root;
+      setMetadataOptions(make, metadataOptions(makeModel, ["makes", "make"]), "Wpisz lub wybierz markę", make.value);
+      const knownMakes = new Set(metadataOptions(makeModel, ["makes", "make"]).map(item=>item.value.toUpperCase()));
+      const makeList = document.getElementById("makeOptions");
+      for (const name of ["POLESTAR", "RIVIAN", "LUCID", "FISKER"]) if (!knownMakes.has(name)) {
+        const option = document.createElement("option"); option.value=name; option.label="Brak ofert w zapisanym katalogu"; makeList.append(option);
+      }
+      make.dataset.ready = scope;
+    }
+    const years = metadataOptions(root, ["years", "year_ranges", "year_range"]);
+    const yearNumbers = years.flatMap(item => [Number(item.value), Number(item.label)]).filter(value => Number.isInteger(value) && value >= 1886 && value <= new Date().getFullYear() + 2);
+    const bounds = root.year_ranges && !Array.isArray(root.year_ranges) ? root.year_ranges : root.years_range || root.ranges?.year;
+    if (bounds && typeof bounds === "object") {
+      yearNumbers.push(Number(bounds.min ?? bounds.from ?? bounds.start ?? bounds.from_default), Number(bounds.max ?? bounds.to ?? bounds.end ?? bounds.to_default));
+    }
+    const yearRange = metadataRange(root, ["year_ranges", "year_range", "years", "year"]);
+    if (yearRange) yearNumbers.push(yearRange.min, yearRange.max);
+    const validYears = yearNumbers.filter(value => Number.isInteger(value) && value >= 1886 && value <= new Date().getFullYear() + 2);
+    if (validYears.length) {
+      const choices = selectableYears;
+      setMetadataOptions(yearFrom, choices, "Dowolny", yearFrom.value);
+      setMetadataOptions(yearTo, choices, "Dowolny", yearTo.value);
+      yearFrom.min = String(Math.min(...validYears)); yearTo.min = yearFrom.min;
+      yearFrom.max = String(Math.max(...validYears)); yearTo.max = yearFrom.max;
+    }
+    updateFilterIndicators();
+  }
+
+  async function loadAdvancedFilterMetadata() {
+    if (!advancedFiltersElement.open) return;
+    const requestedPlatform = platform.value;
+    const result = await fetchFilterMetadata("", requestedPlatform, "advanced");
+    if (advancedFiltersElement.open && requestedPlatform === platform.value && displayedAdvancedOptions?.result !== result) {
+      applyAdvancedFilterOptions(result.root, result.source);
+      displayedAdvancedOptions = {platform:requestedPlatform, result};
+    }
+  }
+
+  function prepareAdvancedFilterSuggestions() {
+    loadAdvancedFilterMetadata().catch(error => console.warn("Metadane dodatkowych filtrów są chwilowo niedostępne.", error));
+  }
+
+  function applyAdvancedFilterOptions(root, source) {
+    for (const [element, keys, placeholder] of [
+      [fuelType, ["fuel_type", "fuel", "fuel_types", "fuels"], "Dowolne"],
+      [transmission, ["transmission", "transmissions"], "Dowolna"],
+      [driveType, ["drive_type", "drive", "drive_types", "drivetrains"], "Dowolny"],
+      [runCond, ["running_condition", "run_condition", "run_conditions", "run_cond"], "Dowolny"],
+      [vehicleType, ["vehicle_types", "types", "body_styles"], "Dowolny"],
+      [damage, ["damage_groups", "damages", "damage"], "Dowolne"],
+      [sellerType, ["seller_type", "seller_types"], "Dowolny"],
+      [saleDocument, ["sale_document_names"], "Dowolny"],
+      [locationState, ["location_states", "states", "locations"], "Dowolna"]
+    ]) {
+      const selected = element.value;
+      let options = metadataOptions(root, keys);
+      if (element === locationState && !options.length) options = metadataOptions(root.location_filters || {}, ["state"]);
+      if (options.length || element === saleDocument || source?.read_source === "d1") setMetadataOptions(element, options, placeholder, selected, source);
+    }
+    for (const [minInput, maxInput, keys] of [
+      [priceMin, priceMax, ["price_ranges", "price_range", "price_usd"]],
+      [odometerFrom, odometerTo, ["odometer_ranges", "odometer_range", "odometer_mi"]]
+    ]) {
+      const range = metadataRange(root, keys);
+      if (range) { minInput.min = String(range.min); minInput.max = String(range.max); maxInput.min = String(range.min); maxInput.max = String(range.max); }
+    }
+    updateFilterIndicators();
+  }
+
+
+  /*
+   * ==========================================================
+   * POMOCNICZE
+   * ==========================================================
+   */
+
+  function escapeHtml(value) {
+    if (
+      value === null ||
+      value === undefined
+    ) {
+      return "";
+    }
+
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+
+  function getFilterValue(definition) {
+    return String(definition.element.value || "").trim();
+  }
+
+
+  function updateFilterIndicators() {
+    updateCatalogPresentation();
+    const active = filterDefinitions.filter(definition => {
+      if (definition.viewOption) return false;
+      const value = getFilterValue(definition);
+      if (!value) return false;
+      if (definition.id === "lotStatus" && ((categoryInput.value === "buy-now" && value === "Buy Now") || (categoryInput.value === "timed" && value === "Timed"))) return false;
+      if (definition.id === "fuelType" && categoryInput.value === "electric" && value === "Electric") return false;
+      return true;
+    });
+    const advancedCount = active.filter(definition => definition.advanced).length;
+    const countLabel = active.length === 1 ? "aktywny filtr" : (active.length > 1 && active.length < 5 ? "aktywne filtry" : "aktywnych filtrów");
+
+    advancedFilterCount.textContent = String(advancedCount);
+    activeFilterSummary.textContent = `${active.length} ${countLabel}`;
+    activeFiltersElement.hidden = active.length === 0;
+    clearFiltersButton.disabled = active.length === 0;
+    const catalogTitle = document.getElementById("catalogResultsTitle");
+    if (catalogTitle) catalogTitle.textContent = RexBidMarket.categories.find(category => category.id === categoryInput.value)?.label || "Katalog samochodów";
+    if (filterPanelToggle) filterPanelToggle.textContent = `${filterPanelToggle.getAttribute("aria-expanded") === "true" ? "Ukryj" : "Pokaż"} filtry${active.length ? " (" + active.length + ")" : ""}`;
+    if (marketShortcuts) {
+      const chosen = /^(?:[A-HJ-NPR-Z0-9]{17}|\d{6,12})$/i.test(RexBidMarket.normalizeSearch(searchInput.value)) ? null : categoryInput.value || "all";
+      marketShortcuts.querySelectorAll("[data-market-filter]").forEach(button => {
+        button.setAttribute("aria-pressed", String(button.dataset.marketFilter === chosen));
+      });
+    }
+    activeFilterChips.innerHTML = active.map(definition => {
+      const value = getFilterValue(definition);
+      const optionLabel = definition.element.selectedOptions?.[0]?.textContent;
+      const label = definition.id === "category" ? RexBidMarket.categories.find(category => category.id === value)?.label || value
+        : optionLabel && definition.element.tagName === "SELECT" ? optionLabel : value;
+      return `
+        <span class="filter-chip">
+          <span>${escapeHtml(definition.label)}: <strong>${escapeHtml(label)}</strong></span>
+          <button type="button" data-filter-id="${definition.id}" aria-label="Usuń filtr: ${escapeHtml(definition.label)} — ${escapeHtml(label)}">×</button>
+        </span>
+      `;
+    }).join("");
+  }
+
+
+  function restoreFiltersFromUrl() {
+    if (typeof window === "undefined" || !window.location) return;
+    const params = new URLSearchParams(window.location.search);
+    let advancedActive = false;
+
+    for (const definition of filterDefinitions) {
+      let value = params.get(definition.param) || "";
+      if (definition.id === "catalogSort" && ![...catalogSort.options].some(option => option.value === value)) value = "";
+      if (definition.id === "catalogView" && value !== "list") value = "";
+      if (definition.id === "photoFilter" && value !== "1") value = "";
+      if (value && definition.element.tagName === "SELECT" && ![...definition.element.options].some(option => option.value === value)) {
+        definition.element.insertAdjacentHTML("beforeend", `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`);
+      }
+      definition.element.value = value;
+      if (definition.advanced && value) advancedActive = true;
+    }
+
+    const explicitCategory = params.has("category") || ["Buy Now", "Timed"].includes(params.get("lot_status")) || params.get("fuel_type") === "Electric" || params.get("lot_sub_status") === "Open";
+    categoryInput.value = explicitCategory ? RexBidMarket.fromParams(params) : "";
+    advancedFiltersElement.open = advancedActive;
+    updateFilterIndicators();
+  }
+
+  function setFilterPanelExpanded(expanded) {
+    filterPanelToggle?.setAttribute("aria-expanded", String(expanded));
+    catalogEditFilters?.setAttribute("aria-expanded", String(expanded));
+    filterControls?.classList.toggle("is-collapsed", !expanded);
+    updateFilterIndicators();
+  }
+
+  function prepareFilterSuggestions() {
+    if (advancedFiltersElement.open) prepareAdvancedFilterSuggestions();
+    const modelScope = make.value.trim() ? filterMetadataKey(make.value.trim(), platform.value) : "";
+    if (make.dataset.ready === (platform.value || "all") && displayedModelScope === modelScope) return;
+    loadFilterMetadata(model.value)
+      .catch(error => console.warn("Metadane filtrów są chwilowo niedostępne.", error));
+  }
+
+  function removeCatalogFilter(id) {
+    const definition = filterDefinitions.find(item => item.id === id);
+    if (!definition) return false;
+    const previousCategory = categoryInput.value;
+    definition.element.value = "";
+    if (id === "make") clearMakeModels();
+    if (id === "category") {
+      if ((previousCategory === "buy-now" && lotStatus.value === "Buy Now") || (previousCategory === "timed" && lotStatus.value === "Timed")) lotStatus.value = "";
+      if (previousCategory === "electric" && fuelType.value === "Electric") fuelType.value = "";
+      categoryInput.value = "";
+    }
+    if (id === "lotStatus" && ["buy-now", "timed"].includes(categoryInput.value)) categoryInput.value = "";
+    if (id === "fuelType" && categoryInput.value === "electric") categoryInput.value = "";
+    updateFilterIndicators();
+    return true;
+  }
+
+
+  function updateListUrl(params) {
+    if (typeof window === "undefined" || !window.location || !window.history) return;
+
+    const url = new URL(window.location.href);
+    url.searchParams.set("catalog", "1");
+    url.searchParams.delete("cursor");
+    for (const definition of filterDefinitions) url.searchParams.delete(definition.param);
+    for (const [name, value] of params.entries()) {
+      if (name !== "view" && filterDefinitions.some(definition => definition.param === name) && value) {
+        url.searchParams.set(name, value);
+      }
+    }
+    if (catalogView.value) url.searchParams.set("view",catalogView.value);
+
+    const nextUrl = `${url.pathname}${url.search}${url.hash}`;
+    const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    if (nextUrl !== currentUrl) window.history.pushState({ rexBidList: true }, "", nextUrl);
+  }
+
+  // Only navigation choices live in tab storage. Public records are reread
+  // through the existing catalogue endpoint when a backlink creates a new entry.
+  function catalogReturnRoute() {
+    if (typeof window === "undefined" || !["/", "/index.html"].includes(window.location?.pathname)) return null;
+    const input = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams({catalog: "1"});
+    for (const definition of filterDefinitions) {
+      const values = input.getAll(definition.param);
+      if (values.length > 1) return null;
+      const value = values[0] || "";
+      if (value.length > 1000 || value.includes(String.fromCharCode(92)) || /[\x00-\x1f\x7f]/.test(value)) return null;
+      if (value) params.set(definition.param, value);
+    }
+    params.sort();
+    const route = "/?" + params.toString();
+    return route.length <= 4096 ? route : null;
+  }
+
+  function clearCatalogReturn() {
+    try { window.sessionStorage.removeItem(CATALOG_RETURN_KEY); } catch (_) {}
+  }
+
+  function saveCatalogReturn() {
+    const route = catalogReturnRoute();
+    if (!route || listPageCount < 1 || listPageCount > CATALOG_RETURN_MAX_PAGES) { clearCatalogReturn(); return; }
+    const scrollY = Math.max(0, Math.min(10_000_000, Math.round(Number(window.scrollY) || 0)));
+    try {
+      window.sessionStorage.setItem(CATALOG_RETURN_KEY, JSON.stringify({
+        version: 1, route, pages: listPageCount, scrollY, savedAt: Date.now()
+      }));
+    } catch (_) {}
+  }
+
+  function readCatalogReturn() {
+    try {
+      const text = window.sessionStorage.getItem(CATALOG_RETURN_KEY);
+      if (!text) return null;
+      if (text.length > 8192) throw new Error("Invalid catalogue view");
+      const saved = JSON.parse(text);
+      if (!saved || Array.isArray(saved) || Object.keys(saved).sort().join(",") !== "pages,route,savedAt,scrollY,version"
+        || saved.version !== 1 || !saved.route || saved.route !== catalogReturnRoute()
+        || !Number.isInteger(saved.pages) || saved.pages < 1 || saved.pages > CATALOG_RETURN_MAX_PAGES
+        || !Number.isInteger(saved.scrollY) || saved.scrollY < 0 || saved.scrollY > 10_000_000
+        || !Number.isFinite(saved.savedAt) || saved.savedAt > Date.now()
+        || Date.now() - saved.savedAt > CATALOG_RETURN_TTL) throw new Error("Invalid catalogue view");
+      return saved;
+    } catch (_) { clearCatalogReturn(); return null; }
+  }
+
+  function restoreCatalogScroll(top, requestId, route) {
+    const frame = window.requestAnimationFrame?.bind(window) || (callback => callback());
+    frame(() => frame(() => {
+      if (requestId !== listRequestId || route !== catalogReturnRoute()) return;
+      window.scrollTo?.({top, behavior: "instant"});
+      saveCatalogHistory();
+    }));
+  }
+
+  function refreshPlatformMetadataIfNeeded() {
+    if (advancedFiltersElement.open && displayedAdvancedOptions?.platform !== platform.value) prepareAdvancedFilterSuggestions();
+    if (make.dataset.ready && make.dataset.ready !== (platform.value || "all")) {
+      loadFilterMetadata(model.value).catch(error => console.warn("Metadane filtrów są chwilowo niedostępne.", error));
+    }
+  }
+
+  async function restoreCatalogView() {
+    refreshPlatformMetadataIfNeeded();
+    const saved = readCatalogReturn();
+    if (restoreCatalogHistory()) return true;
+    const route = catalogReturnRoute();
+    const requestId = listRequestId + 1;
+    if (!await loadCars({updateUrl: false})) return false;
+    if (requestId !== listRequestId || route !== catalogReturnRoute()) return false;
+    if (!saved) return true;
+    const visited = new Set();
+    for (let page = 1; page < saved.pages && listCursor; page++) {
+      if (visited.has(listCursor)) break;
+      visited.add(listCursor);
+      if (!await loadCars({append: true, updateUrl: false})) break;
+      if (requestId !== listRequestId || route !== catalogReturnRoute()) return false;
+    }
+    restoreCatalogScroll(saved.scrollY, requestId, route);
+    return true;
+  }
+
+  function saveCatalogHistory() {
+    if (typeof window === "undefined" || !window.history || !activeListQuery) return;
+    if (listedCars.length > 200 || listPageCount > CATALOG_RETURN_MAX_PAGES) { clearCatalogReturn(); return; }
+    saveCatalogReturn();
+    const notice = document.getElementById("catalogCoverage");
+    try {
+      window.history.replaceState({...window.history.state, rexBidList: true, rexBidCatalog: {
+        url: window.location.pathname + window.location.search,
+        cars: listedCars, nextCursor: listCursor, query: activeListQuery, pages: listPageCount, savedAt: listLoadedAt, scrollY: window.scrollY || 0,
+        coverage: notice?.textContent || "", catalogPartial: listCatalogPartial
+      }}, "", window.location.href);
+    } catch (error) { console.warn("Nie udało się zachować widoku katalogu.", error); }
+  }
+
+  function restoreCatalogHistory() {
+    if (typeof window === "undefined") return false;
+    const snapshot = window.history?.state?.rexBidCatalog;
+    if (!snapshot || snapshot.url !== window.location.pathname + window.location.search || !Array.isArray(snapshot.cars)
+      || snapshot.cars.length > 200 || typeof snapshot.query !== "string" || !snapshot.query
+      || !Number.isFinite(snapshot.scrollY) || snapshot.scrollY < 0 || snapshot.scrollY > 10_000_000
+      || snapshot.nextCursor != null && (typeof snapshot.nextCursor !== "string" || snapshot.nextCursor.length > 4096)
+      || snapshot.pages != null && (!Number.isInteger(snapshot.pages) || snapshot.pages < 1 || snapshot.pages > CATALOG_RETURN_MAX_PAGES)
+      || !Number.isFinite(snapshot.savedAt) || Date.now() - snapshot.savedAt > 120_000 || Date.now() < snapshot.savedAt) return false;
+    activeCatalogController?.abort();
+    activeCatalogController = null;
+    ++listRequestId;
+    listedCars = snapshot.cars;
+    listCatalogPartial = snapshot.catalogPartial === true;
+    listCursor = snapshot.nextCursor || null;
+    activeListQuery = snapshot.query;
+    listLoadedAt = snapshot.savedAt;
+    listPageCount = snapshot.pages || Math.max(1, Math.ceil(listedCars.length / 20));
+    loadingMore = false;
+    setCatalogView(true);
+    renderCars(listedCars, listCatalogPartial, Boolean(listCursor));
+    for (const id of ["catalogCoverage", "homeCatalogCoverage"]) {
+      const notice = document.getElementById(id);
+      if (notice) { notice.textContent = snapshot.coverage; notice.hidden = !snapshot.coverage; notice.style.display = snapshot.coverage ? "block" : "none"; }
+    }
+    loadMoreButton.hidden = !listCursor;
+    loadMoreButton.style.display = listCursor ? "block" : "none";
+    loadMoreButton.disabled = false;
+    loadMoreButton.textContent = "Załaduj więcej";
+    carsContainer.setAttribute?.("aria-busy", "false");
+    restoreCatalogScroll(snapshot.scrollY, listRequestId, catalogReturnRoute());
+    return true;
+  }
+
+  function setCatalogView(enabled) {
+    if (catalogResults) catalogResults.hidden = !enabled;
+    if (marketSections) marketSections.hidden = enabled;
+    document.body?.classList?.toggle("rex-catalog-mode", enabled);
+    const heroTitle = document.getElementById("heroTitle");
+    const heroLead = document.getElementById("heroLead");
+    if (heroTitle) heroTitle.innerHTML = enabled ? 'Znajdź samochód. <span>Sprawdź szczegóły.</span>' : 'Wybierz wymarzony pojazd. <span>My zajmiemy się resztą.</span>';
+    if (heroLead) heroLead.textContent = enabled ? "Wyszukaj VIN lub LOT albo zawęź zapisane oferty filtrami." : "Aukcje w USA, transport i formalności — z naszym wsparciem na każdym etapie.";
+    document.querySelectorAll('[data-catalog-nav], header nav a[href="/?catalog=1#results"]').forEach(link => {
+      if (enabled) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    });
+    document.querySelectorAll("[data-home-nav]").forEach(link => {
+      if (!enabled) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    });
+  }
+
+  function shouldShowCatalog() {
+    if (typeof window === "undefined" || !window.location) return false;
+    const params = new URLSearchParams(window.location.search);
+    return params.get("catalog") === "1" || filterDefinitions.some(definition => params.has(definition.param) && params.get(definition.param) !== "");
+  }
+
+
+  function clearAllFilters() {
+    for (const definition of filterDefinitions) if (!definition.viewOption) definition.element.value = "";
+    categoryInput.value = "";
+    advancedFiltersElement.open = false;
+    updateFilterIndicators();
+    clearMakeModels();
+    // Opcje zależne od marki są odświeżane przy następnym wyborze marki.
+    // Metadane wymagają ponownego odczytu tylko po zmianie platformy.
+    loadCars();
+  }
+
+  function marketAislePriceInfo(car, kind = "current") {
+    const storedSnapshot = car?.preview?.read_only === true || car?.read?.source === "r2-backup" || (car?.read?.source === "d1" && car.read.freshness !== "fresh")
+      || globalThis.RexBidMarket?.availabilityStatus?.(car) === "unknown";
+    const pricing = car?.pricing && typeof car.pricing === "object" ? car.pricing : {};
+    const auction = car?.auction && typeof car.auction === "object" ? car.auction : {};
+    const auctionState = String(auction.state || car?.status || "").toLowerCase();
+    const auctionOutcome = String(auction.outcome_status || auction.last_sold_status || "").toLowerCase();
+    const ended = ["finished", "sold", "closed", "ended", "not_sold", "no_sale"].includes(auctionState)
+      || Boolean(auction.auction_ended_at) || auction.sold_timed === true
+      || /sold|not.?sold|no.?sale|unsold|closed|ended|complete|cancel|withdrawn/.test(auctionOutcome);
+    const bid = (...values) => values.find(value => (typeof value === "number" || typeof value === "string" && value.trim() !== "") && Number.isFinite(Number(value)) && Number(value) > 0);
+    const positive = (...values) => values.find(value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)) && Number(value) > 0);
+    const currentBid = bid(...(Object.prototype.hasOwnProperty.call(pricing, 'current_bid_usd') ? [pricing.current_bid_usd] : Object.prototype.hasOwnProperty.call(car || {}, 'current_bid_usd') ? [car.current_bid_usd] : [pricing.current_bid2_usd, car?.current_bid2_usd]));
+    if (kind === "buy-now") {
+      const buyNow = ended ? undefined : positive(pricing.buy_now_usd, car?.buy_now_usd);
+      return { value: buyNow === undefined ? null : Number(buyNow), label: storedSnapshot ? "Kup teraz · zapis danych" : "Kup teraz", secondary: currentBid === undefined ? "" : `${storedSnapshot ? "Ostatnia zapisana oferta" : "Aktualna oferta"} · ${formatMoney(currentBid)}` };
+    }
+    if (storedSnapshot) return {value:currentBid === undefined ? null : Number(currentBid),label:currentBid === undefined ? "Brak danych o ofercie" : "Ostatnia zapisana oferta",secondary:""};
+    if (kind === "timed") return { value: currentBid === undefined ? null : Number(currentBid), label: "Aktualna oferta", secondary: "" };
+    if (kind === "upcoming") return { value: currentBid === undefined ? null : Number(currentBid), label: currentBid === undefined ? "Brak danych o ofercie" : "Aktualna oferta", secondary: "" };
+    const info = getPriceInfo(car);
+    const buyNow = ended ? undefined : positive(pricing.buy_now_usd, car?.buy_now_usd);
+    return {...info, secondary: currentBid !== undefined && buyNow !== undefined ? `${storedSnapshot ? "Kup teraz · zapis danych" : "Kup teraz"} · ${formatMoney(buyNow)}` : ""};
+  }
+
+  function renderMarketAisleCard(car, kind = "current", now = Date.now()) {
+    const vin = getVin(car);
+    const lot = getLot(car);
+    const identifier = vin || (lot && lot !== "—" ? lot : "");
+    if (!identifier) return "";
+    const href = (vin ? `/car?vin=${encodeURIComponent(vin)}` : `/car?lot=${encodeURIComponent(lot)}`) + (vin && lot && lot !== "—" ? `&lot=${encodeURIComponent(lot)}` : "") + `&platform=${encodeURIComponent(getPlatform(car).toLowerCase())}` + `&return_to=${encodeURIComponent(RexBidMarket.returnPath(typeof window !== "undefined" ? window.location : null))}`;
+    const image = localStorageApi?.safeImageUrl(getCarImage(car)) || "";
+    const price = marketAislePriceInfo(car, kind);
+    const status = getAuctionStatusLabel(car);
+    const date = kind === "upcoming" ? getConfirmedUpcomingDate(car) : getAuctionDate(car);
+    const dataRead = car.preview?.read_only === true ? car.preview : ["d1","r2-backup"].includes(car.read?.source) ? car.read : null;
+    const savedAt = dataRead?.snapshot_at || dataRead?.last_synced_at || dataRead?.last_seen_at;
+    const savedDate = savedAt && Number.isFinite(Date.parse(String(savedAt))) ? new Date(savedAt).toLocaleString("pl-PL", {timeZone:"Europe/Warsaw",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}) : "";
+    const savedNote = dataRead
+      ? `${dataRead.freshness === "fresh" && car.preview?.read_only !== true ? "Odczyt źródła" : "Zapis danych"}${savedDate ? " z " + savedDate : " · data nieustalona"}. ${dataRead.freshness === "fresh" && car.preview?.read_only !== true ? "Cena i dostępność mogą się zmienić." : "Cena i dostępność do potwierdzenia."}` : "";
+    const imageFallback = `<div class="rex-photo-unavailable"${image ? ' style="display:none"' : ''}><span aria-hidden="true">▧</span>Zdjęcie niedostępne</div>`;
+    const priceHtml = price.value === null
+      ? `<div class="rex-card-price"><small>${escapeHtml(price.label === "Brak danych o ofercie" ? "Aktualna oferta" : price.label)}</small><strong class="rex-price-missing">Brak danych o ofercie</strong></div>`
+      : `<div class="rex-card-price"><small>${escapeHtml(price.label)}</small><strong>${escapeHtml(formatMoney(price.value))}<span> USD</span></strong></div>`;
+    return `<article class="market-aisle-card" data-auction-until="${homeAuctionWithinWeek(car, now, true) || ''}"><a href="${escapeHtml(href)}"><div class="aisle-photo">${image ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(getTitle(car))}" loading="lazy" decoding="async" data-fallback-image>` : ""}${imageFallback}<span class="rex-card-platform">${escapeHtml(getPlatform(car))}</span></div><div class="aisle-card-body"><div class="aisle-identity">LOT ${escapeHtml(lot || "—")}</div><h3 class="aisle-title">${escapeHtml(getTitle(car))}</h3><div class="rex-card-facts"><span>${escapeHtml(getMileage(car))}</span><span>${escapeHtml(getLocation(car))}</span></div><div class="aisle-status-text">${escapeHtml(status === "Status niedostępny" ? "Status do potwierdzenia" : status)}</div>${date ? `<div class="aisle-date">${car.auction?.is_timed === true && car.auction?.timed_end_at ? "Koniec aukcji czasowej" : "Termin aukcji"}: ${escapeHtml(date)}</div>` : ""}<div class="rex-card-bottom">${priceHtml}<span class="rex-card-open" aria-hidden="true">↗</span></div>${price.secondary ? `<div class="aisle-secondary-price">${escapeHtml(price.secondary)}</div>` : ""}${savedNote ? `<p class="aisle-secondary-price">${escapeHtml(savedNote)}</p>` : ""}</div></a></article>`;
+  }
+
+  function parseConfirmedAuctionDate(raw, dateOnlyAllowed = true) {
+    if (typeof raw !== "string" || !raw.trim()) return null;
+    const value = raw.trim();
+    const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    if (dateOnly) {
+      if (!dateOnlyAllowed) return null;
+      const [, y, m, d] = dateOnly;
+      const parsed = new Date(Date.UTC(Number(y), Number(m) - 1, Number(d)));
+      if (parsed.getUTCFullYear() !== Number(y) || parsed.getUTCMonth() + 1 !== Number(m) || parsed.getUTCDate() !== Number(d)) return null;
+      return {dateOnly: true, timestamp: parsed.getTime(), value};
+    }
+    const iso = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?(Z|[+-]\d{2}:?\d{2})$/i.exec(value);
+    if (!iso) return null;
+    const [, y, m, d, h, min, sec = "0", zone] = iso;
+    const calendar = new Date(Date.UTC(Number(y), Number(m) - 1, Number(d)));
+    if (calendar.getUTCFullYear() !== Number(y) || calendar.getUTCMonth() + 1 !== Number(m) || calendar.getUTCDate() !== Number(d)
+      || Number(h) > 23 || Number(min) > 59 || Number(sec) > 59) return null;
+    const offset = zone.toUpperCase() === "Z" ? 0 : (() => {
+      const match = zone.match(/^([+-])(\d{2}):?(\d{2})$/);
+      if (!match || Number(match[2]) > 14 || Number(match[3]) > 59) return NaN;
+      return (match[1] === "+" ? 1 : -1) * (Number(match[2]) * 60 + Number(match[3]));
+    })();
+    const timestamp = Date.UTC(Number(y), Number(m) - 1, Number(d), Number(h), Number(min), Number(sec)) - offset * 60_000;
+    return Number.isFinite(timestamp) ? {dateOnly: false, timestamp, value} : null;
+  }
+
+  function getConfirmedUpcomingDate(car) {
+    if ((car?.read?.source === "d1" && car.read.freshness !== "fresh" && car.read.catalog_scope !== "active") || (car?.preview?.read_only === true && car.preview.freshness !== "fresh")) return "";
+    const auction = car?.auction && typeof car.auction === "object" ? car.auction : {};
+    const scheduleStatus = String(auction.schedule_status || "").toLowerCase();
+    if (["unassigned", "unknown", "conflict", "live", "timed", "ended"].includes(scheduleStatus)) return "";
+    const platform = String(car?.platform || car?.source || auction.platform || "").toLowerCase();
+    const sourceStatus = String(auction.source_status || auction.formatted || "").trim().toLowerCase();
+    const assigned = auction.assigned === true || auction.is_assigned === true || auction.assigned === 1 || auction.is_assigned === 1
+      || /^(?:true|1|yes|assigned)$/i.test(String(auction.assigned ?? auction.is_assigned ?? ""));
+    if (platform.includes("copart") && /^(?:upcoming|future|unassigned|not assigned|not scheduled)(?:\s+lot)?$/.test(sourceStatus)
+      && !assigned && scheduleStatus !== "scheduled" && scheduleStatus !== "date_only") return "";
+    const raw = auction.auction_at || auction.full_date || car?.auction_at || car?.auction_date || "";
+    if (typeof raw !== "string" || !raw.trim()) return "";
+    const parsed = parseConfirmedAuctionDate(raw);
+    if (!parsed || (scheduleStatus && !["scheduled", "date_only"].includes(scheduleStatus))) return "";
+    if (parsed.dateOnly && scheduleStatus && scheduleStatus !== "date_only") return "";
+    if ((parsed.dateOnly ? parsed.timestamp + 86_399_999 : parsed.timestamp) <= Date.now()) return "";
+    const state = String(auction.state || car?.status || "").toLowerCase();
+    const outcome = String(auction.outcome_status || auction.last_sold_status || "").toLowerCase();
+    if (/^(?:finished|sold|not[_ -]?sold|no[_ -]?sale|unsold|closed|ended|completed|cancelled|canceled|withdrawn)$/.test(state)
+      || /sold|approval|not[_ -]?sold|no[_ -]?sale|unsold/.test(outcome)) return "";
+    if (scheduleStatus && !["scheduled", "date_only"].includes(scheduleStatus)) return "";
+    if (!parsed.dateOnly && !/(?:Z|[+-]\d{2}:?\d{2})$/i.test(raw.trim())) return "";
+    const match = raw.trim().match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/);
+    if (!match) return "";
+    const date = match[3]+"."+match[2]+"."+match[1];
+    return match[4] && !parsed.dateOnly ? date+", "+match[4]+":"+match[5] : `${date} · godzina niepotwierdzona`;
+  }
+
+  function homeAuctionWithinWeek(car, now, returnEnd = false) {
+    const auction = car.auction || {};
+    const status = auction.schedule_status;
+    const timed = auction.is_timed === true || status === "timed";
+    const raw = timed ? auction.timed_end_at : auction.auction_at;
+    if (!timed && !["scheduled", "date_only"].includes(status)) return false;
+    const date = parseConfirmedAuctionDate(raw, !timed);
+    if (!date) return false;
+    const day = 86_400_000;
+    const end = date.timestamp + (date.dateOnly ? day - 1 : 0);
+    return end > now && date.timestamp <= now + 7 * day && (returnEnd ? end : true);
+  }
+
+  function selectHomeAisleCars(cars, now = Date.now()) {
+    const currentYear = new Date(now).getUTCFullYear();
+    const premiumMakes = /^(ACURA|ALFA ROMEO|ASTON MARTIN|AUDI|BENTLEY|BMW|CADILLAC|FERRARI|GENESIS|INFINITI|JAGUAR|LAMBORGHINI|LAND ROVER|LEXUS|LINCOLN|LUCID|MASERATI|MCLAREN|MERCEDES(?:[ -]BENZ)?|MINI|POLESTAR|PORSCHE|RANGE ROVER|RIVIAN|ROLLS[ -]ROYCE|TESLA|VOLVO)$/;
+    const seen = new Set();
+    const ranked = [];
+    for (const car of cars) {
+      const lot = getLot(car);
+      const platform = getPlatform(car);
+      const key = lot && lot !== "—" ? platform + ":" + lot : getVin(car);
+      const year = Number(car?.year);
+      if (/motorcycle|motorbike|scooter|motocross|\batv\b|\butv\b|snowmobile|watercraft|trailer/i.test(String(car.body_style || ""))) continue;
+      // BMW Motorrad uses WB1, unlike passenger-car WBA/WBS/WBY prefixes.
+      if (String(car.make || "").trim().toUpperCase() === "BMW" && /^WB1[A-HJ-NPR-Z0-9]{14}$/.test(String(getVin(car) || "").toUpperCase())) continue;
+      if (!key || seen.has(key) || !homeAuctionWithinWeek(car, now) || !localStorageApi?.safeImageUrl(getCarImage(car))) continue;
+      // Older cars within the showcase year range can fill a row with few recent auction results.
+      if (Number.isInteger(year) && year >= 1900 && year < currentYear - 5) continue;
+      seen.add(key);
+      const make = String(car.make || "").trim().toUpperCase().replace(/\s+/g, " ");
+      const rankYear = Number.isInteger(year) && year >= currentYear - 5 && year <= currentYear + 2 ? year : 0;
+      ranked.push({car, year:rankYear, premium:premiumMakes.test(make)});
+    }
+    ranked.sort((a,b) => Number(b.premium && b.year > 0) - Number(a.premium && a.year > 0) || b.year - a.year);
+    const distinct = [], remaining = [], models = new Set();
+    for (const item of ranked) {
+      const car = item.car;
+      const model = String(car.model || getTitle(car)).trim().toUpperCase();
+      const key = String(car.make || "").trim().toUpperCase() + ":" + model;
+      (models.has(key) ? remaining : distinct).push(car);
+      models.add(key);
+    }
+    return [...distinct, ...remaining];
+  }
+
+  function marketAisleCars(payload, kind = "current", now = Date.now()) {
+    let cars = [];
+    if (Array.isArray(payload?.data)) cars = payload.data;
+    else if (Array.isArray(payload?.response?.data?.data)) cars = payload.response.data.data;
+    else if (Array.isArray(payload?.response?.data)) cars = payload.response.data;
+    return cars.filter(car => !(car?.read?.source === "d1" && car.read.freshness !== "fresh" && car.read.catalog_scope !== "active")
+      && !(car?.preview?.read_only === true && car.preview.freshness !== "fresh") && RexBidMarket.eligible(car, kind, now));
+  }
+
+  function updateCatalogCoverage(payload) {
+    if (typeof document === "undefined") return;
+    const meta = payload?.meta ?? payload?.data?.meta ?? null;
+    const scopeStatus = typeof meta?.scope_status === "string" ? meta.scope_status.toLowerCase() : "";
+    const platforms = Array.isArray(meta?.platform_coverage) ? meta.platform_coverage.filter(item => item && typeof item === "object") : [];
+    const validMetadata = meta && !Array.isArray(meta) && (typeof meta.catalog_complete === "boolean"
+      || ["complete","partial","stale","unknown"].includes(scopeStatus) || typeof meta.stored_catalog_complete === "boolean");
+    let message = "";
+    if (meta?.read_source === "r2-backup") {
+      const saved = new Date(meta.backup_observed_at || "");
+      const date = Number.isFinite(saved.getTime()) ? saved.toLocaleString("pl-PL", {timeZone:"Europe/Warsaw",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}) : "";
+      message = `Zapasowa lista ofert${date ? " · dane z " + date + " (czas polski)" : ""}. Cena i dostępność do potwierdzenia.`;
+    } else if (validMetadata) {
+      const platformStates = platforms.map(item => item.scope_freshness ?? item.freshness ?? item.status);
+      const stale = scopeStatus === "stale" || meta.freshness?.status === "stale" || platformStates.includes("stale");
+      const verifiedFeed = meta.read_source === "d1" && meta.catalog?.kind === "verified_baseline";
+      const knownFeedScope = verifiedFeed && ["verified","quarantine_review","replaying"].includes(scopeStatus);
+      const unknown = (scopeStatus && !["complete","partial","stale"].includes(scopeStatus) && !knownFeedScope)
+        || meta.freshness?.status === "unknown" || platformStates.includes("unknown");
+      const complete = meta.catalog_complete === true && !stale && !unknown && (!scopeStatus || scopeStatus === "complete" || (verifiedFeed && scopeStatus === "verified"))
+        && (meta.freshness?.status === undefined || meta.freshness.status === "fresh")
+        && platforms.every(item => item.complete === true && (!item.status || item.status === "complete" || (verifiedFeed && item.status === "verified"))
+          && ((item.scope_freshness ?? item.freshness) === undefined || (item.scope_freshness ?? item.freshness) === "fresh"));
+      const count = Number.isSafeInteger(meta.stored_row_count) && meta.stored_row_count >= 0 ? meta.stored_row_count : null;
+      const feedCoverageUnverified = verifiedFeed && meta.catalog_complete === false && knownFeedScope;
+      const label = complete ? "Katalog zaktualizowany" : feedCoverageUnverified ? "Pokrycie ofert w trakcie weryfikacji" : "Katalog częściowy";
+      message = `${label}${count !== null ? " · " + count.toLocaleString("pl-PL") + " zapisanych ofert" : ""}. `;
+      const latestResult = meta.freshness?.last_synced_at;
+      const savedAt = typeof latestResult === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(latestResult) ? new Date(latestResult) : null;
+      if (savedAt && Number.isFinite(savedAt.getTime()) && savedAt.getTime() <= Date.now()) {
+        const date = savedAt.toLocaleString("pl-PL", {timeZone:"Europe/Warsaw",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
+        message += `Najnowszy zapis w tych wynikach: ${date} (czas polski). `;
+      }
+      message += stale ? "Wyniki zawierają starsze zapisy. Cenę i dostępność sprawdź przed zakupem."
+        : unknown ? "Aktualność danych niepotwierdzona; ceny i dostępność do potwierdzenia."
+        : complete ? "Zakres synchronizacji potwierdzony."
+          : feedCoverageUnverified ? "Cenę i dostępność sprawdź przed zakupem."
+          : "Zapisany zbiór nie obejmuje całego katalogu źródłowego.";
+    }
+    for (const id of ["catalogCoverage","homeCatalogCoverage"]) {
+      const notice = document.getElementById(id);
+      if (!notice) continue;
+      if (notice.textContent !== message) notice.textContent = message;
+      notice.hidden = !message;
+      if (notice.style) notice.style.display = message ? "block" : "none";
+    }
+  }
+
+  async function loadMarketAisle(section, refresh = false, settled = () => {}) {
+    if (!section || (!refresh && section.dataset.loaded === "true") || section.dataset.loading === "true") return;
+    section.dataset.requestedAt = String(Date.now());
+    section.dataset.loading = "true";
+    const target = section.querySelector("[data-aisle-results]");
+    target.setAttribute?.("aria-busy", "true");
+    const retryButton = target.querySelector?.(".aisle-retry");
+    if (retryButton) { retryButton.disabled = true; retryButton.textContent = "Ładowanie…"; }
+    const params = new URLSearchParams({...RexBidMarket.categories.find(c => c.id === section.dataset.kind)?.query, category:section.dataset.kind});
+    params.set("per_page", "24");
+    params.set("year_from", String(new Date().getUTCFullYear() - 5));
+    params.set("with_photo", "1");
+    params.set("home_week", "1");
+    params.set("view", "showcase");
+    const kind = section.dataset.kind || "current";
+    let timedOut = false;
+    const fetchOffers = async (query, timeoutMs) => {
+      const controller = typeof AbortController === "function" ? new AbortController() : null;
+      const timeout = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+      try {
+        const response = await fetch(`${API_BASE}/cars?${query.toString()}`, { credentials:"omit", headers:{Accept:"application/json"}, ...(controller ? {signal:controller.signal} : {}) });
+        const payload = await response.json();
+        if (!response.ok || payload?.ok === false) throw new Error(`HTTP ${response.status}`);
+        return payload;
+      } finally {
+        timedOut ||= controller?.signal.aborted === true;
+        if (timeout !== null) clearTimeout(timeout);
+      }
+    };
+    try {
+      let payload = null, categoryError = null;
+      try {
+        payload = await fetchOffers(params, 15_000);
+        updateCatalogCoverage(payload);
+      } catch (error) {
+        categoryError = error;
+      }
+      const now = Date.now();
+      const selected = selectHomeAisleCars(marketAisleCars(payload, kind, now), now).map(car => renderMarketAisleCard(car, kind, now)).filter(Boolean);
+      const cards = selected.slice(0, 4);
+      if (!cards.length && categoryError) throw categoryError;
+      homeAisleImageReserves.set(section, selected.slice(4, 12).map(html => {
+        const template = document.createElement("template");
+        template.innerHTML = html;
+        return template;
+      }));
+      target.innerHTML = cards.length ? cards.join("") : '<div class="aisle-message">W tej sekcji nie ma teraz ofert ze zdjęciem i potwierdzonym terminem w ciągu 7 dni. <a class="aisle-empty-link" href="/?catalog=1#results">Przeglądaj zapisane oferty →</a></div>';
+      section.dataset.loaded = "true";
+    } catch (error) {
+      const message = timedOut ? "Pobieranie ofert trwało zbyt długo." : "Nie udało się pobrać ofert.";
+      const errorHtml = `<div class="aisle-message" role="status">${message} <button type="button" class="aisle-retry">Spróbuj ponownie</button></div>`;
+      if (target.querySelector(".market-aisle-card")) {
+        target.querySelector(".aisle-message")?.remove();
+        target.insertAdjacentHTML("beforeend", errorHtml);
+      } else target.innerHTML = errorHtml;
+      target.querySelector(".aisle-retry")?.addEventListener("click", () => loadMarketAisle(section, refresh, settled), { once: true });
+    } finally {
+      target.setAttribute?.("aria-busy", "false");
+      section.dataset.loading = "false";
+      settled();
+    }
+  }
+
+  function initMarketAisles() {
+    const sections = [...document.querySelectorAll("[data-market-aisle]")];
+    for (const section of sections) {
+      const category=RexBidMarket.categories.find(c=>c.id===section.dataset.kind);
+      if(category){section.querySelector("h2").textContent=category.label;section.querySelector(".aisle-more").href=`/?catalog=1&category=${category.id}#results`;}
+    }
+    if(marketShortcuts) marketShortcuts.innerHTML=[{id:"all",label:"Wszystkie oferty"},...RexBidMarket.categories].map(c=>`<button type="button" data-market-filter="${c.id}" aria-pressed="${c.id===(categoryInput.value||"all")}">${c.label}</button>`).join("");
+    if (!sections.length) return;
+    if (homeAislesStarted) { refreshHomeAisles(); return; }
+    homeAislesStarted = true;
+    if (!("IntersectionObserver" in window)) {
+      sections.forEach(section => enqueueHomeAisle(section));
+      return;
+    }
+    const observer = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          observer.unobserve(entry.target);
+          enqueueHomeAisle(entry.target);
+        }
+      }
+    }, { rootMargin: "280px 0px" });
+    sections.forEach(section => observer.observe(section));
+  }
+
+  function enqueueHomeAisle(section, refresh = false) {
+    if (section.dataset.loading !== "true") homeAisleQueue.set(section, refresh || homeAisleQueue.get(section) === true);
+    drainHomeAisles();
+  }
+
+  function drainHomeAisles() {
+    if (document.hidden || shouldShowCatalog()) return;
+    while (homeAisleRequests < 2 && homeAisleQueue.size) {
+      const [section, refresh] = homeAisleQueue.entries().next().value;
+      homeAisleQueue.delete(section);
+      homeAisleRequests++;
+      loadMarketAisle(section, refresh, scheduleHomeAisleExpiry).finally(() => { homeAisleRequests--; drainHomeAisles(); });
+    }
+  }
+
+  function scheduleHomeAisleExpiry() {
+    clearTimeout(homeAisleExpiryTimer);
+    if (document.hidden || shouldShowCatalog()) return;
+    const now = Date.now();
+    const ends = [...document.querySelectorAll(".market-aisle-card[data-auction-until]")].map(card => Number(card.dataset.auctionUntil)).filter(end => end > 0);
+    if (ends.length) homeAisleExpiryTimer = setTimeout(() => refreshHomeAisles(false), Math.max(0, Math.min(...ends) - now));
+  }
+
+  function refreshHomeAisles(recheckRecent = true) {
+    if (document.hidden || shouldShowCatalog() || !homeAislesStarted) return;
+    const now = Date.now();
+    for (const section of document.querySelectorAll("[data-market-aisle]")) {
+      if (section.dataset.loaded !== "true") continue;
+      const target = section.querySelector("[data-aisle-results]");
+      const expired = [...target.querySelectorAll(".market-aisle-card[data-auction-until]")].filter(card => {
+        const end = Number(card.dataset.auctionUntil);
+        return end > 0 && end <= now;
+      });
+      for (const card of expired) card.remove();
+      if (expired.length && !target.querySelector(".market-aisle-card") && !target.querySelector(".aisle-message")) {
+        target.insertAdjacentHTML("beforeend", '<div class="aisle-message" role="status">Terminy wyróżnionych ofert minęły. <a class="aisle-empty-link" href="/?catalog=1#results">Przejdź do katalogu →</a></div>');
+      }
+      const age = now - Number(section.dataset.requestedAt);
+      if ((expired.length && age >= 60_000) || (recheckRecent && age >= 10 * 60_000)) enqueueHomeAisle(section, true);
+    }
+    drainHomeAisles();
+    scheduleHomeAisleExpiry();
+  }
+
+  function applyMarketShortcut(value) {
+    categoryInput.value=value === "all" ? "" : RexBidMarket.resolve(value);
+    lotStatus.value = value === "buy-now" ? "Buy Now" : value === "timed" ? "Timed" : "";
+    lotSubStatus.value = "";
+    fuelType.value = value === "electric" ? "Electric" : "";
+    updateFilterIndicators();
+    loadCars();
+  }
+
+
+  function formatMoney(value) {
+    if (
+      value === null ||
+      value === undefined ||
+      value === ""
+    ) {
+      return "—";
+    }
+
+    const number = Number(value);
+
+    if (Number.isNaN(number)) {
+      return escapeHtml(value);
+    }
+
+    return "$" +
+      number.toLocaleString("en-US");
+  }
+
+
+  /*
+   * ==========================================================
+   * TYTUŁ SAMOCHODU
+   * ==========================================================
+   */
+
+  function getTitle(car) {
+
+    if (!car) {
+      return "Samochód";
+    }
+
+    if (
+      car.title &&
+      String(car.title).trim()
+    ) {
+      return String(car.title).trim();
+    }
+
+    if (
+      car.vehicle &&
+      typeof car.vehicle === "object"
+    ) {
+
+      const vehicleMake =
+        car.vehicle.make ||
+        car.vehicle.manufacturer ||
+        "";
+
+      const vehicleModel =
+        car.vehicle.model ||
+        "";
+
+      const vehicleYear =
+        car.vehicle.year ||
+        "";
+
+      const title =
+        [vehicleYear, vehicleMake, vehicleModel]
+          .filter(Boolean)
+          .join(" ");
+
+      if (title) {
+        return title;
+      }
+    }
+
+
+    const year =
+      car.year ||
+      car.vehicle_year ||
+      "";
+
+    const carMake =
+      car.make ||
+      car.brand ||
+      car.manufacturer ||
+      "";
+
+    const carModel =
+      car.model ||
+      "";
+
+    const title =
+      [year, carMake, carModel]
+        .filter(Boolean)
+        .join(" ");
+
+    if (title) {
+      return title;
+    }
+
+
+    if (car.vin) {
+      return "Samochód " + car.vin;
+    }
+
+    if (car.lot_number) {
+      return "Samochód — Lot " + car.lot_number;
+    }
+
+    return "Samochód";
+  }
+
+
+  /*
+   * ==========================================================
+   * ZDJĘCIE SAMOCHODU
+   *
+   * WAŻNE:
+   * Wcześniej kod wywoływał getCarImage(),
+   * ale taka funkcja nie istniała.
+   *
+   * Teraz funkcja obsługuje różne formaty API.
+   * ==========================================================
+   */
+
+  function getCarImage(car) {
+
+    if (!car) {
+      return "";
+    }
+
+
+    /* image */
+
+    if (
+      typeof car.image === "string" &&
+      car.image.trim()
+    ) {
+      return car.image.trim();
+    }
+
+
+    /* image_url */
+
+    if (
+      typeof car.image_url === "string" &&
+      car.image_url.trim()
+    ) {
+      return car.image_url.trim();
+    }
+
+
+    /* photo */
+
+    if (
+      typeof car.photo === "string" &&
+      car.photo.trim()
+    ) {
+      return car.photo.trim();
+    }
+
+
+    /* photo_url */
+
+    if (
+      typeof car.photo_url === "string" &&
+      car.photo_url.trim()
+    ) {
+      return car.photo_url.trim();
+    }
+
+
+    /*
+     * media.thumbs
+     */
+
+    if (
+      car.media &&
+      !Array.isArray(car.media) &&
+      Array.isArray(car.media.thumbs) &&
+      car.media.thumbs.length
+    ) {
+
+      const thumb =
+        car.media.thumbs.find(
+          item =>
+            typeof item === "string" &&
+            item.trim()
+        );
+
+      if (thumb) {
+        return thumb;
+      }
+    }
+
+
+    /*
+     * media.items
+     */
+
+    if (
+      car.media &&
+      !Array.isArray(car.media) &&
+      Array.isArray(car.media.items) &&
+      car.media.items.length
+    ) {
+
+      const firstImage =
+        car.media.items.find(
+          item =>
+            item &&
+            (
+              item.type === "image" ||
+              item.type === "photo" ||
+              !item.type
+            )
+        );
+
+      if (firstImage) {
+
+        if (
+          typeof firstImage.large === "string" &&
+          firstImage.large.trim()
+        ) {
+          return firstImage.large;
+        }
+
+        if (
+          typeof firstImage.url === "string" &&
+          firstImage.url.trim()
+        ) {
+          return firstImage.url;
+        }
+
+        if (
+          typeof firstImage.src === "string" &&
+          firstImage.src.trim()
+        ) {
+          return firstImage.src;
+        }
+
+        if (
+          typeof firstImage.medium === "string" &&
+          firstImage.medium.trim()
+        ) {
+          return firstImage.medium;
+        }
+
+        if (
+          typeof firstImage.thumb === "string" &&
+          firstImage.thumb.trim()
+        ) {
+          return firstImage.thumb;
+        }
+      }
+    }
+
+
+    /*
+     * media jako tablica
+     */
+
+    if (
+      Array.isArray(car.media) &&
+      car.media.length
+    ) {
+
+      for (const item of car.media) {
+
+        if (
+          typeof item === "string" &&
+          item.trim()
+        ) {
+          return item.trim();
+        }
+
+        if (
+          item &&
+          typeof item === "object"
+        ) {
+
+          const possibleImage =
+            item.large ||
+            item.url ||
+            item.src ||
+            item.medium ||
+            item.thumb ||
+            item.image;
+
+          if (
+            typeof possibleImage === "string" &&
+            possibleImage.trim()
+          ) {
+            return possibleImage.trim();
+          }
+        }
+      }
+    }
+
+
+    /*
+     * photos jako tablica
+     */
+
+    if (
+      Array.isArray(car.photos) &&
+      car.photos.length
+    ) {
+
+      for (const item of car.photos) {
+
+        if (
+          typeof item === "string" &&
+          item.trim()
+        ) {
+          return item.trim();
+        }
+
+        if (
+          item &&
+          typeof item === "object"
+        ) {
+
+          const possibleImage =
+            item.large ||
+            item.url ||
+            item.src ||
+            item.medium ||
+            item.thumb;
+
+          if (
+            typeof possibleImage === "string" &&
+            possibleImage.trim()
+          ) {
+            return possibleImage.trim();
+          }
+        }
+      }
+    }
+
+
+    /*
+     * images jako tablica
+     */
+
+    if (
+      Array.isArray(car.images) &&
+      car.images.length
+    ) {
+
+      for (const item of car.images) {
+
+        if (
+          typeof item === "string" &&
+          item.trim()
+        ) {
+          return item.trim();
+        }
+
+        if (
+          item &&
+          typeof item === "object"
+        ) {
+
+          const possibleImage =
+            item.large ||
+            item.url ||
+            item.src ||
+            item.medium ||
+            item.thumb;
+
+          if (
+            typeof possibleImage === "string" &&
+            possibleImage.trim()
+          ) {
+            return possibleImage.trim();
+          }
+        }
+      }
+    }
+
+
+    /*
+     * gallery
+     */
+
+    if (
+      Array.isArray(car.gallery) &&
+      car.gallery.length
+    ) {
+
+      for (const item of car.gallery) {
+
+        if (
+          typeof item === "string" &&
+          item.trim()
+        ) {
+          return item.trim();
+        }
+
+        if (
+          item &&
+          typeof item === "object"
+        ) {
+
+          const possibleImage =
+            item.large ||
+            item.url ||
+            item.src ||
+            item.medium ||
+            item.thumb;
+
+          if (
+            typeof possibleImage === "string" &&
+            possibleImage.trim()
+          ) {
+            return possibleImage.trim();
+          }
+        }
+      }
+    }
+
+
+    return "";
+  }
+
+
+  /*
+   * ==========================================================
+   * VIN
+   * ==========================================================
+   */
+
+  function getVin(car) {
+
+    if (!car) {
+      return "";
+    }
+
+    return (
+      car.vin ||
+      car.VIN ||
+      car.slug_vin ||
+      car.vehicle_vin ||
+      ""
+    );
+  }
+
+
+  /*
+   * ==========================================================
+   * LOT
+   * ==========================================================
+   */
+
+  function getLot(car) {
+
+    if (!car) {
+      return "—";
+    }
+
+    return (
+      car.lot_number ||
+      car.lot ||
+      car.stock_number ||
+      car.stock ||
+      car.lotNumber ||
+      "—"
+    );
+  }
+
+
+  /*
+   * ==========================================================
+   * CENA
+   * ==========================================================
+   */
+
+  function hasApprovalPendingOutcome(value) {
+    const normalized = String(value || "").toLowerCase().replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
+    return /sold on approval|approval pending|pending approval|awaiting approval|on approval/.test(normalized);
+  }
+
+  function getPriceInfo(car) {
+    if (!car) return { value: null, label: "Brak danych o ofercie" };
+
+    const pricing = car.pricing && typeof car.pricing === "object" ? car.pricing : {};
+    const storedSnapshot = car.preview?.read_only === true || car.read?.source === "r2-backup" || (car.read?.source === "d1" && car.read.freshness !== "fresh")
+      || globalThis.RexBidMarket?.availabilityStatus?.(car) === "unknown";
+    const bid = (...values) => values.find(value => (typeof value === "number" || typeof value === "string" && value.trim() !== "") && Number.isFinite(Number(value)) && Number(value) > 0);
+    const positive = (...values) => values.find(value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)) && Number(value) > 0);
+    const auction = car.auction && typeof car.auction === "object" ? car.auction : {};
+    const state = String(auction.state || car.status || "").toLowerCase();
+    const outcome = String(auction.outcome_status || "").toLowerCase();
+    const approvalPending = hasApprovalPendingOutcome(outcome) || hasApprovalPendingOutcome(auction.last_sold_status);
+    const terminal = ["finished", "sold", "closed", "ended", "not_sold", "no_sale"].includes(state) || Boolean(auction.auction_ended_at) || auction.sold_timed === true;
+    const sold = /\bsold\b/.test(outcome) && !approvalPending || ["sold"].includes(state) || ((state === "finished" || Boolean(auction.auction_ended_at)) && positive(pricing.sale_price_usd) && !approvalPending);
+    const unsold = /not.?sold|no.?sale|unsold/.test(outcome) || ["not_sold", "no_sale"].includes(state);
+    if (terminal && approvalPending) return { value: null, label: "Cena sprzedaży niepotwierdzona" };
+    if (terminal && sold) {
+      const salePrice = positive(pricing.sale_price_usd, pricing.final_price_usd, car.sale_price_usd, car.final_price_usd);
+      if (salePrice !== undefined) return { value: salePrice, label: "Cena sprzedaży" };
+    }
+    if (terminal && !unsold) {
+      const lastSoldPrice = positive(pricing.last_sold_price_usd, car.last_sold_price_usd);
+      if (lastSoldPrice !== undefined) return { value: lastSoldPrice, label: "Ostatnia cena sprzedaży" };
+    }
+
+    if (!terminal) {
+      const currentBid = bid(...(Object.prototype.hasOwnProperty.call(pricing, 'current_bid_usd') ? [pricing.current_bid_usd] : [pricing.current_bid2_usd]));
+      if (currentBid !== undefined) return { value: currentBid, label: storedSnapshot ? "Ostatnia zapisana oferta" : auction.is_timed ? "Aktualna oferta · Timed Auction" : "Aktualna oferta" };
+      const buyNow = positive(pricing.buy_now_usd);
+      if (buyNow !== undefined) return { value: buyNow, label: storedSnapshot ? "Kup teraz · zapis danych" : "Kup teraz" };
+    }
+
+    return { value: null, label: "Brak danych o ofercie" };
+  }
+
+  function getAuctionStatusLabel(car) {
+    if (car?.read?.source === "r2-backup") return "Zapisana oferta · status do potwierdzenia";
+    if ((car?.read?.source === "d1" && car.read.freshness !== "fresh") || (car?.preview?.read_only === true && car.preview.freshness !== "fresh")) return "Status do potwierdzenia";
+    if (car?.preview?.read_only === true) return "Podgląd zapisanej aukcji";
+    const auction = car?.auction && typeof car.auction === "object" ? car.auction : {};
+    const state = String(auction.state || car?.status || "").toLowerCase();
+    const outcome = String(auction.outcome_status || "").toLowerCase();
+    const scheduledAt = auction.auction_at || auction.full_date || auction.formatted || auction.auctionAt || car?.auction_at || car?.auctionAt || car?.auction_date || "";
+    const scheduleStatus = String(auction.schedule_status || "").toLowerCase();
+    const parsedSchedule = parseConfirmedAuctionDate(scheduledAt);
+    const elapsedSchedule = ["scheduled", "date_only"].includes(scheduleStatus) && !!parsedSchedule
+      && (parsedSchedule.dateOnly ? parsedSchedule.timestamp + 86_399_999 : parsedSchedule.timestamp) <= Date.now();
+    if (/not.?sold|no.?sale|unsold/.test(outcome) || ["not_sold", "no_sale"].includes(state)) return "Niesprzedana";
+    if (hasApprovalPendingOutcome(outcome) || hasApprovalPendingOutcome(auction.last_sold_status)) return "Oferta warunkowa · wynik niepotwierdzony";
+    if (/\bsold\b/.test(outcome) || state === "sold" || auction.sold_timed === true) return "Sprzedana";
+    if (["finished", "closed", "ended"].includes(state) || auction.auction_ended_at) return "Zakończona";
+    const sessionLabel = globalThis.RexBidMarket?.auctionSessionLabel?.(car);
+    if (auction.phase === "awaiting_result" && sessionLabel && car.read?.catalog_scope !== "archival") return sessionLabel;
+    if (globalThis.RexBidMarket?.availabilityStatus?.(car) === "unknown") return "Status do potwierdzenia";
+    const timedEnd = auction.is_timed === true && typeof auction.timed_end_at === "string" ? Date.parse(auction.timed_end_at) : NaN;
+    if (Number.isFinite(timedEnd) && timedEnd <= Date.now()) return "Zakończona";
+    if (auction.is_buy_now === true || String(auction.lot_status || "").toLowerCase() === "buy now") return "Kup teraz";
+    if (auction.is_timed === true || String(auction.lot_status || "").toLowerCase() === "timed") return "Timed Auction";
+    if (sessionLabel) return sessionLabel;
+    if (scheduleStatus === "live" || /live|running|in progress/.test(state) || String(auction.lot_sub_status || "").toLowerCase() === "live") return "Status sesji do potwierdzenia";
+    if (state === "upcoming" || state === "scheduled" || state === "future" || auction.upcoming === true) {
+      if (elapsedSchedule) return "Termin minął · wynik do potwierdzenia";
+      const date = getAuctionDate(car);
+      return date ? "Nadchodząca" : "Nadchodząca · termin nieustalony";
+    }
+    if (["open", "active", "prebid", "pre-bid", "pending"].includes(state)) {
+      if (elapsedSchedule) return "Termin minął · wynik do potwierdzenia";
+      if (["unknown", "unassigned", "conflict"].includes(scheduleStatus)) return "Termin i dostępność do potwierdzenia";
+      return "Przed licytacją";
+    }
+    return "Status niedostępny";
+  }
+
+
+  /*
+   * ==========================================================
+   * PRZEBIEG
+   * ==========================================================
+   */
+
+  function getMileage(car) {
+
+    if (!car) {
+      return "—";
+    }
+
+
+    if (
+      car.odometer &&
+      typeof car.odometer === "object"
+    ) {
+
+      if (
+        car.odometer.mi !== undefined &&
+        car.odometer.mi !== null
+      ) {
+
+        const value =
+          Number(car.odometer.mi);
+
+        if (!Number.isNaN(value)) {
+          return (
+            value.toLocaleString("en-US") +
+            " mi"
+          );
+        }
+
+        return (
+          car.odometer.mi +
+          " mi"
+        );
+      }
+
+      if (
+        car.odometer.value !== undefined && car.odometer.value !== null && car.odometer.value !== ""
+      ) {
+        const value = Number(car.odometer.value);
+        const rawUnit = String(car.odometer.unit || "").toLowerCase();
+        const unit = ["mi", "mile", "miles"].includes(rawUnit) ? "mi" : ["km", "kilometer", "kilometers"].includes(rawUnit) ? "km" : "";
+        return `${Number.isFinite(value) ? value.toLocaleString("pl-PL") : String(car.odometer.value)}${unit ? ` ${unit}` : ""}`;
+      }
+    }
+
+
+    if (
+      car.mileage !== undefined &&
+      car.mileage !== null &&
+      car.mileage !== ""
+    ) {
+
+      const value =
+        Number(car.mileage);
+
+      if (!Number.isNaN(value)) {
+
+        return (
+          value.toLocaleString("en-US") +
+          " mi"
+        );
+      }
+
+      return String(car.mileage);
+    }
+
+
+    return "—";
+  }
+
+
+  /*
+   * ==========================================================
+   * USZKODZENIE
+   * ==========================================================
+   */
+
+  function getDamage(car) {
+
+    if (!car) {
+      return "—";
+    }
+
+
+    if (
+      car.condition &&
+      typeof car.condition === "object"
+    ) {
+
+      if (
+        car.condition.primary_damage
+      ) {
+        return car.condition.primary_damage;
+      }
+
+      if (
+        car.condition.primaryDamage
+      ) {
+        return car.condition.primaryDamage;
+      }
+
+      if (
+        car.condition.damage
+      ) {
+        return car.condition.damage;
+      }
+    }
+
+
+    return (
+      car.damage ||
+      car.primary_damage ||
+      car.primaryDamage ||
+      "—"
+    );
+  }
+
+
+  /*
+   * ==========================================================
+   * PLATFORMA
+   * ==========================================================
+   */
+
+  function getPlatform(car) {
+
+    if (!car) {
+      return "—";
+    }
+
+    return (
+      car.platform ||
+      car.auction_platform ||
+      car.auctionPlatform ||
+      car.source ||
+      car.auction ||
+      "—"
+    )
+      .toString()
+      .toUpperCase();
+  }
+
+
+  /*
+   * ==========================================================
+   * LOKALIZACJA
+   * ==========================================================
+   */
+
+  function getLocation(car) {
+
+    if (!car) {
+      return "—";
+    }
+
+
+    if (
+      car.location &&
+      typeof car.location === "object"
+    ) {
+
+      return (
+        car.location.display ||
+        car.location.name ||
+        car.location.city ||
+        car.location.state ||
+        "—"
+      );
+    }
+
+
+    if (
+      car.location
+    ) {
+      return car.location;
+    }
+
+
+    if (
+      car.city &&
+      car.state
+    ) {
+      return (
+        car.city +
+        ", " +
+        car.state
+      );
+    }
+
+
+    return (
+      car.city ||
+      car.state ||
+      "—"
+    );
+  }
+
+
+  /*
+   * ==========================================================
+   * STATUS
+   * ==========================================================
+   */
+
+  function getStatus(car) {
+
+    if (!car) {
+      return "";
+    }
+
+
+    if (
+      car.auction &&
+      typeof car.auction === "object" &&
+      car.auction.state
+    ) {
+      return car.auction.state;
+    }
+
+
+    return (
+      car.status ||
+      car.state ||
+      ""
+    );
+  }
+
+
+  function getAuctionDate(car) {
+    if ((car?.read?.source === "d1" && car.read.freshness !== "fresh" && car.read.catalog_scope !== "active") || (car?.preview?.read_only === true && car.preview.freshness !== "fresh")) return "";
+    if (globalThis.RexBidMarket?.availabilityStatus?.(car) === "unknown") return "";
+    const auction = car && car.auction && typeof car.auction === "object"
+      ? car.auction
+      : {};
+    const scheduleStatus = String(auction.schedule_status || "").toLowerCase();
+    if (["unassigned", "unknown", "conflict", "live", "ended"].includes(scheduleStatus)) return "";
+    if (scheduleStatus === "timed" && auction.is_timed !== true) return "";
+    if (scheduleStatus && !["scheduled", "date_only", "timed"].includes(scheduleStatus)) return "";
+    const platform = String(car?.platform || car?.source || auction.platform || "").toLowerCase();
+    const sourceStatus = String(auction.source_status || auction.formatted || auction.state || "").trim().toLowerCase();
+    const assigned = auction.assigned === true || auction.is_assigned === true || auction.assigned === 1 || auction.is_assigned === 1
+      || /^(?:true|1|yes|assigned)$/i.test(String(auction.assigned ?? auction.is_assigned ?? ""));
+    if (!scheduleStatus && platform.includes("copart")
+      && /^(?:upcoming|future|unassigned|not assigned|not scheduled)(?:\s+lot)?$/.test(sourceStatus) && !assigned) return "";
+    const timedEnd = auction.is_timed === true ? (auction.timed_end_at || "") : "";
+    if (auction.is_timed === true && (!timedEnd || !/(?:Z|[+-]\d{2}:?\d{2})$/i.test(String(timedEnd).trim()))) return "";
+    const value =
+      (auction.is_timed === true ? timedEnd : "") ||
+      (auction.is_timed === true ? "" : auction.auction_at) ||
+      (auction.is_timed === true ? "" : auction.full_date) ||
+      (auction.is_timed === true ? "" : auction.formatted) ||
+      (auction.is_timed === true ? "" : auction.auctionAt) ||
+      (auction.is_timed === true ? "" : car?.auction_at) ||
+      (auction.is_timed === true ? "" : car?.auctionAt) ||
+      (auction.is_timed === true ? "" : car?.auction_date) ||
+      "";
+
+    if (!value || typeof value !== "string") return "";
+
+    const raw = value.trim();
+    const parsedSchedule = parseConfirmedAuctionDate(raw);
+    if (!parsedSchedule) return "";
+    const dateOnly = parsedSchedule.dateOnly;
+    if (dateOnly && scheduleStatus && scheduleStatus !== "date_only") return "";
+    const state = String(auction.state || car?.status || "").toLowerCase();
+    const outcome = String(auction.outcome_status || auction.last_sold_status || "").toLowerCase();
+    const terminal = /^(?:finished|sold|not[_ -]?sold|no[_ -]?sale|unsold|closed|ended|completed|cancelled|canceled|withdrawn)$/.test(state)
+      || /sold|approval|not[_ -]?sold|no[_ -]?sale|unsold/.test(outcome);
+    if (terminal && parsedSchedule.timestamp > Date.now()) return "";
+    const upcoming = ["upcoming", "scheduled", "future"].includes(state) || auction.upcoming === true;
+    if (upcoming && (dateOnly ? parsedSchedule.timestamp + 86_399_999 : parsedSchedule.timestamp) <= Date.now()) return "";
+    const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/);
+    if (!match) return raw;
+
+    const date = `${match[3]}.${match[2]}.${match[1]}`;
+    if (dateOnly) return `${date} · godzina niepotwierdzona`;
+    const moment = new Date(parsedSchedule.timestamp);
+    const local = moment.toLocaleString("pl-PL", {timeZone:"Europe/Warsaw",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});
+    const offset = new Intl.DateTimeFormat("en-GB", {timeZone:"Europe/Warsaw",timeZoneName:"longOffset"})
+      .formatToParts(moment).find(part => part.type === "timeZoneName")?.value.replace("GMT", "UTC") || "";
+    return `${local} · Polska (${offset})`;
+  }
+
+
+  /*
+   * ==========================================================
+   * RENDEROWANIE SAMOCHODÓW
+   * ==========================================================
+   */
+
+  function formatOfferCount(count, hasMore = false) {
+    const lastDigit = count % 10;
+    const lastTwoDigits = count % 100;
+    const noun = count === 1 ? "ofertę" : lastDigit >= 2 && lastDigit <= 4 && (lastTwoDigits < 12 || lastTwoDigits > 14) ? "oferty" : "ofert";
+    return `Wyświetlono ${count} ${noun}${hasMore ? ". Dostępne są kolejne wyniki" : ""}`;
+  }
+
+  function renderCars(cars, partialCatalog = false, hasMore = false) {
+    const focusedFavorite = document.activeElement && carsContainer.contains(document.activeElement)
+      ? document.activeElement?.closest?.("button[data-local-action='favorite']") : null;
+    const focusedCarKey = focusedFavorite?.dataset.carKey;
+
+    if (
+      !Array.isArray(cars) ||
+      cars.length === 0
+    ) {
+
+      carsContainer.innerHTML = `
+        <div
+          class="message"
+          style="grid-column:1/-1"
+        >
+          <strong>${partialCatalog ? "Brak dopasowań w zapisanej części katalogu" : "Nie znaleźliśmy zapisanych ofert dla tych kryteriów"}</strong>
+          <span>Brak wyniku nie oznacza braku takich aut na aukcjach. Zmień filtry lub prześlij nam VIN / LOT wybranego auta.</span>
+          <button type="button" data-clear-catalog>Wyczyść filtry</button>
+        </div>
+      `;
+
+      resultStatus.textContent =
+        formatOfferCount(0, hasMore);
+
+      return;
+    }
+
+
+    resultStatus.textContent =
+      formatOfferCount(cars.length, hasMore);
+
+
+    carsContainer.innerHTML =
+      cars.map(car => {
+
+        const image =
+          getCarImage(car);
+
+        const title =
+          getTitle(car);
+
+        const vin =
+          getVin(car);
+
+        const lot =
+          getLot(car);
+
+        const buyNowSelected = lotStatus.value === "Buy Now" || (typeof categoryInput !== "undefined" && categoryInput.value === "buy-now");
+        const price = buyNowSelected ? marketAislePriceInfo(car, "buy-now") : getPriceInfo(car);
+        const buyNowPrice = marketAislePriceInfo(car, "buy-now");
+        const secondaryPrice = buyNowSelected
+          ? price.secondary
+          : (/^(?:Aktualna oferta|Ostatnia zapisana oferta)/.test(price.label) && buyNowPrice.value !== null ? `${buyNowPrice.label} · ${formatMoney(buyNowPrice.value)}` : "");
+        const dataRead = car.preview?.read_only === true ? car.preview : car.read?.source === "d1" ? car.read : null;
+        const savedAt = dataRead?.last_synced_at || dataRead?.last_seen_at;
+        const savedDate = savedAt && Number.isFinite(Date.parse(String(savedAt))) ? new Date(savedAt).toLocaleString("pl-PL", {timeZone:"Europe/Warsaw",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}) : "";
+        const savedNote = dataRead
+          ? `${dataRead.freshness === "fresh" && car.preview?.read_only !== true ? "Odczyt źródła" : "Zapis danych"}${savedDate ? " z " + savedDate : " · data nieustalona"}. ${dataRead.freshness === "fresh" && car.preview?.read_only !== true ? "Cena i dostępność mogą się zmienić." : "Cena i dostępność do potwierdzenia."}` : "";
+
+        const mileage =
+          getMileage(car);
+
+        const damageSource = getDamage(car);
+        const damage = RexBidMarket.damageLabel(damageSource);
+
+        const location =
+          getLocation(car);
+
+        const platformName =
+          getPlatform(car);
+
+        const status = getAuctionStatusLabel(car);
+
+        const auctionDate =
+          getAuctionDate(car);
+
+        const identifier =
+          vin ||
+          lot ||
+          "";
+
+
+        /*
+         * ZDJĘCIE
+         */
+
+        const safeImage = localStorageApi?.safeImageUrl(image) || "";
+        const cardIndex = cars.indexOf(car);
+        const imageHtml =
+          safeImage
+            ? `
+              <img
+                src="${escapeHtml(safeImage)}"
+                alt="${escapeHtml(title)}"
+                loading="${cardIndex === 0 ? "eager" : "lazy"}"
+                fetchpriority="${cardIndex === 0 ? "high" : "auto"}"
+                decoding="async"
+                data-fallback-image
+              />
+
+              <div
+                style="
+                  display:none;
+                  width:100%;
+                  height:100%;
+                  align-items:center;
+                  justify-content:center;
+                  color:#68717b;
+                  font-size:14px;
+                "
+              >
+                Brak zdjęcia
+              </div>
+            `
+            : `
+              <div
+                style="
+                  width:100%;
+                  height:100%;
+                  display:flex;
+                  align-items:center;
+                  justify-content:center;
+                  color:#68717b;
+                  font-size:14px;
+                "
+              >
+                Brak zdjęcia
+              </div>
+            `;
+
+
+        /*
+         * STATUS
+         */
+
+        const statusHtml = status && status !== "Status niedostępny"
+          ? `<span class="card-status-text">${escapeHtml(status)}</span>`
+          : `<span class="card-status-text">Status do potwierdzenia</span>`;
+        const primaryPrice = price.value === null
+          ? `<div class="rex-card-price"><small>${escapeHtml(price.label === "Brak danych o ofercie" ? "Aktualna oferta" : price.label)}</small><strong class="rex-price-missing">Brak danych o ofercie</strong></div>`
+          : `<div class="rex-card-price"><small>${escapeHtml(price.label)}</small><strong>${escapeHtml(formatMoney(price.value))}<span> USD</span></strong></div>`;
+
+
+        /*
+         * LINK
+         */
+
+        const detailUrl =
+          vin ? `/car?vin=${encodeURIComponent(vin)}`
+            : lot ? `/car?lot=${encodeURIComponent(lot)}` : "#";
+        const listingUrl = detailUrl + (vin && lot ? `&lot=${encodeURIComponent(lot)}` : "") + `&platform=${encodeURIComponent(getPlatform(car).toLowerCase())}` + `&return_to=${encodeURIComponent(RexBidMarket.returnPath(typeof window !== "undefined" ? window.location : null))}`;
+
+
+        return `
+          <article class="car-card">
+
+            <a
+              href="${listingUrl}"
+            >
+
+              <div class="car-image">
+
+                ${imageHtml}
+                <span class="rex-card-platform">${escapeHtml(platformName)}</span>
+
+              </div>
+
+
+              <div class="car-content">
+
+                <h3 class="car-title">
+                  ${escapeHtml(title)}
+                </h3>
+
+                <div class="card-source-status">${statusHtml}<span>${escapeHtml(platformName)} · ${escapeHtml(location)}</span></div>
+
+
+                <div class="car-vin">
+                  <span class="card-identity-line"><span>LOT</span><strong>${escapeHtml(lot || "—")}</strong></span>
+                  <span class="card-identity-line"><span>VIN</span><strong>${escapeHtml(vin || "—")}</strong></span>
+                </div>
+
+                ${auctionDate ? `
+                  <div class="auction-date-row">
+                    <span class="auction-date-icon" aria-hidden="true">◷</span>
+                    <span>${car.auction?.is_timed === true && car.auction?.timed_end_at ? "Koniec aukcji:" : "Aukcja:"}</span>
+                    <strong>${escapeHtml(auctionDate)}</strong>
+                  </div>
+                ` : ""}
+
+
+                <div class="car-grid">
+
+                  <div class="spec">
+
+                    <small>
+                      Rok
+                    </small>
+
+                    <strong>
+                      ${escapeHtml(
+                        car.year ||
+                        car.vehicle_year ||
+                        "—"
+                      )}
+                    </strong>
+
+                  </div>
+
+
+                  <div class="spec">
+
+                    <small>
+                      Przebieg
+                    </small>
+
+                    <strong>
+                      ${escapeHtml(mileage)}
+                    </strong>
+
+                  </div>
+
+
+                  <div class="spec">
+
+                    <small>
+                      Uszkodzenie
+                    </small>
+
+                    <strong title="${escapeHtml(damageSource)}">
+                      ${escapeHtml(damage)}
+                    </strong>
+
+                  </div>
+
+
+                </div>
+
+
+                <div class="car-bottom">
+
+                  ${primaryPrice}
+
+                  <span class="details-btn">
+                    Zobacz ofertę →
+                  </span>
+
+                </div>
+                ${secondaryPrice ? `<span class="card-secondary-price">${escapeHtml(secondaryPrice)}</span>` : ""}
+                ${savedNote ? `<p class="card-saved-note">${escapeHtml(savedNote)}</p>` : ""}
+
+              </div>
+
+            </a>
+            <div class="card-local-actions" aria-label="Akcje lokalne">
+              <button type="button" data-compare-lot="${escapeHtml(lot || '')}" data-compare-platform="${escapeHtml(platformName.toLowerCase())}" aria-pressed="false">Porównaj</button>
+              <button type="button" data-local-action="favorite" data-car-index="${cardIndex}" data-car-key="${escapeHtml(platformName.toLowerCase() + ":" + (lot || vin))}" aria-label="${localStorageApi?.isFavorite(car) ? "Usuń z ulubionych" : "Dodaj do ulubionych"}: ${escapeHtml(title)} · LOT ${escapeHtml(lot || "—")}" aria-pressed="${localStorageApi?.isFavorite(car) ? "true" : "false"}">${localStorageApi?.isFavorite(car) ? "♥ Obserwujesz" : "♡ Obserwuj"}</button>
+            </div>
+
+          </article>
+        `;
+
+      }).join("");
+    if (focusedCarKey) {
+      [...carsContainer.querySelectorAll("button[data-local-action='favorite']")]
+        .find(button => button.dataset.carKey === focusedCarKey)?.focus({preventScroll: true});
+    }
+  }
+
+
+  /*
+   * ==========================================================
+   * LOADING
+   * ==========================================================
+   */
+
+  function showLoading() {
+
+    carsContainer.innerHTML = `
+      <div
+        class="message"
+        style="grid-column:1/-1"
+      >
+
+        <div class="spinner" aria-hidden="true"></div>
+
+        Pobieranie ofert...
+
+      </div>
+    `;
+
+    resultStatus.textContent =
+      "Ładowanie...";
+  }
+
+
+  /*
+   * ==========================================================
+   * ERROR
+   * ==========================================================
+   */
+
+  function showError(timedOut = false) {
+
+    carsContainer.innerHTML = `
+      <div
+        class="message message-error"
+        style="grid-column:1/-1"
+      >
+
+        <strong>
+          Nie udało się pobrać ofert
+        </strong>
+
+        <span>${timedOut ? "Pobieranie trwało zbyt długo. " : ""}Filtry zostały zachowane. Spróbuj ponownie za chwilę.</span>
+        <button type="button" data-catalog-retry>Spróbuj ponownie</button>
+
+      </div>
+    `;
+
+    resultStatus.textContent =
+      "Nie udało się pobrać ofert";
+  }
+
+
+  function mergeCarsWithoutDuplicates(existingCars, newCars) {
+    const merged = [...existingCars];
+    const seen = new Set();
+
+    for (const car of existingCars) {
+      for (const key of carIdentityKeys(car)) seen.add(key);
+    }
+
+    for (const car of newCars) {
+      const keys = carIdentityKeys(car);
+      if (keys.some(key => seen.has(key))) continue;
+      merged.push(car);
+      for (const key of keys) seen.add(key);
+    }
+
+    return merged;
+  }
+
+
+  function carIdentityKeys(car) {
+    const vin = String(getVin(car) || "").trim().toUpperCase();
+    const lot = String(getLot(car) || "").trim().toUpperCase();
+    const source = String(getPlatform(car) || "").trim().toLowerCase();
+    return lot && lot !== "—" ? [`lot:${source}:${lot}`] : vin ? [`vin:${source}:${vin}`] : [];
+  }
+
+
+  /*
+   * ==========================================================
+   * WCZYTYWANIE OFERT
+   * ==========================================================
+   */
+
+  function validateCatalogRanges() {
+    const notice = document.getElementById("filterValidationMessage");
+    const ranges = [
+      { from: yearFrom, to: yearTo, label: "Rok", advanced: false },
+      { from: priceMin, to: priceMax, label: "Cena w USD", advanced: true },
+      { from: odometerFrom, to: odometerTo, label: "Przebieg w milach", advanced: true }
+    ];
+    for (const range of ranges) for (const field of [range.from, range.to]) {
+      field.removeAttribute?.("aria-invalid");
+      field.removeAttribute?.("aria-describedby");
+    }
+    if (notice) { notice.hidden = true; notice.textContent = ""; }
+    // Exact identity searches clear unrelated restrictions before requesting data.
+    if (/^(?:[A-HJ-NPR-Z0-9]{17}|\d{6,12})$/i.test(RexBidMarket.normalizeSearch(searchInput.value))) return true;
+    for (const range of ranges) {
+      const invalid = [range.from, range.to].find(field => field.value !== "" && (!Number.isFinite(Number(field.value)) || Number(field.value) < 0));
+      const reversed = range.from.value !== "" && range.to.value !== "" && Number(range.from.value) > Number(range.to.value);
+      if (!invalid && !reversed) continue;
+      const field = invalid || range.from;
+      if (notice) {
+        notice.textContent = invalid ? `${range.label}: wpisz wartość równą 0 lub większą.` : `${range.label}: wartość „od” nie może być większa niż „do”. Popraw zakres i zastosuj filtry.`;
+        notice.hidden = false;
+      }
+      field.setAttribute("aria-invalid", "true");
+      field.setAttribute("aria-describedby", "filterValidationMessage");
+      setFilterPanelExpanded(true);
+      if (range.advanced) advancedFiltersElement.open = true;
+      field.focus();
+      return false;
+    }
+    return true;
+  }
+
+  async function loadCars({ append = false, updateUrl = true } = {}) {
+    if (append && (!listCursor || loadingMore)) return;
+    if (!validateCatalogRanges()) return false;
+    if (!append) setCatalogView(true);
+
+    const params =
+      new URLSearchParams();
+
+
+    const search =
+      RexBidMarket.normalizeSearch(searchInput.value);
+
+    // An exact identity lookup must not inherit an unrelated catalog selection.
+    if (/^(?:[A-HJ-NPR-Z0-9]{17}|\d{6,12})$/i.test(search)) {
+      filterDefinitions.forEach(definition => {
+        if (definition.id !== "searchInput" && !definition.viewOption) definition.element.value = "";
+      });
+      updateFilterIndicators();
+    }
+
+
+    if (!append) refreshPlatformMetadataIfNeeded();
+
+    if (search) {
+
+      params.set(
+        "s",
+        search
+      );
+    }
+
+
+    if (platform.value) {
+
+      params.set(
+        "platform",
+        platform.value
+      );
+    }
+
+
+    if (make.value.trim()) {
+
+      params.set(
+        "make",
+        make.value.trim()
+      );
+    }
+
+
+    if (model.value.trim()) {
+
+      params.set(
+        "model",
+        model.value.trim()
+      );
+    }
+
+
+    if (yearFrom.value) {
+
+      params.set(
+        "year_from",
+        yearFrom.value
+      );
+    }
+
+
+    if (yearTo.value) {
+
+      params.set(
+        "year_to",
+        yearTo.value
+      );
+    }
+
+    if (!/^(?:[A-HJ-NPR-Z0-9]{17}|\d{6,12})$/i.test(search) && categoryInput.value) params.set("category",categoryInput.value);
+    const supportedFilters = [
+      ["with_photo", document.getElementById("photoFilter")],
+      ["lot_status", lotStatus],
+      ["lot_sub_status", lotSubStatus],
+      ["price_min", priceMin],
+      ["price_max", priceMax],
+      ["odometer_from", odometerFrom],
+      ["odometer_to", odometerTo],
+      ["fuel_type", fuelType],
+      ["transmission", transmission],
+      ["drive_type", driveType],
+      ["run_cond", runCond]
+    ];
+
+    for (const [name, element] of supportedFilters) {
+      if (String(element.value || "").trim()) {
+        params.set(name, String(element.value).trim());
+      }
+    }
+
+    for (const [name, element] of [["type", vehicleType], ["damage", damage], ["seller_type", sellerType], ["sale_document_name", saleDocument], ["sale_document_type", legacyDocumentInput], ["loc_state", locationState]]) {
+      if (String(element.value || "").trim()) params.set(name, String(element.value).trim());
+    }
+
+
+    params.set(
+      "per_page",
+      "20"
+    );
+
+    if (catalogSort.value) params.set("sort",catalogSort.value);
+    const queryKey = params.toString();
+
+    if (append && queryKey !== activeListQuery) {
+      return loadCars();
+    }
+
+    const pageCursor = append ? listCursor : (!updateUrl && typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("cursor") : null);
+    if (pageCursor) params.set("cursor", pageCursor);
+    params.set("view", "cards");
+    const requestQuery = params.toString();
+    // Only the current request can be shared; an A → B → A change starts a new A.
+    if (!append && currentCatalogRequest?.requestId === listRequestId
+      && currentCatalogRequest.query === requestQuery
+      && currentCatalogRequest.updateUrl === updateUrl) {
+      return currentCatalogRequest.promise;
+    }
+
+    if (!append) activeCatalogController?.abort();
+    const requestId = append ? listRequestId : ++listRequestId;
+    carsContainer.setAttribute?.("aria-busy", "true");
+    if (!append) {
+      clearCatalogReturn();
+      listPageCount = 0;
+      listCursor = null;
+      listedCars = [];
+      listCatalogPartial = false;
+      activeListQuery = null;
+      loadingMore = false;
+      loadMoreButton.hidden = true;
+      loadMoreButton.style.display = "none";
+      loadMoreButton.disabled = false;
+      loadMoreButton.textContent = "Załaduj więcej";
+      showLoading();
+      for (const id of ["catalogCoverage", "homeCatalogCoverage"]) {
+        const notice = document.getElementById(id);
+        if (notice) { notice.hidden = true; notice.style.display = "none"; }
+      }
+    } else {
+      loadingMore = true;
+      loadMoreButton.disabled = true;
+      loadMoreButton.textContent = "Ładowanie...";
+    }
+    if (!append && updateUrl) updateListUrl(params);
+
+    const currentRequest = append ? null : {requestId, query: requestQuery, updateUrl, promise: null};
+    if (currentRequest) currentCatalogRequest = currentRequest;
+    const performRequest = async () => {
+    const controller = typeof AbortController === "function" ? new AbortController() : null;
+    activeCatalogController = controller;
+    // The deadline also covers reading the response body, not only its headers.
+    const timeout = controller ? setTimeout(() => controller.abort(), 15_000) : null;
+    try {
+
+      const response =
+        await fetch(
+          `${API_BASE}/cars?${params.toString()}`,
+          {
+            method: "GET",
+            credentials: "omit",
+            ...(controller ? { signal: controller.signal } : {}),
+
+            headers: {
+              "Accept":
+                "application/json"
+            }
+          }
+        );
+
+      if (requestId !== listRequestId) return;
+
+
+      const contentType =
+        response.headers.get(
+          "content-type"
+        ) || "";
+
+
+      /*
+       * Jeżeli API nie zwróci JSON,
+       * pokażemy prawdziwą odpowiedź.
+       */
+
+      if (
+        !contentType.includes(
+          "application/json"
+        )
+      ) {
+
+        const text =
+          await response.text();
+
+        throw new Error(
+          `API nie zwróciło JSON. HTTP ${response.status}. ${text.slice(0, 300)}`
+        );
+      }
+
+
+      const result =
+        await response.json();
+      if (requestId !== listRequestId) return;
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          result.error ||
+          `HTTP ${response.status}`
+        );
+      }
+
+
+      if (
+        result.ok === false
+      ) {
+
+        throw new Error(
+          result.error ||
+          "API zwróciło błąd"
+        );
+      }
+
+      updateCatalogCoverage(result);
+
+
+      /*
+       * Obsługa kilku możliwych formatów odpowiedzi API.
+       */
+
+      let cars = null;
+
+
+      if (
+        Array.isArray(result.data)
+      ) {
+
+        cars = result.data;
+
+      } else if (
+        result.data &&
+        Array.isArray(result.data.cars)
+      ) {
+
+        cars = result.data.cars;
+
+      } else if (
+        Array.isArray(result.cars)
+      ) {
+
+        cars = result.cars;
+
+      } else if (
+        Array.isArray(result.results)
+      ) {
+
+        cars = result.results;
+
+      } else if (
+        Array.isArray(result.items)
+      ) {
+
+        cars = result.items;
+      }
+
+      if (!Array.isArray(cars)) throw new Error("Nieprawidłowa odpowiedź katalogu");
+
+      if (categoryInput.value && !/^(?:[A-HJ-NPR-Z0-9]{17}|\d{6,12})$/i.test(search)) cars = marketAisleCars({data:cars}, categoryInput.value);
+
+      if (fuelType.value === "Electric" && typeof globalThis.RexBidPowertrain?.isConfirmedBev === "function") {
+        cars = cars.filter(car => globalThis.RexBidPowertrain.isConfirmedBev(car));
+      }
+
+      const nextCursor = result.meta?.next_cursor ?? result.data?.meta?.next_cursor ?? null;
+      if (nextCursor !== null && (typeof nextCursor !== "string" || nextCursor.length > 4096)) throw new Error("Nieprawidłowa kolejna strona katalogu");
+      activeListQuery = queryKey;
+      const catalogMeta = result.meta ?? result.data?.meta;
+      listCatalogPartial = catalogMeta?.catalog_complete === false || String(catalogMeta?.scope_status || "").toLowerCase() === "partial";
+      listedCars = append
+        ? mergeCarsWithoutDuplicates(listedCars, cars)
+        : mergeCarsWithoutDuplicates([], cars);
+      listCursor = nextCursor === "" ? null : nextCursor;
+      if (append && updateUrl) updateListUrl(params);
+
+      renderCars(listedCars, listCatalogPartial, Boolean(listCursor));
+      loadMoreButton.hidden = !listCursor;
+      loadMoreButton.style.display = listCursor ? "block" : "none";
+      if (!append) listLoadedAt = Date.now();
+      listPageCount = append ? listPageCount + 1 : 1;
+      saveCatalogHistory();
+      return true;
+
+
+    } catch (error) {
+
+      if (requestId !== listRequestId) return;
+
+      console.error(
+        "REXBID API error:",
+        error
+      );
+
+
+      if (append) {
+        const reason = controller?.signal.aborted ? "pobieranie trwało zbyt długo; spróbuj ponownie" : "nie udało się pobrać kolejnej strony";
+        resultStatus.textContent = `${formatOfferCount(listedCars.length, Boolean(listCursor))} — ${reason}`;
+      } else {
+        showError(controller?.signal.aborted === true);
+      }
+      return false;
+    } finally {
+      if (timeout !== null) clearTimeout(timeout);
+      if (activeCatalogController === controller) activeCatalogController = null;
+      if (currentRequest && currentCatalogRequest === currentRequest) currentCatalogRequest = null;
+      if (requestId === listRequestId) carsContainer.setAttribute?.("aria-busy", "false");
+      if (append && requestId === listRequestId) {
+        loadingMore = false;
+        loadMoreButton.disabled = false;
+        loadMoreButton.textContent = "Załaduj więcej";
+        loadMoreButton.hidden = !listCursor;
+        loadMoreButton.style.display = listCursor ? "block" : "none";
+      }
+    }
+    };
+    const promise = performRequest();
+    if (currentRequest) currentRequest.promise = promise;
+    return promise;
+  }
+
+
+  /*
+   * ==========================================================
+   * WYSZUKIWANIE
+   * ==========================================================
+   */
+
+  searchForm.addEventListener(
+    "submit",
+    event => {
+
+      event.preventDefault();
+
+      if (!validateCatalogRanges()) return;
+      loadCars();
+
+
+      document
+        .getElementById("results")
+        .scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+    }
+  );
+
+
+  /*
+   * ==========================================================
+   * FILTRY
+   * ==========================================================
+   */
+
+  function applyCatalogFilters() {
+    if (!validateCatalogRanges()) return;
+    if (typeof window !== "undefined" && window.matchMedia?.("(max-width: 700px)").matches) {
+      setFilterPanelExpanded(false);
+      filterPanelToggle?.focus();
+    }
+    return loadCars();
+  }
+
+  function updateCatalogPresentation() {
+    const list = catalogView.value === "list";
+    catalogResults.classList.toggle("catalog-list-view",list);
+    document.querySelectorAll("[data-catalog-view]").forEach(button => button.setAttribute("aria-pressed",String(button.dataset.catalogView === catalogView.value)));
+    const notes = {
+      auction_later:"Od najdalszej licytacji lub zakończenia aukcji czasowej.",
+      recent:"Kolejność według ostatniego zapisu. Data zapisu nie oznacza nowej aukcji.",
+      year_desc:"Rocznik od najnowszych. Pojazdy bez zapisanego rocznika są na końcu.",
+      year_asc:"Rocznik od najstarszych. Pojazdy bez zapisanego rocznika są na końcu.",
+      mileage_asc:"Przebieg od najmniejszego; mile i kilometry porównujemy po przeliczeniu. Brak przebiegu lub jednostki trafia na koniec.",
+      bid_asc:"Według zapisanej oferty w USD. Bez zastępowania ceną sprzedaży lub ofertą warunkową. Aukcje zakończone i brak kwoty są na końcu.",
+      bid_desc:"Według zapisanej oferty w USD. Bez zastępowania ceną sprzedaży lub ofertą warunkową. Aukcje zakończone i brak kwoty są na końcu.",
+      buy_now_asc:"Według zapisanej kwoty Kup teraz w USD. Dostępność wymaga potwierdzenia. Aukcje zakończone i brak kwoty są na końcu."
+    };
+    document.getElementById("catalogSortNote").textContent = notes[catalogSort.value] || "Od najbliższej licytacji lub zakończenia aukcji czasowej.";
+  }
+  catalogSort.addEventListener("change", () => loadCars());
+  document.querySelectorAll("[data-catalog-view]").forEach(button => button.addEventListener("click", () => {
+    catalogView.value = button.dataset.catalogView;
+    updateCatalogPresentation();
+    updateListUrl(new URLSearchParams(window.location.search));
+    if (listedCars.length) renderCars(listedCars, listCatalogPartial, Boolean(listCursor));
+    saveCatalogHistory();
+  }));
+
+  filterButton.addEventListener("click", applyCatalogFilters);
+  advancedFilterButton.addEventListener("click", applyCatalogFilters);
+  const deferInitialFilterSuggestions = !shouldShowCatalog();
+  filterPanelToggle?.addEventListener("click", () => {
+    const expanded = filterPanelToggle.getAttribute("aria-expanded") !== "true";
+    setFilterPanelExpanded(expanded);
+    if (expanded && deferInitialFilterSuggestions) prepareFilterSuggestions();
+  });
+  catalogEditFilters?.addEventListener("click", () => {
+    setFilterPanelExpanded(true);
+    prepareFilterSuggestions();
+    document.getElementById("filterSectionHeading")?.focus({preventScroll:true});
+    document.getElementById("filterSection")?.scrollIntoView({block:"start"});
+  });
+  for (const control of [make, model, advancedFiltersElement.querySelector?.("summary")]) {
+    control?.addEventListener("focus", () => {
+      if (deferInitialFilterSuggestions || control === model) prepareFilterSuggestions();
+    });
+  }
+  advancedFiltersElement.addEventListener("toggle", () => {
+    if (advancedFiltersElement.open) prepareAdvancedFilterSuggestions();
+  });
+
+  for (const definition of filterDefinitions) {
+    definition.element.addEventListener?.("input", updateFilterIndicators);
+    definition.element.addEventListener?.("change", updateFilterIndicators);
+  }
+
+  function clearMakeModels() {
+    ++filterMetadataRequestId;
+    displayedModelScope = "";
+    model.value = "";
+    document.getElementById(model.getAttribute("list"))?.replaceChildren();
+  }
+
+  platform.addEventListener("change", () => {
+    if (make.value.trim() && !make.dataset.ready) prepareFilterSuggestions();
+    return loadCars();
+  });
+  make.addEventListener("input", () => {
+    clearMakeModels();
+    updateFilterIndicators();
+  });
+  make.addEventListener("change", () => {
+    const nextScope = make.value.trim() ? filterMetadataKey(make.value.trim(), platform.value) : "";
+    if (displayedModelScope !== nextScope) clearMakeModels();
+    prepareFilterSuggestions();
+    loadCars();
+  });
+  model.addEventListener("change", () => loadCars());
+  // Year choices apply immediately, including clearing either bound.
+  for (const field of [yearFrom, yearTo]) field.addEventListener("change", () => loadCars());
+  lotStatus.addEventListener("change", () => {
+    if (["buy-now", "timed"].includes(categoryInput.value)) categoryInput.value = lotStatus.value === "Buy Now" ? "buy-now" : lotStatus.value === "Timed" ? "timed" : "";
+    updateFilterIndicators();
+  });
+  fuelType.addEventListener("change", () => {
+    if (categoryInput.value === "electric" && fuelType.value !== "Electric") categoryInput.value = "";
+    updateFilterIndicators();
+  });
+
+  activeFilterChips.addEventListener("click", event => {
+    const button = event.target.closest("button[data-filter-id]");
+    if (!button) return;
+    const previousIndex = [...activeFilterChips.querySelectorAll("button")].indexOf(button);
+    if (!removeCatalogFilter(button.dataset.filterId)) return;
+    const remaining = [...activeFilterChips.querySelectorAll("button")];
+    (remaining[Math.min(previousIndex, remaining.length - 1)] || searchInput)?.focus();
+    loadCars();
+  });
+
+  clearFiltersButton.addEventListener("click", clearAllFilters);
+
+  if (typeof window !== "undefined") {
+    document.addEventListener?.("DOMContentLoaded", () => setCatalogView(shouldShowCatalog()), {once:true});
+    window.addEventListener("popstate", async () => {
+      restoreFiltersFromUrl();
+      const catalogMode = shouldShowCatalog();
+      setCatalogView(catalogMode);
+      if (catalogMode) {
+        prepareFilterSuggestions();
+        restoreCatalogView();
+      }
+      else {
+        activeCatalogController?.abort();
+        activeCatalogController = null;
+        ++listRequestId;
+        loadingMore = false;
+        carsContainer.setAttribute?.("aria-busy", "false");
+        initMarketAisles();
+      }
+    });
+    window.addEventListener("pagehide", saveCatalogHistory);
+    window.addEventListener("pageshow", event => {
+      if (!event.persisted) return;
+      if (shouldShowCatalog()) restoreCatalogView();
+      else refreshHomeAisles();
+    });
+    document.addEventListener?.("visibilitychange", () => {
+      if (document.hidden) clearTimeout(homeAisleExpiryTimer);
+      else refreshHomeAisles();
+    });
+  }
+
+  loadMoreButton.addEventListener("click", () => loadCars({ append: true }));
+  marketShortcuts?.addEventListener("click", event => {
+    const button = event.target.closest("[data-market-filter]");
+    if (button) applyMarketShortcut(button.dataset.marketFilter);
+  });
+
+  carsContainer.addEventListener("click", event => {
+    if (event.target.closest("[data-catalog-retry]")) { loadCars(); return; }
+    if (event.target.closest("[data-clear-catalog]")) { clearAllFilters(); return; }
+    if (event.target.closest('a[href^="/car?"]')) saveCatalogHistory();
+    const button = event.target.closest("button[data-local-action]");
+    if (!button || !localStorageApi) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const selectedCar = listedCars[Number(button.dataset.carIndex)];
+    if (!selectedCar) return;
+    if (button.dataset.localAction === "favorite") Promise.resolve(localStorageApi.toggleFavorite(selectedCar)).finally(() => renderCars(listedCars, listCatalogPartial, Boolean(listCursor)));
+    else renderCars(listedCars, listCatalogPartial, Boolean(listCursor));
+    localStorageApi.refreshCounts();
+  });
+  globalThis.addEventListener?.("rexbid:auth-state", () => renderCars(listedCars, listCatalogPartial, Boolean(listCursor)));
+
+
+  /*
+   * ==========================================================
+  * START
+  * ==========================================================
+  */
+
+  restoreFiltersFromUrl();
+  const catalogMode = shouldShowCatalog();
+  setCatalogView(catalogMode);
+  if (catalogMode) {
+    prepareFilterSuggestions();
+    restoreCatalogView();
+  }
+  else initMarketAisles();
+
+</script>
+
+</body>
+</html>

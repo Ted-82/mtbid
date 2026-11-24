@@ -1,0 +1,11 @@
+.rex-client-tools{padding-top:24px;padding-bottom:42px}
+.rex-client-tools-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:24px}
+.rex-client-tools-grid>a{display:flex;flex-direction:column;padding:28px;border:1px solid #dce4ed;border-radius:14px;background:#fff;color:#102436;text-decoration:none;transition:box-shadow .15s,border-color .15s}
+.rex-client-tools-grid>a:hover{border-color:#bd2740;box-shadow:0 8px 24px #1024360b}
+.rex-client-tools-grid>a:focus-visible{outline:3px solid #287bc1;outline-offset:4px}
+.rex-client-tools-grid h3{font-size:21px;line-height:1.3;margin:15px 0 12px;letter-spacing:-.02em}
+.rex-client-tools-grid p{font-size:14px;line-height:1.75;color:#526477;margin:0 0 24px}
+.rex-tool-number{font-size:11px;font-weight:800;letter-spacing:.08em;color:#a51e34}
+.rex-tool-link{margin-top:auto;font-size:13px;font-weight:750;color:#102436}
+@media(max-width:760px){.rex-client-tools-grid{grid-template-columns:1fr;gap:14px}.rex-client-tools-grid>a{padding:23px}.rex-client-tools-grid h3{font-size:20px}}
+@media(prefers-reduced-motion:reduce){.rex-client-tools-grid>a{transition:none}}

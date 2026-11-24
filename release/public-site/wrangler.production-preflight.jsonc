@@ -1,0 +1,67 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "rexbid-production-preflight",
+  "main": "./worker.js",
+  "compatibility_date": "2026-09-19",
+  "vars": {
+    "REXBID_CANONICAL_ORIGIN": "https://rexbid.pl",
+    "REXBID_PROVIDER_BUDGET_MODE": "required",
+    "REXBID_PROVIDER_BUDGET_DAILY_LIMIT": "500",
+    "REXBID_PROVIDER_BUDGET_CATALOG_DAILY_LIMIT": "250",
+    "REXBID_PROVIDER_BUDGET_DETAIL_DAILY_LIMIT": "150",
+    "REXBID_PROVIDER_BUDGET_HISTORY_DAILY_LIMIT": "60",
+    "REXBID_PROVIDER_BUDGET_DISCOVERY_DAILY_LIMIT": "0",
+    "REXBID_PROVIDER_BUDGET_MEDIA_DAILY_LIMIT": "0",
+    "REXBID_LEGACY_SYNC_ENABLED": "false",
+    "REXBID_D1_PRIMARY_READS": "false",
+    "REXBID_TRANSPORT_CALCULATOR_ENABLED": "enabled",
+    "REXBID_TRANSPORT_CALCULATOR_ALLOWED_ORIGINS": "https://rexbid.pl",
+    "REXBID_CALCULATOR_V3_ENABLED": "enabled",
+    "REXBID_CALCULATOR_V3_ALLOWED_ORIGINS": "https://rexbid.pl",
+    "REXBID_RELEASE_ORIGIN": "https://rexbid.pl",
+    "REXBID_RELEASE_D1_TARGET": "rexbid-production-preflight-db",
+    "REXBID_RELEASE_D1_DATABASE_ID": "c8a30088-70af-43a6-9a7f-c4018279d37d",
+    "REXBID_PRODUCTION_UI_ENABLED": "enabled",
+    "AUTH_ENABLED": "false",
+    "REXBID_PORTAL_ENABLED": "disabled",
+    "REXBID_PORTAL_FILES_ENABLED": "disabled",
+    "REXBID_CALCULATOR_V4_ENABLED": "enabled",
+    "REXBID_CALCULATOR_V4_ALLOWED_ORIGINS": "https://rexbid.pl",
+    "AUTH_RECOVERY_MODE": "email-token",
+    "AUTH_RATE_LIMITING_MODE": "cloudflare",
+    "REXBID_PRODUCTION_SUPABASE_PROJECT_REF": "kkwbqzndildovbblbkcx",
+    "AUTH_CANONICAL_ORIGIN": "https://rexbid.pl",
+    "AUTH_ALLOWED_ORIGINS": "https://rexbid.pl"
+  },
+  "d1_databases": [
+    {
+      "binding": "REXBID_DB",
+      "database_name": "rexbid-production-preflight-db",
+      "database_id": "c8a30088-70af-43a6-9a7f-c4018279d37d"
+    }
+  ],
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [],
+  "ratelimits": [
+    {
+      "name": "AUTH_RATE_LIMITER",
+      "simple": {
+        "period": 60,
+        "limit": 30
+      },
+      "namespace_id": "2026100601"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "bucket_name": "rexbid-production-private-files",
+      "binding": "REXBID_PRIVATE_FILES"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "name": "rexbid",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test",
+    "check:config": "node scripts/validate-worker-config.cjs",
+    "check:production": "node scripts/validate-production-release.cjs",
+    "check:commercial": "node scripts/validate-commercial-profile.cjs",
+    "check:rates": "node scripts/build-calculator-v4-rates.cjs --check",
+    "review:build": "node scripts/build-v5-review.cjs",
+    "check:parity": "node scripts/check-v5-calculator-parity.cjs",
+    "check:production-site": "node scripts/validate-production-site.cjs",
+    "check:production-portal": "node scripts/prepare-production-portal.cjs --check"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "dotenv": "^18.0.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0"
+  },
+  "devDependencies": {
+    "jsdom": "30.1.2"
+  },
+  "engines": {
+    "node": "^22.22.2 || ^24.15.0 || >=26"
+  }
+}

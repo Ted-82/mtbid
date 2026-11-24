@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="same-origin">
+  <title>Moje importy | REXBID</title>
+  <link rel="stylesheet" href="/rexbid-brand.css?v=20261117-integrated">
+  <link rel="stylesheet" href="/rexbid-client-portal.css?v=20261118-owner-contact">
+  <script src="/rexbid-client-portal.js?v=20261118-owner-contact" defer></script>
+</head>
+<body data-portal-view="client">
+  <a class="portal-skip" href="#portalMain">Przejdź do treści</a>
+  <header class="portal-header">
+    <div class="header-inner">
+      <a class="logo" href="/" aria-label="REXBID — strona główna"><img class="rexbid-brand-image" src="/rexbid-logo-20261117-dark.webp" width="420" height="159" alt=""><span class="brand-note">RYNEK AUKCYJNY USA</span></a>
+      <span class="portal-header-label">Panel klienta</span>
+      <nav aria-label="Nawigacja panelu">
+        <a href="/?catalog=1#results">Aukcje</a>
+        <a href="/panel.html" aria-current="page">Moje importy</a>
+        <a href="/konto.html">Konto</a>
+      </nav>
+    </div>
+  </header>
+  <main id="portalMain" class="portal-main">
+    <div class="portal-heading">
+      <div><p class="portal-eyebrow">Wszystko w jednym miejscu</p><h1>Moje importy</h1><p class="portal-intro">Etapy importu i rozmowa z REXBID — przy Twoim samochodzie.</p></div>
+      <a id="portalOwnerLink" class="portal-button portal-button-secondary" href="/administracja.html" hidden>Panel właściciela</a>
+    </div>
+    <div id="portalNotice" class="portal-notice" role="status" aria-live="polite">Sprawdzam dostęp do panelu…</div>
+    <section id="portalGate" class="portal-gate" hidden aria-labelledby="portalGateTitle">
+      <div class="portal-gate-icon" aria-hidden="true">↗</div>
+      <h2 id="portalGateTitle"></h2><p id="portalGateText"></p>
+      <a id="portalLogin" class="portal-button" href="/logowanie.html?return_to=%2Fpanel.html" hidden>Zaloguj się do REXBID</a>
+    </section>
+    <section id="portalWorkspace" hidden aria-label="Realizacja importu">
+      <div class="portal-summary" id="portalSummary"></div>
+      <div class="portal-workspace">
+        <aside class="portal-orders-panel" aria-labelledby="portalOrdersTitle">
+          <div class="portal-panel-heading"><div><p class="portal-eyebrow">Twoje pojazdy</p><h2 id="portalOrdersTitle">Realizowane importy</h2></div><button id="portalRefresh" class="portal-icon-button" type="button" aria-label="Odśwież listę importów">↻</button></div>
+          <div id="portalOrders" class="portal-orders"></div>
+          <div class="portal-pagination"><button id="portalPrevious" class="portal-button portal-button-secondary" type="button" hidden>Poprzednie</button><button id="portalNext" class="portal-button portal-button-secondary" type="button" hidden>Kolejne</button></div>
+          <div id="portalCreateMount"></div>
+        </aside>
+        <div id="portalDetail" class="portal-detail" tabindex="-1"></div>
+      </div>
+    </section>
+  </main>
+  <footer class="portal-footer"><div><strong>REX<span>BID</span></strong><span>Import samochodów z USA</span></div><a href="/kontakt.html">Kontakt z REXBID</a><span>© 2026 REXBID</span></footer>
+</body>
+</html>

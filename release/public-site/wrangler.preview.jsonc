@@ -1,0 +1,31 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "rexbid-preview",
+  "main": "./worker.preview.js",
+  "compatibility_date": "2026-09-19",
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [{"pattern": "preview.rexbid.pl", "custom_domain": true}],
+  "vars": {
+    "REXBID_PREVIEW_ENABLED": "enabled",
+    "REXBID_PUBLIC_PREVIEW_ENABLED": "enabled",
+    "REXBID_PREVIEW_ORIGIN": "https://preview.rexbid.pl",
+    "REXBID_PREVIEW_D1_TARGET": "rexbid-auth-test-db",
+    "REXBID_PREVIEW_D1_DATABASE_ID": "acb3cb8e-69a2-459f-8a46-0f2f5b9004be",
+    "REXBID_PREVIEW_MAX_AGE_MS": "86400000",
+    "AUTH_ENABLED": "false",
+    "REXBID_LEGACY_SYNC_ENABLED": "false",
+    "REXBID_CALCULATOR_V4_ENABLED": "enabled",
+    "REXBID_CALCULATOR_V4_ALLOWED_ORIGINS": "https://preview.rexbid.pl",
+    "REXBID_TRANSPORT_CALCULATOR_ENABLED": "enabled",
+    "REXBID_TRANSPORT_CALCULATOR_ALLOWED_ORIGINS": "https://preview.rexbid.pl",
+    "REXBID_CALCULATOR_V3_ENABLED": "enabled",
+    "REXBID_CALCULATOR_V3_ALLOWED_ORIGINS": "https://preview.rexbid.pl"
+  },
+  "d1_databases": [{
+    "binding": "REXBID_DB",
+    "database_name": "rexbid-auth-test-db",
+    "database_id": "acb3cb8e-69a2-459f-8a46-0f2f5b9004be"
+  }],
+  "assets": {"directory": "./public", "binding": "ASSETS", "run_worker_first": true}
+}

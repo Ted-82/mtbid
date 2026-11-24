@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Obserwowane | REXBID</title>
+
+  <style>
+    [hidden] { display: none !important; }
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f7fa;
+      color: #172033;
+    }
+
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .header-inner {
+      max-width: 1250px;
+      margin: auto;
+      min-height: 76px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 25px;
+    }
+
+    .logo {
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      color: #111827;
+      text-decoration: none;
+    }
+
+    .logo span {
+      color: #e11d48;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #374151;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    nav a:hover {
+      color: #e11d48;
+    }
+
+    .auth {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 9px;
+      padding: 11px 16px;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-outline {
+      border: 1px solid #d1d5db;
+      background: white;
+      color: #111827;
+    }
+
+    .btn-red {
+      background: #e11d48;
+      color: white;
+    }
+
+    .container {
+      max-width: 1250px;
+      margin: auto;
+      padding: 45px 24px 70px;
+    }
+
+    .top {
+      margin-bottom: 30px;
+    }
+
+    .top h1 {
+      margin: 0 0 10px;
+      font-size: 36px;
+    }
+
+    .top p {
+      margin: 0;
+      color: #6b7280;
+      font-size: 16px;
+    }
+
+    .counter {
+      display: inline-flex;
+      margin-top: 18px;
+      background: #fff1f2;
+      color: #be123c;
+      border: 1px solid #fecdd3;
+      padding: 8px 13px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 8px 25px rgba(15, 23, 42, 0.05);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 35px rgba(15, 23, 42, 0.09);
+    }
+
+    .image-wrap {
+      height: 220px;
+      background: #e5e7eb;
+      position: relative;
+    }
+
+    .image-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .demo {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: #111827;
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 6px 9px;
+      border-radius: 7px;
+    }
+
+    .remove {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 0;
+      background: white;
+      color: #e11d48;
+      font-size: 21px;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0,0,0,.15);
+    }
+
+    .body {
+      padding: 18px;
+    }
+
+    .platform {
+      font-size: 12px;
+      font-weight: 900;
+      color: #e11d48;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 6px;
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 13px;
+      color: #111827;
+    }
+
+    .info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .info-item {
+      background: #f8fafc;
+      border-radius: 9px;
+      padding: 9px;
+    }
+
+    .label {
+      display: block;
+      color: #6b7280;
+      font-size: 11px;
+      margin-bottom: 3px;
+    }
+
+    .value {
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .price {
+      font-size: 23px;
+      font-weight: 900;
+      margin-bottom: 14px;
+      color: #111827;
+    }
+
+    .actions {
+      display: flex;
+      gap: 9px;
+    }
+
+    .actions a,
+    .actions button {
+      flex: 1;
+      text-align: center;
+    }
+
+    .empty {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+      padding: 70px 25px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(15, 23, 42, 0.04);
+    }
+
+    .empty-icon {
+      font-size: 60px;
+      margin-bottom: 15px;
+    }
+
+    .empty h2 {
+      margin: 0 0 10px;
+      font-size: 28px;
+    }
+
+    .empty p {
+      color: #6b7280;
+      margin: 0 auto 25px;
+      max-width: 550px;
+      line-height: 1.6;
+    }
+
+    footer {
+      background: #111827;
+      color: #d1d5db;
+      padding: 35px 24px;
+      margin-top: 20px;
+    }
+
+    .footer-inner {
+      max-width: 1250px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 25px;
+      flex-wrap: wrap;
+    }
+
+    .footer-logo {
+      color: white;
+      font-weight: 900;
+      font-size: 22px;
+    }
+
+    @media (max-width: 950px) {
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      nav {
+        display: none;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .header-inner {
+        min-height: 65px;
+        padding: 0 16px;
+      }
+
+      .logo {
+        font-size: 25px;
+      }
+
+      .auth .btn-outline {
+        display: none;
+      }
+
+      .container {
+        padding: 30px 16px 50px;
+      }
+
+      .top h1 {
+        font-size: 30px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .image-wrap {
+        height: 230px;
+      }
+    }
+  .device-note{margin-top:8px!important;font-size:12px!important;color:#7b8791!important}.saved-car-link{display:block;text-decoration:none;color:inherit}.no-image{height:100%;display:grid;place-items:center;color:#6b7280}.saved-actions{display:flex;gap:8px;padding:0 18px 18px}.saved-actions .btn{flex:1;text-align:center}.price small{font-size:11px;color:#6b7280}@media(max-width:620px){.saved-actions{flex-direction:column}}
+  .favorites-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.favorites-links a{font-size:12px;font-weight:800;color:#805b11;text-decoration:none}
+  .saved-price-missing{display:block;font-size:17px;line-height:1.4}
+  .card[hidden],.cloud-favorite[hidden]{display:none!important}.saved-catalog-note{padding:14px 16px;margin:0 0 22px;border:1px solid #d9e2eb;border-radius:10px;background:#edf3f8;color:#42576c;font-size:13px;line-height:1.6}.saved-view-state{margin:0 0 14px;padding:9px 11px;border-radius:7px;background:#fff7e5;color:#6b501c;font-size:12px;line-height:1.5}.saved-view-ready{background:#edf3f8;color:#42576c}.saved-observation{margin:12px 0 0;font-size:12px;line-height:1.55;color:#526477}.saved-buy-now{display:flex;justify-content:space-between;gap:12px;padding-top:10px;border-top:1px solid #e5e7eb;font-size:13px}.saved-buy-now span{color:#526477}.saved-pagination{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:16px;margin-top:25px;font-size:13px;color:#526477}.info-item{min-width:0}.info-item .value{overflow-wrap:anywhere}.cloud-favorite .saved-catalog-body{padding:0}.cloud-favorite .cloud-favorite-actions{margin-top:auto}.cloud-favorite{display:flex;flex-direction:column}.cloud-favorite>a{margin-bottom:6px}.cloud-favorite .cloud-favorite-identity{overflow-wrap:anywhere}.price{overflow-wrap:anywhere}
+</style>
+
+<link rel="stylesheet" href="/rexbid-brand.css?v=20261117-integrated" />
+<script src="/rexbid-mobile-nav.js?v=baf47bbe1e" defer></script>
+<noscript data-rex-navigation-fallback><style>header .rex-menu-toggle{display:none!important}header .header-inner,header .header,header .bar{flex-wrap:wrap}header nav.rex-primary-nav{display:flex!important;position:static;flex-wrap:wrap;width:auto;box-shadow:none}</style></noscript></head>
+
+<body>
+
+<header>
+  <div class="header-inner">
+
+    <a href="/" class="logo" aria-label="REXBID — strona główna"><img class="rexbid-brand-image" src="/rexbid-logo-20261117-dark.webp" width="420" height="159" alt=""><span class="brand-note">RYNEK AUKCYJNY USA</span></a>
+
+    <button class="rex-menu-toggle" type="button" aria-label="Otwórz menu główne" aria-expanded="false" aria-controls="rexPrimaryNav">☰</button><nav class="rex-primary-nav" id="rexPrimaryNav" aria-label="Nawigacja główna"><a href="/?catalog=1#results">Aukcje</a><a href="/jak-to-dziala">Jak to działa</a><a href="/ulubione" aria-current="page">Ulubione <span data-rexbid-count="favorites">0</span></a><a href="/konto">Konto</a><a href="/pomoc">Pomoc</a><a href="/kontakt">Kontakt</a></nav>
+
+    <div class="auth">
+      <a href="logowanie.html" class="btn btn-outline">Zaloguj</a>
+      <a href="rejestracja.html" class="btn btn-red">Rejestracja</a>
+    </div>
+
+  <div class="rexbid-auth-nav" data-rexbid-auth-nav aria-label="Konto użytkownika"></div></div>
+</header>
+
+<main class="container">
+
+  <div class="top">
+    <h1>Ulubione samochody</h1>
+    <p>Twoje wybrane samochody w jednym miejscu.</p><p class="device-note">Ulubione zapisane na tym urządzeniu.</p>
+    <div class="favorites-links"><a href="/?catalog=1#results">‹ Przeglądaj samochody</a><a href="/porownaj.html">Porównaj wybrane auta →</a></div>
+
+    <div class="counter" id="counter">
+      0 zapisanych samochodów
+    </div>
+  </div>
+
+  <div id="content"></div>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-logo">REX<span>BID</span></div>
+      <div style="margin-top:8px;">Aukcje samochodów z USA</div>
+    </div>
+
+    <div>
+      © 2026 REXBID
+    </div>
+  </div>
+<div class="rex-operator"><div><span>Podmiot prowadzący REXBID: <strong>REX AUTO CARGOLOOP L.L.C</strong></span><address class="rex-company-address">1209 Mountain Road Pl NE, Ste N<br>Albuquerque, NM 87110, United States</address></div><nav class="rex-legal-links" aria-label="Informacje o serwisie"><a href="/o-nas.html">O nas</a><a href="/kontakt.html">Kontakt</a><a href="/warunki.html">Warunki korzystania</a><a href="/prywatnosc.html">Prywatność</a></nav></div></footer>
+
+<link rel="stylesheet" href="/rexbid-compare.css?v=20261025">
+<script src="/rexbid-compare.js?v=20261114-sections" defer></script>
+<script src="/rexbid-storage.js?v=61ff9ecd8bc8"></script>
+<script src="/rexbid-auth.js?v=21437df8759b"></script>
+<script src="/rexbid-saved-vehicles.js?v=20261114-sections"></script>
+<script>
+(() => {
+  const storage = window.RexBidStorage;
+  const content = document.getElementById("content");
+  const counter = document.getElementById("counter");
+  const esc = storage.escapeHtml;
+  const money = value => value === null || value === undefined || !Number.isFinite(Number(value)) ? "" : new Intl.NumberFormat("en-US", {style:"currency",currency:"USD",maximumFractionDigits:0}).format(Number(value));
+  const approvalPending = auction => /sold on approval|approval pending|pending approval|awaiting approval|on approval/.test(String(auction?.outcome_status || auction?.last_sold_status || "").toLowerCase().replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim());
+  const statusLabel = (auction, now = Date.now()) => {
+    const state = String(auction?.state || "").toLowerCase();
+    const outcome = String(auction?.outcome_status || "").toLowerCase();
+    if (/not.?sold|no.?sale|unsold/.test(outcome) || ["not_sold", "no_sale"].includes(state)) return "Niesprzedana";
+    if (approvalPending(auction)) return "Oferta warunkowa · wynik niepotwierdzony";
+    if (/\bsold\b/.test(outcome) || state === "sold" || auction?.sold_timed) return "Sprzedana";
+    if (["finished", "closed", "ended"].includes(state)) return "Zakończona";
+    if (state === "live") return "Trwa";
+    const auctionTime = Date.parse(auction?.date || auction?.full_date || "");
+    if (Number.isFinite(auctionTime) && auctionTime < now && (["open", "active", "upcoming"].includes(state) || auction?.is_timed)) return "Termin minął · wynik do potwierdzenia";
+    if (auction?.is_timed || String(auction?.lot_status || "").toLowerCase() === "timed") return "Timed Auction";
+    if (["open", "active"].includes(state)) return "Przed licytacją";
+    return "Nadchodząca · termin nieustalony";
+  };
+  const auctionDateLabel = value => {
+    const timestamp = Date.parse(value || "");
+    if (!Number.isFinite(timestamp)) return "—";
+    return new Intl.DateTimeFormat("pl-PL", { dateStyle: "medium", ...(/^\d{4}-\d{2}-\d{2}$/.test(value) ? {} : {timeStyle:"short"}), timeZone:"Europe/Warsaw" }).format(new Date(timestamp));
+  };
+  const storedStatusLabel = auction => {
+    const state = String(auction?.state || "").toLowerCase();
+    const outcome = String(auction?.outcome_status || "").toLowerCase();
+    if (approvalPending(auction) || /\bsold\b|not.?sold|no.?sale|unsold/.test(outcome)
+      || ["finished", "closed", "ended", "sold", "not_sold", "no_sale"].includes(state) || auction?.sold_timed)
+      return statusLabel(auction) + " · zapis danych";
+    return "Status do potwierdzenia";
+  };
+  const observationNote = car => {
+    const observed = car.read?.last_synced_at || car.read?.last_seen_at || car.read?.observed_at;
+    const date = observed ? auctionDateLabel(observed) : "—";
+    return (date === "—" ? "Data obserwacji nieustalona. " : `Zapis danych aukcji z ${date}. `)
+      + "Cenę, termin i dostępność potwierdź w oryginalnej aukcji.";
+  };
+  function priceInfo(car) {
+    const pricing = car.pricing || {};
+    const state = String(car.auction?.state || "").toLowerCase();
+    const finished = ["finished","sold","closed","ended","not_sold","no_sale"].includes(state);
+    const bid = value => (typeof value === "number" || typeof value === "string" && value.trim() !== "") && Number.isFinite(Number(value)) && Number(value) > 0;
+    const positive = value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)) && Number(value) > 0;
+    if (finished && approvalPending(car.auction)) return ["Cena sprzedaży niepotwierdzona", null];
+    if (finished && positive(pricing.sale_price_usd)) return ["Cena sprzedaży", pricing.sale_price_usd];
+    if (finished && positive(pricing.final_price_usd)) return ["Cena sprzedaży", pricing.final_price_usd];
+    if (finished && positive(pricing.last_sold_price_usd)) return ["Ostatnia cena sprzedaży", pricing.last_sold_price_usd];
+    if (!finished && bid(pricing.current_bid_usd)) return ["Ostatnia zapisana oferta", pricing.current_bid_usd];
+    if (!finished && !Object.prototype.hasOwnProperty.call(pricing, 'current_bid_usd') && bid(pricing.current_bid2_usd)) return ["Ostatnia zapisana oferta", pricing.current_bid2_usd];
+    if (!finished && positive(pricing.buy_now_usd)) return ["Kup teraz · zapis danych", pricing.buy_now_usd];
+    return ["Brak danych o ofercie", null];
+  }
+  function render() {
+    const cars = storage.getFavorites();
+    counter.textContent = cars.length === 1 ? "1 obserwowany samochód" : `${cars.length} obserwowanych samochodów`;
+    storage.refreshCounts();
+    if (!cars.length) {
+      content.innerHTML = '<div class="empty"><div class="empty-icon">♡</div><h2>Nie masz jeszcze obserwowanych aut</h2><p>Dodaj samochód z listy lub jego karty. Zapis pozostaje na tym urządzeniu.</p><a href="/" class="btn btn-red">Przeglądaj aukcje</a></div>';
+      return;
+    }
+    content.innerHTML = `<div class="grid">${cars.map((car, index) => {
+      const image = storage.safeImageUrl(car.image);
+      const title = car.title || [car.year, car.make, car.model, car.series].filter(Boolean).join(" ") || "Samochód";
+      const p = priceInfo(car);
+      const href = storage.detailHref(car);
+      return `<article class="card"><a class="saved-car-link" href="${esc(href)}"><div class="image-wrap">${image ? `<img src="${esc(image)}" alt="${esc(title)}" loading="lazy">` : '<div class="no-image">Brak zdjęcia</div>'}<div class="demo">${esc(car.platform || "AUKCJA")}</div></div><div class="body"><div class="platform">${esc(car.platform || "AUKCJA")}</div><div class="title">${esc(title)}</div><div class="info"><div class="info-item"><span class="label">VIN</span><span class="value">${esc(car.vin || "—")}</span></div><div class="info-item"><span class="label">LOT</span><span class="value">${esc(car.lot || "—")}</span></div><div class="info-item"><span class="label">Przebieg</span><span class="value">${esc(car.odometer || "—")}</span></div><div class="info-item"><span class="label">Lokalizacja</span><span class="value">${esc(car.location || "—")}</span></div><div class="info-item"><span class="label">Status</span><span class="value">${esc(storedStatusLabel(car.auction))}</span></div><div class="info-item"><span class="label">Termin z zapisu</span><span class="value">${esc(auctionDateLabel(car.auction?.date || car.auction?.full_date))}</span></div><div class="info-item"><span class="label">Sprzedający</span><span class="value">${esc(car.seller || "—")}</span></div></div><div class="price"><small>${esc(p[0] === "Brak danych o ofercie" ? "Zapisana oferta" : p[0])}</small><br>${p[1] === null ? '<span class="saved-price-missing">Brak danych o ofercie</span>' : esc(money(p[1]))}</div><p class="saved-observation" style="margin:12px 0 0;font-size:11px;line-height:1.5;color:#526477">${esc(observationNote(car))}</p></div></a><div class="saved-actions"><button type="button" data-compare-lot="${esc(car.lot || '')}" data-compare-platform="${esc(String(car.platform || '').toLowerCase())}" aria-pressed="false">Porównaj</button><button class="btn btn-outline" type="button" data-action="remove" data-index="${index}">Usuń z obserwowanych</button></div></article>`;
+    }).join("")}</div>`;
+  }
+  content.addEventListener("click", event => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+    event.preventDefault();
+    const car = storage.getFavorites()[Number(button.dataset.index)];
+    if (!car) return;
+    if (button.dataset.action === "remove") storage.removeFavorite(car.id);
+    render();
+  });
+  window.RexBidSavedVehicles?.mount({ content, storage });
+  function initialize() {
+    if (window.RexBidAuth?.enabled) {
+      globalThis.addEventListener?.("rexbid:auth-state", () => {
+        if (window.RexBidAuth.status !== "authenticated") render();
+      });
+      window.RexBidAuth.mountFavoritesPage({ content, counter, storage }).then(mounted => { if (!mounted) render(); }).catch(() => {
+        if (window.RexBidAuth.status !== "authenticated") render();
+        else content.textContent = "Nie udało się wczytać ulubionych. Spróbuj ponownie.";
+      });
+    } else render();
+  }
+  // Configuration is asynchronous; wait before choosing local or account favorites.
+  if (window.RexBidAuth?.ready) window.RexBidAuth.ready.then(initialize, initialize);
+  else initialize();
+})();
+</script>
+
+</body>
+</html>

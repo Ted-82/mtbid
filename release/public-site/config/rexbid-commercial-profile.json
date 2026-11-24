@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "profile_id": "rexbid-standard-import-draft",
+  "version": "2026-10-06-draft-1",
+  "transport_reference": {
+    "asset": "public/rexbid-calculator-v4-rates.js",
+    "content_version": "rex-partner-v4-f0a67460b203286f",
+    "currency": "USD",
+    "scope": "Existing partner transport rates; commercial services and destination require confirmation."
+  },
+  "stage1": {
+    "destination_port": { "value": null, "status": "unknown", "source": null, "confirmed_on": null },
+    "clearance_country": { "value": null, "status": "unknown", "source": null, "confirmed_on": null },
+    "freight_scope": { "value": null, "status": "unknown", "source": null, "confirmed_on": null },
+    "eu_arrival_package": {
+      "amount": null, "currency": null, "unit": null, "tax_basis": null,
+      "covers": null, "scope": null, "status": "unknown", "source": null,
+      "confirmed_on": null, "effective_from": null, "effective_until": null
+    },
+    "eu_arrival_costs": []
+  },
+  "stage2": {
+    "rexbid_commission": {
+      "amount": null, "currency": null, "unit": null, "tax_basis": null,
+      "covers": null, "scope": null, "status": "unknown", "source": null,
+      "confirmed_on": null, "effective_from": null, "effective_until": null
+    },
+    "poland_delivery": {
+      "amount": null, "currency": null, "unit": null, "tax_basis": null,
+      "covers": null, "scope": null, "status": "unknown", "source": null,
+      "confirmed_on": null, "effective_from": null, "effective_until": null
+    }
+  },
+  "stage3": {
+    "copart_account_profile": { "value": null, "status": "unknown", "source": null, "confirmed_on": null },
+    "iaai_account_profile": { "value": null, "status": "unknown", "source": null, "confirmed_on": null }
+  },
+  "stage4": {
+    "transport_validity": { "value": null, "status": "unknown", "source": null, "confirmed_on": null },
+    "exception_rules": { "value": null, "status": "unknown", "source": null, "confirmed_on": null },
+    "additional_costs": []
+  }
+}

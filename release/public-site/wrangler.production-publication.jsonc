@@ -1,0 +1,90 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "rexbid-production-preflight",
+  "main": "./worker.publication.js",
+  "compatibility_date": "2026-09-19",
+  "vars": {
+    "REXBID_CANONICAL_ORIGIN": "https://rexbid.pl",
+    "REXBID_PROVIDER_BUDGET_MODE": "required",
+    "REXBID_PROVIDER_BUDGET_DAILY_LIMIT": "500",
+    "REXBID_PROVIDER_BUDGET_CATALOG_DAILY_LIMIT": "250",
+    "REXBID_PROVIDER_BUDGET_DETAIL_DAILY_LIMIT": "150",
+    "REXBID_PROVIDER_BUDGET_HISTORY_DAILY_LIMIT": "60",
+    "REXBID_PROVIDER_BUDGET_DISCOVERY_DAILY_LIMIT": "0",
+    "REXBID_PROVIDER_BUDGET_MEDIA_DAILY_LIMIT": "0",
+    "REXBID_LEGACY_SYNC_ENABLED": "false",
+    "REXBID_D1_PRIMARY_READS": "false",
+    "REXBID_TRANSPORT_CALCULATOR_ENABLED": "enabled",
+    "REXBID_TRANSPORT_CALCULATOR_ALLOWED_ORIGINS": "https://rexbid.pl",
+    "REXBID_CALCULATOR_V3_ENABLED": "enabled",
+    "REXBID_CALCULATOR_V3_ALLOWED_ORIGINS": "https://rexbid.pl",
+    "REXBID_CALCULATOR_V4_ENABLED": "enabled",
+    "REXBID_CALCULATOR_V4_ALLOWED_ORIGINS": "https://rexbid.pl",
+    "REXBID_RELEASE_ORIGIN": "https://rexbid.pl",
+    "REXBID_RELEASE_D1_TARGET": "rexbid-production-preflight-db",
+    "REXBID_RELEASE_D1_DATABASE_ID": "c8a30088-70af-43a6-9a7f-c4018279d37d",
+    "REXBID_PRODUCTION_UI_ENABLED": "enabled",
+    "AUTH_ENABLED": "true",
+    "REXBID_PORTAL_ENABLED": "enabled",
+    "REXBID_PORTAL_FILES_ENABLED": "disabled",
+    "AUTH_RECOVERY_MODE": "email-token",
+    "AUTH_RATE_LIMITING_MODE": "cloudflare",
+    "REXBID_PRODUCTION_SUPABASE_PROJECT_REF": "kkwbqzndildovbblbkcx",
+    "AUTH_CANONICAL_ORIGIN": "https://rexbid.pl",
+    "AUTH_ALLOWED_ORIGINS": "https://rexbid.pl",
+    "REXBID_PUBLICATION_PHASE": "portal-no-files",
+    "REXBID_PUBLIC_CATALOG_MODE": "stored",
+    "AUTH_D1_SCHEMA_VERSION": "0003",
+    "REXBID_PORTAL_SCHEMA_VERSION": "0006",
+    "REXBID_AUTO_REFRESH_ENABLED": "enabled",
+    "REXBID_AUTO_REFRESH_TIMED_ENABLED": "enabled",
+    "REXBID_AUTO_REFRESH_DATABASE_ID": "c8a30088-70af-43a6-9a7f-c4018279d37d",
+    "REXBID_AUTO_REFRESH_DAILY_LIMIT": "500",
+    "REXBID_AUTO_REFRESH_MONTHLY_LIMIT": "12000",
+    "REXBID_AUTO_REFRESH_MAX_PER_RUN": "8",
+    "REXBID_AUTO_REFRESH_NEW_LISTINGS_DAILY_LIMIT": "2000",
+    "REXBID_AUTO_REFRESH_QUOTA_RESERVE": "500",
+    "REXBID_CATALOG_MEMBERSHIP_ENABLED": "enabled",
+    "REXBID_TAXONOMY_CACHE_ENABLED": "enabled"
+  },
+  "d1_databases": [
+    {
+      "binding": "REXBID_DB",
+      "database_name": "rexbid-production-preflight-db",
+      "database_id": "c8a30088-70af-43a6-9a7f-c4018279d37d"
+    }
+  ],
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [
+    {
+      "pattern": "rexbid.pl",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.rexbid.pl",
+      "custom_domain": true
+    }
+  ],
+  "ratelimits": [
+    {
+      "name": "AUTH_RATE_LIMITER",
+      "simple": {
+        "period": 60,
+        "limit": 30
+      },
+      "namespace_id": "2026100601"
+    }
+  ],
+  "account_id": "7ff5a57444667c4eda2a6a7f0fc4120d",
+  "triggers": {
+    "crons": [
+      "*/15 * * * *"
+    ]
+  }
+}

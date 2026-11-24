@@ -1,0 +1,115 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {test}=require('node:test');
+const {DatabaseSync}=require('node:sqlite');
+const {classify,createTrafficHandler,RexBidTraffic,dayKey,excludeVerifiedHistoricalTests}=require('../portal/traffic.cjs');
+const {ownerTrafficPreference}=require('../auth/traffic-preference.cjs');
+const page=new Response('',{headers:{'content-type':'text/html'}});
+function browse(path,extras={},country='PL') {
+  const req=new Request('https://rexbid.pl'+path,{headers:{'sec-fetch-mode':'navigate','sec-fetch-dest':'document',...extras}});
+  req.cf={country};
+  return req;
+}
+test('public pages classify only coarse location and recognized referrer, ignoring private, automated and opted-out browsing',()=>{
+  assert.deepEqual(classify(browse('/car?lot=private',{referer:'https://www.google.pl/search?q=secret'}),page),{country:'PL',source:'google'});
+  assert.deepEqual(classify(browse('/',{referer:'https://l.instagram.com/?x=secret'},'DE'),page),{country:'DE',source:'instagram'});
+  assert.deepEqual(classify(browse('/',{referer:'https://www.rexbid.pl/?secret'}),page),{country:'PL',source:null});
+  assert.deepEqual(classify(browse('/',{'sec-fetch-site':'same-origin'}),page),{country:'PL',source:null});
+  assert.deepEqual(classify(browse('/',{},'XX'),page),{country:'ZZ',source:'direct'});
+  const warsaw=browse('/',{referer:'https://www.google.pl/'});
+  warsaw.cf.city='Warsaw';
+  assert.deepEqual(classify(warsaw,page),{country:'PL',source:'google',city:'Warszawa'});
+  const testVisit=browse('/?rex_traffic_test=1',{referer:'https://www.google.pl/'});
+  testVisit.cf.city='Warsaw';
+  assert.equal(classify(testVisit,page),null);
+  for(const path of ['/administracja','/panel','/logowanie','/api/cars','/rexbid.js']) assert.equal(classify(browse(path),page),null);
+  for(const extra of [{dnt:'1'},{'sec-gpc':'1'},{'sec-purpose':'prefetch'},{'user-agent':'Googlebot'},{'sec-fetch-dest':'iframe'}]) assert.equal(classify(browse('/',extra),page),null);
+  assert.equal(classify(browse('/'),new Response('',{status:503})),null);
+});
+test('only the owner is issued the browser exclusion, and explicit test requests never count',()=>{
+  const env={REXBID_OWNER_USER_ID:'owner'};
+  assert.deepEqual(ownerTrafficPreference(browse('/'),env,{id:'client'}),[]);
+  assert.deepEqual(ownerTrafficPreference(new Request('https://other.test/'),env,{id:'owner'}),[]);
+  const [preference]=ownerTrafficPreference(browse('/'),env,{id:'owner'});
+  assert.match(preference,/; Path=\/; Max-Age=31536000; Secure; HttpOnly; SameSite=Lax$/);
+  const cookie=preference.split(';')[0];
+  assert.equal(classify(browse('/',{cookie,referer:'https://google.com/'}),page),null);
+  assert.deepEqual(ownerTrafficPreference(browse('/',{cookie}),env,{id:'owner'}),[]);
+  assert.equal(classify(browse('/',{'x-rexbid-traffic-test':'1',referer:'https://facebook.com/'}),page),null);
+  assert.equal(classify(browse('/car?rex_traffic_test=1'),page),null);
+  assert.equal(classify(browse('/car?rex_traffic_test=0'),page).source,'direct');
+  assert.equal(classify(browse('/',{cookie:'__Host-rexbid_session=client'}),page).source,'direct');
+});
+test('historic correction removes only the two independently confirmed tests, with all four matching totals',()=>{
+  const [day,later]=['2026-11-13','2026-11-14'];
+  const row=(day,kind,label,n)=>({day,kind,label,n});
+  const rows=[row(day,'view','',7),row(day,'country','PL',5),row(day,'source','google',2),row(day,'source','facebook',1),row(day,'source','direct',3),row(day,'country','DE',1),row(later,'source','facebook',1)];
+  assert.deepEqual(excludeVerifiedHistoricalTests(rows),[row(day,'view','',5),row(day,'country','PL',3),row(day,'source','google',1),row(day,'source','direct',3),row(day,'country','DE',1),row(later,'source','facebook',1)]);
+  assert.equal(rows[0].n,7);
+  const partial=rows.filter(r=>r.day!==day||r.label!=='facebook');
+  assert.deepEqual(excludeVerifiedHistoricalTests(partial),partial);
+});
+test('traffic endpoint only permits MFA-verified owner, with no private cache',async()=>{
+  let account={status:401},reads=0;
+  const handler=createTrafficHandler(async()=>account);
+  const env={AUTH_CANONICAL_ORIGIN:'https://rexbid.pl',REXBID_OWNER_USER_ID:'owner',
+    REXBID_TRAFFIC:{getByName:()=>({fetch:async()=>{reads++;return Response.json({views:3,visits:1})}})}};
+  const request=new Request('https://rexbid.pl/api/portal/admin/traffic?days=7');
+  assert.equal((await handler(request,env)).status,401);
+  account={status:200,user:{id:'client'},assurance_level:'aal2'};
+  assert.equal((await handler(request,env)).status,403);
+  account={status:200,user:{id:'owner'},assurance_level:'aal1'};
+  assert.equal((await (await handler(request,env)).json()).error,'owner_mfa_required');
+  account.assurance_level='aal2';
+  assert.equal((await handler(new Request(request,{headers:{origin:'https://another.test'}}),env)).status,403);
+  assert.equal(reads,0);
+  const response=await handler(request,env);
+  assert.equal(response.headers.get('Cache-Control'),'private, no-store');
+  assert.match(response.headers.get('Set-Cookie'),/^__Host-rexbid_traffic_off=1;/);
+  assert.deepEqual(await response.json(),{ok:true,views:3,visits:1});
+  assert.equal(reads,1);
+  for(const days of ['today','yesterday','30']) assert.equal((await handler(new Request(request.url.replace('days=7','days='+days)),env)).status,200);
+  assert.equal((await handler(new Request(request.url.replace('days=7','days=8')),env)).status,400);
+  assert.equal(reads,4);
+});
+test('persistent counters count entries separately from pageviews, respect report windows and prune old rows',async()=>{
+  const db=new DatabaseSync(':memory:');
+  const make=()=>new RexBidTraffic({storage:{sql:{exec:(sql,...args)=>{
+    const s=db.prepare(sql); if(sql.startsWith('SELECT'))return {toArray:()=>s.all(...args)};
+    s.run(...args);return {};
+  }}}});
+  const object=make();
+  db.prepare("INSERT INTO traffic VALUES ('2020-01-01','view','',100)").run();
+  const date=new Date();date.setUTCDate(date.getUTCDate()-10);
+  db.prepare("INSERT INTO traffic VALUES (?,'view','',10)").run(dayKey(date));
+  const yesterday=new Date();yesterday.setUTCDate(yesterday.getUTCDate()-1);
+  const seed=db.prepare('INSERT INTO traffic VALUES (?,?,?,?)');
+  seed.run(dayKey(yesterday),'view','',6);
+  seed.run(dayKey(yesterday),'source','facebook',5);
+  seed.run(dayKey(yesterday),'country','DE',5);
+  const record=(country,source,city)=>object.fetch(new Request('https://traffic.internal/record',{method:'POST',body:JSON.stringify({country,source,city})}));
+  for(const event of [['PL','google','Warsaw'],['PL',null,'Warsaw'],['DE','direct'],['PL','google']]) assert.equal((await record(...event)).status,204);
+  assert.equal((await record('street','random')).status,400);
+  const read=async days=>(await make().fetch(new Request('https://traffic.internal/report?days='+days))).json();
+  const [small,large,today,prior]=await Promise.all([7,30,'today','yesterday'].map(read));
+  assert.equal(small.views,10);assert.equal(small.visits,8);assert.equal(large.views,20);
+  assert.deepEqual(today.sources,[{label:'google',n:2},{label:'direct',n:1}]);
+  assert.deepEqual(today.countries,[{label:'PL',n:2},{label:'DE',n:1}]);
+  assert.deepEqual(today.cities,[{country:'PL',city:'Warszawa',source:'google',n:1}]);
+  assert.deepEqual(prior.sources,[{label:'facebook',n:5}]);
+  assert.deepEqual(prior.countries,[{label:'DE',n:5}]);
+  assert.deepEqual(prior.cities,[]);
+  assert.equal(today.views,4);assert.equal(prior.views,6);
+  assert.equal(today.from,today.through);assert.equal(prior.from,dayKey(yesterday));assert.equal(prior.through,prior.from);
+  assert.deepEqual(prior.daily,today.daily);
+  assert.equal(small.daily.length,7);assert.equal(large.daily.length,30);
+  assert.deepEqual(small.daily.map(r=>r.visits),[0,0,0,0,0,5,3]);
+  assert.equal(large.daily.at(-1).day,today.from);
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM traffic WHERE day='2020-01-01'").get().n,0);
+  db.close();
+});
+test('calendar dates use Polish midnight, including a daylight saving period',()=>{
+  assert.equal(dayKey(new Date('2026-11-13T22:59:59Z')),'2026-11-13');
+  assert.equal(dayKey(new Date('2026-11-13T23:00:00Z')),'2026-11-14');
+  assert.equal(dayKey(new Date('2026-07-01T22:00:00Z')),'2026-07-02');
+});

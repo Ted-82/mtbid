@@ -1,0 +1,42 @@
+{
+  "name": "rexbid-auction-archive-auto",
+  "main": "./worker.archive-auto.js",
+  "compatibility_date": "2026-11-17",
+  "workers_dev": false,
+  "preview_urls": false,
+  "account_id": "7ff5a57444667c4eda2a6a7f0fc4120d",
+  "vars": {
+    "ARCHIVE_ENABLED": "yes"
+  },
+  "d1_databases": [
+    {
+      "binding": "REXBID_ARCHIVE_CATALOG",
+      "database_name": "rexbid-active-catalog-meter-20261110",
+      "database_id": "b9733ac7-8da3-40ac-b163-8d4a592f6e13"
+    },
+    {
+      "binding": "REXBID_ARCHIVE_LEGACY",
+      "database_name": "rexbid-production-preflight-db",
+      "database_id": "c8a30088-70af-43a6-9a7f-c4018279d37d"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "REXBID_ARCHIVE_FEED",
+      "bucket_name": "rexbid-feed-sync-production"
+    },
+    {
+      "binding": "REXBID_AUCTION_ARCHIVE",
+      "bucket_name": "rexbid-auction-history-private"
+    }
+  ],
+  "triggers": {
+    "crons": [
+      "*/5 * * * *"
+    ]
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  }
+}

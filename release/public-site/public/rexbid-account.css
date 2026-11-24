@@ -1,0 +1,32 @@
+/* Shared account screens. Prices, portal data and credentials stay outside CSS. */
+.account-page{margin:0;background:#f1f5f9;color:#102338;font:16px/1.55 Arial,Helvetica,sans-serif}
+.account-page *{box-sizing:border-box}
+.account-page [hidden]{display:none!important}
+.account-page header{background:#0f2030}
+.account-page .header,.account-page .bar{max-width:1200px;min-height:72px;margin:auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.account-page .logo,.account-page .brand{font-size:28px;font-weight:900;letter-spacing:-1px;color:#fff;text-decoration:none;white-space:nowrap}
+.account-page .logo span,.account-page .brand span{color:#e43b51}
+.account-page .back,.account-page .bar>a:not(.brand){color:#e2e8f0;text-decoration:none;font-size:14px;font-weight:700}
+.account-page main{min-height:calc(100vh - 72px);display:flex;justify-content:center;align-items:flex-start;padding:clamp(28px,7vh,70px) 20px;max-width:none;margin:0}
+.account-page .box,.account-page .account-recovery{width:100%;max-width:480px;min-width:0;background:#fff;border:1px solid #dde5ee;border-radius:18px;padding:32px;box-shadow:0 12px 40px #0f203010}
+.account-page h1{margin:0 0 12px;font-size:30px;line-height:1.2;letter-spacing:-.7px;color:#102338}
+.account-page .subtitle,.account-page .account-recovery>p{margin:0 0 20px;color:#526277;font-size:14px}
+.account-page .group{margin:0 0 18px}
+.account-page label{display:block;margin:0 0 7px;font-size:14px;font-weight:700;color:#243b53}
+.account-page input:not([type=checkbox]){width:100%;height:48px;padding:10px 13px;font:inherit;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:#102338}
+.account-page input:focus-visible,.account-page button:focus-visible,.account-page a:focus-visible{outline:3px solid #93c5fd;outline-offset:3px}
+.account-page main button{width:100%;min-height:48px;height:auto;padding:12px 16px;border:0;border-radius:9px;background:#d52c43;color:#fff;font:700 15px/1.4 Arial,sans-serif;cursor:pointer}
+.account-page main button:hover{background:#b82237;opacity:1}
+.account-page main button:disabled{opacity:.65;cursor:wait}
+.account-page #resendConfirmation{background:#e9eff5!important;color:#17324f}
+.account-page .checkbox{display:flex;align-items:flex-start;gap:10px;margin:18px 0}
+.account-page .checkbox input{flex:0 0 auto;width:18px;height:18px;margin:3px 0}
+.account-page .checkbox label{font-weight:400;font-size:13px}
+.account-page .message,.account-page [role=status]{overflow-wrap:anywhere}
+.account-page .message{margin:16px 0 0;padding:12px;border-radius:9px;background:#edf3f8;font-size:14px;line-height:1.6}
+.account-page .register,.account-page .login{margin-top:24px;padding-top:20px;border-top:1px solid #e2e8f0;text-align:center;font-size:14px;color:#526277}
+.account-page main a{color:#b82237;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.account-page .account-recovery form{display:grid;gap:12px;margin-top:20px}
+.account-page .account-recovery [role=status]{min-height:24px;margin:12px 0}
+.account-page .auth-stage{display:none!important}
+@media(max-width:600px){.account-page .header,.account-page .bar{padding:12px 16px;gap:12px}.account-page .logo,.account-page .brand{font-size:25px}.account-page main{padding:28px 14px}.account-page .box,.account-page .account-recovery{padding:24px 20px}.account-page h1{font-size:27px}}

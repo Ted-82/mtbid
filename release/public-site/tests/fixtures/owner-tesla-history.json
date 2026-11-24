@@ -1,0 +1,46 @@
+{
+  "ok": true,
+  "data": {
+    "vehicle": {
+      "slug_vin": "5YJ3E1EA4NF186754",
+      "vin": "5YJ3E1EA4NF186754",
+      "platform": "iaai",
+      "lot_number": "43806658"
+    },
+    "history": [
+      {
+        "platform": "iaai",
+        "lot_number": 43806658,
+        "date": "2026-10-01",
+        "price": 2900,
+        "status": "Sold on Approval"
+      },
+      {
+        "platform": "iaai",
+        "lot_number": 43806658,
+        "date": "2026-09-24",
+        "price": 2775,
+        "status": "Sold on Approval"
+      },
+      {
+        "platform": "iaai",
+        "lot_number": 43806658,
+        "date": "2026-08-27",
+        "price": 3950,
+        "status": "Sold on Approval"
+      },
+      {
+        "platform": "iaai",
+        "lot_number": 43806658,
+        "date": "2026-08-20",
+        "price": 2050,
+        "status": "Sold on Approval"
+      }
+    ]
+  },
+  "meta": {
+    "per_page": 20,
+    "next_cursor": null,
+    "prev_cursor": null
+  }
+}

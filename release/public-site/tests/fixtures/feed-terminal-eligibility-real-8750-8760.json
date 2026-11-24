@@ -1,0 +1,470 @@
+[
+  {
+    "generationId": 8750,
+    "lot": "46074748",
+    "row": {
+      "listing_id": "terminal-test-8750",
+      "source_key": "terminal-source-8750",
+      "platform": "iaai",
+      "lot": "46074748",
+      "vin_normalized": "1HGCM82633A004352",
+      "identity_state": "resolved",
+      "source_updated_at": "2026-11-04T08:52:07.000000Z",
+      "summary_synced_at": "2026-11-04T08:52:07.000Z",
+      "detail_synced_at": null,
+      "last_seen_at": "2026-11-04T08:52:07.000Z",
+      "updated_at": "2026-11-04T08:52:07.000Z",
+      "auction_state": "open",
+      "source_status": "Nov 05, 2026 16:30",
+      "auction_at": "2026-11-05T14:30:00.000Z",
+      "is_timed": 0,
+      "timed_end_at": null,
+      "current_bid_usd": null,
+      "current_bid2_usd": null,
+      "buy_now_usd": 4300,
+      "provider": "apibara",
+      "source_platform": "iaai",
+      "source_identity_state": "resolved"
+    },
+    "events": [
+      {
+        "sequence": 61212010,
+        "event_id": "chg_61212010",
+        "event": "lot.sold",
+        "terminal": true,
+        "reason": "source_outcome",
+        "vehicle": {
+          "id": 4036418,
+          "platform": "iaai",
+          "platform_id": 2,
+          "lot_number": "46074748",
+          "vin": "1HGCM82633A004352"
+        },
+        "changed_fields": [
+          "auction.auction_at",
+          "auction.lot_sold",
+          "auction.has_status",
+          "auction.sold_buy_now",
+          "auction.last_sold_day",
+          "auction.last_sold_status",
+          "pricing.last_sold_price_usd"
+        ],
+        "before": {
+          "auction.auction_at": "2026-11-05T14:30:00+00:00",
+          "auction.lot_sold": "0",
+          "auction.has_status": 0,
+          "auction.sold_buy_now": 0,
+          "auction.last_sold_day": null,
+          "auction.last_sold_status": null,
+          "pricing.last_sold_price_usd": null,
+          "auction.auction_date_pending": false
+        },
+        "after": {
+          "auction.auction_at": "2026-11-04T09:32:03+00:00",
+          "auction.lot_sold": "1",
+          "auction.has_status": 1,
+          "auction.sold_buy_now": 1,
+          "auction.last_sold_day": "2026-11-04",
+          "auction.last_sold_status": "Sold",
+          "pricing.last_sold_price_usd": 4300,
+          "auction.auction_date_pending": false
+        },
+        "vehicle_updated_at": "2026-11-04T11:32:03+02:00",
+        "recorded_at": "2026-11-04T09:32:03+00:00"
+      },
+      {
+        "sequence": 61212548,
+        "event_id": "chg_61212548",
+        "event": "auction.rescheduled",
+        "terminal": false,
+        "reason": null,
+        "vehicle": {
+          "id": 4036418,
+          "platform": "iaai",
+          "platform_id": 2,
+          "lot_number": "46074748",
+          "vin": "1HGCM82633A004352"
+        },
+        "changed_fields": [
+          "auction.auction_at",
+          "auction.is_buy_now",
+          "pricing.buy_now_usd",
+          "auction.lot_sold",
+          "auction.has_status",
+          "auction.sold_buy_now",
+          "auction.last_sold_day",
+          "auction.last_sold_status",
+          "pricing.last_sold_price_usd"
+        ],
+        "before": {
+          "auction.auction_at": "2026-11-04T09:32:03+00:00",
+          "auction.is_buy_now": 1,
+          "pricing.buy_now_usd": 4300,
+          "auction.lot_sold": "1",
+          "auction.has_status": 1,
+          "auction.sold_buy_now": 1,
+          "auction.last_sold_day": "2026-11-04",
+          "auction.last_sold_status": "Sold",
+          "pricing.last_sold_price_usd": 4300,
+          "auction.auction_date_pending": false
+        },
+        "after": {
+          "auction.auction_at": "2026-11-05T14:30:00+00:00",
+          "auction.is_buy_now": 0,
+          "pricing.buy_now_usd": null,
+          "auction.lot_sold": "0",
+          "auction.has_status": 0,
+          "auction.sold_buy_now": 0,
+          "auction.last_sold_day": null,
+          "auction.last_sold_status": null,
+          "pricing.last_sold_price_usd": null,
+          "auction.auction_date_pending": false
+        },
+        "vehicle_updated_at": "2026-11-04T11:32:39+02:00",
+        "recorded_at": "2026-11-04T09:32:39+00:00"
+      },
+      {
+        "sequence": 61212620,
+        "event_id": "chg_61212620",
+        "event": "lot.sold",
+        "terminal": true,
+        "reason": "source_outcome",
+        "vehicle": {
+          "id": 4036418,
+          "platform": "iaai",
+          "platform_id": 2,
+          "lot_number": "46074748",
+          "vin": "1HGCM82633A004352"
+        },
+        "changed_fields": [
+          "auction.auction_at",
+          "auction.lot_sold",
+          "auction.has_status",
+          "auction.sold_buy_now",
+          "auction.last_sold_day",
+          "auction.last_sold_status",
+          "pricing.last_sold_price_usd"
+        ],
+        "before": {
+          "auction.auction_at": "2026-11-05T14:30:00+00:00",
+          "auction.lot_sold": "0",
+          "auction.has_status": 0,
+          "auction.sold_buy_now": 0,
+          "auction.last_sold_day": null,
+          "auction.last_sold_status": null,
+          "pricing.last_sold_price_usd": null,
+          "auction.auction_date_pending": false
+        },
+        "after": {
+          "auction.auction_at": "2026-11-04T09:32:42+00:00",
+          "auction.lot_sold": "1",
+          "auction.has_status": 1,
+          "auction.sold_buy_now": 1,
+          "auction.last_sold_day": "2026-11-04",
+          "auction.last_sold_status": "Sold",
+          "pricing.last_sold_price_usd": 0,
+          "auction.auction_date_pending": false
+        },
+        "vehicle_updated_at": "2026-11-04T11:32:42+02:00",
+        "recorded_at": "2026-11-04T09:32:43+00:00"
+      }
+    ],
+    "observedAt": "2026-11-04T09:55:54.265Z"
+  },
+  {
+    "generationId": 8760,
+    "lot": "46410109",
+    "row": {
+      "listing_id": "terminal-test-8760",
+      "source_key": "terminal-source-8760",
+      "platform": "iaai",
+      "lot": "46410109",
+      "vin_normalized": "1HGCM82633A004352",
+      "identity_state": "resolved",
+      "source_updated_at": "2026-11-04T08:58:26.000000Z",
+      "summary_synced_at": "2026-11-04T08:58:26.000Z",
+      "detail_synced_at": null,
+      "last_seen_at": "2026-11-04T08:58:26.000Z",
+      "updated_at": "2026-11-04T08:58:26.000Z",
+      "auction_state": "open",
+      "source_status": "Nov 06, 2026 19:30",
+      "auction_at": "2026-11-06T17:30:00.000Z",
+      "is_timed": 0,
+      "timed_end_at": null,
+      "current_bid_usd": null,
+      "current_bid2_usd": null,
+      "buy_now_usd": 800,
+      "provider": "apibara",
+      "source_platform": "iaai",
+      "source_identity_state": "resolved"
+    },
+    "events": [
+      {
+        "sequence": 61271057,
+        "event_id": "chg_61271057",
+        "event": "lot.sold",
+        "terminal": true,
+        "reason": "source_outcome",
+        "vehicle": {
+          "id": 4157383,
+          "platform": "iaai",
+          "platform_id": 2,
+          "lot_number": "46410109",
+          "vin": "1HGCM82633A004352"
+        },
+        "changed_fields": [
+          "auction.auction_at",
+          "auction.lot_sold",
+          "auction.has_status",
+          "auction.sold_buy_now",
+          "auction.last_sold_day",
+          "auction.last_sold_status",
+          "pricing.last_sold_price_usd"
+        ],
+        "before": {
+          "auction.auction_at": "2026-11-06T17:30:00+00:00",
+          "auction.lot_sold": "0",
+          "auction.has_status": 0,
+          "auction.sold_buy_now": 0,
+          "auction.last_sold_day": null,
+          "auction.last_sold_status": null,
+          "pricing.last_sold_price_usd": null,
+          "auction.auction_date_pending": false
+        },
+        "after": {
+          "auction.auction_at": "2026-11-04T10:00:04+00:00",
+          "auction.lot_sold": "1",
+          "auction.has_status": 1,
+          "auction.sold_buy_now": 1,
+          "auction.last_sold_day": "2026-11-04",
+          "auction.last_sold_status": "Sold",
+          "pricing.last_sold_price_usd": 800,
+          "auction.auction_date_pending": false
+        },
+        "vehicle_updated_at": "2026-11-04T12:00:04+02:00",
+        "recorded_at": "2026-11-04T10:00:05+00:00"
+      },
+      {
+        "sequence": 61271209,
+        "event_id": "chg_61271209",
+        "event": "auction.rescheduled",
+        "terminal": false,
+        "reason": null,
+        "vehicle": {
+          "id": 4157383,
+          "platform": "iaai",
+          "platform_id": 2,
+          "lot_number": "46410109",
+          "vin": "1HGCM82633A004352"
+        },
+        "changed_fields": [
+          "auction.auction_at",
+          "auction.is_buy_now",
+          "pricing.buy_now_usd",
+          "auction.lot_sold",
+          "auction.has_status",
+          "auction.sold_buy_now",
+          "auction.last_sold_day",
+          "auction.last_sold_status",
+          "pricing.last_sold_price_usd"
+        ],
+        "before": {
+          "auction.auction_at": "2026-11-04T10:00:04+00:00",
+          "auction.is_buy_now": 1,
+          "pricing.buy_now_usd": 800,
+          "auction.lot_sold": "1",
+          "auction.has_status": 1,
+          "auction.sold_buy_now": 1,
+          "auction.last_sold_day": "2026-11-04",
+          "auction.last_sold_status": "Sold",
+          "pricing.last_sold_price_usd": 800,
+          "auction.auction_date_pending": false
+        },
+        "after": {
+          "auction.auction_at": "2026-11-06T17:30:00+00:00",
+          "auction.is_buy_now": 0,
+          "pricing.buy_now_usd": null,
+          "auction.lot_sold": "0",
+          "auction.has_status": 0,
+          "auction.sold_buy_now": 0,
+          "auction.last_sold_day": null,
+          "auction.last_sold_status": null,
+          "pricing.last_sold_price_usd": null,
+          "auction.auction_date_pending": false
+        },
+        "vehicle_updated_at": "2026-11-04T12:00:10+02:00",
+        "recorded_at": "2026-11-04T10:00:10+00:00"
+      },
+      {
+        "sequence": 61280872,
+        "event_id": "chg_61280872",
+        "event": "buy_now.changed",
+        "terminal": false,
+        "reason": null,
+        "vehicle": {
+          "id": 4157383,
+          "platform": "iaai",
+          "platform_id": 2,
+          "lot_number": "46410109",
+          "vin": "1HGCM82633A004352"
+        },
+        "changed_fields": [
+          "auction.is_buy_now",
+          "pricing.buy_now_usd"
+        ],
+        "before": {
+          "auction.is_buy_now": 0,
+          "pricing.buy_now_usd": null
+        },
+        "after": {
+          "auction.is_buy_now": 1,
+          "pricing.buy_now_usd": 800
+        },
+        "vehicle_updated_at": "2026-11-04T12:03:15+02:00",
+        "recorded_at": "2026-11-04T10:03:15+00:00"
+      },
+      {
+        "sequence": 61281686,
+        "event_id": "chg_61281686",
+        "event": "lot.sold",
+        "terminal": true,
+        "reason": "source_outcome",
+        "vehicle": {
+          "id": 4157383,
+          "platform": "iaai",
+          "platform_id": 2,
+          "lot_number": "46410109",
+          "vin": "1HGCM82633A004352"
+        },
+        "changed_fields": [
+          "auction.auction_at",
+          "auction.lot_sold",
+          "auction.has_status",
+          "auction.sold_buy_now",
+          "auction.last_sold_day",
+          "auction.last_sold_status",
+          "pricing.last_sold_price_usd"
+        ],
+        "before": {
+          "auction.auction_at": "2026-11-06T17:30:00+00:00",
+          "auction.lot_sold": "0",
+          "auction.has_status": 0,
+          "auction.sold_buy_now": 0,
+          "auction.last_sold_day": null,
+          "auction.last_sold_status": null,
+          "pricing.last_sold_price_usd": null,
+          "auction.auction_date_pending": false
+        },
+        "after": {
+          "auction.auction_at": "2026-11-04T10:04:15+00:00",
+          "auction.lot_sold": "1",
+          "auction.has_status": 1,
+          "auction.sold_buy_now": 1,
+          "auction.last_sold_day": "2026-11-04",
+          "auction.last_sold_status": "Sold",
+          "pricing.last_sold_price_usd": 800,
+          "auction.auction_date_pending": false
+        },
+        "vehicle_updated_at": "2026-11-04T12:04:15+02:00",
+        "recorded_at": "2026-11-04T10:04:15+00:00"
+      },
+      {
+        "sequence": 61281894,
+        "event_id": "chg_61281894",
+        "event": "auction.rescheduled",
+        "terminal": false,
+        "reason": null,
+        "vehicle": {
+          "id": 4157383,
+          "platform": "iaai",
+          "platform_id": 2,
+          "lot_number": "46410109",
+          "vin": "1HGCM82633A004352"
+        },
+        "changed_fields": [
+          "auction.auction_at",
+          "auction.is_buy_now",
+          "pricing.buy_now_usd",
+          "auction.lot_sold",
+          "auction.has_status",
+          "auction.sold_buy_now",
+          "auction.last_sold_day",
+          "auction.last_sold_status",
+          "pricing.last_sold_price_usd"
+        ],
+        "before": {
+          "auction.auction_at": "2026-11-04T10:04:15+00:00",
+          "auction.is_buy_now": 1,
+          "pricing.buy_now_usd": 800,
+          "auction.lot_sold": "1",
+          "auction.has_status": 1,
+          "auction.sold_buy_now": 1,
+          "auction.last_sold_day": "2026-11-04",
+          "auction.last_sold_status": "Sold",
+          "pricing.last_sold_price_usd": 800,
+          "auction.auction_date_pending": false
+        },
+        "after": {
+          "auction.auction_at": "2026-11-06T17:30:00+00:00",
+          "auction.is_buy_now": 0,
+          "pricing.buy_now_usd": null,
+          "auction.lot_sold": "0",
+          "auction.has_status": 0,
+          "auction.sold_buy_now": 0,
+          "auction.last_sold_day": null,
+          "auction.last_sold_status": null,
+          "pricing.last_sold_price_usd": null,
+          "auction.auction_date_pending": false
+        },
+        "vehicle_updated_at": "2026-11-04T12:04:28+02:00",
+        "recorded_at": "2026-11-04T10:04:28+00:00"
+      },
+      {
+        "sequence": 61282559,
+        "event_id": "chg_61282559",
+        "event": "lot.sold",
+        "terminal": true,
+        "reason": "source_outcome",
+        "vehicle": {
+          "id": 4157383,
+          "platform": "iaai",
+          "platform_id": 2,
+          "lot_number": "46410109",
+          "vin": "1HGCM82633A004352"
+        },
+        "changed_fields": [
+          "auction.auction_at",
+          "auction.lot_sold",
+          "auction.has_status",
+          "auction.sold_buy_now",
+          "auction.last_sold_day",
+          "auction.last_sold_status",
+          "pricing.last_sold_price_usd"
+        ],
+        "before": {
+          "auction.auction_at": "2026-11-06T17:30:00+00:00",
+          "auction.lot_sold": "0",
+          "auction.has_status": 0,
+          "auction.sold_buy_now": 0,
+          "auction.last_sold_day": null,
+          "auction.last_sold_status": null,
+          "pricing.last_sold_price_usd": null,
+          "auction.auction_date_pending": false
+        },
+        "after": {
+          "auction.auction_at": "2026-11-04T10:04:55+00:00",
+          "auction.lot_sold": "1",
+          "auction.has_status": 1,
+          "auction.sold_buy_now": 1,
+          "auction.last_sold_day": "2026-11-04",
+          "auction.last_sold_status": "Sold",
+          "pricing.last_sold_price_usd": 0,
+          "auction.auction_date_pending": false
+        },
+        "vehicle_updated_at": "2026-11-04T12:04:55+02:00",
+        "recorded_at": "2026-11-04T10:04:55+00:00"
+      }
+    ],
+    "observedAt": "2026-11-04T10:10:53.654Z"
+  }
+]

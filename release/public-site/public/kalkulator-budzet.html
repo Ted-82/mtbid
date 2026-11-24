@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Twój budżet zakupu – REXBID</title>
+  <meta name="description" content="Znajdź ofertę Copart lub IAAI po VIN albo numerze LOT i oblicz szacowaną cenę z dostawą pod dom.">
+  <link rel="stylesheet" href="/rexbid-brand.css?v=20261117-integrated">
+  <link rel="stylesheet" href="/rexbid-guide.css?v=d6420d809c">
+  <link rel="stylesheet" href="/rexbid-delivered-view.css?v=20261116-budget3">
+  <link rel="stylesheet" href="/rexbid-purchase-budget.css?v=20261116-budget3">
+  <script src="/rexbid-market.js?v=3b276ed707ea" defer></script>
+  <script src="/rexbid-powertrain.js?v=3baadbf40a" defer></script>
+  <script src="/rexbid-calculator-v4-rates.js" defer></script>
+  <script src="/rexbid-calculator-v4.js?v=20261116-matrix1" defer></script>
+  <script src="/rexbid-delivered-rates.js?v=20261116-budget3" defer></script>
+  <script src="/rexbid-delivered-cost.js?v=060b397b2135" defer></script>
+  <script src="/rexbid-delivered-view.js?v=70b1d7778549" defer></script>
+  <script src="/rexbid-purchase-budget.js?v=79f9c9723dc5" defer></script>
+</head>
+<body class="rex-guide">
+<a class="skip-link" href="#main">Przejdź do treści</a>
+<header><div class="header-inner"><a href="/" class="logo" aria-label="REXBID — strona główna"><img class="rexbid-brand-image" src="/rexbid-logo-20261117-dark.webp" width="420" height="159" alt=""><span class="brand-note">RYNEK AUKCYJNY USA</span></a><a href="/?catalog=1#results">Zobacz aukcje</a></div></header>
+<main id="main" class="guide-shell purchase-budget" data-purchase-budget>
+  <section class="guide-section purchase-lookup" aria-labelledby="purchase-heading">
+    <h1 id="purchase-heading">Twój budżet zakupu</h1>
+    <p>Wpisz budżet w złotych i wybierz auto po VIN lub LOT. Sprawdzisz, ile maksymalnie przeznaczyć na licytację, uwzględniając import do Polski i prowizję 2500 zł brutto.</p>
+    <form data-purchase-form>
+      <label class="guide-field purchase-budget-input">Twój łączny budżet · PLN<input name="budget" type="number" min="1" step="1" inputmode="decimal" placeholder="np. 30000" required></label>
+      <label class="guide-field">VIN lub numer LOT
+        <input name="identifier" required maxlength="24" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="np. 74796146">
+      </label>
+      <label class="guide-field">Platforma
+        <select name="platform"><option value="">Copart i IAAI</option><option value="copart">Copart</option><option value="iaai">IAAI</option></select>
+      </label>
+      <button type="submit" class="guide-button">Oblicz limit licytacji</button>
+    </form>
+    <p data-purchase-status role="status" aria-live="polite"></p>
+    <div data-purchase-matches></div>
+    <noscript><p>Włącz JavaScript, aby wyszukać auto i obliczyć wycenę.</p></noscript>
+  </section>
+  <section class="guide-section purchase-selected" data-purchase-selected hidden aria-labelledby="purchase-vehicle">
+    <h2 id="purchase-vehicle" tabindex="-1"></h2>
+    <p data-purchase-identity></p>
+    <a data-purchase-original>Przejdź do karty auta</a>
+    <div data-purchase-calculator></div>
+  </section>
+</main>
+</body>
+</html>

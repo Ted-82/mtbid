@@ -1,0 +1,13 @@
+.purchase-budget{max-width:860px}
+.purchase-lookup h1{margin-top:0}
+.purchase-lookup form{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) auto;align-items:end;gap:12px}
+.purchase-lookup :is(input,select,button){min-height:44px}
+.purchase-lookup [role=status]:empty{display:none}
+.purchase-lookup [data-purchase-matches]{display:grid;gap:8px}
+.purchase-lookup [data-purchase-matches] button{width:100%;min-height:44px;padding:10px 12px;border:1px solid #cedae4;border-radius:8px;text-align:left;background:#f6f9fc;color:#142b40;cursor:pointer}
+.purchase-selected [data-purchase-calculator]{margin-top:16px;border-top:1px solid #dfe7ee;padding-top:14px}
+.purchase-selected h2{overflow-wrap:anywhere;scroll-margin-top:90px}
+.purchase-budget [hidden]{display:none!important}
+@media(max-width:600px){.purchase-lookup form{grid-template-columns:minmax(0,1fr)}.purchase-lookup :is(input,select){font-size:16px}}
+
+.purchase-budget-input{grid-column:1/-1}.purchase-budget-input input{font-size:26px;font-weight:800}.purchase-lookup h1{font-size:clamp(28px,4vw,40px)}

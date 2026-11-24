@@ -1,0 +1,59 @@
+{
+  "name": "rexbid-feed-executor-production",
+  "main": "./worker.feed-executor.js",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "workers_dev": false,
+  "preview_urls": false,
+  "vars": {
+    "REXBID_FEED_ENABLED": "enabled",
+    "REXBID_FEED_DETAIL_ENABLED": "enabled",
+    "REXBID_FEED_TARGET": "production",
+    "REXBID_FEED_DATABASE_ID": "c8a30088-70af-43a6-9a7f-c4018279d37d",
+    "REXBID_FEED_ID": "20",
+    "REXBID_FEED_D1_BUDGET_MODE": "rolling-31d-v1",
+    "REXBID_FEED_READ_ALLOWANCE_DAY": "2026-11-04",
+    "REXBID_FEED_READ_ALLOWANCE_LIMIT": "100000000",
+    "REXBID_FEED_API_RECOVERY_ID": "2026-10-31-gap",
+    "REXBID_FEED_API_RECOVERY_LIMIT": "12000",
+    "REXBID_FEED_API_RECOVERY_THROUGH": "51292006",
+    "REXBID_CATALOG_MEMBERSHIP_ENABLED": "enabled",
+    "REXBID_TAXONOMY_BUILD_ENABLED": "enabled"
+  },
+  "d1_databases": [
+    {
+      "binding": "REXBID_DB",
+      "database_name": "rexbid-production-preflight-db",
+      "database_id": "c8a30088-70af-43a6-9a7f-c4018279d37d"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "REXBID_FEED_ARCHIVE",
+      "bucket_name": "rexbid-feed-sync-production"
+    }
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "REXBID_FEED_QUEUE",
+        "queue": "rexbid-feed-sync-production"
+      }
+    ]
+  },
+  "triggers": {
+    "crons": []
+  },
+  "limits": {
+    "cpu_ms": 300000
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "placement": {
+    "region": "gcp:europe-central2"
+  }
+}

@@ -1,0 +1,191 @@
+/* REXBID V5 vehicle experience. Loaded after the shared brand stylesheet. */
+main { padding-top: 24px; }
+.back { min-height: 40px; align-items: center; font-size: 13px; }
+.back:hover { color: #bb223b; }
+.vehicle-head {
+  padding: 22px 24px;
+  border-color: #dde4eb;
+  background: #fff;
+  box-shadow: 0 4px 20px rgba(18, 40, 61, .04);
+}
+.vehicle-head h1 { font-size: clamp(27px, 2.55vw, 38px); line-height: 1.16; }
+.vehicle-data-freshness { display: grid; gap: 5px; max-width: 740px; margin: 14px 0 0; padding: 12px 14px; border: 1px solid #dec88b; border-radius: 9px; background: #fff9e9; color: #6b562a; font-size: 12px; line-height: 1.55; }
+.vehicle-data-freshness strong { font-size: 13px; }
+.breadcrumbs { font-size: 12px; line-height: 1.6; }
+.vehicle-meta { gap: 10px 20px; font-size: 13px; line-height: 1.55; }
+.vehicle-highlights { gap: 8px; margin-top: 16px; }
+.vehicle-highlight { padding: 8px 11px; min-height: 38px; }
+.vehicle-highlight small,
+.vehicle-highlight.condition-chip b { font-size: 12px; }
+.vehicle-highlight b { font-size: 13px; }
+.vehicle-highlight.damage-highlight b { white-space: normal; }
+.vehicle-highlight.condition-chip { min-height: 38px; }
+.head-chip { display: inline-flex; align-items: center; min-height: 44px; font-size: 12px; }
+.platform-pill { font-size: 11px; }
+.detail-layout { gap: 22px; grid-template-columns: minmax(0, 1.5fr) minmax(360px, .82fr); }
+.panel, .info-card { border-color: #dde4eb; box-shadow: 0 4px 18px rgba(18, 40, 61, .035); }
+.main-column > .panel,
+.main-column > .info-card { margin-bottom: 18px; }
+.gallery .main-photo { height: clamp(350px, 39vw, 560px); background: #e9edf1; }
+.gallery .main-photo img { padding: 0; }
+.gallery-badge { font-size: 12px; padding: 7px 10px; }
+.photo-count { font-size: 12px; }
+.gallery .thumb-wrap { padding: 12px; }
+.gallery .thumbs { grid-template-columns: repeat(7, minmax(0, 1fr)); max-height: 160px; gap: 8px; }
+.thumb { border-radius: 7px; border: 2px solid transparent; }
+.thumb.active { border-color: #d52c43; }
+.gallery .media-toolbar { display: flex; flex-wrap: wrap; padding: 0 12px 12px; gap: 8px; }
+.media-btn { min-height: 44px; font-size: 13px; }
+.gallery .media-btn:hover { border-color: #b8c9d7; background: #eef3f7; color: #1f394f; }
+.gallery .media-btn.accent { color: #fff; }
+.gallery .media-btn.accent:hover { border-color: #b72238; background: #b72238; color: #fff; }
+.gallery-arrow, .lb-controls button, .viewer-close, .viewer-fullscreen { min-width: 44px; min-height: 44px; }
+#mainImage { cursor: zoom-in; }
+.section { padding: 20px; }
+.section-title { gap: 12px; margin-bottom: 14px; }
+.section-title h2 { font-size: 19px; line-height: 1.3; }
+.section-title span { font-size: 12px; line-height: 1.45; }
+.spec-grid.compact-main { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.spec { min-width: 0; padding: 13px 12px; }
+.spec small { font-size: 12px; line-height: 1.4; }
+.spec strong { font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; }
+.spec-missing strong { color: #7b8793; font-size: 13px; font-weight: 500; }
+.spec-more summary,
+.condition-more summary { min-height: 44px; padding: 14px 0; font-size: 13px; line-height: 1.4; }
+.jump-links { gap: 10px; }
+.jump-links a { display: inline-flex; align-items: center; min-height: 40px; font-size: 12px; }
+.condition-summary { padding: 20px !important; }
+.condition-summary-row { padding: 14px 0; gap: 12px; font-size: 14px; line-height: 1.55; }
+.condition-summary-row strong { font-size: 14px; margin-bottom: 5px; }
+.condition-summary-icon { width: 26px; height: 26px; font-size: 14px; background: #f0f4f7; color: #304d65; }
+.condition-title-badge { padding: 6px 9px; margin-top: 8px; font-size: 12px; border-radius: 7px; }
+.condition-disclaimer { font-size: 12px; color: #667584; line-height: 1.6; }
+.title-source-fact { font-size: 12px; line-height: 1.5; }
+.info-card-head { padding: 16px 18px; background: #f8fafc; }
+.info-card-head h3 { font-size: 16px; }
+.info-card-body { padding: 16px 18px; }
+.primary-auction > .auction-main { padding: 16px; background: #f5f8fb; border-color: #dfe7ef; }
+.auction-prices { gap: 10px; }
+.auction-price-option { padding: 13px; border-color: #dbe4ec; }
+.auction-price-option:only-child { grid-column: 1 / -1; }
+.auction-price-option small { font-size: 12px; line-height: 1.45; }
+.auction-price-option .auction-price { font-size: clamp(23px, 2.2vw, 30px); margin-top: 5px; line-height: 1.2; }
+.auction-price-option.buy-now-option { background: #fff8f9; border-color: #ecbdc5; }
+.auction-calc-price { min-height: 40px; font-size: 12px; width: 100%; }
+.auction-price-note { margin: 12px 0 0; color: #607182; font-size: 12px; line-height: 1.55; }
+.primary-auction .auction-state { font-size: 12px; padding: 7px 10px; }
+.primary-auction .auction-countdown { font-size: 13px; line-height: 1.5; }
+.price-fact { padding: 10px; }
+.price-fact small { font-size: 12px; }
+.price-fact strong { font-size: 15px; }
+.kv { gap: 14px; padding: 10px 0; font-size: 13px; line-height: 1.5; }
+.kv strong { min-width: 0; overflow-wrap: anywhere; }
+.vehicle-actions .action { min-height: 44px; font-size: 12px; }
+.local-storage-note { grid-column: 1 / -1; color: #6b7b89; font-size: 12px; line-height: 1.5; }
+.vehicle-next-step { margin-top: 16px; padding-top: 16px; border-top: 1px solid #e4eaf0; }
+.vehicle-inquiry-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 12px 15px;
+  border: 1px solid #d52c43;
+  border-radius: 9px;
+  background: #d52c43;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.45;
+}
+.vehicle-inquiry-action:hover { background: #b72238; border-color: #b72238; }
+.vehicle-next-step p { margin: 8px 0 0; color: #6b7b89; font-size: 12px; line-height: 1.55; }
+.vehicle-source-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: 6px; color: #234a6e; font-size: 13px; font-weight: 650; }
+.vehicle-source-link:hover { text-decoration: underline; }
+.vehicle-checklist { padding: 20px; }
+.vehicle-checklist-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.vehicle-checklist-grid a { padding: 14px; border: 1px solid #e0e7ee; border-radius: 10px; background: #f8fafc; }
+.vehicle-checklist-grid a:hover { border-color: #bacbd9; background: #f0f5f9; }
+.checklist-number { display: block; margin-bottom: 10px; color: #9c4252; font-size: 12px; font-weight: 800; letter-spacing: .07em; }
+.vehicle-checklist-grid strong { display: block; font-size: 14px; line-height: 1.4; }
+.vehicle-checklist-grid p { margin: 6px 0 0; color: #657587; font-size: 12px; line-height: 1.55; }
+.seller-note { font-size: 12px; line-height: 1.55; }
+.history-table, .history-table td { font-size: 12px; line-height: 1.5; }
+.history-table th, .history-status, .history-platform, .history-count { font-size: 11px; }
+.mini-stat small { font-size: 12px; }
+.mini-stat strong { font-size: 14px; line-height: 1.4; }
+.vehicle-inquiry-action:focus-visible,
+.vehicle-source-link:focus-visible,
+.vehicle-checklist-grid a:focus-visible,
+#mainImage:focus-visible { outline: 3px solid #2d78ac; outline-offset: 4px; }
+.auction-price-option[hidden] { display: none !important; }
+
+@media (max-width: 1050px) {
+  .detail-layout { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .gallery .main-photo { height: clamp(310px, 57vw, 560px); }
+}
+@media (max-width: 760px) {
+  main { padding-top: 14px; }
+  .vehicle-head { padding: 18px 16px; }
+  .vehicle-head h1 { font-size: 27px; }
+  .vehicle-meta { gap: 7px 14px; font-size: 12px; }
+  .vehicle-head-actions { display: flex; }
+  .vehicle-head-actions .head-chip { font-size: 12px; min-height: 40px; }
+  .vehicle-highlight { padding: 7px 9px; }
+  .vehicle-highlight.status-highlight { font-size: 12px; }
+  .gallery .main-photo { height: min(68vw, 460px); min-height: 240px; }
+  .gallery .thumbs { grid-template-columns: repeat(5, minmax(0, 1fr)); max-height: 120px; }
+  .main-column > .panel, .main-column > .info-card { margin-bottom: 0; }
+  #beforePurchase { order: 8; }
+  .section, .vehicle-checklist, .condition-summary { padding: 16px !important; }
+  .spec-grid.compact-main { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .spec { padding: 12px 10px; }
+  .spec strong { font-size: 13px; }
+  .info-card-head, .info-card-body { padding: 15px; }
+  .primary-auction > .auction-main { padding: 13px; }
+  .auction-price-option { padding: 11px; }
+  .auction-price-option .auction-price { font-size: 25px; }
+  .vehicle-checklist-grid { grid-template-columns: minmax(0, 1fr); }
+  .vehicle-checklist-grid a { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 3px 10px; }
+  .checklist-number { grid-row: 1 / 3; margin: 2px 0 0; }
+  .vehicle-checklist-grid p { grid-column: 2; margin: 0; }
+}
+@media (max-width: 380px) {
+  .vehicle-head h1 { font-size: 24px; }
+  .vehicle-head-actions { gap: 6px; }
+  .vehicle-head-actions .head-chip { padding: 8px; }
+  .auction-prices { grid-template-columns: minmax(0, 1fr); }
+  .auction-price-option .auction-price { font-size: 28px; }
+  .kv { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .head-chip, .media-btn { transition: none; }
+  .head-chip:hover, .media-btn:hover { transform: none; }
+}
+
+/* Source-confirmed seller type, never an individual trust/condition guarantee. */
+.rex-seller-insurance{display:inline-flex;flex-direction:column;gap:3px;padding:5px 8px;border:1px solid #a4d7b8;border-radius:6px;background:#edf9f1;color:#176138;font-size:12px;line-height:1.4;font-weight:700;white-space:normal}
+.rex-seller-insurance small{font-size:10px;font-weight:500}.seller-source-name{display:block;margin-bottom:5px}.seller-kv strong{min-width:0;max-width:70%}.vehicle-key-details{min-width:0}
+
+/* Missing auction amount is text; calculator unknown costs remain separate. */
+.auction-price.auction-price-missing{font-size:clamp(16px,2vw,20px);line-height:1.35;white-space:normal}
+.history-outcome-note{max-width:220px;margin:6px 0;font-size:11px;line-height:1.5;color:#526477;white-space:normal}
+.history-source-status{margin-top:6px;font-size:11px;line-height:1.5;color:#526477;white-space:normal}
+.history-source-status summary,.history-observations summary{cursor:pointer}
+.history-observations{margin-top:18px;border-top:1px solid #dbe4ec;padding-top:12px}
+.history-observations>summary{font-weight:750;color:#203246;padding:5px 0}
+.history-observations[open]>summary{margin-bottom:12px}
+.history-availability{padding:20px;text-align:left;line-height:1.6}
+.history-source-status summary:focus-visible,.history-observations summary:focus-visible{outline:2px solid #dc2443;outline-offset:4px}
+@media(max-width:600px){
+  #auctionHistory .history-scroll{max-height:none;overflow:visible;border:0}
+  #auctionHistory .history-table{display:block;min-width:0;width:100%}
+  #auctionHistory .history-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  #auctionHistory .history-table tbody{display:block}
+  #auctionHistory .history-table tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);margin-bottom:12px;border:1px solid #dbe4ec;border-radius:10px;padding:8px;background:#fff}
+  #auctionHistory .history-table td{display:block;min-width:0;padding:7px;border:0;white-space:normal;overflow-wrap:anywhere}
+  #auctionHistory .history-table td::before{content:attr(data-label);display:block;margin-bottom:4px;color:#526477;font-size:10px;font-weight:650}
+  #auctionHistory .history-table td:nth-child(5),#auctionHistory .history-table td:nth-child(6){grid-column:1/-1}
+  #auctionHistory .history-outcome-note{max-width:none}
+}

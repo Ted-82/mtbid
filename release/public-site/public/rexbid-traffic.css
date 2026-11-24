@@ -1,0 +1,19 @@
+.portal-traffic { margin-bottom: 1.25rem; }
+.portal-traffic > summary { cursor: pointer; font-size: 1.125rem; }
+.portal-traffic-toolbar { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; margin-top: 1rem; }
+.portal-traffic-toolbar select { padding: .5rem; border: 1px solid #aab9c7; border-radius: .4rem; color: inherit; background: white; }
+.portal-traffic-totals { display: flex; gap: 1.25rem; flex-wrap: wrap; font-size: 1.25rem; margin-top: .9rem; }
+.portal-traffic-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit,minmax(min(100%,15rem),1fr)); }
+.portal-traffic-breakdown dl { display: grid; grid-template-columns: 1fr auto; gap: .35rem .75rem; margin: .5rem 0 1rem; }
+.portal-traffic-breakdown dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.portal-traffic-note { font-size: .9rem; }
+.portal-traffic-chart { margin: 1rem 0; padding: .85rem 1rem; border: 1px solid #d9e3ec; border-radius: .65rem; background: #f7fafc; }
+.portal-traffic-chart figcaption { font-weight: 700; }
+.portal-traffic-bars { list-style: none; padding: 0; margin: .5rem 0 0; }
+.portal-traffic-bars-long { max-height: 22rem; overflow-y: auto; }
+.portal-traffic-bars li { display: grid; grid-template-columns: 4.5rem minmax(2rem,1fr) auto; align-items: center; gap: .65rem; padding: .3rem .35rem; font-size: .9rem; font-variant-numeric: tabular-nums; }
+.portal-traffic-bars li[data-in-range] { background: #e8f0f7; border-radius: .3rem; }
+.portal-traffic-bars li span { min-width: 2ch; text-align: right; }
+.portal-traffic-bars meter { width: 100%; height: .85rem; }
+.portal-traffic-bars meter::-webkit-meter-optimum-value { background: #286294; }
+.portal-traffic-bars meter::-moz-meter-bar { background: #286294; }

@@ -1,0 +1,188 @@
+{
+  "observed_at": "2026-09-25",
+  "source": "production Rex.Bid Worker GET /api/filters, /api/cars, and /api/car/:identifier/history",
+  "filters": {
+    "ok": true,
+    "data": {
+      "make_model": {
+        "makes": [
+          "2-G",
+          "22FT",
+          "ACURA",
+          "BMW"
+        ],
+        "models_by_make": {
+          "BMW": [
+            "1 SERIES",
+            "3 SERIES",
+            "X5"
+          ],
+          "ACURA": [
+            "1.7EL PREM",
+            "MDX"
+          ]
+        }
+      },
+      "ranges": {
+        "year": {
+          "from_default": 1900,
+          "to_default": 2026,
+          "min": 1900,
+          "max": 2027
+        },
+        "price_usd": {
+          "min_default": 0,
+          "max_default": 100000,
+          "min": 0,
+          "max": 250000
+        },
+        "odometer_mi": {
+          "from_default": 0,
+          "to_default": 250000,
+          "min": 0,
+          "max": 500000
+        }
+      },
+      "fuel_type": {
+        "options": [
+          "Gasoline",
+          "Diesel",
+          "Electric"
+        ]
+      },
+      "transmission": {
+        "options": [
+          "Automatic",
+          "Manual",
+          "Unknown"
+        ]
+      },
+      "drive_type": {
+        "options": [
+          {
+            "value": "AWD",
+            "label": "AWD",
+            "desc": "All-wheel Drive"
+          }
+        ]
+      },
+      "running_condition": {
+        "options": [
+          {
+            "value": "RUNS AND DRIVES",
+            "label": "Run and Drive"
+          }
+        ]
+      },
+      "location_filters": {
+        "state": {
+          "param": "loc_state",
+          "options": [
+            "CA",
+            "FL"
+          ]
+        }
+      }
+    },
+    "observed_counts": {
+      "makes": 678,
+      "BMW_models": 320
+    }
+  },
+  "history_samples": {
+    "copart_not_sold": {
+      "platform": "copart",
+      "lot_number": 75407365,
+      "date": "2026-09-18",
+      "price": 5200,
+      "status": "Not Sold"
+    },
+    "copart_sold": {
+      "platform": "copart",
+      "lot_number": 50904996,
+      "date": "2026-08-30",
+      "price": 12500,
+      "status": "Sold"
+    },
+    "iaai_sold": {
+      "platform": "iaai",
+      "lot_number": 44120059,
+      "date": "2026-05-19",
+      "price": 2925,
+      "status": "Sold"
+    }
+  },
+  "timed_iaai_samples": {
+    "no_bid": {
+      "vin": "JTEGH20V410034731",
+      "lot_number": "46166759",
+      "platform": "iaai",
+      "auction": {
+        "state": "open",
+        "is_timed": true,
+        "timed_end_at": "2026-09-25T22:03:00+00:00",
+        "auction_at": "2026-09-25T22:03:00+00:00",
+        "sold_timed": false
+      },
+      "pricing": {
+        "current_bid_usd": null,
+        "current_bid2_usd": null,
+        "sale_price_usd": null,
+        "last_sold_price_usd": null,
+        "buy_now_usd": null
+      },
+      "seller": {
+        "name": "The Clunker Junker",
+        "type": "unknown"
+      }
+    },
+    "with_bid": {
+      "vin": "1GNSKBKC6JR347634",
+      "lot_number": "45192866",
+      "platform": "iaai",
+      "auction": {
+        "state": "open",
+        "is_timed": true,
+        "timed_end_at": "2026-09-25T22:05:00+00:00",
+        "auction_at": "2026-09-25T22:05:00+00:00",
+        "sold_timed": false
+      },
+      "pricing": {
+        "current_bid_usd": 7400,
+        "current_bid2_usd": 7400,
+        "sale_price_usd": null,
+        "last_sold_price_usd": null,
+        "buy_now_usd": null
+      }
+    }
+  },
+  "seller_samples": {
+    "named_iaai": {
+      "name": "Progressive Casualty Insurance",
+      "type": "insurance"
+    },
+    "masked_iaai": {
+      "name": "******",
+      "type": "unknown"
+    },
+    "named_copart": {
+      "name": "Non-insurance Company",
+      "type": "non_insurance"
+    }
+  },
+  "buy_now_listing_sample": {
+    "vin": "ZAMFK39A290044639",
+    "lot_number": "75790775",
+    "platform": "copart",
+    "auction": {
+      "state": "open",
+      "is_buy_now": true,
+      "lot_status": "Buy Now"
+    },
+    "pricing": {
+      "buy_now_usd": 1000,
+      "current_bid_usd": 150,
+      "current_bid2_usd": 150
+    }
+  }
+}

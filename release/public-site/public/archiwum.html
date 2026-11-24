@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, follow">
+  <title>Archiwum aukcji — REXBID</title>
+  <link rel="stylesheet" href="/rexbid-catalog.css">
+  <link rel="stylesheet" href="/rexbid-brand.css?v=20261117-integrated">
+  <link rel="stylesheet" href="/rexbid-customer-guide.css">
+  <link rel="stylesheet" href="/rexbid-auction-archive.css?v=2">
+  <script src="/rexbid-auction-archive.js?v=4e1ce171652d" defer></script>
+</head>
+<body class="rex-guide rex-customer-guide">
+  <a class="skip-link" href="#main">Przejdź do treści</a>
+  <header><div class="header-inner">
+    <a href="/" class="logo" aria-label="REXBID — strona główna"><img class="rexbid-brand-image" src="/rexbid-logo-20261117-dark.webp" width="420" height="159" alt=""><span class="brand-note">RYNEK AUKCYJNY USA</span></a>
+    <nav aria-label="Nawigacja główna"><a href="/">Aktualne aukcje</a><a href="/kontakt">Kontakt</a></nav>
+  </div></header>
+  <main id="main" class="guide-shell archive-shell">
+    <h1>Archiwum aukcji</h1>
+    <form id="archive-search" class="archive-search">
+      <label for="archive-query">VIN lub numer LOT</label>
+      <div><input id="archive-query" name="q" autocomplete="off" maxlength="17" placeholder="Wpisz VIN lub LOT">
+        <button type="submit">Szukaj</button></div>
+    </form>
+    <p id="archive-status" role="status" aria-live="polite">Wczytywanie archiwum…</p>
+    <div id="archive-results"></div>
+    <button type="button" id="archive-next" class="archive-next" hidden>Pokaż kolejne oferty</button>
+  </main>
+  <footer class="archive-footer"><a href="/regulamin-archiwum">Zasady archiwum</a></footer>
+</body>
+</html>
+

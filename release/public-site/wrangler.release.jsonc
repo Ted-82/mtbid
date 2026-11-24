@@ -1,0 +1,40 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "mtbid",
+  "main": "./worker.production.js",
+  "compatibility_date": "2026-09-19",
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [{"pattern": "rexbid.pl", "custom_domain": true}],
+  "vars": {
+    "REXBID_PRODUCTION_RELEASE_ENABLED": "disabled",
+    "REXBID_RELEASE_INDEXING": "disabled",
+    "REXBID_RELEASE_ORIGIN": "https://rexbid.pl",
+    "REXBID_CANONICAL_ORIGIN": "https://rexbid.pl",
+    "REXBID_RELEASE_D1_TARGET": "rexbid-db",
+    "REXBID_RELEASE_D1_DATABASE_ID": "971879fe-04ed-4e8c-9dc6-5306980bb872",
+    "REXBID_RELEASE_MAX_AGE_MS": "86400000",
+    "AUTH_ENABLED": "false",
+    "REXBID_LEGACY_SYNC_ENABLED": "false",
+    "REXBID_PROVIDER_ENABLED": "false",
+    "REXBID_PROVIDER_BUDGET_MODE": "required",
+    "REXBID_PROVIDER_BUDGET_DAILY_LIMIT": "0",
+    "REXBID_PROVIDER_BUDGET_CATALOG_DAILY_LIMIT": "0",
+    "REXBID_PROVIDER_BUDGET_DETAIL_DAILY_LIMIT": "0",
+    "REXBID_PROVIDER_BUDGET_HISTORY_DAILY_LIMIT": "0",
+    "REXBID_PROVIDER_BUDGET_DISCOVERY_DAILY_LIMIT": "0",
+    "REXBID_PROVIDER_BUDGET_MEDIA_DAILY_LIMIT": "0",
+    "REXBID_CALCULATOR_V4_ENABLED": "enabled",
+    "REXBID_CALCULATOR_V4_ALLOWED_ORIGINS": "https://rexbid.pl",
+    "REXBID_TRANSPORT_CALCULATOR_ENABLED": "enabled",
+    "REXBID_TRANSPORT_CALCULATOR_ALLOWED_ORIGINS": "https://rexbid.pl",
+    "REXBID_CALCULATOR_V3_ENABLED": "enabled",
+    "REXBID_CALCULATOR_V3_ALLOWED_ORIGINS": "https://rexbid.pl"
+  },
+  "d1_databases": [{
+    "binding": "REXBID_DB",
+    "database_name": "rexbid-db",
+    "database_id": "971879fe-04ed-4e8c-9dc6-5306980bb872"
+  }],
+  "assets": {"directory": "./public", "binding": "ASSETS", "run_worker_first": true}
+}
