@@ -72,6 +72,55 @@ test('incorrect identifiers and unrelated search results do not open a calculato
  assert.ok(u.q('[data-purchase-selected]').hidden);
 });
 
+test('a missing calculator module gives the customer a readable recovery action',async t=>{
+  const car=record(),u=setup(t,[car],{[car.lot_number]:car});
+  u.w.RexBidDeliveredView=undefined;
+  u.search(car.lot_number,'copart');
+  await check(()=>u.q('[data-purchase-status]').textContent.includes('Odśwież stronę'));
+  assert.equal(u.q('[data-purchase-selected]').hidden,true);
+});
+
+test('a retained exact lot is reachable without advertising a bid after leaving the active list', async t=>{
+  const car=record(), u=setup(t,[],{[car.lot_number]:car});
+  u.search(car.lot_number,'copart');
+  await check(()=>u.q('[data-purchase-matches] a'));
+  const link=new URL(u.q('[data-purchase-matches] a').href);
+  assert.equal(link.searchParams.get('lot'),car.lot_number);
+  assert.equal(link.searchParams.get('platform'),'copart');
+  assert.match(u.q('[data-purchase-status]').textContent,/nie potwierdza obecnie możliwości licytacji/);
+  assert.equal(u.q('[data-purchase-selected]').hidden,true);
+  assert.equal(u.requests.length,2);
+});
+
+test('ending between search and detail suppresses the suggested bid', async t=>{
+  const car=record(), ended={...car,auction:{phase:'finished',state:'finished'}};
+  const u=setup(t,[car],{[car.lot_number]:ended});
+  u.search(car.lot_number,'copart');
+  await check(()=>u.q('[data-purchase-matches] a'));
+  assert.match(u.q('[data-purchase-status]').textContent,/Aukcja zakończona/);
+  assert.equal(u.q('[data-purchase-selected]').hidden,true);
+});
+
+test('a listed open vehicle keeps its budget simulation with a dated notice when the saved details are stale', async t=>{
+  const car=record(), old={...car,read:{source:'d1',freshness:'stale',catalog_scope:'active',last_synced_at:'2026-10-27T14:56:47Z'}};
+  const u=setup(t,[old],{[car.lot_number]:old});
+  u.search(car.lot_number,'copart');
+  await check(()=>!u.q('[data-purchase-selected]').hidden);
+  assert.match(u.q('[data-purchase-status]').textContent,/Symulacja według zapisanych danych z 27\.10\.2026/);
+  assert.match(u.q('[data-purchase-status]').textContent,/potwierdzenia przed licytacją/);
+});
+
+test('the retained lookup rejects mismatched identity and missing platform without guessing', async t=>{
+  const car=record(), u=setup(t,[],{[car.lot_number]:{...car,platform:'iaai'}});
+  u.search(car.lot_number);
+  await check(()=>/Wybierz platformę/.test(u.q('[data-purchase-status]').textContent));
+  assert.equal(u.requests.length,1);
+  u.search(car.lot_number,'copart');
+  await check(()=>/nie potwierdził tożsamości/.test(u.q('[data-purchase-status]').textContent));
+  assert.equal(u.q('[data-purchase-matches] a'),null);
+  assert.equal(u.q('[data-purchase-selected]').hidden,true);
+});
+
 test('customer budget follows the selected offer separately from the estimated total and disappears in forward mode',async t=>{
   const car=record(),u=setup(t,[car],{[car.lot_number]:car});
   u.q('[name=budget]').value='100000';

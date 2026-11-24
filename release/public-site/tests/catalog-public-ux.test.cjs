@@ -463,7 +463,7 @@ test("catalog search uses its own heading and visible VIN/LOT rows preserve thei
   assert.equal(url.searchParams.get("vin"),"1HGCM82633A004352");
   p.win.history.pushState({},"","/");
   p.win.dispatchEvent(new p.win.PopStateEvent("popstate"));
-  assert.match(p.node("heroTitle").textContent,/Wybierz wymarzony pojazd/);
+  assert.match(p.node("heroTitle").textContent,/Samochody z aukcji w USA/);
   assert.equal(p.node("catalogResults").hidden,true);
 });
 

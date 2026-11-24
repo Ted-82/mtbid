@@ -362,7 +362,7 @@
       <a href="rejestracja.html" class="btn btn-red">Rejestracja</a>
     </div>
 
-  <div class="rexbid-auth-nav" data-rexbid-auth-nav aria-label="Konto użytkownika"></div></div>
+  <div class="rexbid-auth-nav" data-rexbid-auth-nav role="group" aria-label="Konto użytkownika"></div></div>
 </header>
 
 <main class="container">
@@ -395,8 +395,8 @@
 <div class="rex-operator"><div><span>Podmiot prowadzący REXBID: <strong>REX AUTO CARGOLOOP L.L.C</strong></span><address class="rex-company-address">1209 Mountain Road Pl NE, Ste N<br>Albuquerque, NM 87110, United States</address></div><nav class="rex-legal-links" aria-label="Informacje o serwisie"><a href="/o-nas.html">O nas</a><a href="/kontakt.html">Kontakt</a><a href="/warunki.html">Warunki korzystania</a><a href="/prywatnosc.html">Prywatność</a></nav></div></footer>
 
 <link rel="stylesheet" href="/rexbid-compare.css?v=20261025">
-<script src="/rexbid-compare.js?v=20261114-sections" defer></script>
-<script src="/rexbid-storage.js?v=61ff9ecd8bc8"></script>
+<script src="/rexbid-compare.js?v=37d22f982c37" defer></script>
+<script src="/rexbid-storage.js?v=73c07260d040"></script>
 <script src="/rexbid-auth.js?v=21437df8759b"></script>
 <script src="/rexbid-saved-vehicles.js?v=20261114-sections"></script>
 <script>
@@ -410,9 +410,10 @@
   const statusLabel = (auction, now = Date.now()) => {
     const state = String(auction?.state || "").toLowerCase();
     const outcome = String(auction?.outcome_status || "").toLowerCase();
-    if (/not.?sold|no.?sale|unsold/.test(outcome) || ["not_sold", "no_sale"].includes(state)) return "Niesprzedana";
+    if (/not.?sold|no.?sale|unsold/.test(outcome) || ["not_sold", "no_sale"].includes(state)) return auction?.result_confirmed === true ? "Niesprzedana" : "Wynik do potwierdzenia";
     if (approvalPending(auction)) return "Oferta warunkowa · wynik niepotwierdzony";
-    if (/\bsold\b/.test(outcome) || state === "sold" || auction?.sold_timed) return "Sprzedana";
+    if (auction?.result_confirmed === true && (outcome === "sold" || (!outcome && (state === "sold" || auction?.sold_timed === true)))) return "Sprzedana";
+    if (outcome === "sold" || state === "sold" || auction?.sold_timed === true) return "Wynik do potwierdzenia";
     if (["finished", "closed", "ended"].includes(state)) return "Zakończona";
     if (state === "live") return "Trwa";
     const auctionTime = Date.parse(auction?.date || auction?.full_date || "");
@@ -447,9 +448,11 @@
     const bid = value => (typeof value === "number" || typeof value === "string" && value.trim() !== "") && Number.isFinite(Number(value)) && Number(value) > 0;
     const positive = value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)) && Number(value) > 0;
     if (finished && approvalPending(car.auction)) return ["Cena sprzedaży niepotwierdzona", null];
-    if (finished && positive(pricing.sale_price_usd)) return ["Cena sprzedaży", pricing.sale_price_usd];
-    if (finished && positive(pricing.final_price_usd)) return ["Cena sprzedaży", pricing.final_price_usd];
-    if (finished && positive(pricing.last_sold_price_usd)) return ["Ostatnia cena sprzedaży", pricing.last_sold_price_usd];
+    const outcome = String(car.auction?.outcome_status || "").toLowerCase().trim();
+    const sold = car.auction?.result_confirmed === true && (outcome === "sold" || (!outcome && (state === "sold" || car.auction?.sold_timed === true))) && !["not_sold","no_sale"].includes(state);
+    if (sold && positive(pricing.sale_price_usd)) return ["Cena sprzedaży", pricing.sale_price_usd];
+    if (sold && positive(pricing.final_price_usd)) return ["Cena sprzedaży", pricing.final_price_usd];
+    if (finished && positive(pricing.last_sold_price_usd)) return ["Historyczna cena sprzedaży", pricing.last_sold_price_usd];
     if (!finished && bid(pricing.current_bid_usd)) return ["Ostatnia zapisana oferta", pricing.current_bid_usd];
     if (!finished && !Object.prototype.hasOwnProperty.call(pricing, 'current_bid_usd') && bid(pricing.current_bid2_usd)) return ["Ostatnia zapisana oferta", pricing.current_bid2_usd];
     if (!finished && positive(pricing.buy_now_usd)) return ["Kup teraz · zapis danych", pricing.buy_now_usd];

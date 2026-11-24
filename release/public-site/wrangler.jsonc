@@ -1,0 +1,54 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "mtbid",
+  "main": "./worker.js",
+  "compatibility_date": "2026-09-19",
+  "vars": {
+    "REXBID_CANONICAL_ORIGIN": "https://mtbid.tedn828.workers.dev",
+    "REXBID_PROVIDER_BUDGET_MODE": "required",
+    "REXBID_PROVIDER_BUDGET_DAILY_LIMIT": "500",
+    "REXBID_PROVIDER_BUDGET_CATALOG_DAILY_LIMIT": "250",
+    "REXBID_PROVIDER_BUDGET_DETAIL_DAILY_LIMIT": "150",
+    "REXBID_PROVIDER_BUDGET_HISTORY_DAILY_LIMIT": "60",
+    "REXBID_PROVIDER_BUDGET_DISCOVERY_DAILY_LIMIT": "0",
+    "REXBID_PROVIDER_BUDGET_MEDIA_DAILY_LIMIT": "0",
+    "REXBID_LEGACY_SYNC_ENABLED": "false",
+    "REXBID_D1_PRIMARY_READS": "false",
+    "REXBID_TRANSPORT_CALCULATOR_ENABLED": "enabled",
+    "REXBID_TRANSPORT_CALCULATOR_ALLOWED_ORIGINS": "https://mtbid.tedn828.workers.dev",
+    "REXBID_CALCULATOR_V3_ENABLED": "enabled",
+    "REXBID_CALCULATOR_V3_ALLOWED_ORIGINS": "https://mtbid.tedn828.workers.dev"
+  },
+  "d1_databases": [
+    {
+      "binding": "REXBID_DB",
+      "database_name": "rexbid-db",
+      "database_id": "971879fe-04ed-4e8c-9dc6-5306980bb872",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/",
+      "/car*",
+      "/*.html",
+      "/konto",
+      "/panel",
+      "/administracja",
+      "/ulubione",
+      "/logowanie",
+      "/rejestracja",
+      "/reset-hasla",
+      "/robots.txt",
+      "/sitemap.xml",
+      "/rexbid-door-estimator.js",
+      "/rexbid-door-estimator-rates.js",
+      "/rexbid-transport-rates.js",
+      "/rexbid-transport-engine.js",
+      "/rexbid-calculator-v3-rates.js",
+      "/rexbid-import-budget.js"
+    ]
+  }
+}

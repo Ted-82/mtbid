@@ -49,6 +49,7 @@ function wrapper(config = buildPublicationConfig(base()), sharedFetch = null, au
   context.__transactionalMail = require('../portal/transactional-mail.cjs');
   context.__fileDeletion = require('../portal/file-deletions.cjs');
   context.__publicBackup = require('../sync/catalog-backup.cjs');
+  context.__vehiclePages = require('../sync/vehicle-page.cjs');
   vm.runInContext(fs.readFileSync(path.join(ROOT, 'worker.publication.js'), 'utf8')
     .replace('import rexWorker from "./worker.js";', 'const rexWorker = globalThis.__shared;')
     .replace('import storedReads from "./staging/d1-primary-reads.cjs";', 'const storedReads = globalThis.__stored;')
@@ -62,6 +63,7 @@ function wrapper(config = buildPublicationConfig(base()), sharedFetch = null, au
     .replace('import transactionalMail from "./portal/transactional-mail.cjs";', 'const transactionalMail = globalThis.__transactionalMail;')
     .replace('import fileDeletion from "./portal/file-deletions.cjs";', 'const fileDeletion = globalThis.__fileDeletion;')
     .replace('import publicBackup from "./sync/catalog-backup.cjs";', 'const publicBackup = globalThis.__publicBackup;')
+    .replace('import vehiclePages from "./sync/vehicle-page.cjs";', 'const vehiclePages = globalThis.__vehiclePages;')
     .replace('import {CatalogBackup, refreshCatalogBackup} from "./sync/catalog-backup-service.mjs";', 'const refreshCatalogBackup = async () => {};')
     .replace('export {CatalogBackup};', '')
     .replace('export const RexBidLive', 'const RexBidLive')
@@ -195,11 +197,13 @@ test('only active catalog lists use a new primary-pinned D1 read session', async
 test('catalog publication renders real public pages without dead Auth/portal links while retaining contact and local favorites', async () => {
   const {JSDOM} = require('jsdom');
   const privatePath = pathname => /^\/(?:konto|logowanie|rejestracja|reset-hasla|panel|administracja)(?:\.html)?\/?$/.test(pathname);
+  const sampleVehicle = {platform:'copart',lot_number:'76592626',vin:'W1N0G8DB5MF975918',title:'Mercedes GLC',media:{items:['https://example.org/car.jpg']}};
   for (const file of ['index.html', 'car.html', 'ulubione.html', 'kontakt.html', 'jak-to-dziala.html', 'o-nas.html', 'prywatnosc.html', 'warunki.html']) {
     const f = wrapper(undefined, async () => new Response(fs.readFileSync(path.join(ROOT, 'public', file), 'utf8'), {
       headers: {'Content-Type': 'text/html; charset=UTF-8', 'Content-Security-Policy': "script-src 'nonce-kept'", 'Cache-Control': 'no-cache'}
-    }));
-    const response = await f.worker.fetch(request('/' + file), f.env);
+    }), undefined, {handleStoredRead:async req=>new URL(req.url).pathname==='/api/car/'+sampleVehicle.lot_number ? Response.json({ok:true,data:sampleVehicle}) : null});
+    const url = '/' + file + (file === 'car.html' ? '?lot='+sampleVehicle.lot_number+'&platform='+sampleVehicle.platform : '');
+    const response = await f.worker.fetch(request(url), f.env);
     assert.equal(response.status, 200); assert.equal(response.headers.get('Content-Security-Policy'), "script-src 'nonce-kept'");
     const dom = new JSDOM(await response.text(), {url: 'https://rexbid.pl/' + file, runScripts: 'outside-only'});
     assert.equal(dom.window.document.documentElement.dataset.rexbidPublicationPhase, 'catalog');
@@ -218,6 +222,15 @@ test('catalog publication renders real public pages without dead Auth/portal lin
     }
     dom.window.close(); assert.equal(f.calls.length, 1);
   }
+});
+
+test('HEAD for a matched vehicle uses the GET-only public HTML template and returns no body', async () => {
+  const car={platform:'iaai',lot_number:'46162264',vin:'1HGCM82633A004352',title:'Honda',media:{items:['https://example.org/car.jpg']}};
+  const f=wrapper(undefined, async req=>req.method==='GET'
+    ? new Response('<!doctype html><html><title>Oferta</title><div id="page"></div></html>',{headers:{'Content-Type':'text/html'}})
+    : new Response(null,{status:405}), undefined, {handleStoredRead:async()=>Response.json({ok:true,data:car})});
+  const response=await f.worker.fetch(request('/car?platform=iaai&lot=46162264',{method:'HEAD'}),f.env);
+  assert.equal(response.status,200);assert.equal(await response.text(),'');assert.equal(f.calls[0].request.method,'GET');
 });
 
 test('unlaunched private page URLs have a useful unavailable HTML state, no login form and no account lookup', async () => {
@@ -731,13 +744,47 @@ test('public discovery uses exact rexbid.pl only and never accesses catalog, ass
       assert.match(body,/https:\/\/rexbid\.pl/);
       assert.doesNotMatch(body,/mtbid|workers\.dev|rexbid-auth-test|lastmod/);
       if(route==='/robots.txt'){assert.match(body,/Disallow: \/api\//);assert.match(body,/Disallow: \/administracja/);}
-      else {const {JSDOM}=require('jsdom');const doc=new JSDOM(body,{contentType:'application/xml'}).window.document;assert.equal(doc.querySelectorAll('parsererror').length,0);assert.equal(doc.querySelectorAll('loc').length,7);assert.ok([...doc.querySelectorAll('loc')].every(x=>new URL(x.textContent).origin==='https://rexbid.pl'));assert.ok([...doc.querySelectorAll('loc')].some(x=>x.textContent==='https://rexbid.pl/pomoc'));}
+      else {
+        const {JSDOM}=require('jsdom');
+        const doc=new JSDOM(body,{contentType:'application/xml'}).window.document;
+        assert.equal(doc.querySelectorAll('parsererror').length,0);
+        const urls=[...doc.querySelectorAll('loc')].map(node=>new URL(node.textContent));
+        assert.ok(urls.every(url=>url.origin==='https://rexbid.pl'));
+        assert.deepEqual(urls.map(url=>url.pathname).sort(),[
+          '/', '/jak-to-dziala', '/kalkulator-budzet', '/kontakt', '/o-nas', '/pomoc'
+        ]);
+        for(const url of urls){
+          const file=url.pathname==='/'?'index.html':url.pathname.slice(1)+'.html';
+          const html=fs.readFileSync(path.join(ROOT,'public',file),'utf8');
+          assert.doesNotMatch(html,/<meta\s+name=["']robots["'][^>]*noindex/i);
+        }
+      }
     }
   }
   const alias=await f.worker.fetch(request('/sitemap.xml?x=1',{},'https://www.rexbid.pl'),f.env);
   assert.equal(alias.status,308);assert.equal(alias.headers.get('Location'),'https://rexbid.pl/sitemap.xml?x=1');
   const mutation=await f.worker.fetch(request('/robots.txt',{method:'POST'}),f.env);assert.equal(mutation.status,405);
   assert.equal(f.calls.length,0);
+});
+test('budget and guide aliases share a canonical URL even with campaign parameters', async () => {
+  const {worker,env,providerCalls} = sharedWorker();
+  const {JSDOM}=require('jsdom');
+  for(const name of ['kontakt','kalkulator-budzet']){
+    const markup=fs.readFileSync(path.join(ROOT,'public',name+'.html'),'utf8');
+    env.ASSETS={fetch:async()=>new Response(markup,{headers:{'Content-Type':'text/html'}})};
+    for(const suffix of ['', '.html', '?utm_source=google']){
+      const response=await worker.fetch(request('/'+name+suffix),env);
+      assert.equal(response.status,200);
+      const dom=new JSDOM(await response.text());
+      const doc=dom.window.document;
+      assert.equal(doc.querySelectorAll('link[rel=canonical]').length,1);
+      assert.equal(doc.querySelector('link[rel=canonical]').href,'https://rexbid.pl/'+name);
+      assert.equal(doc.querySelector('meta[property="og:url"]').content,'https://rexbid.pl/'+name);
+      assert.equal(doc.querySelector('meta[property="og:title"]').content,doc.title);
+      dom.window.close();
+    }
+  }
+  assert.equal(providerCalls(),0);
 });
 test('catalog readiness needs saved observations and real HTML assets but no provider credential or network', async () => {
   const f=wrapper(); let queries=0,assets=0;

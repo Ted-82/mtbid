@@ -9,11 +9,15 @@ const AT='2026-11-01T12:00:00.000Z',OLD='2020-01-01T00:00:00.000Z';
 function fixture(t,{active=true}={}){
  const sql=new DatabaseSync(':memory:');t.after(()=>sql.close());sql.exec('PRAGMA foreign_keys=ON');
  for(const f of ['0004_d1_sync_2.sql','0013_identifier_read_indexes.sql','0014_feed_catalog_membership.sql'])sql.exec(fs.readFileSync(path.join(__dirname,'../docs/proposals',f),'utf8').replace(/^\uFEFF/,''));
+ sql.exec(require('../sync/catalog-order.cjs').auctionIndexSql);
  const rows=[['a','copart','Toyota','open'],['b','iaai','Ford','live'],['c','copart','Historic','ended'],['d','copart','BMW','open'],['e','iaai','Audi','open']];
  for(const [i,[id,platform,make,state]]of rows.entries()){
   sql.prepare(`INSERT INTO vehicle_sources(source_key,provider,platform,identity_state,first_seen_at,last_seen_at,created_at,updated_at) VALUES(?,'apibara',?,'resolved',?,?,?,?)`).run('s'+id,platform,OLD,OLD,OLD,OLD);
   sql.prepare(`INSERT INTO auction_listings(listing_id,source_key,platform,identity_state,source_listing_id,lot,vin_normalized,make,model,year,auction_state,first_seen_at,last_seen_at,summary_synced_at,created_at,updated_at) VALUES(?,?,?,'resolved',?,?,?,?,?,2020,?,?,?,?,?,?)`).run(id,'s'+id,platform,'source-'+id,String(100+i),'1HGCM82633A00435'+i,make,'Model',state,OLD,OLD,OLD,OLD,OLD);
  }
+ // The description can be stale even though the next auction has an assigned date.
+ const future=new Date(Date.now()+86400000).toISOString();
+ sql.prepare("UPDATE auction_listings SET auction_at=?,timed_end_at=?,is_timed=1,source_status='Open'").run(future,future);
  function baseline(id,members){
   const plan=canonicalPlan({version:1,baselineId:id,scope:'production',capture:{sequence:100,capturedAt:'2026-11-01T11:00:00.000Z',responseSha256:'a'.repeat(64)},snapshot:{generationId:7001,sha256:'b'.repeat(64),records:members.length,requestStartedAt:'2026-11-01T11:01:00.000Z',observedAt:OLD,generatedAtKnown:false,generatedAt:null},sourceEvidence:{kind:'provider-checkpoint',sha256:'c'.repeat(64),replayStartSequence:100,snapshotSha256:'b'.repeat(64)}});
   const state={version:1,status:'ready',offset:members.length,resolved:members.length,excluded:0,unresolved:0,deltaUnresolved:0,reviewedUnresolved:0,reviewSha256:null,replayVerified:true,replaySequence:200,pendingDelta:null,lastBatch:{kind:'delta',from:100,through:200,sha256:'d'.repeat(64)}};
@@ -50,7 +54,7 @@ test('detail/history keep canonical archive reachable and never infer a Sold cla
 });
 
 test('incremental categories paginate unchanged active descriptions without refreshing their timestamps',async t=>{
- const h=fixture(t);h.sql.exec("UPDATE auction_listings SET fuel_type='Electric',buy_now_usd=5000,is_timed=1,timed_end_at='2099-01-01T12:00:00Z',source_status='open'");
+ const h=fixture(t);h.sql.exec("UPDATE auction_listings SET fuel_type='Electric',buy_now_usd=5000");
  for(const category of ['current','electric','buy-now','timed']){
   const first=await body('/api/cars?category='+category+'&per_page=1&view=cards',h.env);
   assert.equal(first.response.status,200);assert.deepEqual(first.body.data.map(v=>v.lot_number),['100']);assert.equal(first.body.data[0].freshness_status,'stale');assert.equal(first.body.data[0].last_synced_at,OLD);
@@ -62,13 +66,23 @@ test('incremental categories paginate unchanged active descriptions without refr
  assert.deepEqual((await body('/api/cars?category=electric',h.env)).body.data.map(v=>v.lot_number),['101']);
 });
 test('active cursor binds baseline and pointer revision for all sort modes, legacy cursor only works at NULL',async t=>{
- const h=fixture(t);for(const sort of ['recent','year_asc','bid_asc']){
+ const h=fixture(t,{active:false});
+ const legacyDefault=(await body('/api/cars?per_page=1',h.env)).body.meta.next_cursor;
+ assert.ok(legacyDefault);
+ h.pointer('fresh-a',1);
+ for(const sort of ['recent','auction_next','auction_later','year_asc','bid_asc']){
   const first=await body('/api/cars?per_page=1&sort='+sort,h.env),cursor=first.body.meta.next_cursor;assert.ok(cursor);
   assert.equal((await body('/api/cars?per_page=1&sort='+sort+'&cursor='+cursor,h.env)).response.status,200);
   h.pointer('fresh-a',2);assert.equal((await body('/api/cars?per_page=1&sort='+sort+'&cursor='+cursor,h.env)).response.status,400);h.pointer('fresh-a',1);
  }
  assert.equal((await body('/api/cars?cursor='+encodeCursor(['listing','a']),h.env)).response.status,400);assert.equal((await body('/api/cars?cursor=invalid***',h.env)).body.error,'invalid_catalog_cursor');
- const cursor=(await body('/api/cars?per_page=1',h.env)).body.meta.next_cursor;h.pointer('fresh-b',2);assert.equal((await body('/api/cars?cursor='+cursor,h.env)).body.error,'invalid_catalog_cursor');h.pointer(null,3);assert.equal((await body('/api/cars?cursor='+encodeCursor(['listing','a']),h.env)).response.status,200);
+ const cursor=(await body('/api/cars?per_page=1',h.env)).body.meta.next_cursor;
+ h.pointer('fresh-b',2);
+ assert.equal((await body('/api/cars?cursor='+cursor,h.env)).body.error,'invalid_catalog_cursor');
+ assert.equal((await body('/api/cars?cursor='+legacyDefault,h.env)).response.status,400);
+ h.pointer(null,3);
+ assert.equal((await body('/api/cars?cursor='+legacyDefault,h.env)).response.status,200);
+ assert.equal((await body('/api/cars?sort=recent&cursor='+encodeCursor(['listing','a']),h.env)).response.status,200);
 });
 test('one request shares pointer/proof read between cache namespace and route; pointer flip/NULL rollback isolate 900s taxonomy cache',async t=>{
  const h=fixture(t),cache=new Cache();async function fetch(){const req=request('/api/filters');return cachedStoredRead(req,cache,()=>reads.handleStoredRead(req,h.env),{namespace:()=>catalogMembershipNamespace(req,h.env,'test-public'),revalidateClient:true});}
@@ -136,8 +150,19 @@ test('file scheduler authority remains exclusive during a verified baseline and 
 function publicationSchedulerForAuthority(env,run){
  const root=path.join(__dirname,'..'),actual=require('../sync/automatic-refresh.cjs'),context={URL,Request,Response,Headers,console:{info(){},error(){}},HTMLRewriter:class{},__shared:{},__cache:{},__accounts:{},__stored:reads,__automatic:{configuration:actual.configuration,runAutomaticRefresh:run}};vm.createContext(context);
  context.__traffic=require('../portal/traffic.cjs');
+ context.__mail=require('../portal/transactional-mail.cjs');
+ context.__vehiclePages=require('../sync/vehicle-page.cjs');
  let source=fs.readFileSync(path.join(root,'worker.publication.js'),'utf8').replace('import trafficModule from "./portal/traffic.cjs";','const trafficModule=globalThis.__traffic;').replace('import liveModule from "./portal/live-auction.cjs";','const liveModule={RexBidLive:class{}};').replace('export const RexBidLive','const RexBidLive').replace('export const RexBidTraffic','const RexBidTraffic');for(const [line,replacement]of [
- ['import rexWorker from "./worker.js";','const rexWorker=globalThis.__shared;'],['import storedReads from "./staging/d1-primary-reads.cjs";','const storedReads=globalThis.__stored;'],['import savedReadCache from "./sync/stored-read-cache.cjs";','const savedReadCache=globalThis.__cache;'],['import automaticRefreshModule from "./sync/automatic-refresh.cjs";','const automaticRefreshModule=globalThis.__automatic;'],['import accountsReadinessModule from "./auth/routes.js";','const accountsReadinessModule=globalThis.__accounts;']])source=source.replace(line,replacement);vm.runInContext(source.replace('export default {','globalThis.__worker={'),context);
+ ['import rexWorker from "./worker.js";','const rexWorker=globalThis.__shared;'],['import storedReads from "./staging/d1-primary-reads.cjs";','const storedReads=globalThis.__stored;'],['import savedReadCache from "./sync/stored-read-cache.cjs";','const savedReadCache=globalThis.__cache;'],['import automaticRefreshModule from "./sync/automatic-refresh.cjs";','const automaticRefreshModule=globalThis.__automatic;'],['import accountsReadinessModule from "./auth/routes.js";','const accountsReadinessModule=globalThis.__accounts;'],
+ ['import transactionalMail from "./portal/transactional-mail.cjs";','const transactionalMail=globalThis.__mail;'],
+ ['import vehiclePages from "./sync/vehicle-page.cjs";','const vehiclePages=globalThis.__vehiclePages;'],
+ ['import archiveModule from "./sync/auction-archive-public.cjs";',''],
+ ['import contactDelivery from "./portal/contact-delivery.cjs";',''],
+ ['import fileDeletion from "./portal/file-deletions.cjs";',''],
+ ['import publicBackup from "./sync/catalog-backup.cjs";',''],
+ ['import {CatalogBackup, refreshCatalogBackup} from "./sync/catalog-backup-service.mjs";',''],
+ ['export {CatalogBackup};','']])source=source.replace(line,replacement);
+ vm.runInContext(source.replace('export default {','globalThis.__worker={'),context);
  const config=JSON.parse(fs.readFileSync(path.join(root,'wrangler.production-publication.jsonc'),'utf8'));return{worker:context.__worker,env:{...config.vars,REXBID_DB:env.REXBID_DB}};
 }
 

@@ -15,7 +15,14 @@ const raw=(platform='iaai',lot='43806658',bid=0)=>({...structuredClone(fixture),
 const target=(platform='iaai',lot='43806658')=>({platform,lot,vin_normalized:vin,listing_id:platform+lot,provider_vehicle_id:'source-'+vin});
 function database(){const sql=new DatabaseSync(':memory:');sql.exec(fs.readFileSync(path.join(__dirname,'../docs/proposals/0004_d1_sync_2.sql'),'utf8'));sql.exec('PRAGMA foreign_keys=ON');const db={prepare(query){return {sql:query,params:[],bind(...params){return {...this,params};},async all(){return {results:sql.prepare(query).all(...this.params)};},async first(){return sql.prepare(query).get(...this.params)||null;}};},async batch(items){sql.exec('BEGIN');try{const rows=items.map(x=>/^\s*SELECT\b/i.test(x.sql)?{results:sql.prepare(x.sql).all(...x.params)}:{results:[],meta:{changes:Number(sql.prepare(x.sql).run(...x.params).changes)}});sql.exec('COMMIT');return rows;}catch(e){sql.exec('ROLLBACK');throw e;}}};return {db,sql};}
 async function seed(db,value){const p=await prepareObservation({repo:new D1SyncRepository(db),provider,raw:value,platform:value.platform,observedAt:at,processedAt:at,freshnessPolicy:policy});const b=await knownObservationStatements(db,p.record);await db.batch(b.statements);return {...target(value.platform,String(value.lot_number)),listing_id:p.record.identity.listingId};}
-function journal(maxRequests=6){return new CatalogJournal({directory:fs.mkdtempSync(path.join(__dirname,'../.codex-wrangler-cache/rex-catalog-')),baseAttempts:101,maxRequests,targetHash:'fixed'});}
+function journal(maxRequests=6){
+ const parent=path.resolve(os.tmpdir());
+ const directory=fs.mkdtempSync(path.join(parent,'rexbid-catalog-test-'));
+ test.after(()=>{
+   if(path.dirname(directory)===parent && path.basename(directory).startsWith('rexbid-catalog-test-')) fs.rmSync(directory,{recursive:true});
+ });
+ return new CatalogJournal({directory,baseAttempts:101,maxRequests,targetHash:'fixed'});
+}
 test('catalog journal keeps prior attempts and counts a bounded transient retry before transport',async()=>{const j=journal();let n=0;const r=await j.request({operation:'detail'},async()=>{if(!n++)throw Object.assign(Error('UPSTREAM'),{code:'UPSTREAM',status:503});return {ok:true};},{wait:async()=>{}});assert.equal(r.number,2);assert.equal(j.attempts()[1].combined,103);assert.equal(j.attempts()[1].retry,true);});
 test('catalog retry never exceeds the durable budget',async()=>{const j=journal(1);await assert.rejects(j.request({operation:'detail'},async()=>{throw Object.assign(Error('TIMEOUT'),{code:'TIMEOUT'});},{wait:async()=>{}}),/CATALOG_QUOTA/);assert.equal(j.attempts().length,1);});
 test('catalog authentication, exhausted quota and not found are not retried',async()=>{for(const [code,status,quotaExhausted]of [['AUTH',401,false],['RATE_LIMITED',429,true],['NOT_FOUND',404,false]]){const j=journal();await assert.rejects(j.request({operation:'detail'},async()=>{throw Object.assign(Error(code),{code,status,quotaExhausted});}));assert.equal(j.attempts().length,1);}});

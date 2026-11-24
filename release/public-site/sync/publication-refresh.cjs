@@ -145,6 +145,7 @@ async function prepareObservation({repo, provider, raw, platform, observedAt, pr
   merged.vin = normalizedObservationVin(merged.vin);
   const freshness = planFreshness(merged, Date.parse(observationTime), freshnessPolicy);
   return {record: {identity: existingIdentity(row, merged), vehicle: merged, observedAt: observationTime,
+    observedExteriorColor: Boolean(patch.exterior_color), observedDocumentName: Boolean(patch.document.name),
     snapshotPolicy: "consecutive", explicitClears, freshnessClass: freshness.freshnessClass.toLowerCase(),
     nextRefreshAt: new Date(Date.parse(observationTime) + freshness.intervalMs).toISOString()},
   inserted: !row, availability};

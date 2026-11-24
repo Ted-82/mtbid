@@ -136,6 +136,14 @@ test('conflicting existing VIN or non-apibara source is durably quarantined with
  }
 });
 
+test('a concurrent exterior color observation invalidates the upgraded hydration baseline',async t=>{
+ const env=database(t);
+ env.sqlite.exec(fs.readFileSync(path.join(__dirname,'../docs/proposals/0019_catalog_exterior_color.sql'),'utf8'));
+ await env.store.acquire();await seed(env);
+ env.calls.beforeBatch=()=>env.sqlite.prepare('UPDATE auction_listings SET exterior_color=?').run('Gray');
+ await assert.rejects(apply(env),/STALE_BASELINE/);assert.equal(listing(env).exterior_color,'Gray');clean(env);
+});
+
 test('a concurrent partial-price or media update cancels hydration despite unchanged full-record timestamps',async t=>{
  for(const [field,value] of [['current_bid_usd',999],['media_urls_json','["https://example.invalid/newer.jpg"]']]){
   const env=database(t);await env.store.acquire();await seed(env);const snapshots=count(env,'auction_listing_snapshots');

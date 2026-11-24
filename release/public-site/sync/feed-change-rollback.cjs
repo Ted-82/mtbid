@@ -42,7 +42,7 @@ function snapshot(value, groups, taskKeys) {
       || value.listings.length > 100 || value.tasks.length > 102) fail('FEED_ROLLBACK_SNAPSHOT_INVALID');
   const listings = new Map(), tasks = new Map(), seenLots = new Set();
   for (const row of value.listings) {
-    fullRow(row, LISTING_COLUMNS);
+    fullRow(row, Object.hasOwn(row,'exterior_color')?[...LISTING_COLUMNS,'exterior_color']:LISTING_COLUMNS);
     if (!text(row.listing_id) || !text(row.source_key) || !groups.has(identity(row)) || listings.has(row.listing_id) || seenLots.has(identity(row)))
       fail('FEED_ROLLBACK_IDENTITY_INVALID');
     listings.set(row.listing_id,row); seenLots.add(identity(row));
@@ -127,6 +127,8 @@ function buildChangeRollback({receipt, before, after} = {}) {
   for (const [id,row] of expected.listings) {
     const previous=old.listings.get(id);
     if (!previous || identity(previous)!==identity(row)) fail('FEED_ROLLBACK_IDENTITY_INVALID');
+    if(Object.hasOwn(previous,'exterior_color')!==Object.hasOwn(row,'exterior_color')
+       ||previous.exterior_color!==row.exterior_color)fail('FEED_ROLLBACK_NON_IMPORT_CHANGE');
     const columns=LISTING_COLUMNS.filter(key=>previous[key]!==row[key]);
     if (columns.some(key=>!MUTABLE_LISTING_COLUMNS.includes(key))) fail('FEED_ROLLBACK_NON_IMPORT_CHANGE');
     const decision=audit.decisions.find(item=>identity(item)===identity(row));
@@ -174,8 +176,9 @@ function buildChangeRollback({receipt, before, after} = {}) {
   }
   const guardId='file-rollback:'+createHash('sha256').update(JSON.stringify(canonical(input))).digest('hex');
   const groupCounts=receipt.groups.map(group=>({platform:group.platform,lot:group.lot,count:after.listings.filter(row=>identity(row)===identity(group)).length}));
-  const rowTuple=LISTING_COLUMNS.map(key=>`l.${key}`).join(',');
-  const expectedTuple=LISTING_COLUMNS.map(key=>`json_extract(e.value,'$.row.${key}')`).join(',');
+  const columns=expectedRows.some(item=>Object.hasOwn(item.row,'exterior_color'))?[...LISTING_COLUMNS,'exterior_color']:LISTING_COLUMNS;
+  const rowTuple=columns.map(key=>`l.${key}`).join(',');
+  const expectedTuple=columns.map(key=>`json_extract(e.value,'$.row.${key}')`).join(',');
   const taskTuple=TASK_COLUMNS.map(key=>`t.${key}`).join(',');
   const taskExpected=TASK_COLUMNS.map(key=>`json_extract(e.value,'$.row.${key}')`).join(',');
   // NULL-safe row-value IS avoids D1's expression-depth ceiling of 100.

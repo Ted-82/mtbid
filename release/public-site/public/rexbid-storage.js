@@ -109,6 +109,7 @@
         state: text(first(auction.state, vehicle.auction_state, vehicle.auctionState, vehicle.status, vehicle.state), 60),
         date: text(first(auction.auction_at, auction.full_date, auction.formatted, auction.date, vehicle.auction_date, vehicle.auction_at, vehicle.auctionAt), 80),
         outcome_status: text(auction.outcome_status, 40),
+        result_confirmed: typeof auction.result_confirmed === "boolean" ? auction.result_confirmed : null,
         lot_status: text(auction.lot_status, 40),
         is_timed: auction.is_timed === true,
         timed_end_at: text(auction.timed_end_at, 80),

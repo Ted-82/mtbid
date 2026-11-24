@@ -189,3 +189,17 @@ main { padding-top: 24px; }
   #auctionHistory .history-table td:nth-child(5),#auctionHistory .history-table td:nth-child(6){grid-column:1/-1}
   #auctionHistory .history-outcome-note{max-width:none}
 }
+.vehicle-skip-link {
+  position: fixed;
+  top: 8px;
+  left: 16px;
+  z-index: 2000;
+  transform: translateY(-180%);
+  padding: 12px 18px;
+  border-radius: 8px;
+  background: #fff;
+  color: #152b40;
+  font-weight: 700;
+}
+.vehicle-skip-link:focus { transform: none; }
+#page :is(.breadcrumbs, .breadcrumbs a, .vehicle-highlight small, .spec-missing strong, .local-storage-note, .vehicle-next-step p) { color: #475f73; }

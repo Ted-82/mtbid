@@ -151,6 +151,22 @@ test('new Copart LOT without record becomes a complete listing only through exis
   await run(env); assert.equal(env.calls.requests.length, 1); clean(env);
 });
 
+test('a same-number cross-platform LOT retries by the verified VIN within the next run budget', async t => {
+  for (const secondMatches of [true,false]) {
+    const env=await harness(t);enqueue(env);await record(env);finish(env);
+    env.detail=raw(LOT,{platform:'iaai',vin:OTHER_VIN});
+    const first=await run(env,{maxRequests:1});
+    assert.equal(first.deferred,1);assert.equal(listing(env),undefined);
+    assert.equal(task(env).status,'pending');assert.equal(env.calls.requests.length,1);
+    env.detail=secondMatches?raw():raw(LOT,{platform:'iaai',vin:OTHER_VIN});
+    const second=await run(env,{maxRequests:1});
+    assert.equal(env.calls.requests.length,2);assert.equal(env.calls.requests[1].spec.identifier,VIN);
+    if(secondMatches){assert.equal(second.completed,1);assert.equal(listing(env).vin_normalized,VIN);}
+    else{assert.equal(second.identityErrors,1);assert.equal(listing(env),undefined);assert.equal(task(env).status,'identity_error');}
+    clean(env);
+  }
+});
+
 test('consumer never requires global API stream cursor', async t => {
   const env = await harness(t); enqueue(env); await record(env); finish(env);
   env.sqlite.exec("DELETE FROM automatic_refresh_tasks WHERE task_key='stream:changes'");

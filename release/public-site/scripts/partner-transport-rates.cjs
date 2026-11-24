@@ -187,7 +187,7 @@ function generate({ root = ROOT, output = DEFAULT_OUTPUT, generatedAt = null } =
   const outputText = renderModule(dataset);
   if (output === "--check") {
     const existing = fs.readFileSync(DEFAULT_OUTPUT, "utf8");
-    if (existing !== outputText) throw new Error("Wygenerowany zestaw stawek jest nieaktualny; uruchom node scripts/partner-transport-rates.cjs --write.");
+    if (existing.replace(/\r\n/g, "\n") !== outputText.replace(/\r\n/g, "\n")) throw new Error("Wygenerowany zestaw stawek jest nieaktualny; uruchom node scripts/partner-transport-rates.cjs --write.");
   } else {
     fs.mkdirSync(path.dirname(output), { recursive: true });
     fs.writeFileSync(output, outputText, "utf8");

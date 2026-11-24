@@ -90,6 +90,16 @@ test('last batch undo restores the earlier file checkpoint and retains its earli
  await undo(env,plan);assert.deepEqual(capture(env,input),before);assert.deepEqual(allTasks(env),earlierTasks);clean(env);
 });
 
+test('upgraded catalogue rollback preserves color and rejects a concurrent correction',async t=>{
+ const env=database(t),input=receipt();
+ env.sqlite.exec(fs.readFileSync(path.join(__dirname,'../docs/proposals/0019_catalog_exterior_color.sql'),'utf8'));
+ seed(env.sqlite);await env.store.acquire();const before=capture(env,input);await apply(env,input);
+ const after=capture(env,input),plan=buildChangeRollback({receipt:input,before,after});
+ env.sqlite.prepare('UPDATE auction_listings SET exterior_color=?').run('White');
+ await assert.rejects(undo(env,plan),/FAILED|COMMIT/);assert.equal(allRows(env)[0].exterior_color,'White');
+ assert.throws(()=>buildChangeRollback({receipt:input,before,after:capture(env,input)}),/NON_IMPORT_CHANGE/);
+});
+
 test('newer listing price, detail timestamp or unrelated full-record field aborts every undo effect',async t=>{
  for(const [field,value] of [['current_bid_usd',900],['detail_synced_at',AT],['media_urls_json','["new-photo"]'],['vehicle_title','Newer title']]){
   const {env,input,before,after}=await setup(t),plan=buildChangeRollback({receipt:input,before,after}),tasks=allTasks(env);

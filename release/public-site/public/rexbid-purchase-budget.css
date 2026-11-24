@@ -11,3 +11,4 @@
 @media(max-width:600px){.purchase-lookup form{grid-template-columns:minmax(0,1fr)}.purchase-lookup :is(input,select){font-size:16px}}
 
 .purchase-budget-input{grid-column:1/-1}.purchase-budget-input input{font-size:26px;font-weight:800}.purchase-lookup h1{font-size:clamp(28px,4vw,40px)}
+.rex-guide .header-inner > a:not(.logo) { color: #fff; text-decoration: underline; text-underline-offset: .2em; }

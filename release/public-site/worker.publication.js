@@ -10,6 +10,7 @@ import contactDelivery from "./portal/contact-delivery.cjs";
 import transactionalMail from "./portal/transactional-mail.cjs";
 import fileDeletion from "./portal/file-deletions.cjs";
 import publicBackup from "./sync/catalog-backup.cjs";
+import vehiclePages from "./sync/vehicle-page.cjs";
 import {CatalogBackup, refreshCatalogBackup} from "./sync/catalog-backup-service.mjs";
 
 export const RexBidTraffic = trafficModule.RexBidTraffic;
@@ -63,7 +64,7 @@ function publicationDiscovery(request) {
       + [...PRIVATE_PAGE_PATHS, "/ulubione"].map(p => "Disallow: " + p + "\n").join("")
       + "\nSitemap: " + ORIGIN + "/sitemap.xml\n"
     : '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-      + ["/", "/jak-to-dziala.html", "/o-nas.html", "/kontakt.html", "/pomoc", "/warunki.html", "/prywatnosc.html"]
+      + ["/", "/jak-to-dziala", "/o-nas", "/kontakt", "/pomoc", "/kalkulator-budzet"]
         .map(p => "  <url><loc>" + ORIGIN + p + "</loc></url>").join("\n")
       + "\n</urlset>\n";
   return new Response(request.method === "HEAD" ? null : body, {headers: {
@@ -166,7 +167,7 @@ function configuredPublicationPhase(env) {
   return null;
 }
 
-async function readPublicCatalog(request, env, context) {
+async function readPublicCatalog(request, env, context, strictMissing = false) {
   const url = new URL(request.url);
   const list = url.pathname === "/api/cars";
   const history = /^\/api\/car\/[^/]+\/history$/.test(url.pathname);
@@ -221,7 +222,11 @@ async function readPublicCatalog(request, env, context) {
   }
   if (current?.headers.get("X-RexBid-Auction-Visibility") === "awaiting-date") return {response: current, active: true};
   if (current && current.status < 500 && !(detail && current.status === 404)) return {response: current, active: true};
-  return {response: await legacy() ?? current};
+  const previous = await legacy();
+  if (strictMissing && (!current || current.status >= 500) && (!previous || previous.status === 404)) {
+    return {response:safeResponse(request,503,"saved_catalog_temporarily_unavailable")};
+  }
+  return {response: previous ?? current};
 }
 
 export default {
@@ -319,6 +324,18 @@ export default {
         });
       }
       return safeResponse(request, 503, "owner_setup_in_progress");
+    }
+    if (["/car","/car.html"].includes(url.pathname) && ["GET","HEAD"].includes(request.method)) {
+      const render=()=>rexWorker.fetch(request.method==="HEAD" ? new Request(request,{method:"GET"}) : request,env,context);
+      const read=async route=>{
+        const detail=new Request(new URL(route,ORIGIN),{headers:{Accept:"application/json"},signal:request.signal});
+        const normal=()=>readPublicCatalog(detail,env,context,true);
+        const timed=env.REXBID_TIMED_IAAI_ENABLED==="enabled" ? await storedReads.readTimed?.(detail,env,normal) : null;
+        return (timed || await normal()).response;
+      };
+      const response=await vehiclePages.vehiclePage(request,{read,render});
+      trafficModule.recordTraffic(request,response,env,context);
+      return phase==="catalog" ? catalogOnlyNavigation(response) : response;
     }
     const readNormal = () => readPublicCatalog(request, env, context);
     const timed=env.REXBID_TIMED_IAAI_ENABLED === 'enabled' ? await storedReads.readTimed?.(request,env,readNormal) : null;

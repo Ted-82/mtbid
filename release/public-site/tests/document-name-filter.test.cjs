@@ -6,14 +6,12 @@ const reads=require('../staging/d1-primary-reads.cjs');
 const publicReads=require('../sync/public-read-utils.cjs');
 function fixture(t){
  const sql=new DatabaseSync(':memory:');
- const fields='make,model,year,location_state,auction_state,body_style,fuel_type,transmission,drive_type,run_state,primary_damage,seller_type'.split(',');
- sql.exec(`CREATE TABLE auction_listings(listing_id TEXT,source_key TEXT,platform TEXT,lot TEXT,document_name TEXT,document_type TEXT,last_seen_at TEXT,${fields.map(x=>x+' TEXT').join(',')});
- CREATE TABLE vehicle_sources(source_key TEXT,provider TEXT,provider_vehicle_id TEXT,last_attempt_at TEXT,last_success_at TEXT,last_error_code TEXT);
- CREATE TABLE provider_sync_scopes(provider TEXT,platform TEXT,status TEXT,cursor TEXT,last_complete_at TEXT,operation TEXT);`);
+ sql.exec(fs.readFileSync(require.resolve('../docs/proposals/0004_d1_sync_2.sql'),'utf8'));
+ const at=new Date().toISOString(),auctionAt=new Date(Date.now()+86400000).toISOString();
  const rows=[['a','iaai',' CLEAR ','success'],['b','iaai','clear','danger'],['c','iaai','CLEAR','success'],['d','copart','CLEAR','success'],['e','iaai','CLEAR - PARTS ONLY','danger'],['f','copart',"OWNER'S TITLE",'success'],['g','copart',null,'success'],['h','copart','ÉTAT','other'],['i','copart','état','other']];
  for(const [id,platform,name,type] of rows){
-  sql.prepare('INSERT INTO auction_listings(listing_id,source_key,platform,lot,document_name,document_type,last_seen_at) VALUES(?,?,?,?,?,?,?)').run(id,id,platform,id,name,type,'2026-10-01');
-  sql.prepare("INSERT INTO vehicle_sources VALUES(?,'apibara',?,NULL,NULL,NULL)").run(id,id);
+  sql.prepare("INSERT INTO vehicle_sources(source_key,provider,platform,identity_state,first_seen_at,last_seen_at,created_at,updated_at) VALUES(?,'apibara',?,'resolved',?,?,?,?)").run(id,platform,at,at,at,at);
+  sql.prepare("INSERT INTO auction_listings(listing_id,source_key,platform,lot,document_name,document_type,auction_state,source_status,auction_at,identity_state,first_seen_at,last_seen_at,created_at,updated_at) VALUES(?,?,?,?,?,?,'open','Open',?,'resolved',?,?,?,?)").run(id,id,platform,id,name,type,auctionAt,at,at,at,at);
  }
  const queries=[];
  const db={prepare(query){assert.match(query,/^SELECT\b/);queries.push(query);const stmt=sql.prepare(query);

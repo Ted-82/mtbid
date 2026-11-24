@@ -855,7 +855,7 @@ test('primary vehicle detail renders before calculator/history work and never ex
     sellerName:()=> 'Fixture Seller', sellerProfile:name=>({name,type:'dealer',note:'Fixture source'}),
     sellerDisplay:info=>info.name, getYear:()=>2020, getMake:()=> 'Honda', getModel:()=> 'Civic', getSeries:()=>null,
     first:(...values)=>values.find(value=>value!==null&&value!==undefined&&value!=='')??null,
-    getInfo:()=>null, valueFrom:()=>null, getTitleDocument:()=> 'Salvage Title', getSale:()=>null,
+    getInfo:()=>null, valueFrom:()=>null, getTitleDocument:()=> 'Salvage Title', getExteriorColor:()=>null, getSale:()=>null,
     titleRegistration:()=>({cls:'unknown'}), titleSourceStatus:()=> 'unknown',
     renderPrimaryAuctionScheduleHtml:()=> '<small>Termin aukcji</small><strong>Termin nieustalony</strong>',
     renderAuctionScheduleDetailHtml:()=> '<div class="kv">Termin aukcji: Do potwierdzenia</div>',
@@ -1132,9 +1132,9 @@ test('index exposes only Worker-supported advanced filters and restores shareabl
 
   const selected = {
     searchInput: 'Toyota', platform: 'copart', make: 'Toyota', model: 'Camry', yearFrom: '2018', yearTo: '2024',
-    lotStatus: 'Buy Now', lotSubStatus: 'Open', upcoming: 'only', priceMin: '1000', priceMax: '15000',
+    lotStatus: 'Buy Now', lotSubStatus: 'Open', photoFilter: '1', priceMin: '1000', priceMax: '15000',
     odometerFrom: '0', odometerTo: '120000', fuelType: 'Gasoline', transmission: 'Automatic',
-    driveType: 'AWD', runCond: 'RUNS AND DRIVES'
+    driveType: 'AWD', runCond: 'RUNS AND DRIVES', locationState: 'TX'
   };
   for (const [id, value] of Object.entries(selected)) {
     const control = element(id);
@@ -1147,9 +1147,9 @@ test('index exposes only Worker-supported advanced filters and restores shareabl
   const filteredLoad = element('advancedFilterButton').listeners.click();
   const expected = {
     s: 'Toyota', platform: 'copart', make: 'Toyota', model: 'Camry', year_from: '2018', year_to: '2024',
-    lot_status: 'Buy Now', lot_sub_status: 'Open', upcoming: 'only', price_min: '1000', price_max: '15000',
+    lot_status: 'Buy Now', lot_sub_status: 'Open', with_photo: '1', price_min: '1000', price_max: '15000',
     odometer_from: '0', odometer_to: '120000', fuel_type: 'Gasoline', transmission: 'Automatic',
-    drive_type: 'AWD', run_cond: 'RUNS AND DRIVES'
+    drive_type: 'AWD', run_cond: 'RUNS AND DRIVES', loc_state: 'TX'
   };
   for (const [name, value] of Object.entries(expected)) assert.equal(requests[1].searchParams.get(name), value, name);
   assert.equal(requests[1].searchParams.has('cursor'), false, 'filter apply starts at page one');
@@ -1248,10 +1248,12 @@ test('listing and detail price labels preserve price meaning and finished overri
   const listingContext = {};
   listingContext.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(listingContext);
   vm.runInContext(`${listingBlock}\nglobalThis.priceInfo = getPriceInfo;`, listingContext);
-  const soldListingPrice = listingContext.priceInfo({ auction: { state: 'finished' }, pricing: { sale_price_usd: 2025, current_bid_usd: 1800 } });
+  const soldListingPrice = listingContext.priceInfo({ auction: { state: 'finished', outcome_status:'Sold', result_confirmed:true }, pricing: { sale_price_usd: 2025, current_bid_usd: 1800 } });
   const buyNowListingPrice = listingContext.priceInfo({ auction: {state: 'open'}, pricing: { current_bid_usd: null, buy_now_usd: 2925 } });
   assert.deepEqual(JSON.parse(JSON.stringify(soldListingPrice)), { value: 2025, label: 'Cena sprzedaży' });
   assert.deepEqual(JSON.parse(JSON.stringify(buyNowListingPrice)), { value: 2925, label: 'Kup teraz' });
+  assert.deepEqual(JSON.parse(JSON.stringify(listingContext.priceInfo({read:{source:'d1',freshness:'fresh'},auction:{state:'open'},pricing:{current_bid_usd:1800}}))),
+    {value:1800,label:'Ostatnia zapisana oferta'});
   assert.equal(listingContext.priceInfo({ price: 1000, estimated_cost: { from: 500, to: 1500 } }).value, null);
   assert.deepEqual(JSON.parse(JSON.stringify(listingContext.priceInfo({ pricing: { current_bid2_usd: 2600, buy_now_usd: 3500 }, auction: { state: 'open', is_timed: true } }))),
     { value: 2600, label: 'Aktualna oferta · Timed Auction' }, 'secondary current bid is used when the primary value is empty');
@@ -1259,10 +1261,20 @@ test('listing and detail price labels preserve price meaning and finished overri
     {value:1800,label:'Ostatnia zapisana oferta'}, 'an unknown source availability retains the observed amount without calling it current');
   assert.deepEqual(JSON.parse(JSON.stringify(listingContext.priceInfo({auction:{state:'unknown'},pricing:{buy_now_usd:2925}}))),
     {value:2925,label:'Kup teraz · zapis danych'}, 'a retained Buy Now amount is not proof that purchase is currently available');
-  assert.deepEqual(JSON.parse(JSON.stringify(listingContext.priceInfo({ auction: { state: 'finished' }, pricing: { buy_now_usd: 0, last_sold_price_usd: 1500 } }))),
-    { value: 1500, label: 'Ostatnia cena sprzedaży' }, 'a stale last-sale value stays explicit and is never labeled current or final');
-  assert.deepEqual(JSON.parse(JSON.stringify(listingContext.priceInfo({ auction: { state: 'finished' }, pricing: { last_sold_price_usd: 1500 } }))),
-    { value: 1500, label: 'Ostatnia cena sprzedaży' });
+  for (const auction of [
+    {state:'finished'}, {state:'finished',outcome_status:'Sold',result_confirmed:false},
+    {state:'finished',outcome_status:'Not Sold',result_confirmed:true},
+    {state:'finished',outcome_status:'Sold on Approval',result_confirmed:true},
+    {state:'finished',last_sold_status:'Sold',result_confirmed:true},
+    {state:'finished',phase:'removed',result_confirmed:true}
+  ]) {
+    const info=listingContext.priceInfo({auction,pricing:{sale_price_usd:2025,last_sold_price_usd:1500,current_bid_usd:1800}});
+    assert.equal(info.value,null,JSON.stringify(auction));
+  }
+  const normalized=listingContext.priceInfo({auction:{state:'finished',outcome_status:'Sold',result_confirmed:true},pricing:{final_price_usd:2200}});
+  assert.equal(normalized.value,2200);
+  const historicalOnly=listingContext.priceInfo({auction:{state:'finished',outcome_status:'Sold',result_confirmed:true},pricing:{last_sold_price_usd:1500,final_bid_usd:1800}});
+  assert.equal(historicalOnly.value,null);
   const dateBlock = extractFunctionBlock(indexSource, 'parseConfirmedAuctionDate', 'getConfirmedUpcomingDate') + extractFunctionBlock(indexSource, 'getAuctionDate', 'renderCars');
   const dateContext = {};
   dateContext.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(dateContext);
@@ -1331,7 +1343,7 @@ test('listing and detail price labels preserve price meaning and finished overri
 
   const detailBlock = [extractFunctionBlock(carSource, 'hasApprovalPendingOutcome', 'getAuctionPriceInfo'), extractFunctionBlock(carSource, 'getAuctionPriceInfo', 'getBuyNow')].join('\n');
   const detailContext = {
-    car: { pricing: { sale_price_usd: 2025, last_sold_price_usd: 2025, buy_now_usd: 2925 } },
+    car: { auction:{outcome_status:'Sold',result_confirmed:true}, pricing: { sale_price_usd: 2025, last_sold_price_usd: 2025, buy_now_usd: 2925 } },
     auctionPhase: phaseContext.phase,
     getCurrentBid: () => null,
     getBuyNow: () => 2925,
@@ -1342,7 +1354,11 @@ test('listing and detail price labels preserve price meaning and finished overri
   vm.runInContext(`${detailBlock}\nglobalThis.priceInfo = getAuctionPriceInfo;`, detailContext);
   assert.deepEqual(JSON.parse(JSON.stringify(detailContext.priceInfo())), { value: 2025, label: 'Cena sprzedaży' });
   detailContext.car = { pricing: { last_sold_price_usd: 12500 } };
-  assert.deepEqual(JSON.parse(JSON.stringify(detailContext.priceInfo())), { value: 12500, label: 'Ostatnia cena sprzedaży' });
+  assert.deepEqual(JSON.parse(JSON.stringify(detailContext.priceInfo())), { value: null, label: 'Cena sprzedaży niepotwierdzona' });
+  for (const auction of [{state:'finished'}, {outcome_status:'Sold',result_confirmed:false}, {outcome_status:'Sold on Approval',result_confirmed:true}, {outcome_status:'Not Sold',result_confirmed:true}]) {
+    detailContext.car={auction,pricing:{sale_price_usd:2025,current_bid_usd:1800}};
+    assert.equal(detailContext.priceInfo().value,null);
+  }
 });
 
 test('unassigned upcoming detail shows an explicit unknown date without rendering a stale helper timestamp', () => {
@@ -1366,6 +1382,16 @@ test('unassigned upcoming detail shows an explicit unknown date without renderin
   statusContext.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(statusContext);
   vm.runInContext(`${statusBlock}\nglobalThis.statusLabel = auctionStatusLabel;`, statusContext);
   assert.equal(statusContext.statusLabel(), 'Nadchodząca aukcja');
+  statusContext.auctionPhase = () => 'ended';
+  statusContext.getAuctionStatus = () => 'sold';
+  statusContext.car.auction = { state:'sold', sold_timed:true, outcome_status:'Sold', result_confirmed:false };
+  assert.equal(statusContext.statusLabel(), 'Zakończona');
+  statusContext.car.auction.result_confirmed = true;
+  assert.equal(statusContext.statusLabel(), 'Sprzedana');
+  statusContext.car.auction.outcome_status = 'Not Sold';
+  assert.equal(statusContext.statusLabel(), 'Niesprzedana');
+  statusContext.car.auction.result_confirmed = false;
+  assert.equal(statusContext.statusLabel(), 'Zakończona');
 });
 
 test('Car 2.0 keeps vehicle actions and media controls explicit without implying unavailable features work', () => {

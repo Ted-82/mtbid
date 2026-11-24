@@ -33,6 +33,24 @@ test('VIN and LOT find two separate auctions and publish only archive URLs',asyn
   }
 });
 
+test('only an explicit archive sale can publish its price, including older entries without a status',async()=>{
+  const cases=[
+    [{status:'sold',saleCents:350000},'sold',350000],
+    [{status:'sold',saleCents:undefined},'sold',null],
+    [{status:'not_sold',saleCents:350000},'not_sold',null],
+    [{status:'ended_unknown',saleCents:350000},'ended_unknown',null],
+    [{status:undefined,saleCents:350000},'ended_unknown',null],
+    [{status:'Sold on Approval',saleCents:350000},'ended_unknown',null]
+  ];
+  for(const [fields,status,saleCents] of cases){
+    const {env}=fixture([{...archived,...fields}]);
+    const result=await handleArchive(request('/api/archiwum'),env,new Date('2026-11-17'));
+    assert.equal(result.status,200);
+    const {entries:[entry]}=await result.json();
+    assert.equal(entry.status,status);assert.equal(entry.saleCents,saleCents);
+    assert.equal(entry.photos.length,1);
+  }
+});
 test('both lookup and direct photo enforce visibility and model-year rollover',async()=>{
   const {env,requests}=fixture();
   assert.equal((await handleArchive(request(image),env,new Date('2027-01-01T00:00:01+01:00'))).status,404);

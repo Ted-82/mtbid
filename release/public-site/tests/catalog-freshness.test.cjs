@@ -105,14 +105,15 @@ test("freshly observed unknown availability does not make a retained bid, Buy No
   }
 });
 
-test("fresh D1 and legacy provider records preserve live pricing while previews remain explicitly saved data", () => {
+test("stored D1 observations and previews identify the saved bid while provider prices retain their own label", () => {
   const view=catalog();
   for (const read of [undefined,{source:"d1",freshness:"fresh"}]) {
     const record=car({read});
-    assert.equal(view.api.price(record).label,"Aktualna oferta");
+    assert.equal(view.api.price(record).label,read ? "Ostatnia zapisana oferta" : "Aktualna oferta");
     assert.equal(view.api.status(record),"Oczekuje na rozpoczęcie sesji");
     view.api.render([record]);
-    assert.doesNotMatch(view.cars.innerHTML,/Zapis danych z/);
+    if (read) assert.match(view.cars.innerHTML,/Zapis danych/);
+    else assert.doesNotMatch(view.cars.innerHTML,/Zapis danych/);
   }
   const preview=car({preview:{read_only:true,freshness:"fresh",last_synced_at:"2026-10-05T09:00:00Z"}});
   assert.equal(view.api.price(preview).label,"Ostatnia zapisana oferta");
@@ -124,11 +125,12 @@ test("fresh Home and catalog records retain observation time while source zero m
   const view=catalog();
   const record=car({pricing:{current_bid_usd:0,buy_now_usd:null},read:{source:"d1",freshness:"fresh",last_synced_at:"2026-10-14T08:05:00Z"}});
   view.api.render([record]);
-  assert.match(view.cars.innerHTML,/Odczyt źródła z 14\.10\.2026, 10:05/);
-  assert.match(view.cars.innerHTML,/Aktualna oferta/);
+  assert.match(view.cars.innerHTML,/Zapis danych z 14\.10\.2026, 10:05/);
+  assert.match(view.cars.innerHTML,/Zapis oferty/);
+  assert.doesNotMatch(view.cars.innerHTML,/>Aktualna oferta</);
   assert.match(view.cars.innerHTML,/Brak danych o ofercie/);
   assert.doesNotMatch(view.cars.innerHTML,/\$0/);
-  assert.match(view.api.homeCard(record,"current"),/Odczyt źródła z 14\.10\.2026, 10:05/);
+  assert.match(view.api.homeCard(record,"current"),/Zapis danych z 14\.10\.2026, 10:05/);
   assert.equal(record.read.last_synced_at,"2026-10-14T08:05:00Z");
   const undated=car({read:{source:"d1",freshness:"fresh"}});
   assert.match(view.api.homeCard(undated,"current"),/data nieustalona/);

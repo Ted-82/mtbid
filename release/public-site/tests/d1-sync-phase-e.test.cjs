@@ -206,6 +206,7 @@ test('catalog cards preserve public fields and pagination with a single cover ph
   const {sqlite,d1}=setup();
   t.after(()=>sqlite.close());
   const thumbs = ['https://example.com/cover.jpg','https://example.com/second.jpg'];
+  sqlite.prepare("UPDATE auction_listings SET auction_state='open',source_status='Open',auction_at=?").run(new Date(Date.now()+86400000).toISOString());
   sqlite.prepare("UPDATE auction_listings SET media_thumbs_json=? WHERE listing_id='listing-1'").run(JSON.stringify(thumbs));
   const {handleStoredRead}=require('../staging/d1-primary-reads.cjs');
   const env={REXBID_DB:d1,REXBID_PUBLIC_CATALOG_MODE:'stored',REXBID_RELEASE_D1_TARGET:'rexbid-production-preflight-db',REXBID_RELEASE_D1_DATABASE_ID:'c8a30088-70af-43a6-9a7f-c4018279d37d'};

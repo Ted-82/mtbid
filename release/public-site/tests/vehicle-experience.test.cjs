@@ -107,15 +107,22 @@ test("normalized D1 details render vehicle specs and mileage units without losin
   assert.equal(view.spec("Skrzynia"), "Brak danych");
   assert.equal(view.spec("Napęd"), "Brak danych");
   assert.equal(view.spec("Przebieg"), "0 km");
+  view.api.render(vehicle({transmission:"Unknown"}));
+  assert.equal(view.spec("Skrzynia"), "Brak danych");
 });
 
 test("confirmed ended sale remains the primary historical price while Buy Now stays separate from missing current bid", () => {
   const view = vehiclePage();
-  view.api.render(vehicle({auction:{state:"finished",outcome_status:"Sold"},pricing:{sale_price_usd:12345,buy_now_usd:5000}}));
+  view.api.render(vehicle({auction:{state:"finished",outcome_status:"Sold",result_confirmed:true},pricing:{sale_price_usd:12345,buy_now_usd:5000}}));
   assert.match(view.page.innerHTML, /id="currentBidPrice">\$12,345<\/strong>/);
   view.api.update();
   assert.equal(view.node("currentBidPrice").textContent, "$12,345");
   assert.equal(view.node("bidLabel").textContent, "Cena sprzedaży");
+
+  view.api.render(vehicle({auction:{state:"finished",outcome_status:"Sold"},pricing:{sale_price_usd:12345}}));
+  view.api.update();
+  assert.equal(view.node("currentBidPrice").textContent, "Brak danych o ofercie");
+  assert.equal(view.node("bidLabel").textContent, "Cena sprzedaży niepotwierdzona");
 
   view.api.render(vehicle({pricing:{current_bid_usd:null,buy_now_usd:5000}}));
   view.api.update();

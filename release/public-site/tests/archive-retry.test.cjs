@@ -6,6 +6,24 @@ const path=require('node:path');
 const {JSDOM}=require('jsdom');
 const read=name=>fs.readFileSync(path.join(__dirname,'../public',name),'utf8');
 const settle=()=>new Promise(resolve=>setImmediate(resolve));
+test('archive labels require a sold status and a valid price',async t=>{
+  const dom=new JSDOM(read('archiwum.html'),{url:'https://rexbid.pl/archiwum',runScripts:'outside-only'});
+  t.after(()=>dom.window.close());
+  const fields=[
+    [{status:'sold',saleCents:150050},/cena sprzedaży/],
+    [{status:'sold'},/^Sprzedany · bez ceny$/],
+    [{status:'sold',saleCents:null},/^Sprzedany · bez ceny$/],
+    [{status:'not_sold',saleCents:150050},/^Bez sprzedaży$/],
+    [{saleCents:150050},/^Wynik niepotwierdzony$/],
+    [{status:'pending',saleCents:null},/^Wynik niepotwierdzony$/]
+  ];
+  const entries=fields.map(([row],i)=>({platform:'iaai',lot:String(12345678+i),title:'Test',vin:'AAAAAAAAAAAAAAAAA',recordedAt:'2026-11-18T10:00:00Z',photos:[],...row}));
+  dom.window.fetch=async()=>({ok:true,status:200,json:async()=>({entries,next:null})});
+  dom.window.eval(read('rexbid-auction-archive.js'));await settle();
+  const labels=[...dom.window.document.querySelectorAll('.archive-entry-info strong')];
+  assert.equal(labels.length,fields.length);
+  fields.forEach(([,expected],i)=>assert.match(labels[i].textContent,expected));
+});
 test('archive retry resumes the same cursor and keeps the first page and its gallery collapsed',async t=>{
   const dom=new JSDOM(read('archiwum.html'),{url:'https://rexbid.pl/archiwum',runScripts:'outside-only'});
   t.after(()=>dom.window.close());

@@ -271,6 +271,8 @@ test('Sold on Approval is pending in list/detail and never becomes confirmed sal
   assert.equal(carContext.status(), 'Oferta warunkowa · wynik niepotwierdzony');
 
   const confirmed = { auction: { state: 'finished', outcome_status: 'Sold' }, pricing: { sale_price_usd: 1200 } };
+  assert.equal(listContext.price(confirmed).value, null);
+  confirmed.auction.result_confirmed = true;
   assert.deepEqual(JSON.parse(JSON.stringify(listContext.price(confirmed))), { value: 1200, label: 'Cena sprzedaży' });
   assert.equal(listContext.status({ auction: { state: 'finished', outcome_status: 'Not Sold' } }), 'Niesprzedana');
 });
@@ -511,8 +513,8 @@ test('home catalog uses four bounded sections backed only by supported Worker fi
   assert.doesNotMatch(indexSource.slice(indexSource.indexOf('id="marketSections"'),indexSource.indexOf('id="catalogResults"')), /data-kind="all"/,'Home keeps only four current discovery categories');
   assert.doesNotMatch(indexSource, /data-market-aisle data-kind="upcoming"/);
   assert.match(indexSource, /RexBidMarket\.eligible\(car, kind, now\)/);
-  assert.match(indexSource, /Wybierz wymarzony pojazd\.\s*<span>My zajmiemy się resztą\.<\/span>/);
-  assert.match(indexSource, /Aukcje w USA, transport i formalności — z naszym wsparciem na każdym etapie\./);
+  assert.match(indexSource, /Samochody z aukcji w USA\.\s*<span>Sprawdź koszt importu\.<\/span>/);
+  assert.match(indexSource, /Wybierz auto na Copart lub IAAI, policz koszt dostawy do Polski/);
   assert.doesNotMatch(indexSource, /Vehicle Auction Marketplace/);
   assert.doesNotMatch(indexSource, /Superauta|Premium|Wyróżnione/);
   assert.match(indexSource, /id="catalogResults"[^>]*hidden/);

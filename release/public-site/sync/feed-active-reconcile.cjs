@@ -290,12 +290,21 @@ async function processActiveFeedReconciliation({db, store, request, saveRecord, 
           .bind(`new:${iso(now()).slice(0,10)}`).first();
         if (!budget || budget.consumed >= budget.limit_count) {report.deferred++; report.reason = 'new_listing_budget'; continue;}
       }
-      const identifier = known?.provider_vehicle_id || (scope.coverage&&!known?task.expected_vin:task.lot);
+      const retryByVin = task.last_error_code === 'FEED_ACTIVE_LOT_PLATFORM_COLLISION';
+      const identifier = retryByVin ? task.expected_vin : known?.provider_vehicle_id || (scope.coverage&&!known?task.expected_vin:task.lot);
       if (typeof identifier !== 'string' || !identifier || identifier.length > 200) fail('FEED_ACTIVE_IDENTITY_INVALID');
       const id = randomUUID(); await store.guarded([workGuard(db, task, scope, now(), id), renew(db, store, now()), cleanup(db, id)]);
       report.attempted++;
       const obtained = await request({operation: 'vehicleByIdentifier', identifier, platform: task.platform}, known?.listing_id || null);
       const observedAt = time(obtained?.observedAt, now()), raw = adapter.vehicleDetailRecord(obtained.response);
+      // The detail endpoint can resolve an all-numeric LOT on the other platform.
+      // Reserve the verified VIN lookup for the next run and its own request budget.
+      if (!retryByVin && identifier === task.lot && ['copart','iaai'].includes(raw?.platform)
+          && raw.platform !== task.platform && String(raw.lot_number ?? raw.lot ?? '') === task.lot && fullVin(raw.vin)) {
+        await postpone({db,store,now},task,scope,'FEED_ACTIVE_LOT_PLATFORM_COLLISION',false,0);
+        report.deferred++;
+        continue;
+      }
       if (!raw || typeof raw !== 'object' || Array.isArray(raw) || raw.platform !== task.platform
           || String(raw.lot_number ?? raw.lot ?? '') !== task.lot || !fullVin(raw.vin) || raw.vin.toUpperCase() !== task.expected_vin) fail('FEED_ACTIVE_IDENTITY_MISMATCH');
       if (known) assertDetail(raw, known);

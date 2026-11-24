@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+  <title>REXBID — informacje do wyceny od partnera</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#f3f6fa;color:#14263d;font:16px/1.55 system-ui,sans-serif}main{max-width:920px;margin:auto;padding:32px 20px 56px}h1{font-size:clamp(26px,5vw,36px);line-height:1.2;margin:0 0 16px}h2{font-size:19px;margin:0 0 14px}p{color:#526477}section{margin:20px 0;padding:22px;border:1px solid #dce4ed;border-radius:12px;background:white}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}label{display:grid;gap:5px;font-size:13px;font-weight:650}input,select,textarea{width:100%;min-height:44px;border:1px solid #bac7d5;border-radius:7px;padding:10px;color:#14263d;background:#fff;font:inherit}textarea{min-height:90px;resize:vertical}small{color:#526477;font-weight:400}button{min-height:44px;padding:10px 16px;border:1px solid #14263d;border-radius:8px;background:#14263d;color:#fff;font:650 14px system-ui;cursor:pointer}.secondary{background:#fff;color:#14263d}.actions{display:flex;flex-wrap:wrap;gap:10px}a{color:#9f1e35}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #d32945;outline-offset:3px}[hidden]{display:none!important}#partnerPreview{min-height:340px;font-size:13px;font-weight:400}#partnerStatus{font-size:14px}.service{border-top:1px solid #dce4ed;padding-top:16px;margin-top:16px}.service h3{font-size:15px;margin:0 0 12px}@media(max-width:600px){.grid{grid-template-columns:1fr}main{padding:24px 14px}section{padding:17px}.actions button{width:100%}}
+  </style>
+</head>
+<body><main>
+  <p>REXBID · pierwsze brakujące informacje od partnera</p>
+  <h1>Zakres frachtu i kosztów po dopłynięciu</h1>
+  <p>Wystarczy ta krótka rozpiska albo zrzut zakładki CargoLoop <strong>Additional Services</strong>. Cennik 610 lokalizacji i 24 stawek morskich jest już zachowany. Puste pole oznacza brak informacji.</p>
+  <p>Formularz działa lokalnie. Przygotowuje tekst do skopiowania lub pobrania. Nie wysyła odpowiedzi i nie zapisuje ich po zamknięciu strony.</p>
+  <form id="partnerForm">
+    <section aria-labelledby="routeHeading"><h2 id="routeHeading">1. Port i odprawa</h2><div class="grid">
+      <label>Port docelowy w Europie<input name="destinationPort" maxlength="160" placeholder="Port, kraj; ewentualnie różnice między trasami"></label>
+      <label>Kraj standardowej odprawy<input name="customsCountry" maxlength="100" placeholder="Kraj i ewentualne wyjątki"></label>
+    </div></section>
+    <section aria-labelledby="freightHeading"><h2 id="freightHeading">2. Co obejmuje obecna stawka morska?</h2><div class="grid">
+      <label>W cenie frachtu<textarea name="freightIncluded" maxlength="1500" placeholder="Załadunek, eksport/dokumenty, ubezpieczenie, opłaty po dopłynięciu — wskaż, które są w cenie."></textarea></label>
+      <label>Dodatkowo płatne / do ustalenia<textarea name="freightExcluded" maxlength="1500" placeholder="Wymień osobno pozycje dodatkowe i te, których zakres jest nieustalony."></textarea></label>
+    </div></section>
+    <section aria-labelledby="feesHeading"><h2 id="feesHeading">3. Port, broker i dokumenty</h2><p>Jeśli jest jeden pakiet, wpisz go w pierwszym wierszu i opisz zakres. Osobne opłaty dodaj w kolejnych wierszach. Nie powielaj kosztu zawartego już we frachcie.</p>
+      <div id="serviceRows"></div>
+    </section>
+    <section aria-labelledby="sourceHeading"><h2 id="sourceHeading">4. Źródło i ważność</h2><div class="grid">
+      <label>Źródło / numer wyceny<input name="source" maxlength="240" placeholder="Np. Additional Services, e-mail partnera, numer oferty"></label>
+      <label>Data wyceny / potwierdzenia<input name="quoteDate" type="date"></label>
+      <label>Obowiązuje od (jeśli podano)<input name="effectiveFrom" type="date"></label>
+      <label>Obowiązuje do (jeśli podano)<input name="effectiveTo" type="date"></label>
+    </div><label style="margin-top:14px">Uwagi i wyjątki<textarea name="notes" maxlength="1500" placeholder="Różnice między portami, zakres nieustalony, dodatkowy załącznik."></textarea></label></section>
+    <div class="actions"><button type="submit">Przygotuj odpowiedź</button><button class="secondary" type="reset">Wyczyść formularz</button></div>
+  </form>
+  <section id="partnerOutput" aria-labelledby="outputHeading" hidden><h2 id="outputHeading">Odpowiedź do przekazania</h2><label>Treść odpowiedzi<textarea id="partnerPreview" readonly></textarea></label><div class="actions" style="margin-top:14px"><button id="partnerCopy" type="button">Kopiuj treść</button><button id="partnerDownload" type="button" class="secondary">Pobierz TXT</button></div><p id="partnerStatus" role="status" aria-live="polite"></p></section>
+</main>
+<script>
+(function () {
+  "use strict";
+  const form = document.getElementById("partnerForm");
+  const output = document.getElementById("partnerOutput");
+  const preview = document.getElementById("partnerPreview");
+  const status = document.getElementById("partnerStatus");
+  document.getElementById("serviceRows").innerHTML = [1, 2, 3].map(index => `<div class="service"><h3>Pozycja ${index}${index === 1 ? " · pakiet lub pierwsza opłata" : " · opcjonalna"}</h3><div class="grid"><label>Nazwa i zakres<input name="service${index}" maxlength="600" placeholder="Np. port + rozładunek + broker; bez dokumentów"></label><label>Kwota lub reguła<input name="amount${index}" maxlength="240" placeholder="Np. kwota za auto lub sposób naliczenia"></label><label>Waluta<select name="currency${index}"><option value="">Do ustalenia</option><option>USD</option><option>EUR</option><option>PLN</option><option>CAD</option><option>Inna — podaj w uwagach</option></select></label><label>Jednostka<select name="unit${index}"><option value="">Do ustalenia</option><option>Za pojazd</option><option>Za kontener</option><option>Za dokument</option><option>Inna — podaj w uwagach</option></select></label><label>Netto / brutto<select name="tax${index}"><option value="">Do ustalenia</option><option>Netto</option><option>Brutto</option><option>Nie dotyczy — wyjaśnij w uwagach</option></select></label><label>Co jest poza tą ceną?<input name="excluded${index}" maxlength="600" placeholder="Np. dostawa do Polski, storage lub brak dopłat potwierdzony"></label></div></div>`).join("");
+  const value = (input, key) => String(input[key] ?? "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, " ").trim();
+  const serviceRows = document.getElementById("serviceRows");
+  const optionalServices = document.createElement("details");
+  const optionalSummary = document.createElement("summary");
+  optionalSummary.textContent = "Dodaj osobne opłaty (opcjonalnie)";
+  optionalSummary.style.cssText = "padding:14px 0;cursor:pointer;font-weight:650;font-size:14px";
+  optionalServices.append(optionalSummary, ...[...serviceRows.querySelectorAll(".service")].slice(1));
+  serviceRows.append(optionalServices);
+  function buildReport(input = {}) {
+    const shown = key => value(input, key) || "BRAK DANYCH — do potwierdzenia";
+    const required = ["destinationPort", "customsCountry", "freightIncluded", "freightExcluded", "source", "quoteDate", "service1", "amount1", "currency1", "unit1", "tax1", "excluded1"];
+    const used = [1, 2, 3].filter(index => index === 1 || ["service", "amount", "currency", "unit", "tax", "excluded"].some(key => value(input, key + index)));
+    used.filter(index => index > 1).forEach(index => required.push(...["service", "amount", "currency", "unit", "tax", "excluded"].map(key => key + index)));
+    const incomplete = required.some(key => !value(input, key));
+    const lines = ["REXBID — informacje od partnera", incomplete ? "Status: odpowiedź niekompletna; braki nie są zerem." : "Status: pola pierwszego pakietu uzupełnione; zakres i kwoty wymagają review.", "", "Port docelowy: " + shown("destinationPort"), "Kraj odprawy: " + shown("customsCountry"), "W obecnym frachcie: " + shown("freightIncluded"), "Poza frachtem / do ustalenia: " + shown("freightExcluded"), ""];
+    for (const index of used) lines.push("Pozycja " + index + ": " + shown("service" + index), "Kwota / reguła: " + shown("amount" + index), "Waluta: " + shown("currency" + index), "Jednostka: " + shown("unit" + index), "Netto / brutto: " + shown("tax" + index), "Poza ceną: " + shown("excluded" + index), "");
+    lines.push("Źródło / numer wyceny: " + shown("source"), "Data wyceny / potwierdzenia: " + shown("quoteDate"), "Obowiązuje od: " + (value(input, "effectiveFrom") || "Nie podano"), "Obowiązuje do: " + (value(input, "effectiveTo") || "Nie podano"), "Uwagi: " + (value(input, "notes") || "Nie podano"), "", "Do przeglądu przed aktualizacją konfiguracji. Formularz nie zmienia stawek kalkulatora.");
+    return lines.join("\n");
+  }
+  const update = () => { preview.value = buildReport(Object.fromEntries(new FormData(form))); };
+  form.addEventListener("submit", event => { event.preventDefault(); if (!form.reportValidity()) return; update(); output.hidden = false; status.textContent = "Treść gotowa. Niczego nie wysłano. Puste pola są oznaczone jako brak danych."; preview.focus(); });
+  form.addEventListener("input", () => { if (!output.hidden) update(); });
+  form.addEventListener("reset", () => { output.hidden = true; preview.value = ""; status.textContent = ""; });
+  document.getElementById("partnerCopy").addEventListener("click", async () => { update(); try { await navigator.clipboard.writeText(preview.value); status.textContent = "Skopiowano. Odpowiedź nie została wysłana."; } catch (_) { preview.focus(); preview.select(); status.textContent = "Zaznaczono treść. Skopiuj skrótem klawiaturowym lub pobierz TXT."; } });
+  document.getElementById("partnerDownload").addEventListener("click", () => { update(); const url = URL.createObjectURL(new Blob([preview.value], {type:"text/plain;charset=utf-8"})); const link = document.createElement("a"); link.href = url; link.download = "REXBID_informacje_partner.txt"; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); status.textContent = "Przygotowano plik. Odpowiedź nie została wysłana."; });
+  window.RexBidPartnerForm = Object.freeze({buildReport});
+})();
+</script></body></html>

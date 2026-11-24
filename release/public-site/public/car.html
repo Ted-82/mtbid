@@ -206,7 +206,13 @@
   }
 
   // Start the public data request while the browser loads the calculator and gallery.
-  const initialVehicleRequest = VIN || LOT ? fetchVehicle() : null;
+  const savedVehicleNode = document.getElementById("rexbid-vehicle-data");
+  let savedVehicle = null;
+  if (savedVehicleNode?.tagName === "SCRIPT" && savedVehicleNode.type === "application/json") {
+    try { savedVehicle = unwrapResult({data:JSON.parse(savedVehicleNode.textContent)}); } catch { /* Use the normal detail lookup. */ }
+    savedVehicleNode.remove();
+  }
+  const initialVehicleRequest = savedVehicle ? Promise.resolve(savedVehicle) : VIN || LOT ? fetchVehicle() : null;
   // init handles failures after the rest of the page is ready.
   initialVehicleRequest?.catch(() => {});
 </script>
@@ -1578,21 +1584,22 @@ main{padding-top:22px}
 </style>
 
 <link rel="stylesheet" href="/rexbid-brand.css?v=20261117-integrated" />
-<link rel="stylesheet" href="/rexbid-vehicle.css?v=20261008-readability" />
+<link rel="stylesheet" href="/rexbid-vehicle.css?v=f7f40f435c7e" />
 <link rel="stylesheet" href="/rexbid-calculator-polish.css?v=890c294a9e70" />
 <script src="/rexbid-mobile-nav.js?v=baf47bbe1e" defer></script>
-<noscript data-rex-navigation-fallback><style>header .rex-menu-toggle{display:none!important}header .header-inner,header .header,header .bar{flex-wrap:wrap}header nav.rex-primary-nav{display:flex!important;position:static;flex-wrap:wrap;width:auto;box-shadow:none}</style></noscript><link rel="stylesheet" href="/rexbid-live.css?v=1">
-</head>
+<link rel="stylesheet" href="/rexbid-live.css?v=1">
+<noscript data-rex-navigation-fallback><style>header .rex-menu-toggle{display:none!important}header .header-inner,header .header,header .bar{flex-wrap:wrap}header nav.rex-primary-nav{display:flex!important;position:static;flex-wrap:wrap;width:auto;box-shadow:none}</style></noscript></head>
 
 <body>
+<a class="vehicle-skip-link" href="#vehicleContent">Przejdź do danych pojazdu</a>
 <header>
   <div class="container header-inner">
-    <a href="/" class="logo" aria-label="REXBID — strona główna"><img class="rexbid-brand-image" src="/rexbid-logo-20261117-dark.webp" width="420" height="159" alt=""><span class="brand-note">RYNEK AUKCYJNY USA</span></a>
+    <a href="/" class="logo" aria-label="REXBID — Rynek aukcyjny USA, strona główna"><img class="rexbid-brand-image" src="/rexbid-logo-20261117-dark.webp" width="420" height="159" alt=""><span class="brand-note">RYNEK AUKCYJNY USA</span></a>
     <button class="rex-menu-toggle" type="button" aria-label="Otwórz menu główne" aria-expanded="false" aria-controls="rexPrimaryNav">☰</button><nav class="rex-primary-nav" id="rexPrimaryNav" aria-label="Nawigacja główna"><a href="/?catalog=1#results">Aukcje</a><a href="/jak-to-dziala">Jak to działa</a><a href="/ulubione">Ulubione <span data-rexbid-count="favorites">0</span></a><a href="/konto">Konto</a><a href="/pomoc">Pomoc</a><a href="/kontakt">Kontakt</a></nav>
-  <div class="rexbid-auth-nav" data-rexbid-auth-nav aria-label="Konto użytkownika"></div></div>
+  <div class="rexbid-auth-nav" data-rexbid-auth-nav role="group" aria-label="Konto użytkownika"></div></div>
 </header>
 
-<main>
+<main id="vehicleContent" tabindex="-1">
   <div class="container">
     <a class="back" id="vehicleCatalogReturn" href="/?catalog=1#results">← Wróć do samochodów</a>
 
@@ -1644,16 +1651,16 @@ main{padding-top:22px}
 <script src="/rexbid-calculator.js"></script>
 <link rel="stylesheet" href="/rexbid-delivered-view.css?v=20261116-budget3">
 <script src="/rexbid-delivered-rates.js?v=20261116-budget3"></script>
-<script src="/rexbid-delivered-cost.js?v=060b397b2135"></script>
-<script src="/rexbid-delivered-view.js?v=70b1d7778549"></script>
-<script src="/rexbid-storage.js?v=61ff9ecd8bc8"></script>
+<script src="/rexbid-delivered-cost.js?v=8634f69cb109"></script>
+<script src="/rexbid-delivered-view.js?v=c2b1ae6cf113"></script>
+<script src="/rexbid-storage.js?v=73c07260d040"></script>
 <script src="/rexbid-auth.js?v=21437df8759b"></script>
 <script src="/rexbid-media.js?v=4"></script>
 <script src="/rexbid-gallery-gestures.js?v=5a00310a18"></script>
-<script src="/rexbid-market.js?v=3b276ed707ea"></script>
+<script src="/rexbid-market.js?v=8d2803c26d54"></script>
 <script src="/rexbid-powertrain.js?v=3baadbf40a"></script>
 <link rel="stylesheet" href="/rexbid-compare.css?v=20261025">
-<script src="/rexbid-compare.js?v=20261114-sections" defer></script>
+<script src="/rexbid-compare.js?v=37d22f982c37" defer></script>
 <script src="/rexbid-car-navigation.js?v=20261025-compare"></script>
 <script src="/rexbid-live.js?v=4"></script>
 <script>
@@ -1785,7 +1792,7 @@ main{padding-top:22px}
         "vandalism":"Wandalizm", "burn":"Pożar", "burn engine":"Pożar silnika", "burn interior":"Pożar wnętrza",
         "stripped":"Brak części", "missing/altered vin":"Brak / zmiana VIN", "unknown":"Nieokreślone przez źródło"
       },
-      transmission: {"automatic":"Automatyczna", "manual":"Manualna", "cvt":"CVT"},
+      transmission: {"automatic":"Automatyczna", "manual":"Manualna", "cvt":"CVT", "unknown":"Brak danych"},
       body: {"sedan":"Sedan", "coupe":"Coupé", "convertible":"Kabriolet", "wagon":"Kombi", "hatchback":"Hatchback", "suv":"SUV", "pickup":"Pickup", "van":"Van", "minivan":"Minivan"},
       fuel: {"gas":"Benzyna", "gasoline":"Benzyna", "petrol":"Benzyna", "diesel":"Diesel", "electric":"Elektryczny", "hybrid":"Hybryda", "plug in hybrid":"Hybryda plug-in", "hydrogen":"Wodór", "flexible fuel":"Flex fuel"},
       drive: {"front wheel drive":"Na przednie koła (FWD)", "fwd":"Na przednie koła (FWD)", "rear wheel drive":"Na tylne koła (RWD)", "rwd":"Na tylne koła (RWD)", "all wheel drive":"Na wszystkie koła (AWD)", "awd":"Na wszystkie koła (AWD)", "four wheel drive":"Na cztery koła (4WD)", "4wd":"Na cztery koła (4WD)"},
@@ -2201,21 +2208,13 @@ main{padding-top:22px}
     const buyNow = getBuyNow();
 
     if (phase === "ended") {
-      if (auctionApprovalPending()) return { value: null, label: "Cena sprzedaży niepotwierdzona" };
+      if (!globalThis.RexBidMarket?.confirmedSale?.(car)) return { value: null, label: "Cena sprzedaży niepotwierdzona" };
       const salePrice = [
         car.pricing?.sale_price_usd,
         car.pricing?.final_price_usd
       ].find(value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)) && Number(value) > 0);
       if (!isEmpty(salePrice)) return { value: salePrice, label: "Cena sprzedaży" };
 
-      const lastSoldPrice = [
-        car.pricing?.last_sold_price_usd,
-        car.last_sold_price_usd
-      ].find(value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)) && Number(value) > 0);
-      if (!isEmpty(lastSoldPrice)) return { value: lastSoldPrice, label: "Ostatnia cena sprzedaży" };
-
-      const confirmedHistory = getCurrentAuctionHistoryFinalBid();
-      if (!isEmpty(confirmedHistory)) return { value: confirmedHistory, label: "Ostatnia potwierdzona cena sprzedaży" };
       return { value: null, label: "Cena sprzedaży niedostępna" };
     }
 
@@ -2232,12 +2231,11 @@ main{padding-top:22px}
 
   function getAuctionPriceFacts(primaryPrice = getAuctionPriceInfo()) {
     const ended = auctionPhase() === "ended";
-    const approvalPending = ended && auctionApprovalPending();
+    const sold = ended && globalThis.RexBidMarket?.confirmedSale?.(car);
     const facts = [
       { label: "Aktualna oferta", value: ended ? null : getCurrentBid() },
       { label: "Kup teraz", value: ended ? null : getBuyNow() },
-      { label: "Cena sprzedaży", value: ended && !approvalPending ? first(car.pricing?.sale_price_usd, car.pricing?.final_price_usd, car.sale_price_usd, car.final_price_usd) : null },
-      { label: "Ostatnia cena sprzedaży", value: ended && !approvalPending ? first(car.pricing?.last_sold_price_usd, car.pricing?.last_sold_price, car.last_sold_price_usd) : null }
+      { label: "Cena sprzedaży", value: sold ? first(car.pricing?.sale_price_usd, car.pricing?.final_price_usd, car.sale_price_usd, car.final_price_usd) : null }
     ];
     const salePrice = facts.find(fact => fact.label === "Cena sprzedaży")?.value;
     return facts.filter(fact => {
@@ -2373,10 +2371,13 @@ main{padding-top:22px}
   }
 
   function getTitleDocument() {
+    const sourceLabels = [car.sale_document?.source_name, car.sale_document?.name, car.sale_document?.raw_name]
+      .filter(value => typeof value === "string" && value.trim()).map(value => value.trim());
     const direct = first(
+      sourceLabels.find(label => !/^[A-Z]{1,4}$/.test(label)),
+      sourceLabels[0],
       getInfo(["TitleSaleDoc","SaleDocument","SaleDocumentName","DocumentName"]),
       getSale(["TitleSaleDoc","SaleDocument","SaleDocumentName","DocumentName"]),
-      car.sale_document?.name,
       car.sale_document?.display,
       car.sale_document?.title,
       car.sale_document?.document,
@@ -2394,6 +2395,10 @@ main{padding-top:22px}
     }
 
     return null;
+  }
+
+  function getExteriorColor() {
+    return first(car.exterior_color, car.vehicle_specs?.exterior_color, valueFrom(["ExteriorColor"]));
   }
 
   function platformClass() {
@@ -2661,9 +2666,9 @@ main{padding-top:22px}
     const state = String(getAuctionStatus() || "").toLowerCase();
     const scheduleStatus = String(car.auction?.schedule_status || "").toLowerCase();
     const outcome = String(car.auction?.outcome_status || "").toLowerCase();
-    if (/not.?sold|no.?sale|unsold/.test(outcome) || ["not_sold", "no_sale"].includes(state)) return "Niesprzedana";
     if (auctionApprovalPending()) return "Oferta warunkowa · wynik niepotwierdzony";
-    if (/\bsold\b/.test(outcome) || state === "sold" || car.auction?.sold_timed === true) return "Sprzedana";
+    if (globalThis.RexBidMarket?.confirmedSale?.(car)) return "Sprzedana";
+    if (car.auction?.result_confirmed === true && /^(?:not[ _-]?sold|no[ _-]?sale|unsold)$/.test(outcome)) return "Niesprzedana";
     if (phase === "ended") return "Zakończona";
     const sessionLabel = globalThis.RexBidMarket?.auctionSessionLabel?.(car);
     if (car.auction?.phase === "awaiting_result" && sessionLabel && car.read?.catalog_scope !== "archival") return sessionLabel;
@@ -2811,7 +2816,7 @@ main{padding-top:22px}
       .filter(([,value]) => !isEmpty(value))
       .map(([key,value]) => `${key}=${encodeURIComponent(String(value))}`).join("&");
     const inquiryHref = `/kontakt.html?${inquiryContext}`;
-    const priceNote = isEmpty(currentBidPrice) && auctionPhase() !== "ended"
+    const priceMessage = isEmpty(currentBidPrice) && auctionPhase() !== "ended"
       ? "Źródło nie przekazało kwoty oferty."
       : storedSnapshot
       ? "Cena pochodzi z zapisu danych. Bieżącą ofertę i dostępność potwierdź w oryginalnej aukcji."
@@ -2821,6 +2826,8 @@ main{padding-top:22px}
         ? "Źródło nie przekazało aktualnej oferty. W kalkulatorze możesz wpisać własną cenę zakupu."
         : "Aktualna oferta może się zmienić podczas licytacji. Opłaty i transport obliczysz poniżej.";
 
+    const priceNote = auctionPhase() !== "ended" && (!isEmpty(currentBidPrice) || !isEmpty(buyNowPrice))
+      ? [globalThis.RexBidMarket?.priceObservationLabel?.(car),priceMessage].filter(Boolean).join(" ") : priceMessage;
     const forecastAnchor = document.getElementById("page");
     page.innerHTML = `
       <div class="vehicle-head">
@@ -2887,7 +2894,7 @@ main{padding-top:22px}
               ${field("Rok",year, null, true)}${field("Marka",make, null, true)}${field("Model",model, null, true)}
               ${field("Wersja / seria",series)}${field("VIN",vin, null, true)}${field("Przebieg",odometer, null, true)}
               ${field("Nadwozie",getDescription(["BodyStyle","BodyStyleName"]), "body", true)}${field("Silnik",first(getDescription(["Engine","EngineSize","EngineInformation"]), Number(car.engine_size_l) > 0 ? `${Number(car.engine_size_l).toLocaleString("pl-PL")} l` : null))}${field("Skrzynia",getDescription(["Transmission","TransmissionDesc"]), "transmission", true)}
-              ${field("Napęd",getDescription(["DriveLineType","DriveLineTypeDesc"]), "drive", true)}${field("Paliwo",getDescription(["FuelType","FuelTypeDesc"]), "fuel", true)}${field("Kolor",valueFrom(["ExteriorColor"]), "color")}
+              ${field("Napęd",getDescription(["DriveLineType","DriveLineTypeDesc"]), "drive", true)}${field("Paliwo",getDescription(["FuelType","FuelTypeDesc"]), "fuel", true)}${field("Kolor",getExteriorColor(), "color")}
             </div>
             <details class="spec-more"><summary>Pokaż więcej danych</summary><div class="spec-grid">
               ${field("Typ pojazdu",getDescription(["Vehicle","VehicleClass","InventoryType"]))}${field("Cylindry",getDescription(["Cylinders","CylindersDesc"]))}
@@ -3121,7 +3128,7 @@ main{padding-top:22px}
     const next = document.getElementById("nextPhoto");
     const unavailable = document.getElementById("mainImageUnavailable");
     const preferMobilePhotoPreview = globalThis.matchMedia?.("(max-width: 760px)")?.matches === true;
-    const deferThumbnails = preferMobilePhotoPreview && typeof globalThis.IntersectionObserver === "function";
+    const deferThumbnails = typeof globalThis.IntersectionObserver === "function";
 
     if (!photos.length) {
       main.style.display = "none";
@@ -3164,7 +3171,7 @@ main{padding-top:22px}
       const index = Number(button.dataset.i);
       const photo = photos[index];
       const normal = photo.thumb || photo.large;
-      const compact = preferMobilePhotoPreview ? compactCopartThumbnail(normal) : normal;
+      const compact = compactCopartThumbnail(normal);
       setGalleryImage(button.querySelector("img"), button.querySelector(".thumb-unavailable"),
         compact, `Miniatura ${index + 1}`, compact !== normal ? normal : undefined);
     }
@@ -3181,7 +3188,7 @@ main{padding-top:22px}
       }, {root:thumbs}) : null;
       thumbs.innerHTML = photos.map((photo,i) => `
       <button class="thumb ${i === photoIndex ? "active" : ""} ${photo.large && photo.thumb && photo.large !== photo.thumb ? "hd" : ""}" data-i="${i}" aria-label="Zdjęcie ${i+1} z ${photos.length}" aria-pressed="${i === photoIndex}" title="Zdjęcie ${i+1}${photo.large && photo.thumb && photo.large !== photo.thumb ? " HD" : ""}">
-        <img${preferMobilePhotoPreview ? "" : ` src="${esc(photo.thumb || photo.large)}"`}${deferThumbnails ? "" : ' loading="lazy"'} decoding="async" alt="Miniatura ${i+1}" />
+        <img${deferThumbnails ? "" : ` src="${esc(compactCopartThumbnail(photo.thumb || photo.large))}" loading="lazy"`} decoding="async" alt="Miniatura ${i+1}" />
         <span class="thumb-unavailable" hidden>Miniatura niedostępna</span>
       </button>
     `).join("");
@@ -3242,7 +3249,7 @@ main{padding-top:22px}
 
     document.getElementById("mainImage")?.addEventListener("click",openLightbox);
     document.getElementById("mainImage")?.addEventListener("keydown", event => {
-      if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openLightbox(); }
+      if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openLightbox(event); }
     });
     document.getElementById("openHd")?.addEventListener("click",openLightbox);
 
@@ -3293,7 +3300,7 @@ main{padding-top:22px}
     });
   }
 
-  function openLightbox() {
+  function openLightbox(event) {
     if (!photos.length) return;
 
     photoIndex = Math.max(0,Math.min(photoIndex,photos.length-1));
@@ -3302,7 +3309,7 @@ main{padding-top:22px}
     panY = 0;
 
     const lb = document.getElementById("lightbox");
-    lb._rexbidPreviouslyFocused = document.activeElement;
+    lb._rexbidPreviouslyFocused = event?.currentTarget || document.activeElement;
     lb.classList.add("open");
     lb.setAttribute("aria-hidden","false");
     document.body.classList.add("modal-open");
@@ -3769,6 +3776,9 @@ main{padding-top:22px}
       : isEmpty(currentBid) ? "Źródło nie przekazało aktualnej oferty. W kalkulatorze możesz wpisać własną cenę zakupu."
         : "Aktualna oferta może się zmienić podczas licytacji. Opłaty i transport obliczysz poniżej.";
     const currentButton = document.querySelector?.('[data-calc-price-kind="current"]');
+    if (priceNote && phase !== "ended" && (!isEmpty(currentBid) || !isEmpty(buyNow))) {
+      priceNote.textContent=[globalThis.RexBidMarket?.priceObservationLabel?.(car),priceNote.textContent].filter(Boolean).join(" ");
+    }
     if (currentButton) currentButton.hidden = currentButton.disabled = !(Number(currentBid) > 0);
     const customEstimate = document.querySelector?.(".auction-custom-estimate");
     if (customEstimate) customEstimate.hidden = Number(currentBid) > 0 || Number(buyNow) > 0;
@@ -3963,8 +3973,8 @@ main{padding-top:22px}
     const sellerType = /^(?:unknown|n\/?a|not available|null)$/i.test(sellerTypeText) ? "" : sellerTypeText;
     const currentBid = numberOrNull(first(record.current_bid, historyField(record,["current_bid_usd","currentBidUsd","currentBid","bid"]), historyNested(record,[["pricing","current_bid_usd"],["pricing","current_bid"],["auction","current_bid_usd"]])));
     const sourceStatus = String(displayValue(status) || "").trim();
-    const unconfirmedSale = /sold\s+on\s+approval|on\s+approval|sale\s+pending\s+approval|pending\s+approval|not[ _-]?sold|no[ _-]?sale|unsold|failed/i.test(sourceStatus);
-    const finalPrice = unconfirmedSale ? null : numberOrNull(first(record.final_price, historyField(record,["sale_price_usd","sale_price","final_price_usd","finalPriceUsd","final_bid_usd","sold_price_usd"]), historyNested(record,[["pricing","sale_price_usd"],["pricing","final_price_usd"],["pricing","final_bid_usd"],["pricing","sold_price_usd"]])));
+    const sold = /^(sold|sale complete)$/i.test(sourceStatus) && record.result_confirmed !== false && record.auction?.result_confirmed !== false;
+    const finalPrice = sold ? numberOrNull(first(record.final_price, historyField(record,["sale_price_usd","sale_price","final_price_usd","finalPriceUsd","sold_price_usd"]), historyNested(record,[["pricing","sale_price_usd"],["pricing","final_price_usd"],["pricing","sold_price_usd"]]))) : null;
     const buyNow = numberOrNull(first(record.buy_now, historyField(record,["buy_now_usd","buyNowUsd","buyNow"]), historyNested(record,[["pricing","buy_now_usd"],["pricing","buy_now"]])));
     const sourcePrice = numberOrNull(first(record.source_price, record.price, historyField(record,["price_usd"]), historyNested(record,[["pricing","price"],["pricing","price_usd"]])));
     const date = saleDate || auctionDate || null;
@@ -3996,7 +4006,8 @@ main{padding-top:22px}
     if (/sold on approval|on approval|sale pending approval|pending approval/.test(s)) return "Oferta warunkowa";
     if (/not sold|no sale|unsold|not_sold|failed/.test(s)) return "Nie sprzedano";
     if (/^(?:pending|pending sale|awaiting confirmation|sale pending)$/.test(s)) return "Wynik niepotwierdzony";
-    if (/^(?:sold|sale complete|completed|won|approved)$/.test(s)) return "Sprzedano";
+    if (/^(?:sold|sale complete)$/.test(s)) return "Sprzedano";
+    if (/^(?:finished|completed|ended|closed|approved|won)$/.test(s)) return "Wynik niepotwierdzony";
     if (/live|open|active|running|in progress/.test(s)) return "W trakcie";
     if (/upcoming|future|scheduled|pre.?bid/.test(s)) return "W przygotowaniu";
     if (/closed|ended|finished|complete/.test(s)) return "Zakończona";

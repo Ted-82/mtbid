@@ -792,7 +792,7 @@
 <link rel="stylesheet" href="/rexbid-brand.css?v=20261117-integrated" />
 <link rel="stylesheet" href="/rexbid-explore.css?v=a97ea38cec" />
 <link rel="stylesheet" href="/rexbid-portal.css?v=23d9f487b2" />
-<link rel="stylesheet" href="/rexbid-catalog.css?v=f7114707e426" />
+<link rel="stylesheet" href="/rexbid-catalog.css?v=d5eed5a4c6e7" />
 <script src="/rexbid-mobile-nav.js?v=baf47bbe1e" defer></script>
 <noscript data-rex-navigation-fallback><style>header .rex-menu-toggle{display:none!important}header .header-inner,header .header,header .bar{flex-wrap:wrap}header nav.rex-primary-nav{display:flex!important;position:static;flex-wrap:wrap;width:auto;box-shadow:none}</style></noscript></head>
 
@@ -804,12 +804,12 @@
   <div class="container header-inner">
 
     <div class="brand-lockup">
-      <a href="/" class="logo" aria-label="REXBID — strona główna"><img class="rexbid-brand-image" src="/rexbid-logo-20261117-dark.webp" width="420" height="159" alt=""><span class="brand-note">RYNEK AUKCYJNY USA</span></a>
+      <a href="/" class="logo" aria-label="REXBID — Rynek aukcyjny USA, strona główna"><img class="rexbid-brand-image" src="/rexbid-logo-20261117-dark.webp" width="420" height="159" alt=""><span class="brand-note">RYNEK AUKCYJNY USA</span></a>
     </div>
 
     <button class="rex-menu-toggle" type="button" aria-label="Otwórz menu główne" aria-expanded="false" aria-controls="rexPrimaryNav">☰</button><nav class="rex-primary-nav" id="rexPrimaryNav" aria-label="Nawigacja główna"><a href="/?catalog=1#results">Aukcje</a><a href="/jak-to-dziala">Jak to działa</a><a href="/ulubione">Ulubione <span data-rexbid-count="favorites">0</span></a><a href="/konto">Konto</a><a href="/pomoc">Pomoc</a><a href="/kontakt">Kontakt</a></nav>
 
-  <div class="rexbid-auth-nav" data-rexbid-auth-nav aria-label="Konto użytkownika"></div></div>
+  <div class="rexbid-auth-nav" data-rexbid-auth-nav role="group" aria-label="Konto użytkownika"></div></div>
 </header>
 
 
@@ -819,16 +819,17 @@
     <div class="container hero-inner">
       <div class="hero-copy">
         <div class="eyebrow">Samochody z USA · Copart i IAAI</div>
-        <h1 id="heroTitle">Wybierz wymarzony pojazd. <span>My zajmiemy się resztą.</span></h1>
-        <p id="heroLead">Aukcje w USA, transport i formalności — z naszym wsparciem na każdym etapie.</p>
+        <h1 id="heroTitle">Samochody z aukcji w USA. <span>Sprawdź koszt importu.</span></h1>
+        <p id="heroLead">Wybierz auto na Copart lub IAAI, policz koszt dostawy do Polski i zapytaj nas o sprowadzenie pojazdu.</p>
         <div class="search-panel">
-          <h2>Znajdź swój samochód</h2>
+          <h2 data-home-only>Znajdź swój samochód</h2>
           <form class="search-box" id="searchForm">
             <label class="rex-search-field" for="searchInput"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="searchInput" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="search" aria-label="Szukaj po VIN, LOT, marce lub modelu" placeholder="VIN, numer LOT, marka lub model" /></label>
             <button class="btn btn-primary" type="submit">Szukaj ofert <span aria-hidden="true">→</span></button>
           </form>
-          <a class="budget-hero-card" href="/kalkulator-budzet"><span class="budget-hero-icon" aria-hidden="true">PLN</span><span><strong>Masz budżet? Sprawdź, ile licytować</strong><small>Wpisz np. 30 000 zł · policz zakup i import pod dom</small></span><span aria-hidden="true">→</span></a>
-          <div class="search-hint"><span>Masz konkretny pojazd? Wpisz pełny VIN lub LOT.</span><a href="/?catalog=1#results">Przeglądaj cały katalog <span aria-hidden="true">↗</span></a></div>
+          <a class="budget-hero-card" data-home-only href="/kalkulator-budzet"><span class="budget-hero-icon" aria-hidden="true">PLN</span><span><strong>Masz budżet? Sprawdź, ile licytować</strong><small>Wpisz np. 30 000 zł · policz zakup i import pod dom</small></span><span aria-hidden="true">→</span></a>
+          <div class="search-hint" data-home-only><span>Masz konkretny pojazd? Wpisz pełny VIN lub LOT.</span><a href="/?catalog=1#results">Przeglądaj cały katalog <span aria-hidden="true">↗</span></a></div>
+          <a class="catalog-jump" id="catalogJump" href="#cars">Przejdź do wyników <span aria-hidden="true">↓</span></a>
         </div>
         <div class="hero-benefits" data-home-only aria-label="Funkcje REXBID"><span><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m4 12 5 5L20 6"/></svg>Zdjęcia i dane pojazdu</span><span><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m4 12 5 5L20 6"/></svg>Kalkulator transportu</span><span><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m4 12 5 5L20 6"/></svg>Ulubione oferty</span></div>
       </div>
@@ -964,6 +965,7 @@
     <div
       id="cars"
       class="cars"
+      tabindex="-1"
       aria-busy="false"
     ></div>
 
@@ -1012,11 +1014,11 @@
 
 
 <link rel="stylesheet" href="/rexbid-compare.css?v=20261025">
-<script src="/rexbid-compare.js?v=20261114-sections" defer></script>
-<script src="/rexbid-storage.js?v=61ff9ecd8bc8"></script>
+<script src="/rexbid-compare.js?v=37d22f982c37" defer></script>
+<script src="/rexbid-storage.js?v=73c07260d040"></script>
 <script src="/rexbid-auth.js?v=21437df8759b"></script>
 <script src="/rexbid-powertrain.js?v=3baadbf40a"></script>
-<script src="/rexbid-market.js?v=3b276ed707ea"></script>
+<script src="/rexbid-market.js?v=8d2803c26d54"></script>
 <script src="/rexbid-vehicle-labels.js?v=20261025-catalog-labels"></script>
 <script>
   document.addEventListener?.("error", event => {
@@ -1719,14 +1721,26 @@
     return true;
   }
 
+  document.getElementById("catalogJump")?.addEventListener("click", event => {
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    const results = document.getElementById("cars");
+    if (!results) return;
+    event.preventDefault();
+    results.focus({preventScroll:true});
+    const header = document.querySelector("header");
+    const sticky = header && ["sticky","fixed"].includes(getComputedStyle(header).position);
+    const inset = sticky ? header.getBoundingClientRect().height + 8 : 8;
+    window.scrollTo({top:window.scrollY + results.getBoundingClientRect().top - inset, behavior:"instant"});
+  });
+
   function setCatalogView(enabled) {
     if (catalogResults) catalogResults.hidden = !enabled;
     if (marketSections) marketSections.hidden = enabled;
     document.body?.classList?.toggle("rex-catalog-mode", enabled);
     const heroTitle = document.getElementById("heroTitle");
     const heroLead = document.getElementById("heroLead");
-    if (heroTitle) heroTitle.innerHTML = enabled ? 'Znajdź samochód. <span>Sprawdź szczegóły.</span>' : 'Wybierz wymarzony pojazd. <span>My zajmiemy się resztą.</span>';
-    if (heroLead) heroLead.textContent = enabled ? "Wyszukaj VIN lub LOT albo zawęź zapisane oferty filtrami." : "Aukcje w USA, transport i formalności — z naszym wsparciem na każdym etapie.";
+    if (heroTitle) heroTitle.innerHTML = enabled ? 'Znajdź samochód. <span>Sprawdź szczegóły.</span>' : 'Samochody z aukcji w USA. <span>Sprawdź koszt importu.</span>';
+    if (heroLead) heroLead.textContent = enabled ? "Wyszukaj VIN lub LOT albo zawęź zapisane oferty filtrami." : "Wybierz auto na Copart lub IAAI, policz koszt dostawy do Polski i zapytaj nas o sprowadzenie pojazdu.";
     document.querySelectorAll('[data-catalog-nav], header nav a[href="/?catalog=1#results"]').forEach(link => {
       if (enabled) link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
@@ -1756,23 +1770,23 @@
   }
 
   function marketAislePriceInfo(car, kind = "current") {
-    const storedSnapshot = car?.preview?.read_only === true || car?.read?.source === "r2-backup" || (car?.read?.source === "d1" && car.read.freshness !== "fresh")
+    const storedSnapshot = car?.preview?.read_only === true || ["d1","r2-backup"].includes(car?.read?.source)
       || globalThis.RexBidMarket?.availabilityStatus?.(car) === "unknown";
     const pricing = car?.pricing && typeof car.pricing === "object" ? car.pricing : {};
     const auction = car?.auction && typeof car.auction === "object" ? car.auction : {};
     const auctionState = String(auction.state || car?.status || "").toLowerCase();
-    const auctionOutcome = String(auction.outcome_status || auction.last_sold_status || "").toLowerCase();
-    const ended = ["finished", "sold", "closed", "ended", "not_sold", "no_sale"].includes(auctionState)
+    const auctionOutcome = String(auction.outcome_status || "").toLowerCase();
+    const ended = globalThis.RexBidMarket?.availabilityStatus?.(car) === "ended" || ["finished", "sold", "closed", "ended", "not_sold", "no_sale"].includes(auctionState)
       || Boolean(auction.auction_ended_at) || auction.sold_timed === true
       || /sold|not.?sold|no.?sale|unsold|closed|ended|complete|cancel|withdrawn/.test(auctionOutcome);
-    const bid = (...values) => values.find(value => (typeof value === "number" || typeof value === "string" && value.trim() !== "") && Number.isFinite(Number(value)) && Number(value) > 0);
-    const positive = (...values) => values.find(value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)) && Number(value) > 0);
-    const currentBid = bid(...(Object.prototype.hasOwnProperty.call(pricing, 'current_bid_usd') ? [pricing.current_bid_usd] : Object.prototype.hasOwnProperty.call(car || {}, 'current_bid_usd') ? [car.current_bid_usd] : [pricing.current_bid2_usd, car?.current_bid2_usd]));
+    const positive = (...values) => values.find(value => (typeof value === "number" || typeof value === "string" && value.trim() !== "") && Number.isFinite(Number(value)) && Number(value) > 0);
+    const currentBid = positive(...(Object.prototype.hasOwnProperty.call(pricing, 'current_bid_usd') ? [pricing.current_bid_usd] : Object.prototype.hasOwnProperty.call(car || {}, 'current_bid_usd') ? [car.current_bid_usd] : [pricing.current_bid2_usd, car?.current_bid2_usd]));
     if (kind === "buy-now") {
       const buyNow = ended ? undefined : positive(pricing.buy_now_usd, car?.buy_now_usd);
-      return { value: buyNow === undefined ? null : Number(buyNow), label: storedSnapshot ? "Kup teraz · zapis danych" : "Kup teraz", secondary: currentBid === undefined ? "" : `${storedSnapshot ? "Ostatnia zapisana oferta" : "Aktualna oferta"} · ${formatMoney(currentBid)}` };
+      return { value: buyNow === undefined ? null : Number(buyNow), label: storedSnapshot ? "Kup teraz · zapis danych" : "Kup teraz", secondary: ended || currentBid === undefined ? "" : `${storedSnapshot ? "Ostatnia zapisana oferta" : "Aktualna oferta"} · ${formatMoney(currentBid)}` };
     }
-    if (storedSnapshot) return {value:currentBid === undefined ? null : Number(currentBid),label:currentBid === undefined ? "Brak danych o ofercie" : "Ostatnia zapisana oferta",secondary:""};
+    if (ended) return {...getPriceInfo(car),secondary:""};
+    if (storedSnapshot && (currentBid !== undefined || kind === "upcoming" || kind === "timed")) return {value:currentBid === undefined ? null : Number(currentBid),label:currentBid === undefined ? "Brak danych o ofercie" : "Ostatnia zapisana oferta",secondary:""};
     if (kind === "timed") return { value: currentBid === undefined ? null : Number(currentBid), label: "Aktualna oferta", secondary: "" };
     if (kind === "upcoming") return { value: currentBid === undefined ? null : Number(currentBid), label: currentBid === undefined ? "Brak danych o ofercie" : "Aktualna oferta", secondary: "" };
     const info = getPriceInfo(car);
@@ -1794,10 +1808,10 @@
     const savedAt = dataRead?.snapshot_at || dataRead?.last_synced_at || dataRead?.last_seen_at;
     const savedDate = savedAt && Number.isFinite(Date.parse(String(savedAt))) ? new Date(savedAt).toLocaleString("pl-PL", {timeZone:"Europe/Warsaw",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}) : "";
     const savedNote = dataRead
-      ? `${dataRead.freshness === "fresh" && car.preview?.read_only !== true ? "Odczyt źródła" : "Zapis danych"}${savedDate ? " z " + savedDate : " · data nieustalona"}. ${dataRead.freshness === "fresh" && car.preview?.read_only !== true ? "Cena i dostępność mogą się zmienić." : "Cena i dostępność do potwierdzenia."}` : "";
+      ? `Zapis danych${savedDate ? " z " + savedDate + " (czas polski)" : " · data nieustalona"}. Cena i dostępność do potwierdzenia.` : "";
     const imageFallback = `<div class="rex-photo-unavailable"${image ? ' style="display:none"' : ''}><span aria-hidden="true">▧</span>Zdjęcie niedostępne</div>`;
     const priceHtml = price.value === null
-      ? `<div class="rex-card-price"><small>${escapeHtml(price.label === "Brak danych o ofercie" ? "Aktualna oferta" : price.label)}</small><strong class="rex-price-missing">Brak danych o ofercie</strong></div>`
+      ? `<div class="rex-card-price"><small>${escapeHtml(price.label === "Brak danych o ofercie" ? (dataRead ? "Zapis oferty" : "Aktualna oferta") : price.label)}</small><strong class="rex-price-missing">Brak danych o ofercie</strong></div>`
       : `<div class="rex-card-price"><small>${escapeHtml(price.label)}</small><strong>${escapeHtml(formatMoney(price.value))}<span> USD</span></strong></div>`;
     return `<article class="market-aisle-card" data-auction-until="${homeAuctionWithinWeek(car, now, true) || ''}"><a href="${escapeHtml(href)}"><div class="aisle-photo">${image ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(getTitle(car))}" loading="lazy" decoding="async" data-fallback-image>` : ""}${imageFallback}<span class="rex-card-platform">${escapeHtml(getPlatform(car))}</span></div><div class="aisle-card-body"><div class="aisle-identity">LOT ${escapeHtml(lot || "—")}</div><h3 class="aisle-title">${escapeHtml(getTitle(car))}</h3><div class="rex-card-facts"><span>${escapeHtml(getMileage(car))}</span><span>${escapeHtml(getLocation(car))}</span></div><div class="aisle-status-text">${escapeHtml(status === "Status niedostępny" ? "Status do potwierdzenia" : status)}</div>${date ? `<div class="aisle-date">${car.auction?.is_timed === true && car.auction?.timed_end_at ? "Koniec aukcji czasowej" : "Termin aukcji"}: ${escapeHtml(date)}</div>` : ""}<div class="rex-card-bottom">${priceHtml}<span class="rex-card-open" aria-hidden="true">↗</span></div>${price.secondary ? `<div class="aisle-secondary-price">${escapeHtml(price.secondary)}</div>` : ""}${savedNote ? `<p class="aisle-secondary-price">${escapeHtml(savedNote)}</p>` : ""}</div></a></article>`;
   }
@@ -2581,29 +2595,21 @@
     if (!car) return { value: null, label: "Brak danych o ofercie" };
 
     const pricing = car.pricing && typeof car.pricing === "object" ? car.pricing : {};
-    const storedSnapshot = car.preview?.read_only === true || car.read?.source === "r2-backup" || (car.read?.source === "d1" && car.read.freshness !== "fresh")
-      || globalThis.RexBidMarket?.availabilityStatus?.(car) === "unknown";
-    const bid = (...values) => values.find(value => (typeof value === "number" || typeof value === "string" && value.trim() !== "") && Number.isFinite(Number(value)) && Number(value) > 0);
-    const positive = (...values) => values.find(value => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)) && Number(value) > 0);
+    const availability = globalThis.RexBidMarket?.availabilityStatus?.(car);
+    const storedSnapshot = car.preview?.read_only === true || ["d1","r2-backup"].includes(car.read?.source) || availability === "unknown";
+    const positive = (...values) => values.find(value => (typeof value === "number" || typeof value === "string" && value.trim() !== "") && Number.isFinite(Number(value)) && Number(value) > 0);
     const auction = car.auction && typeof car.auction === "object" ? car.auction : {};
     const state = String(auction.state || car.status || "").toLowerCase();
     const outcome = String(auction.outcome_status || "").toLowerCase();
-    const approvalPending = hasApprovalPendingOutcome(outcome) || hasApprovalPendingOutcome(auction.last_sold_status);
-    const terminal = ["finished", "sold", "closed", "ended", "not_sold", "no_sale"].includes(state) || Boolean(auction.auction_ended_at) || auction.sold_timed === true;
-    const sold = /\bsold\b/.test(outcome) && !approvalPending || ["sold"].includes(state) || ((state === "finished" || Boolean(auction.auction_ended_at)) && positive(pricing.sale_price_usd) && !approvalPending);
-    const unsold = /not.?sold|no.?sale|unsold/.test(outcome) || ["not_sold", "no_sale"].includes(state);
-    if (terminal && approvalPending) return { value: null, label: "Cena sprzedaży niepotwierdzona" };
-    if (terminal && sold) {
+    const terminal = availability === "ended" || ["finished", "sold", "closed", "ended", "not_sold", "no_sale"].includes(state) || Boolean(auction.auction_ended_at) || auction.sold_timed === true;
+    if (hasApprovalPendingOutcome(outcome)) return { value: null, label: "Cena sprzedaży niepotwierdzona" };
+    if (globalThis.RexBidMarket?.confirmedSale?.(car)) {
       const salePrice = positive(pricing.sale_price_usd, pricing.final_price_usd, car.sale_price_usd, car.final_price_usd);
-      if (salePrice !== undefined) return { value: salePrice, label: "Cena sprzedaży" };
-    }
-    if (terminal && !unsold) {
-      const lastSoldPrice = positive(pricing.last_sold_price_usd, car.last_sold_price_usd);
-      if (lastSoldPrice !== undefined) return { value: lastSoldPrice, label: "Ostatnia cena sprzedaży" };
+      return salePrice !== undefined ? { value: salePrice, label: "Cena sprzedaży" } : { value: null, label: "Cena sprzedaży niepodana" };
     }
 
     if (!terminal) {
-      const currentBid = bid(...(Object.prototype.hasOwnProperty.call(pricing, 'current_bid_usd') ? [pricing.current_bid_usd] : [pricing.current_bid2_usd]));
+      const currentBid = positive(...(Object.prototype.hasOwnProperty.call(pricing, 'current_bid_usd') ? [pricing.current_bid_usd] : [pricing.current_bid2_usd]));
       if (currentBid !== undefined) return { value: currentBid, label: storedSnapshot ? "Ostatnia zapisana oferta" : auction.is_timed ? "Aktualna oferta · Timed Auction" : "Aktualna oferta" };
       const buyNow = positive(pricing.buy_now_usd);
       if (buyNow !== undefined) return { value: buyNow, label: storedSnapshot ? "Kup teraz · zapis danych" : "Kup teraz" };
@@ -2625,9 +2631,9 @@
     const elapsedSchedule = ["scheduled", "date_only"].includes(scheduleStatus) && !!parsedSchedule
       && (parsedSchedule.dateOnly ? parsedSchedule.timestamp + 86_399_999 : parsedSchedule.timestamp) <= Date.now();
     if (/not.?sold|no.?sale|unsold/.test(outcome) || ["not_sold", "no_sale"].includes(state)) return "Niesprzedana";
-    if (hasApprovalPendingOutcome(outcome) || hasApprovalPendingOutcome(auction.last_sold_status)) return "Oferta warunkowa · wynik niepotwierdzony";
-    if (/\bsold\b/.test(outcome) || state === "sold" || auction.sold_timed === true) return "Sprzedana";
-    if (["finished", "closed", "ended"].includes(state) || auction.auction_ended_at) return "Zakończona";
+    if (hasApprovalPendingOutcome(outcome)) return "Oferta warunkowa · wynik niepotwierdzony";
+    if (globalThis.RexBidMarket?.confirmedSale?.(car)) return "Sprzedana";
+    if (["finished", "closed", "ended", "sold"].includes(state) || auction.auction_ended_at || auction.sold_timed === true) return "Zakończona";
     const sessionLabel = globalThis.RexBidMarket?.auctionSessionLabel?.(car);
     if (auction.phase === "awaiting_result" && sessionLabel && car.read?.catalog_scope !== "archival") return sessionLabel;
     if (globalThis.RexBidMarket?.availabilityStatus?.(car) === "unknown") return "Status do potwierdzenia";
@@ -3009,7 +3015,7 @@
         const savedAt = dataRead?.last_synced_at || dataRead?.last_seen_at;
         const savedDate = savedAt && Number.isFinite(Date.parse(String(savedAt))) ? new Date(savedAt).toLocaleString("pl-PL", {timeZone:"Europe/Warsaw",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}) : "";
         const savedNote = dataRead
-          ? `${dataRead.freshness === "fresh" && car.preview?.read_only !== true ? "Odczyt źródła" : "Zapis danych"}${savedDate ? " z " + savedDate : " · data nieustalona"}. ${dataRead.freshness === "fresh" && car.preview?.read_only !== true ? "Cena i dostępność mogą się zmienić." : "Cena i dostępność do potwierdzenia."}` : "";
+          ? `Zapis danych${savedDate ? " z " + savedDate + " (czas polski)" : " · data nieustalona"}. Cena i dostępność do potwierdzenia.` : "";
 
         const mileage =
           getMileage(car);
@@ -3059,7 +3065,7 @@
                   height:100%;
                   align-items:center;
                   justify-content:center;
-                  color:#68717b;
+                  color:#475f73;
                   font-size:14px;
                 "
               >
@@ -3074,7 +3080,7 @@
                   display:flex;
                   align-items:center;
                   justify-content:center;
-                  color:#68717b;
+                  color:#475f73;
                   font-size:14px;
                 "
               >
@@ -3091,7 +3097,7 @@
           ? `<span class="card-status-text">${escapeHtml(status)}</span>`
           : `<span class="card-status-text">Status do potwierdzenia</span>`;
         const primaryPrice = price.value === null
-          ? `<div class="rex-card-price"><small>${escapeHtml(price.label === "Brak danych o ofercie" ? "Aktualna oferta" : price.label)}</small><strong class="rex-price-missing">Brak danych o ofercie</strong></div>`
+          ? `<div class="rex-card-price"><small>${escapeHtml(price.label === "Brak danych o ofercie" ? (dataRead ? "Zapis oferty" : "Aktualna oferta") : price.label)}</small><strong class="rex-price-missing">Brak danych o ofercie</strong></div>`
           : `<div class="rex-card-price"><small>${escapeHtml(price.label)}</small><strong>${escapeHtml(formatMoney(price.value))}<span> USD</span></strong></div>`;
 
 
@@ -3208,7 +3214,7 @@
             </a>
             <div class="card-local-actions" aria-label="Akcje lokalne">
               <button type="button" data-compare-lot="${escapeHtml(lot || '')}" data-compare-platform="${escapeHtml(platformName.toLowerCase())}" aria-pressed="false">Porównaj</button>
-              <button type="button" data-local-action="favorite" data-car-index="${cardIndex}" data-car-key="${escapeHtml(platformName.toLowerCase() + ":" + (lot || vin))}" aria-label="${localStorageApi?.isFavorite(car) ? "Usuń z ulubionych" : "Dodaj do ulubionych"}: ${escapeHtml(title)} · LOT ${escapeHtml(lot || "—")}" aria-pressed="${localStorageApi?.isFavorite(car) ? "true" : "false"}">${localStorageApi?.isFavorite(car) ? "♥ Obserwujesz" : "♡ Obserwuj"}</button>
+              <button type="button" data-local-action="favorite" data-car-index="${cardIndex}" data-car-key="${escapeHtml(platformName.toLowerCase() + ":" + (lot || vin))}" aria-label="${localStorageApi?.isFavorite(car) ? "Obserwujesz — usuń z ulubionych" : "Obserwuj — dodaj do ulubionych"}: ${escapeHtml(title)} · LOT ${escapeHtml(lot || "—")}" aria-pressed="${localStorageApi?.isFavorite(car) ? "true" : "false"}"><span aria-hidden="true">${localStorageApi?.isFavorite(car) ? "♥" : "♡"}</span> ${localStorageApi?.isFavorite(car) ? "Obserwujesz" : "Obserwuj"}</button>
             </div>
 
           </article>

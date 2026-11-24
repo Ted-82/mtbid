@@ -164,3 +164,22 @@
   .rex-portal.rex-catalog-mode #search .eyebrow { font-size: 10px; margin-bottom: 9px; }
   .rex-portal .filter-section .filters { padding: 17px; }
 }
+.rex-portal .catalog-jump { display: none; }
+.rex-portal :is(.rex-import-steps p, .rex-home-return, .card-identity-line > span, .clear-filters:not(:disabled)),
+.rex-portal .catalog-results .spec small { color: #475f73; }
+.rex-portal.rex-catalog-mode #search :is([data-home-only], .eyebrow, #heroLead) { display: none; }
+.rex-portal.rex-catalog-mode #search .hero-copy { align-items: center; grid-template-areas: "title search"; }
+.rex-portal.rex-catalog-mode #search .search-panel { padding: 0; margin: 0; border: 0; background: transparent; box-shadow: none; }
+.rex-portal.rex-catalog-mode #search .search-box { display: flex; flex-direction: row; align-items: stretch; margin: 0; }
+.rex-portal.rex-catalog-mode #search .rex-search-field { flex: 1 1 0; min-width: 0; }
+.rex-portal.rex-catalog-mode #search .catalog-jump { display: inline-flex; align-items: center; gap: .45em; min-height: 36px; color: #fff; font-weight: 650; text-underline-offset: .2em; }
+.rex-portal #cars { scroll-margin-top: 7rem; }
+@media (max-width: 760px) {
+  .rex-portal.rex-catalog-mode #search.hero { padding: 16px 0 6px; }
+  .rex-portal.rex-catalog-mode #search .hero-copy { text-align: left; }
+  .rex-portal.rex-catalog-mode #search h1 { font-size: 22px; margin: 0 0 10px; }
+  .rex-portal.rex-catalog-mode #search .search-box { gap: 6px; }
+  .rex-portal.rex-catalog-mode #search .search-box .btn { flex: 0 0 auto; justify-content: center; width: auto; min-width: 0; padding-inline: 12px; }
+  .rex-portal.rex-catalog-mode #search .search-box .btn span { display: none; }
+  .rex-portal.rex-catalog-mode #search .search-box input { font-size: 16px; }
+}

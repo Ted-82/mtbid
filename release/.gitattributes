@@ -1,0 +1,8 @@
+# Preserve byte hashes for overlays reconstructed from a specific deployment.
+executor/** -text
+photos/** -text
+public-site/** text=auto
+public-site/**/*.png binary
+public-site/**/*.webp binary
+public-site/**/*.jpg binary
+

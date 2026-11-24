@@ -14,6 +14,7 @@
   let pending;
   let vehicle;
   let binding;
+  class BudgetMessage extends Error {}
 
   function reference(car) {
     const lot = String(car?.lot_number || "");
@@ -27,11 +28,12 @@
     return ref.platform.toUpperCase() + " · LOT " + ref.lot + (ref.vin ? " · VIN " + ref.vin : "");
   }
 
-  async function get(path, signal) {
+  async function get(path, signal, allowMissing = false) {
     const response = await fetch(path, {signal, credentials:"omit", headers:{Accept:"application/json"}});
-    if (!response.ok) throw new Error("Nie udało się pobrać danych oferty. Spróbuj ponownie.");
+    if (allowMissing && response.status === 404) return null;
+    if (!response.ok) throw new BudgetMessage("Nie udało się pobrać danych oferty. Spróbuj ponownie.");
     const body = await response.json();
-    if (body.ok !== true) throw new Error("Katalog jest chwilowo niedostępny. Spróbuj ponownie.");
+    if (body.ok !== true) throw new BudgetMessage("Katalog jest chwilowo niedostępny. Spróbuj ponownie.");
     return body;
   }
 
@@ -52,33 +54,57 @@
     try {
       await work(controller.signal, current);
     } catch (error) {
-      if (current()) status.textContent = error.name === "AbortError"
+      if (current()) status.textContent = error?.name === "AbortError"
         ? "Pobieranie trwało zbyt długo. Spróbuj ponownie."
-        : (error.message || "Nie udało się pobrać oferty. Spróbuj ponownie.");
+        : error instanceof BudgetMessage ? error.message : "Nie udało się przygotować wyceny. Spróbuj ponownie.";
     } finally {
       clearTimeout(timer);
       if (current()) pending = null;
     }
   }
 
-  async function showOffer(ref, signal, current) {
+  async function showOffer(ref, signal, current, retainedOnly = false) {
     clearSelection();
     status.textContent = "Pobieram dane wybranego samochodu…";
-    const detail = await get("/api/car/" + encodeURIComponent(ref.lot) + "?" + new URLSearchParams({platform:ref.platform}), signal);
+    const detail = await get("/api/car/" + encodeURIComponent(ref.lot) + "?" + new URLSearchParams({platform:ref.platform}), signal, retainedOnly);
     if (!current()) return;
+    if (retainedOnly && !detail?.data) {
+      status.textContent = "Brak dokładnie pasującej oferty w katalogu. Sprawdź numer LOT i platformę.";
+      return;
+    }
     const exact = reference(detail.data);
     if (!exact || exact.lot !== ref.lot || exact.platform !== ref.platform || (ref.vin && exact.vin !== ref.vin)) {
-      throw new Error("Katalog nie potwierdził tożsamości oferty. Sprawdź VIN, LOT i platformę.");
+      throw new BudgetMessage("Katalog nie potwierdził tożsamości oferty. Sprawdź VIN, LOT i platformę.");
+    }
+    const cardUrl = "/car?" + new URLSearchParams({lot:exact.lot,platform:exact.platform});
+    const availability = root.RexBidMarket?.availabilityStatus?.(detail.data);
+    const read = detail.data.read;
+    const retainedSnapshot = detail.data.preview?.read_only === true || read?.source === "r2-backup";
+    if (retainedOnly || availability !== "active" || retainedSnapshot) {
+      status.textContent = availability === "ended"
+        ? "Aukcja zakończona. Limit licytacji dotyczy aktywnych ofert."
+        : "Mamy zapis tej oferty. Katalog nie potwierdza obecnie możliwości licytacji.";
+      const link = root.document.createElement("a");
+      link.href = cardUrl;
+      link.textContent = "Otwórz zapisaną kartę · " + description(exact);
+      matches.replaceChildren(link);
+      return;
     }
     vehicle = {...exact, title: String(detail.data.title || "Wybrany samochód")};
     title.textContent = vehicle.title;
     identity.textContent = description(exact);
-    original.href = "/car?" + new URLSearchParams({lot:exact.lot,platform:exact.platform});
-    binding = root.RexBidDeliveredView.bindCalculator({root:calculator,vehicle:detail.data,mode:"budget",budgetPln:form.elements.budget.value});
-    if (!binding) throw new Error("Kalkulator jest chwilowo niedostępny.");
+    original.href = cardUrl;
+    binding = root.RexBidDeliveredView?.bindCalculator?.({root:calculator,vehicle:detail.data,mode:"budget",budgetPln:form.elements.budget.value});
+    if (!binding) throw new BudgetMessage("Kalkulator jest chwilowo niedostępny. Odśwież stronę i spróbuj ponownie.");
     binding.setPriceKind("custom");
     selected.hidden = false;
-    status.textContent = "";
+    if (read?.source === "d1" && read.freshness !== "fresh") {
+      const observed = Date.parse(read.last_synced_at || read.last_seen_at || "");
+      const date = Number.isFinite(observed) ? new Date(observed).toLocaleDateString("pl-PL",{timeZone:"Europe/Warsaw"}) : "";
+      status.textContent = "Symulacja według zapisanych danych" + (date ? " z " + date : "") + ". Dostępność pojazdu i stawki wymagają potwierdzenia przed licytacją.";
+    } else {
+      status.textContent = "";
+    }
     title.focus();
   }
 
@@ -107,7 +133,11 @@
         found.set(ref.platform + ":" + ref.lot,{ref,car});
       }
       if (!found.size) {
-        status.textContent = "Brak dokładnie pasującej oferty w katalogu. Sprawdź numer lub wybierz obie platformy.";
+        if (!vinSearch && ["copart","iaai"].includes(platform)) {
+          await showOffer({lot:identifier,platform},signal,current,true);
+          return;
+        }
+        status.textContent = vinSearch ? "Brak dokładnie pasującej oferty w katalogu. Sprawdź VIN i platformę." : "Brak dokładnie pasującej oferty w aktualnym katalogu. Wybierz platformę, aby sprawdzić zapis karty.";
         return;
       }
       if (found.size === 1 && !result.meta?.next_cursor) {

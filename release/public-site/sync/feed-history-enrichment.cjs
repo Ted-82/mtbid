@@ -2,13 +2,14 @@
 const {importTargetedHistory}=require('../scripts/targeted-history-import.cjs');
 const {PREFIX}=require('./history-request.cjs');
 const {createApibaraProvider}=require('../providers/apibara.js');
+const {supportsExteriorColor}=require('./listing-display-facts.cjs');
 async function enrichRequestedHistory({db,store,getRequest,now}){
  const at=new Date(now()).toISOString();
  const tasks=(await db.prepare(`SELECT task_key,platform,listing_id,cursor,failures FROM automatic_refresh_tasks
   WHERE task_key>=? AND task_key<? AND status='pending' AND next_due_at<=? ORDER BY task_key LIMIT 1`).bind(PREFIX,PREFIX+'~',at).all()).results;
  if(!tasks?.length)return null;
  const task=tasks[0];
- const saved=await db.prepare('SELECT l.platform,l.lot,l.vin_normalized,l.auction_state,s.provider FROM auction_listings l JOIN vehicle_sources s ON s.source_key=l.source_key WHERE l.listing_id=?').bind(task.listing_id).first();
+ const saved=await db.prepare('SELECT l.platform,l.lot,l.vin_normalized,l.auction_state,l.document_name,s.provider FROM auction_listings l JOIN vehicle_sources s ON s.source_key=l.source_key WHERE l.listing_id=?').bind(task.listing_id).first();
  const checkpoint=(status,due,cursor=task.cursor,error=null)=>store.taskStatement({key:task.task_key,platform:task.platform,listingId:task.listing_id,status,due,cursor,error,success:status==='complete'});
  try{
   if(!saved||saved.platform!==task.platform||saved.provider!=='apibara'||!/^[A-HJ-NPR-Z0-9]{17}$/.test(saved.vin_normalized||'')||!/^\d{1,20}$/.test(saved.lot||''))throw Error('HISTORY_TARGET_CHANGED');
@@ -27,13 +28,21 @@ async function enrichRequestedHistory({db,store,getRequest,now}){
   const imported=await importTargetedHistory(guardedDb,{response,expected,observedAt,mode});
   if(mode==='included'){
    const provider=createApibaraProvider(),raw=provider.vehicleDetailRecord(response),n=provider.normalizeVehicle(raw);
-   const document=String(raw?.sale_document?.source_name||'').trim(),short=String(raw?.sale_document?.name||'').trim();
+   const document=n.documentName,short=typeof raw?.sale_document?.name==='string'?raw.sale_document.name.trim():'';
+   const sourceVersion=raw.updated_at||observedAt;
    const statements=[];
    // Enrich only missing/richer stable fields. Never refresh bid, sale result,
    // auction date or listing freshness from a history observation.
-   if(document&&document.length<=300&&short)statements.push(db.prepare(`UPDATE auction_listings SET document_name=?
-    WHERE listing_id=? AND platform=? AND lot=? AND vin_normalized=? AND (document_name IS NULL OR document_name=?)`)
-    .bind(document,expected.listingId,expected.platform,expected.lot,expected.vin,short));
+   const previous=saved.document_name||'';
+   const fuller=document&&!/^[A-Z]{1,4}$/.test(document)&&document!==previous;
+   if(fuller&&(!previous.trim()||previous===short||/^[A-Z]{1,4}$/.test(previous)))statements.push(db.prepare(`UPDATE auction_listings SET document_name=?
+    WHERE listing_id=? AND platform=? AND lot=? AND vin_normalized=? AND document_name IS ?
+    AND (source_updated_at IS NULL OR julianday(source_updated_at)<=julianday(?))`)
+    .bind(document,expected.listingId,expected.platform,expected.lot,expected.vin,saved.document_name,sourceVersion));
+   if(n.exteriorColor&&await supportsExteriorColor(db))statements.push(db.prepare(`UPDATE auction_listings SET exterior_color=?
+    WHERE listing_id=? AND platform=? AND lot=? AND vin_normalized=? AND exterior_color IS NULL
+    AND (source_updated_at IS NULL OR julianday(source_updated_at)<=julianday(?))`)
+    .bind(n.exteriorColor,expected.listingId,expected.platform,expected.lot,expected.vin,sourceVersion));
    if(n?.sellerName)statements.push(db.prepare(`UPDATE auction_listings SET seller_name=?
     WHERE listing_id=? AND platform=? AND lot=? AND vin_normalized=? AND seller_name IS NULL`)
     .bind(n.sellerName,expected.listingId,expected.platform,expected.lot,expected.vin));

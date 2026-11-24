@@ -8,7 +8,7 @@ const root = path.resolve(__dirname, '..');
 const storageSource = fs.readFileSync(path.join(root, 'public/rexbid-storage.js'), 'utf8');
 const indexSource = fs.readFileSync(path.join(root, 'public/index.html'), 'utf8');
 const carSource = fs.readFileSync(path.join(root, 'public/car.html'), 'utf8');
-const favoritesSource = fs.readFileSync(path.join(root, 'public/ulubione.html'), 'utf8');
+const favoritesSource = fs.readFileSync(path.join(root, 'public/ulubione.html'), 'utf8').replace(/\r\n/g, '\n');
 const accountSource = fs.readFileSync(path.join(root, 'public/konto.html'), 'utf8');
 
 function createStorage(seed = {}) {
@@ -225,7 +225,9 @@ test('favorites never show zero Buy Now or infer sale/current price from generic
   vm.createContext(context);
   vm.runInContext(`${approvalBlock}\n${priceBlock}\nglobalThis.priceInfo = priceInfo;`, context);
   assert.deepEqual(JSON.parse(JSON.stringify(context.priceInfo({ auction: { state: 'open' }, pricing: { current_bid2_usd: 1200, buy_now_usd: 0, price: 9900, estimated_cost: 12000 } }))), ['Ostatnia zapisana oferta', 1200]);
-  assert.deepEqual(JSON.parse(JSON.stringify(context.priceInfo({ auction: { state: 'finished' }, pricing: { sale_price_usd: null, last_sold_price_usd: 2300, current_bid_usd: 1800 } }))), ['Ostatnia cena sprzedaży', 2300]);
+  assert.deepEqual(JSON.parse(JSON.stringify(context.priceInfo({ auction: { state: 'finished' }, pricing: { sale_price_usd: null, last_sold_price_usd: 2300, current_bid_usd: 1800 } }))), ['Historyczna cena sprzedaży', 2300]);
+  assert.deepEqual(Array.from(context.priceInfo({auction:{state:'not_sold',result_confirmed:true},pricing:{sale_price_usd:9000}})), ['Brak danych o ofercie',null]);
+  assert.deepEqual(Array.from(context.priceInfo({auction:{state:'finished',outcome_status:'sold',result_confirmed:true},pricing:{sale_price_usd:4500}})), ['Cena sprzedaży',4500]);
   assert.deepEqual(JSON.parse(JSON.stringify(context.priceInfo({ auction: { state: 'open' }, pricing: { current_bid_usd: null, current_bid2_usd: null, buy_now_usd: 0, price: 9900, estimated_cost: 12000 } }))), ['Brak danych o ofercie', null]);
   assert.deepEqual(JSON.parse(JSON.stringify(context.priceInfo({ auction: { state: 'finished', outcome_status: 'Sold on Approval' }, pricing: { sale_price_usd: 950, last_sold_price_usd: 950 } }))), ['Cena sprzedaży niepotwierdzona', null]);
 });
@@ -245,7 +247,10 @@ test('favorite cards do not present elapsed unconfirmed auctions as upcoming and
   assert.equal(context.statusLabel({ state: 'open', date: '2026-10-02T13:30:00Z' }, now), 'Termin minął · wynik do potwierdzenia');
   assert.equal(context.statusLabel({ state: 'open', date: '2026-10-04T13:30:00Z' }, now), 'Przed licytacją');
   assert.equal(context.statusLabel({ state: 'live', date: '2026-10-02T13:30:00Z' }, now), 'Trwa');
-  assert.equal(context.statusLabel({ state: 'sold', date: '2026-10-02T13:30:00Z' }, now), 'Sprzedana');
+  assert.equal(context.statusLabel({ state: 'sold', result_confirmed: true, date: '2026-10-02T13:30:00Z' }, now), 'Sprzedana');
+  assert.equal(context.statusLabel({state:'sold',result_confirmed:false},now),'Wynik do potwierdzenia');
+  assert.equal(context.statusLabel({state:'not_sold',result_confirmed:false},now),'Wynik do potwierdzenia');
+  assert.equal(context.statusLabel({state:'not_sold',result_confirmed:true},now),'Niesprzedana');
   assert.equal(context.auctionDateLabel('not-a-date'), '—');
   assert.doesNotMatch(context.auctionDateLabel('2026-10-02T13:30:00Z'), /^2026-10-02T/);
   assert.match(favoritesSource, /auctionDateLabel\(car\.auction\?\.date \|\| car\.auction\?\.full_date\)/);

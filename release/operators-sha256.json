@@ -1,0 +1,137 @@
+{
+  "schema": 1,
+  "algorithm": "SHA-256",
+  "operators": {
+    "executor": {
+      "source": "large-delivery-20261124/executor",
+      "version": "a95d53bb-a169-4371-ba7c-08dae26a2431",
+      "files": [
+        {
+          "path": "docs/proposals/0019_catalog_exterior_color.sql",
+          "change": "add",
+          "before": null,
+          "after": "f7d8e311b869acd8e6c49396d4c82ab04c0f2b8ddf137a6cfd0cfbffaebc86e4"
+        },
+        {
+          "path": "providers/apibara.js",
+          "change": "modify",
+          "before": "d0f671de767e211fb3e26552fb2d2233025ddda693ea9cf104099c264aff64c9",
+          "after": "28561e82425f98b8561737c363e68e67ed76f3dd43efa8e96eb5c1d35c42d42e"
+        },
+        {
+          "path": "providers/contract.js",
+          "change": "modify",
+          "before": "41344eb678d39a45b8e3740d173a1cbe240e9b4e4267b66a6388ac2769f99ad2",
+          "after": "d7471385e8945d2b9339469e14970b494fc0f92e304868dcc86a4b39c944c052"
+        },
+        {
+          "path": "sync/d1-read-repository.js",
+          "change": "modify",
+          "before": "aa59aa67c236d5cd53d3d3ba5186d2a76b7a3c808d3c0b4c56db84514e052291",
+          "after": "9588b1dcb313ecfc4bc8a245af2c48c6715fb12a9f31df96e366d887406a1e49"
+        },
+        {
+          "path": "sync/d1-repository.js",
+          "change": "modify",
+          "before": "c6fb716071e9e20992460da97ce32f509e08a9946154ca914d5151c863c45f16",
+          "after": "1c3c73a1979a87fc9dd4e1127bcaec261776d3cccfcb11470691004b104f9a38"
+        },
+        {
+          "path": "sync/feed-account-budget.cjs",
+          "change": "same",
+          "before": "048e21fe8b7934f6fa7fdabdb591d70f494d45a838747120ea00a547a41e32d9",
+          "after": "048e21fe8b7934f6fa7fdabdb591d70f494d45a838747120ea00a547a41e32d9"
+        },
+        {
+          "path": "sync/feed-active-reconcile.cjs",
+          "change": "modify",
+          "before": "64925be89868cbd7e2d428f9ed91298bcec37956a6d4ae66edefadf73b585f26",
+          "after": "2cb3fa757a7bdc73f3967f6f60f43eb8aa8b01347a2327a6e3f4789ef2a209d7"
+        },
+        {
+          "path": "sync/feed-change-rollback.cjs",
+          "change": "modify",
+          "before": "b2ce5198c45201dfddffa5a4be441d840711ceac8439d64290ebb25661c291a1",
+          "after": "364dccc7f32c78a315d2aace520a3034bfd4556501816b616c58fbf563e123d4"
+        },
+        {
+          "path": "sync/feed-history-enrichment.cjs",
+          "change": "modify",
+          "before": "df23aa983e6452dde42bc92e6c8eff6a60e679d07c41974aa38693f57f74483e",
+          "after": "77f2853a12e31d374a25824754a88bef10f5cc6da95f6d4df068670a0f0283b9"
+        },
+        {
+          "path": "sync/feed-record-hydration.cjs",
+          "change": "modify",
+          "before": "5f33c52dc20840cd23448485c05b257840b62e8ef8ea95add258bd7a7307ff45",
+          "after": "a67a84f3e6fdb16e0faccef9a43f36f13bef967a39434cab72a5f44d461dae98"
+        },
+        {
+          "path": "sync/listing-display-facts.cjs",
+          "change": "add",
+          "before": null,
+          "after": "393debb4fb10f761147adba7ecc7f9a2660b3fe634914847460d527146b2ce31"
+        },
+        {
+          "path": "sync/publication-refresh.cjs",
+          "change": "modify",
+          "before": "89d0891447a511b1469b0821a806d09605cf4d2085cf247bb79e9e03fca5a1b8",
+          "after": "b08e12a2da2dfd097dcafa86323a8fc5564c9155ebf5d7e5b93f8025fbe93afe"
+        },
+        {
+          "path": "tests/feed-active-reconcile.test.cjs",
+          "change": "modify",
+          "before": "95fb593a8db0da2d85c132c14e638a1da213fa888a39b44457d5cc6a1c08c4f0",
+          "after": "95c5e01f9bac4c29503b592a387c6f5452573505fe392e7295c0c742a05c3bfb"
+        },
+        {
+          "path": "tests/feed-change-rollback.test.cjs",
+          "change": "modify",
+          "before": "e8051122ca1c0a5f8ccf6321884ff6721b9f6f285d332cff099413973754024c",
+          "after": "e426838e4302b1e508f410d808740c1b4f6b76362b4993687c61a5b0bbfd93e0"
+        },
+        {
+          "path": "tests/feed-record-hydration.test.cjs",
+          "change": "modify",
+          "before": "9d95eca78bfe4c1f0c99c7262ea84af2f36037351fdd63e28af5787e136c23de",
+          "after": "4a31ce61539cae7cc88a03c2fb663b88f7fc10f138faa2fd700841016416ff28"
+        },
+        {
+          "path": "tests/listing-display-facts.test.cjs",
+          "change": "add",
+          "before": null,
+          "after": "7db9966cb0ad597e21833516143a615fc17eacf0912a9b59ce742012358f4fcf"
+        }
+      ]
+    },
+    "photos": {
+      "source": "write-priority-20261122/photos",
+      "version": "0caccbfa-67a8-41e5-bd4c-500265d6df99",
+      "files": [
+        {
+          "path": "repair.cjs",
+          "change": "modify",
+          "before": "027832a800fb2ed880a468706c3ad58e16bd09ef4deb58133e2e5f5e83db8a86",
+          "after": "3e61e981f0558f1de8f6014c6abc533180c8259f00a74868443997d0083c1f80"
+        },
+        {
+          "path": "repair.test.cjs",
+          "change": "modify",
+          "before": "9fd66378afc1f790960f6c5ac30f3b34268a76386f72501ebf9ebe97f72d9871",
+          "after": "e2739fcc7ca984b909a0354fb40a63321a287bd8a5c1ce52aed657e4a7daf7bf"
+        },
+        {
+          "path": "worker.mjs",
+          "change": "same",
+          "before": "5df087540f8eeb93199f8d1c274f370929b4f41eeb3e9199d820770dde686e50",
+          "after": "5df087540f8eeb93199f8d1c274f370929b4f41eeb3e9199d820770dde686e50"
+        }
+      ]
+    }
+  },
+  "photosDirectDependencies": {
+    "inquiry-budget-20261119/site/sync/catalog-order.cjs": "445e8c07daae025963c08cc1943353e882383ca23d64047b5841787c0d2a1bba",
+    "integrity-followup-20261118/executor/providers/apibara.js": "fae1d1e92b08db8690de57b45103036ce81d0064bdd4a5a9d4ce9f026fa2e78a",
+    "integrity-followup-20261118/executor/sync/catalog-media-storage.cjs": "3e61566d7965f10abd7dc4a33fa3ae89cc90ab9e53e307eeade10c80733f0c88"
+  }
+}

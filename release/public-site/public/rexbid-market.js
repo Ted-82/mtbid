@@ -65,6 +65,15 @@
     return "Aktywne okno sesji · licytacja auta do potwierdzenia";
   }
   function hasConfirmedAvailability(car){return availabilityStatus(car)==='active';}
+  function confirmedSale(car){
+    return car?.auction?.result_confirmed===true && lower(car.auction.outcome_status)==='sold';
+  }
+  function priceObservationLabel(car){
+    const observed=car?.read?.last_synced_at ?? car?.preview?.last_synced_at ?? car?.last_synced_at;
+    if(typeof observed!=='string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})$/i.test(observed) || !Number.isFinite(Date.parse(observed))) return 'Czas zapisu danych nieustalony.';
+    const formatter=new Intl.DateTimeFormat('pl-PL',{timeZone:'Europe/Warsaw',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'shortOffset'});
+    return 'Zapis danych oferty: '+formatter.format(new Date(observed))+' (Polska).';
+  }
   function resolve(value){return categories.some(c=>c.id===value)?value:'current';}
   function fromParams(params){
     if(params.has('category'))return resolve(params.get('category'));
@@ -117,7 +126,7 @@
     if(category==='electric'){where.push(`lower(trim(COALESCE(l.fuel_type,''))) IN (${placeholders(electric)})`);values.push(...electric);}
     return {where,values};
   }
-  const api={categories,resolve,fromParams,returnPath,eligible,sql,hasConfirmedAvailability,availabilityStatus,auctionSessionLabel,damageLabel,normalizeSearch};
+  const api={categories,resolve,fromParams,returnPath,eligible,sql,hasConfirmedAvailability,confirmedSale,priceObservationLabel,availabilityStatus,auctionSessionLabel,damageLabel,normalizeSearch};
   if(typeof module==='object'&&module.exports)module.exports=api;
   if(root)root.RexBidMarket=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

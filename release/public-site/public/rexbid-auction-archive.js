@@ -14,9 +14,9 @@ function el(tag,text){
 }
 function source(entry){return entry.platform==='iaai'?'IAAI':'Copart';}
 function price(entry){
-  if(entry.saleCents!==null)return new Intl.NumberFormat('pl-PL',{style:'currency',currency:'USD'}).format(entry.saleCents/100)+' · cena sprzedaży';
   if(entry.status==='not_sold')return 'Bez sprzedaży';
-  if(entry.status==='ended_unknown')return 'Wynik niepotwierdzony';
+  if(entry.status!=='sold')return 'Wynik niepotwierdzony';
+  if(Number.isSafeInteger(entry.saleCents)&&entry.saleCents>0)return new Intl.NumberFormat('pl-PL',{style:'currency',currency:'USD'}).format(entry.saleCents/100)+' · cena sprzedaży';
   return 'Sprzedany · bez ceny';
 }
 function details(entry){

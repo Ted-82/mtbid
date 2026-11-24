@@ -35,6 +35,7 @@
     const description = vehicle.vehicle_description || vehicle.details?.vehicle_description || {};
     const rawBody = String(vehicle.body_style || vehicle.bodyStyle || vehicle.vehicle_type || description.BodyStyle || description.BodyStyleName || description.VehicleClass || '').toLowerCase();
     const explicitClass = [vehicle.transport_class,vehicle.vehicle_class,vehicle.body_style_class].filter(Boolean).join(' ').toLowerCase();
+    const individualTaxes = /\b(?:bus|scooter|motorcycle|tractor|trailer)\b/i.test(rawBody);
     const declaredClass = transport.vehicleClassFrom(vehicle);
     const pickupModel = STANDARD_PICKUP_MODELS[String(vehicle.make || '').trim().toUpperCase()];
     const isStandardPickup = declaredClass === 'pickup_standard' || (!explicitClass
@@ -56,7 +57,7 @@
       ? Math.round(baseLand * multiplier * 100) / 100 : null;
     const land = isStandardPickup ? pickupLand : number(override?.landUsd ?? baseLand);
     const supported = isUS && (standard || isStandardPickup);
-    return {platform:transport.normalizePlatform(ctx.platform), standard:supported,
+    return {platform:transport.normalizePlatform(ctx.platform), standard:supported, individualTaxes,
       landUsd:supported ? land : null, seaUsd:supported && land !== null ? number((isStandardPickup ? null : override?.seaUsd) ?? profile.route?.seaUsd) : null,
       location:String(ctx.auction_location || ''), source:isStandardPickup && pickupLand !== null ? 'Tabela transportu REXBID · standardowy pickup' : override ? 'Stawka REXBID' : row ? 'Tabela transportu REXBID' : 'Wycena trasy',
       routeReason:!isUS?'Kalkulator standardowy obejmuje transport z USA. Ta lokalizacja wymaga osobnej wyceny.':!supported?'Rodzaj lub gabaryty pojazdu wymagają osobnej wyceny transportu.':land===null?'Nie udało się jednoznacznie dopasować oddziału i stawki do tabeli transportu.':null,
@@ -150,7 +151,7 @@
       for(const optional of ['auctionFeeOverrideUsd','exciseBasePln','customsValueUsd',...taxOverrides])if(values[optional]==='')delete values[optional];
       const oversized=q('[data-estimate-oversize]').checked;
       if(oversized){values.landUsd=null;values.seaUsd=null;}
-      const input={...values,platform:route.platform,powertrain:powertrain.value,
+      const input={...values,platform:route.platform,powertrain:powertrain.value,individualTaxes:route.individualTaxes,
         exemptionBasis:decodedElectric===powertrain.value&&!edited.has('powertrain')&&!edited.has('exemption')?'vin_electric_estimate':undefined,
         exemptionConfirmed:q('[data-estimate-exemption]').checked,translations:q('[data-estimate-translations]').checked,
         dangerousCargo:q('[data-estimate-cargo]').checked,fxDate:fxManual?new Date().toISOString().slice(0,10):exchange?.effectiveDate,
@@ -186,7 +187,8 @@
       q('[data-estimate-status]').textContent=loading?'Pobieram kursy i brakujące dane silnika…':reverse&&reverseResult.purchaseUsd===null?reverseResult.missing.join(' '):complete?'Zakup, transport, podatki i wybrane usługi. Kwotę oraz zakres potwierdzimy przed zleceniem.':'Do pełnej ceny uzupełnij: '+[...new Set(missing)].map(message=>message.replace(/\.+$/,'')).join('; ')+'. Brakujące kwoty nie są wliczone.';
       q('[data-estimate-purchase-lines]').innerHTML=rows([['Cena pojazdu',number(values.purchaseUsd),'USD'],['Opłaty aukcyjne',result.auctionFeeUsd,'USD'],['Transport w USA',number(values.landUsd),'USD'],['Fracht do Rotterdamu',number(values.seaUsd),'USD'],['Zakup i transport łącznie',result.calculatedCustomsUsd,'USD']]);
       const taxLabel=(label,key,automatic)=>label+(Object.hasOwn(values,key)?' · ręcznie':automatic);
-      q('[data-estimate-tax-lines]').innerHTML=rows([[result.customsValueSource==='manual'?'Wartość celna · wpisana ręcznie':'Wartość celna · wyliczona',result.customsUsd,'USD'],[taxLabel('Cło','dutyOverridePln',' · 10%'),result.dutyPln,'PLN'],[taxLabel('VAT importowy','vatOverridePln',' · Holandia 21%'),result.vatPln,'PLN'],[taxLabel('Akcyza w Polsce','exciseOverridePln',''),result.excisePln,'PLN'],['Agencja celna i rozładunek',profile.service.portEUR,'EUR']]);
+      const dutyLabel=route.individualTaxes?' · według klasyfikacji pojazdu':' · 10%';
+      q('[data-estimate-tax-lines]').innerHTML=rows([[result.customsValueSource==='manual'?'Wartość celna · wpisana ręcznie':'Wartość celna · wyliczona',result.customsUsd,'USD'],[taxLabel('Cło','dutyOverridePln',dutyLabel),result.dutyPln,'PLN'],[taxLabel('VAT importowy','vatOverridePln',' · Holandia 21%'),result.vatPln,'PLN'],[taxLabel('Akcyza w Polsce','exciseOverridePln',''),result.excisePln,'PLN'],['Agencja celna i rozładunek',profile.service.portEUR,'EUR']]);
       for(const [index,key] of taxOverrides.entries()) fields[key].placeholder=money([result.dutyPln,result.vatPln,result.excisePln][index]);
       q('[data-estimate-customs-note]').textContent=`Wyliczenie z zakupu i transportu: ${money(result.calculatedCustomsUsd,'USD')}. ${result.customsValueSource==='manual'?'Do podatków stosujesz własną wartość; potwierdź ją do odprawy.':'Możesz wpisać własną kwotę do oszacowania podatków.'}`;
       q('[data-estimate-customs-reset]').disabled=result.customsValueSource!=='manual';

@@ -32,6 +32,17 @@ function setup(t, {vehicle={}, fx=FX, fetchRates, profile, inquiryHref="/kontakt
   return {window,doc,mount,record,binding,q,input,change,qualify,events};
 }
 
+test('a bus with manually priced transport requires its own duty and excise before a full total', t => {
+  const ui=setup(t,{vehicle:{body_style:'Bus',powertrain:'ICE',engine_capacity_cc:3500}});
+  ui.input('landUsd',485);ui.input('seaUsd',995);
+  const partial=ui.binding.getBudget();
+  assert.equal(partial.complete,false);assert.equal(partial.dutyPln,null);assert.equal(partial.excisePln,null);
+  assert.match(ui.q('[data-estimate-tax-lines]').textContent,/klasyfikacji/);
+  ui.input('dutyOverridePln',800);ui.input('exciseOverridePln',0);
+  const quoted=ui.binding.getBudget();
+  assert.equal(quoted.complete,true);assert.equal(quoted.dutyPln,800);assert.equal(quoted.excisePln,0);
+});
+
 for (const [platform,bid,reference] of BENCHMARKS) {
   test(`delivered UI benchmark ${platform} $${bid} includes gross PLN2500 and matching auction costs`, t => {
     const location = platform === "copart" ? {auction_location:"Tampa South",state:"FL",country:"US"} : {auction_location:"Sayreville",state:"NJ",country:"US"};

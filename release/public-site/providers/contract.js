@@ -21,6 +21,7 @@ function createRexVehicle(input = {}) {
     model: nullableString(input.model),
     trim: nullableString(input.trim),
     body_style: nullableString(input.body_style),
+    exterior_color: nullableString(input.exterior_color),
     fuel_type: nullableString(input.fuel_type),
     transmission: nullableString(input.transmission),
     drive_type: nullableString(input.drive_type),

@@ -23,12 +23,14 @@ class D1Fixture {
   }
 }
 
-function fixture(t, {upcoming = false} = {}) {
+function fixture(t, {upcoming = false, mixedDates = false} = {}) {
   const sqlite=new DatabaseSync(":memory:");
   sqlite.exec("PRAGMA foreign_keys=ON");
   for(const file of ["migrations/0000_rexbid_base.sql","migrations/0001_auction_history_events.sql","migrations-staging/0003_accounts_foundation.sql","docs/proposals/0004_d1_sync_2.sql"])
     sqlite.exec(fs.readFileSync(path.join(ROOT,file),"utf8"));
   const fresh=new Date(Date.now()-60_000).toISOString();
+  const auctionAt=new Date(Date.now()+86400000).toISOString();
+  const timedEndAt=new Date(Date.now()+2*86400000).toISOString();
   for(const platform of ["copart","iaai"])
     sqlite.prepare(`INSERT INTO provider_sync_scopes(scope_key,provider,platform,operation,status,cursor,last_complete_at,updated_at)
       VALUES(?,?,?,'discovery',?,?,?,?)`).run("scope-"+platform,"apibara",platform,platform==="copart"?"complete":"partial",platform==="copart"?null:"opaque-provider-cursor",platform==="copart"?OLD:null,OLD);
@@ -43,10 +45,10 @@ function fixture(t, {upcoming = false} = {}) {
     sqlite.prepare(`INSERT INTO vehicle_sources(source_key,provider,platform,provider_vehicle_id,identity_kind,identity_state,first_seen_at,last_seen_at,last_success_at,sync_status,created_at,updated_at)
       VALUES(?,'apibara',?,?,'provider_vehicle_id','resolved',?,?,?,'idle',?,?)`).run(source,row.platform,"provider-"+row.id,OLD,row.seen,row.synced,OLD,row.seen);
     sqlite.prepare(`INSERT INTO auction_listings(listing_id,source_key,platform,listing_identity_kind,identity_state,source_listing_id,vin_normalized,lot,vehicle_title,make,model,year,body_style,fuel_type,auction_state,source_status,auction_at,is_timed,timed_end_at,current_bid_usd,buy_now_usd,odometer_value,odometer_unit,location_display,location_state,keys_present,first_seen_at,last_seen_at,summary_synced_at,freshness_class,created_at,updated_at)
-      VALUES(?,?,?,'source_listing_id','resolved',?,?,?,?,?,?,2022,'Sedan','Electric','open','Open','2099-12-01T10:00:00.000Z',1,'2099-12-02T10:00:00.000Z',?,?,?,'mi','Houston, TX','TX',NULL,?,?,?,'warm',?,?)`)
-      .run(row.id,source,row.platform,row.lot,row.vin,row.lot,"2022 "+row.make+" "+row.model,row.make,row.model,row.bid,row.buy,row.odometer,OLD,row.seen,row.synced,OLD,row.seen);
+      VALUES(?,?,?,'source_listing_id','resolved',?,?,?,?,?,?,2022,'Sedan','Electric','open','Open',?,1,?,?,?,?,'mi','Houston, TX','TX',NULL,?,?,?,'warm',?,?)`)
+      .run(row.id,source,row.platform,row.lot,row.vin,row.lot,"2022 "+row.make+" "+row.model,row.make,row.model,auctionAt,timedEndAt,row.bid,row.buy,row.odometer,OLD,row.seen,row.synced,OLD,row.seen);
     sqlite.prepare(`INSERT INTO auction_listing_snapshots(listing_id,observed_at,auction_state,auction_at,current_bid_usd,buy_now_usd,fingerprint,normalizer_version)
-      VALUES(?,?,'open','2099-12-01T10:00:00.000Z',?,?,?,1)`).run(row.id,row.synced,row.bid,row.buy,"fingerprint-"+row.id);
+      VALUES(?,?,'open',?,?,?,?,1)`).run(row.id,row.synced,auctionAt,row.bid,row.buy,"fingerprint-"+row.id);
   }
   sqlite.prepare(`INSERT INTO auction_events(event_id,listing_id,source_key,provider,platform,provider_event_id,event_key,vin_normalized,lot,auction_date,sale_date,source_status,canonical_status,final_price_usd,source_price_usd,observed_at,created_at,updated_at)
     VALUES('confirmed-old','iaai-old','source-iaai-old','apibara','iaai','provider-event','event-key','WBA5R1C06MFK00001','45439613','2019-12-20','2019-12-20','Sold','sold',2800,3300,?,?,?)`).run(OLD_EVENT,OLD_EVENT,OLD_EVENT);
@@ -56,6 +58,12 @@ function fixture(t, {upcoming = false} = {}) {
       auction_at=?,is_timed=0,timed_end_at=NULL,summary_synced_at=?,media_thumbs_json=? WHERE listing_id=?`);
     rows.forEach((row, index) => update.run(new Date(firstAuction + index * 60_000).toISOString(), fresh,
       JSON.stringify(["https://images.example.net/cover.jpg"]), row.id));
+  }
+  if(mixedDates){
+    sqlite.exec("UPDATE auction_listings SET is_timed=0,timed_end_at=NULL");
+    sqlite.prepare("UPDATE auction_listings SET auction_at=NULL WHERE listing_id='copart-old'").run();
+    sqlite.prepare("UPDATE auction_listings SET auction_at=? WHERE listing_id='iaai-old'").run(OLD_EVENT);
+    sqlite.prepare("UPDATE auction_listings SET auction_at=? WHERE listing_id='copart-fresh'").run(new Date(Date.now()+500*86400000).toISOString());
   }
   const d1=new D1Fixture(sqlite);
   const env={REXBID_RELEASE_D1_TARGET:TARGET,REXBID_RELEASE_D1_DATABASE_ID:DATABASE_ID,REXBID_PUBLIC_CATALOG_MODE:"stored",REXBID_DB:d1};
@@ -107,6 +115,22 @@ test("customer search accepts copied LOT/VIN labels and a model year at either e
  }
  assert.equal((await read('/api/cars?s=Honda%20Accord%202021',f.env)).body.data.length,0);
  assert.equal((await read('/api/cars?s=Honda%20Accord%202022&year_from=2023',f.env)).body.data.length,0);
+});
+test("public results show only dated eligible auctions while exact saved histories remain readable",async t=>{
+  const {env,rows}=fixture(t,{mixedDates:true});
+  const list=await read('/api/cars?sort=auction_next&per_page=1',env);
+  assert.equal(list.response.status,200);
+  assert.deepEqual(list.body.data.map(row=>row.vin),[rows[3].vin]);
+  assert.equal(list.body.meta.next_cursor,null);
+  const pending=await read('/api/car/'+rows[0].vin+'?platform=copart',env);
+  assert.equal(pending.response.status,404);
+  assert.equal(pending.body.error,'auction_date_pending');
+  for(const row of rows.slice(0,3)){
+    const history=await read('/api/car/'+row.vin+'/history?platform='+row.platform,env);
+    assert.equal(history.response.status,200);
+    assert.equal(history.body.identity.vin,row.vin);
+    assert.equal(history.body.rex_history.snapshots.length,1);
+  }
 });
 test("indexed make candidates preserve model, platform and cursor restrictions",async t=>{
  const f=fixture(t);

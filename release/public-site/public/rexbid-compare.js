@@ -109,7 +109,7 @@
       doc.querySelectorAll('[data-compare-lot]').forEach(b=>{
         const r=ref(b.dataset);if(!r){b.hidden=true;return;}
         const selected=items.some(x=>id(x)===id(r));b.setAttribute('aria-pressed',String(selected));b.textContent=selected?'✓ W porównaniu':'Porównaj';
-        b.setAttribute('aria-label',(selected?'Usuń z porównania':'Dodaj do porównania')+': '+r.platform.toUpperCase()+' LOT '+r.lot);
+        b.setAttribute('aria-label',b.textContent+' — '+(selected?'usuń z porównania':'dodaj do porównania')+': '+r.platform.toUpperCase()+' LOT '+r.lot);
       });
       if(page)return;
       if(!bar){bar=doc.createElement('aside');bar.className='rex-compare-bar';bar.setAttribute('aria-label','Wybrane auta do porównania');doc.body.append(bar);}

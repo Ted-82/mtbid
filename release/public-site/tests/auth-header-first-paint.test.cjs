@@ -19,5 +19,5 @@ test('disabled auth never populates a misleading account control or accesses pri
 });
 test('header styles reserve consistent account space and narrow phones wrap rather than overflow',()=>{
  const css=read('public/rexbid-brand.css');assert.match(css,/inline-size:190px;min-block-size:38px;flex:0 0 190px/);assert.match(css,/@media\(max-width:420px\)[\s\S]*flex-wrap:wrap/);assert.match(css,/flex:1 0 100%;inline-size:100%/);assert.match(css,/data-rexbid-publication-phase="catalog"[\s\S]*rexbid-auth-nav\{display:none\}/);
- const hash=crypto.createHash('sha256').update(read('public/rexbid-auth.js')).digest('hex').slice(0,12);for(const file of pages)assert.ok(read('public/'+file).includes('/rexbid-auth.js?v='+hash),file);
+ const hash=crypto.createHash('sha256').update(read('public/rexbid-auth.js').replace(/\r\n/g,'\n')).digest('hex').slice(0,12);for(const file of pages)assert.ok(read('public/'+file).includes('/rexbid-auth.js?v='+hash),file);
 });

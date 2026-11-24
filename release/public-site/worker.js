@@ -1538,11 +1538,13 @@ const PUBLIC_PAGE_DESCRIPTIONS = {
   "/jak-to-dziala.html": "Poznaj sposób wyszukiwania pojazdów aukcyjnych USA i korzystania z informacji prezentowanych przez Rex.Bid.",
   "/o-nas.html": "Poznaj Rex.Bid i sposób, w jaki pomagamy przeglądać oferty aukcji samochodowych w USA.",
   "/kontakt.html": "Kontakt z REXBID: przygotuj zapytanie o auto i koszt importu lub przejdź do swojej realizacji.",
-  "/pomoc.html": "Pomoc REXBID: odpowiedzi o katalogu, cenach, kalkulatorze, koncie i realizacji importu."
+  "/pomoc.html": "Pomoc REXBID: odpowiedzi o katalogu, cenach, kalkulatorze, koncie i realizacji importu.",
+  "/kalkulator-budzet.html": "Oszacuj limit licytacji na podstawie budżetu w złotych i wybranej oferty Copart lub IAAI."
 };
 // Workers Assets serves informational pages under extensionless aliases.
 // These aliases need the same metadata as their source HTML pages.
-for (const page of ["jak-to-dziala", "o-nas", "kontakt", "pomoc"]) {
+const publicGuidePaths = ["jak-to-dziala", "o-nas", "kontakt", "pomoc", "kalkulator-budzet"];
+for (const page of publicGuidePaths) {
   PUBLIC_PAGE_DESCRIPTIONS["/" + page] = PUBLIC_PAGE_DESCRIPTIONS["/" + page + ".html"];
 }
 const SAFE_ERROR_CODES = new Set([
@@ -1623,6 +1625,7 @@ function calculatorV4EnabledForRequest(env, url) {
   return env?.REXBID_CALCULATOR_V4_ENABLED === "enabled"
     && url instanceof URL
     && (url.hostname === "rexbid-auth-test.tedn828.workers.dev"
+      || (env?.REXBID_AUDIT_PREVIEW === "enabled" && url.origin === "https://rexbid-audit-staging.tedn828.workers.dev")
       || (env?.REXBID_PUBLIC_PREVIEW_ENABLED === "enabled" && url.hostname === "preview.rexbid.pl")
       || ((env?.REXBID_PRODUCTION_RELEASE_ENABLED === "enabled" || env?.REXBID_PRODUCTION_UI_ENABLED === "enabled") && url.origin === "https://rexbid.pl"
         && env?.REXBID_RELEASE_ORIGIN === "https://rexbid.pl"
@@ -1645,7 +1648,7 @@ function responseErrorCode(response) {
 function renderInitialCatalogView(html, url) {
   if (!["/", "/index.html"].includes(url.pathname) || !html.includes('id="catalogResults"')) return html;
   const params = url.searchParams;
-  const filters = ["sort", "view", "category", "s", "platform", "make", "model", "year_from", "year_to", "lot_status", "lot_sub_status", "upcoming", "price_min", "price_max", "odometer_from", "odometer_to", "fuel_type", "transmission", "drive_type", "run_cond", "type", "damage", "seller_type", "sale_document_type", "sale_document_name", "loc_state"];
+  const filters = ["sort", "view", "category", "s", "platform", "make", "model", "year_from", "year_to", "lot_status", "lot_sub_status", "upcoming", "with_photo", "price_min", "price_max", "odometer_from", "odometer_to", "fuel_type", "transmission", "drive_type", "run_cond", "type", "damage", "seller_type", "sale_document_type", "sale_document_name", "loc_state"];
   const catalog = params.get("catalog") === "1" || filters.some(key => params.has(key) && params.get(key) !== "");
   if (!catalog) return html;
   // Render only the route shell. Data still comes from the existing D1/cache
@@ -1707,11 +1710,13 @@ async function applySecurityHeaders(response, request, { requestId = null, env =
       if (!/property=["']og:type["']/i.test(html)) social += `<meta property="og:type" content="website">`;
       if (social) html = html.replace(/<\/head>/i, `${social}</head>`);
       const canonicalOrigin = env?.REXBID_CANONICAL_ORIGIN;
-      if (canonicalOrigin && !url.search && !PRIVATE_PAGE_PATHS.has(url.pathname) && !/rel=["']canonical["']/i.test(html)) {
+      const cleanGuidePath = url.pathname.replace(/\.html$/, "");
+      const informational = publicGuidePaths.includes(cleanGuidePath.slice(1));
+      if (canonicalOrigin && (!url.search || informational) && !PRIVATE_PAGE_PATHS.has(url.pathname) && !/rel=["']canonical["']/i.test(html)) {
         try {
           const origin = new URL(canonicalOrigin);
           if (origin.protocol === "https:" && origin.origin === canonicalOrigin) {
-            const canonicalPath = url.pathname === "/index.html" ? "/" : url.pathname;
+            const canonicalPath = url.pathname === "/index.html" ? "/" : informational ? cleanGuidePath : url.pathname;
             const canonicalUrl = `${origin.origin}${canonicalPath}`;
             html = html.replace(/<\/head>/i, `<link rel="canonical" href="${canonicalUrl}">${/property=["']og:url["']/i.test(html) ? "" : `<meta property="og:url" content="${canonicalUrl}">`}</head>`);
           }

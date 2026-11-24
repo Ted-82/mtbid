@@ -9,7 +9,7 @@ function render(source,file){
  const menu='<button class="rex-menu-toggle" type="button" aria-label="Otwórz menu główne" aria-expanded="false" aria-controls="rexPrimaryNav">☰</button><nav class="rex-primary-nav" id="rexPrimaryNav" aria-label="Nawigacja główna">'+links.map(([name,href])=>'<a href="'+href+'"'+(href===current?' aria-current="page"':'')+'>'+name+(name==='Ulubione'?' <span data-rexbid-count="favorites">0</span>':'')+'</a>').join('')+'</nav>';
  return source.replace(/<header\b[^>]*>[\s\S]*?<\/header>/i,header=>{
   header=header.replace(/<div\b[^>]*data-rexbid-auth-nav[^>]*>[\s\S]*?<\/div>/g,'');
-  const authSlot=source.includes('/rexbid-auth.js')?'<div class="rexbid-auth-nav" data-rexbid-auth-nav aria-label="Konto użytkownika"></div>':'';
+  const authSlot=source.includes('/rexbid-auth.js')?'<div class="rexbid-auth-nav" data-rexbid-auth-nav role="group" aria-label="Konto użytkownika"></div>':'';
   if(authSlot){const end=header.lastIndexOf('</div>');if(end<0)throw Error('Auth header wrapper missing: '+file);header=header.slice(0,end)+authSlot+header.slice(end);}
   header=header.replace(/<button\b[^>]*class="[^"]*rex-menu-toggle[^"]*"[^>]*>[\s\S]*?<\/button>/g,'');
   if(/<nav\b/i.test(header))return header.replace(/<nav\b[^>]*>[\s\S]*?<\/nav>/i,menu);

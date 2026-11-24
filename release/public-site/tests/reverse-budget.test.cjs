@@ -23,6 +23,13 @@ test('reverse rejects missing costs, invalid budgets, low budgets and manual tax
  assert.equal(cost.maximumBid({...input,budgetPln:500}).status,'insufficient');
  assert.equal(cost.maximumBid({...input,budgetPln:30000,landUsd:null}).status,'incomplete');
  assert.equal(cost.maximumBid({...input,budgetPln:30000,customsValueUsd:500}).status,'manual_costs');
+ for(const field of ['dutyOverridePln','vatOverridePln','exciseOverridePln']){
+   for(const amount of [0,500]){
+     const fixed={...input,[field]:amount};
+     assert.equal(cost.maximumBid({...fixed,budgetPln:50000}).status,'manual_costs');
+     assert.equal(cost.calculate({...fixed,purchaseUsd:5000}).complete,true);
+   }
+ }
  assert.equal(cost.maximumBid({...input,budgetPln:30000,reservePln:30000}).status,'invalid_budget');
 });
 const row={VIN:vin,Make:'FORD',Model:'C-Max',ModelYear:'2013',DisplacementCC:'2000.0',ElectrificationLevel:'Strong HEV (Hybrid Electric Vehicle)',FuelTypePrimary:'Gasoline',FuelTypeSecondary:'Electric',ErrorCode:'0'};

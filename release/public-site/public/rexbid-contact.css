@@ -27,3 +27,4 @@
 .rex-guide .contact-output-note{font-size:14px;padding:15px;border-left:3px solid #d52c43;background:#f3f6fa}
 @media(max-width:800px){.rex-guide .contact-routes{grid-template-columns:1fr}.rex-guide .contact-route{padding:22px}.rex-guide .contact-route-number{margin-bottom:12px}.rex-guide .contact-route p{max-width:55ch}}
 @media(prefers-reduced-motion:reduce){.rex-guide .contact-route{transition:none}}
+.rex-guide .guide-crumb > a { text-decoration: underline; text-underline-offset: .2em; }

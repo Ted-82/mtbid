@@ -539,6 +539,8 @@ function normalizeApibaraVehicle(vehicle) {
       ? vehicle.details.vehicle_information : {};
   const attributes = vehicle.details?.attributes && typeof vehicle.details.attributes === "object" ? vehicle.details.attributes : {};
   const specs = vehicle.vehicle_specs && typeof vehicle.vehicle_specs === "object" ? vehicle.vehicle_specs : {};
+  const exteriorColor = typeof specs.exterior_color === "string" && specs.exterior_color.trim().length <= 80
+    && !/^(?:unknown|not available|n\/a|-+)$/i.test(specs.exterior_color.trim()) ? specs.exterior_color.trim() || null : null;
   const bodyStyle = firstValue(specs, ["body_style"]) || firstValue(vehicle, ["body_style", "bodyStyle", "vehicle_type"])
     || firstValue(vehicleInformation, ["BodyStyle", "BodyStyleName", "VehicleClass"])
     || firstValue(attributes, ["BodyStyle", "BodyStyleName", "VehicleClass"])
@@ -635,15 +637,12 @@ function normalizeApibaraVehicle(vehicle) {
       : {};
 
 
-  const documentName =
-    cleanString(
-      firstValue(saleDocument, [
-        "source_name",
-        "name",
-        "document_name",
-        "documentName"
-      ])
-    );
+  const documentLabels = [saleDocument.source_name, saleDocument.name, saleDocument.raw_name,
+    saleDocument.document_name, saleDocument.documentName]
+    .filter(value => typeof value === "string" && value.trim() && value.trim().length <= 300
+      && !/^(?:unknown|not available|n\/a|-+)$/i.test(value.trim()))
+    .map(value => value.trim());
+  const documentName = documentLabels.find(label => !/^[A-Z]{1,4}$/.test(label)) || documentLabels[0] || "";
 
 
   const documentType =
@@ -747,6 +746,7 @@ function normalizeApibaraVehicle(vehicle) {
     schedulePrecision: schedule.precision,
     auctionTimezone: schedule.timezone,
     bodyStyle: textOrNull(bodyStyle),
+    ...(exteriorColor ? {exteriorColor} : {}),
     fuelType: textOrNull(fuelType),
     transmission: textOrNull(transmission),
     driveType: textOrNull(driveType),
@@ -785,6 +785,7 @@ function normalizeApibaraVehicle(vehicle) {
     make,
     model,
     bodyStyle: textOrNull(bodyStyle),
+    exteriorColor,
     fuelType: textOrNull(fuelType),
     transmission: textOrNull(transmission),
     driveType: textOrNull(driveType),
@@ -838,7 +839,7 @@ function normalizeApibaraVehicle(vehicle) {
     return simpleHash(JSON.stringify({
       platform: value.platform, vin: value.vin, lot: value.lot, auctionState: value.auctionState, auctionPhase: value.auctionPhase,
       auctionAt: value.auctionAt, scheduleStatus: value.scheduleStatus, schedulePrecision: value.schedulePrecision,
-      auctionTimezone: value.auctionTimezone, bodyStyle: value.bodyStyle, fuelType: value.fuelType,
+      auctionTimezone: value.auctionTimezone, bodyStyle: value.bodyStyle, ...(value.exteriorColor ? {exteriorColor:value.exteriorColor} : {}), fuelType: value.fuelType,
       transmission: value.transmission, driveType: value.driveType, engineSizeLitres: value.engineSizeLitres,
       auctionEnd: value.auctionEnd, currentBid: value.currentBid,
       buyNow: value.buyNow, lastSoldPrice: value.lastSoldPrice, locationDisplay: value.locationDisplay,
@@ -858,6 +859,7 @@ function normalizeApibaraVehicle(vehicle) {
       platform: normalized.platform, vin: normalized.vin, lot: normalized.lot, title: normalized.title, year: normalized.year,
       make: normalized.make, model: normalized.model, trim: textOrNull(raw?.trim ?? raw?.series),
       body_style: normalized.bodyStyle || null, fuel_type: normalized.fuelType || null,
+      exterior_color: normalized.exteriorColor || null,
       transmission: normalized.transmission || null, drive_type: normalized.driveType || null,
       engine_size_l: normalized.engineSizeLitres,
     auction: contract.createRexAuction({ state: normalized.auctionState, source_status: outcome || contract.auctionPhase(auction.phase) || firstValue(auction, ["source_status", "sourceStatus", "status_label", "lot_status", "formatted"]) || firstValue(raw, ["auction_status", "status_label", "lot_status"]) || normalized.auctionState, auction_at: normalized.auctionAt, schedule_status: normalized.scheduleStatus, schedule_precision: normalized.schedulePrecision, auction_timezone: normalized.auctionTimezone, timed: auction.is_timed ?? null, timed_end_at: auction.timed_end_at ?? null, source_listing_id: normalized.lot || normalized.slugVin }),

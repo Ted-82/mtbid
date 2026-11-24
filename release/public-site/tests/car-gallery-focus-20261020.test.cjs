@@ -87,7 +87,7 @@ function galleryRuntime(photos = Array.from({length: 3}, (_, index) => ({
     esc: value => String(value), getTitle: () => 'Synthetic vehicle'};
   vm.runInNewContext([
     slice('  function setGalleryImage(', '\n  function bindPageEvents('),
-    slice('  function openLightbox()', '\n  async function openViewer('),
+    slice('  function openLightbox(', '\n  async function openViewer('),
     slice('    document.getElementById("prevPhoto")?.addEventListener', '    document.getElementById("openVideo")?.addEventListener'),
     slice('  document.getElementById("lbClose").addEventListener', '  document.getElementById("viewerClose").addEventListener')
   ].join('\n'), context);
@@ -183,4 +183,13 @@ test('an empty or single-image gallery does not introduce extra focus movement',
   elements.thumbs.buttons[0].activateWithKeyboard('Enter');
   assert.equal(document.activeElement, elements.thumbs.buttons[0]);
   assert.equal(elements.mainImage.src, context.photos[0].large);
+});
+
+test('closing the gallery restores the clicked opener when the browser did not focus it', () => {
+  const context = galleryRuntime();
+  const {elements, document} = context;
+  assert.equal(document.activeElement,document.body);
+  context.openLightbox({currentTarget:elements.openHd});
+  context.closeLightbox();
+  assert.equal(document.activeElement,elements.openHd);
 });

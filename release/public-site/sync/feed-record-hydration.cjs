@@ -106,8 +106,10 @@ function validResult(result,groups,selection){
 }
 function hydrationGuard(db,id,receiptKey,baselines){
  const extra=['hydration_provider','hydration_source_platform','hydration_source_identity_state'];
- const actual=[...LISTING_COLUMNS.map(key=>`l.${key}`),'s.provider','s.platform','s.identity_state'];
- const expected=[...LISTING_COLUMNS,...extra].map(key=>`json_extract(e.value,'$.${key}')`);
+ const columns=baselines.some(group=>group.rows.some(row=>Object.hasOwn(row,'exterior_color')))
+  ?[...LISTING_COLUMNS,'exterior_color']:LISTING_COLUMNS;
+ const actual=[...columns.map(key=>`l.${key}`),'s.provider','s.platform','s.identity_state'];
+ const expected=[...columns,...extra].map(key=>`json_extract(e.value,'$.${key}')`);
  const identity="l.platform IS json_extract(g.value,'$.platform') AND l.lot IS json_extract(g.value,'$.lot')";
  return db.prepare(`INSERT INTO sync_batch_guards(guard_id,allowed) VALUES(?,CASE WHEN
   NOT EXISTS(SELECT 1 FROM automatic_refresh_tasks WHERE task_key=?) AND

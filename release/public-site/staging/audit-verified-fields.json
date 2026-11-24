@@ -1,0 +1,26 @@
+[
+  {
+    "platform": "copart",
+    "lot_number": "46087626",
+    "vin": "2C4RDGBG4HR742563",
+    "exterior_color": "White",
+    "sale_document": {
+      "source_name": "PERMIT SALVAGE",
+      "name": "PERMIT SALVAGE",
+      "raw_name": "ON - Permit Salvage"
+    },
+    "observed_at": "2026-11-24T17:09:06.494Z"
+  },
+  {
+    "platform": "iaai",
+    "lot_number": "44103794",
+    "vin": "RLHKF4714PY100644",
+    "exterior_color": "Gray",
+    "sale_document": {
+      "source_name": "REBUILDABLE (Florida)",
+      "name": "REBUILDABLE",
+      "raw_name": "REBUILDABLE (Florida)"
+    },
+    "observed_at": "2026-11-24T17:09:06.494Z"
+  }
+]

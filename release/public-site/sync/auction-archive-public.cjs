@@ -25,7 +25,7 @@ function validEntry(item) {
     Number.isSafeInteger(item.year) && item.year < 2100 &&
     typeof item.title === 'string' && item.title.length <= 160 &&
     typeof item.recordedAt === 'string' && Number.isFinite(Date.parse(item.recordedAt)) &&
-    (item.saleCents === null || Number.isSafeInteger(item.saleCents) && item.saleCents > 0) &&
+    (item.saleCents == null || Number.isSafeInteger(item.saleCents) && item.saleCents > 0) &&
     Array.isArray(item.photos) && item.photos.length > 0 && item.photos.length <= 22 &&
     item.photos.every(name=>/^\d{2}\.jpg$/.test(name)) && new Set(item.photos).size === item.photos.length &&
     (item.photoBytes===undefined || Array.isArray(item.photoBytes) && item.photoBytes.length===item.photos.length &&
@@ -65,8 +65,10 @@ function photoUrl(entry,name) {
 }
 
 function publicEntry(entry) {
-  const {platform,lot,vin,year,title,sequence,recordedAt,saleCents,status}=entry;
-  return {platform,lot,vin,year,title,sequence,recordedAt,saleCents,status:status??'sold',photos:entry.photos.map(name=>photoUrl(entry,name))};
+  const {platform,lot,vin,year,title,sequence,recordedAt}=entry;
+  const status=['sold','not_sold'].includes(entry.status) ? entry.status : 'ended_unknown';
+  const saleCents=status==='sold' ? entry.saleCents ?? null : null;
+  return {platform,lot,vin,year,title,sequence,recordedAt,saleCents,status,photos:entry.photos.map(name=>photoUrl(entry,name))};
 }
 
 async function handleArchive(request, env, now = new Date(), context) {

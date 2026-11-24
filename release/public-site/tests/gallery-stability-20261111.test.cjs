@@ -41,10 +41,10 @@ test('changed source media refreshes the thumbnails once and keeps the focused t
  }finally{cleanup.forEach(fn=>fn());}
 });
 
-test("mobile uses the preview while only nearby thumbnails receive a source", t=>{
+for (const mobile of [true,false]) test((mobile ? "mobile" : "desktop")+" loads only intersecting thumbnails and retains the correct main resolution", t=>{
  let activeObserver;
  const g=gallery(t,w=>{
-  w.matchMedia=()=>({matches:true});
+  w.matchMedia=()=>({matches:mobile});
   w.IntersectionObserver=class {
    constructor(notify,options){this.notify=notify;this.root=options.root;this.targets=new Set();activeObserver=this;}
    observe(node){this.targets.add(node);}
@@ -56,14 +56,14 @@ test("mobile uses the preview while only nearby thumbnails receive a source", t=
  assert.equal(activeObserver.root,g.strip);
  assert.equal(activeObserver.targets.size,24);
  assert.equal(g.strip.querySelectorAll("img[src]").length,0);
- assert.match(g.d.getElementById("mainImage").src,/thumb-0.jpg$/);
- assert.match(g.d.getElementById("photoCount").textContent,/podgląd/);
+ assert.match(g.d.getElementById("mainImage").src,mobile ? /thumb-0.jpg$/ : /full-0.jpg$/);
+ assert.match(g.d.getElementById("photoCount").textContent,mobile ? /podgląd/ : /pełna rozdzielczość/);
  activeObserver.notify([{target:buttons[17],isIntersecting:true},{target:buttons[18],isIntersecting:false}],activeObserver);
  assert.match(buttons[17].querySelector("img").src,/thumb-17.jpg$/);
  assert.equal(buttons[18].querySelector("img").hasAttribute("src"),false);
  assert.equal(activeObserver.targets.has(buttons[17]),false);
  buttons[17].click();
- assert.match(g.d.getElementById("mainImage").src,/thumb-17.jpg$/);
+ assert.match(g.d.getElementById("mainImage").src,mobile ? /thumb-17.jpg$/ : /full-17.jpg$/);
  assert.equal(g.strip.querySelectorAll("img[src]").length,1);
 });
 test("mobile can show the only image supplied without an IntersectionObserver",t=>{

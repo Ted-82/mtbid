@@ -5,6 +5,7 @@ const { withoutNonPersistentData, safeMediaReferences } = require("./core.js");
 
 const FIRST_CURSOR = JSON.stringify(["first"]);
 const MAX_DISCOVERY_PAGE_RECORDS = 20;
+const {supportsExteriorColor} = require("./listing-display-facts.cjs");
 
 const MUTABLE_COLUMNS = Object.freeze([
   ["source_key", "source_key"], ["platform", "platform"],
@@ -137,8 +138,10 @@ function canonicalListingValues(record, now) {
   return values;
 }
 
-function listingUpsertStatement(db, record, now) {
+function listingUpsertStatement(db, record, now, saveColor = false) {
   const values = canonicalListingValues(record, now);
+  if (saveColor && record.observedExteriorColor !== false && record.vehicle.exterior_color) values.exterior_color = record.vehicle.exterior_color;
+  if (record.observedDocumentName === false) values.document_name = null;
   const clearPaths = new Set(record.explicitClears || []);
   const incomingVehicle = withoutNonPersistentData(record.vehicle);
   const incomingAuction = incomingVehicle.auction || {};
@@ -184,6 +187,12 @@ function listingUpsertStatement(db, record, now) {
       return `${column}=CASE WHEN excluded.identity_state='resolved' THEN 'resolved' ELSE auction_listings.identity_state END`;
     }
     if (isIdentity) return `${column}=COALESCE(excluded.${column},auction_listings.${column})`;
+    if (column === "document_name" && !isExplicitClear) {
+      // Only a newer source document can replace a label. Missing fields are
+      // ordinary sparse observations; a different explicit code may be a correction.
+      return `document_name=CASE WHEN NOT ${incomingScheduleIsNotOlder} THEN auction_listings.document_name
+        ELSE COALESCE(excluded.document_name,auction_listings.document_name) END`;
+    }
     if (scheduleColumns.has(column)) {
       const value = isExplicitClear
         ? `excluded.${column}`
@@ -199,6 +208,8 @@ function listingUpsertStatement(db, record, now) {
       ? `${column}=excluded.${column}`
       : `${column}=COALESCE(excluded.${column},auction_listings.${column})`;
   });
+  if (Object.hasOwn(values, "exterior_color")) assignments.push(`exterior_color=CASE WHEN ${incomingScheduleIsNotOlder}
+    THEN excluded.exterior_color ELSE auction_listings.exterior_color END`);
   const sql = `${insertSql} ON CONFLICT(listing_id) DO UPDATE SET ${assignments.join(",")}`;
   return db.prepare(sql).bind(...columns.map(column => values[column]));
 }
@@ -485,6 +496,7 @@ class D1SyncRepository {
     );
     const batch = [guard];
     const snapshotFingerprints = await Promise.all(prepared.map(snapshotFingerprint));
+    const saveColor = prepared.some(record => record.observedExteriorColor !== false && record.vehicle.exterior_color) && await supportsExteriorColor(this.db);
     for (let index = 0; index < prepared.length; index += 1) {
       const record = prepared[index];
       const {identity, vehicle} = record;
@@ -507,7 +519,7 @@ class D1SyncRepository {
           VALUES(?,?,'confirmed','explicit_reconciliation',?,?)`).bind(identity.entityId, identity.vinCandidate ?? null, nowIso, nowIso));
       }
       batch.push(sourceUpsertStatement(this.db, identity, vehicle, observedAt));
-      batch.push(listingUpsertStatement(this.db, record, observedAt));
+      batch.push(listingUpsertStatement(this.db, record, observedAt, saveColor));
       // Receipt of a detail response is a separate observation from discovery.
       // Commit its capture time in the same guarded transaction as the detail.
       if (operation === "detail_refresh") {
@@ -809,8 +821,9 @@ async function knownObservationStatements(db, record) {
       || record.identity.lot !== record.vehicle.lot
       || record.identity.vinCandidate !== record.vehicle.vin) throw Error("KNOWN_OBSERVATION_IDENTITY_INVALID");
   const fingerprint = await snapshotFingerprint(record);
+  const saveColor = record.observedExteriorColor !== false && record.vehicle.exterior_color && await supportsExteriorColor(db);
   return {fingerprint, statements: [sourceUpsertStatement(db, record.identity, record.vehicle, record.observedAt),
-    listingUpsertStatement(db, record, record.observedAt),
+    listingUpsertStatement(db, record, record.observedAt, saveColor),
     snapshotInsertStatement(db, record, record.observedAt, fingerprint)]};
 }
 module.exports = { D1SyncRepository, MAX_DISCOVERY_PAGE_RECORDS, digestCursor, knownObservationStatements };

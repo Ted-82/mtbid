@@ -163,7 +163,9 @@
       return value;
     };
     const customsPln = product(customsUsd,usdPln);
-    const dutyPln = taxAmount("dutyOverridePln", product(customsPln,dutyRate), "cła");
+    const individualTaxes = input.individualTaxes === true;
+    if (individualTaxes && input.dutyOverridePln === undefined) missing.push("Ustal cło dla tego rodzaju pojazdu i wpisz kwotę po klasyfikacji taryfowej.");
+    const dutyPln = taxAmount("dutyOverridePln", individualTaxes ? null : product(customsPln,dutyRate), "cła");
     const dutyBase = sum([customsPln,dutyPln]);
     const vatPln = taxAmount("vatOverridePln", product(dutyBase,vatRate), "VAT");
     const base = input.exciseBasePln === undefined ? dutyBase : amount(input.exciseBasePln);
@@ -172,7 +174,9 @@
     const taxDate = input.taxDate === undefined ? fxDate : date(input.taxDate);
     if (input.taxDate !== undefined && taxDate === null) missing.push("Nieprawidłowa data kalkulacji podatków.");
     const exciseResult = input.exciseOverridePln === undefined
-      ? excise({...input,exciseBasePln:base,taxDate},profile)
+      ? individualTaxes
+        ? {amountPln:null,missing:["Potwierdź akcyzę dla tego rodzaju pojazdu i wpisz kwotę, również 0 zł przy braku obowiązku."],assumptions:[]}
+        : excise({...input,exciseBasePln:base,taxDate},profile)
       : {amountPln:taxAmount("exciseOverridePln", null, "akcyzy"),missing:[],assumptions:[]};
     missing.push(...exciseResult.missing);
     assumptions.push(...exciseResult.assumptions);
@@ -217,7 +221,8 @@
     const budget = amount(input.budgetPln, true), reserve = amount(input.reservePln ?? 0);
     const fail = (status, missing) => ({status, purchaseUsd:null, totalPln:null, missing});
     if (budget === null || reserve === null || reserve >= budget) return fail('invalid_budget',['Podaj budżet większy od rezerwy na naprawę i rejestrację.']);
-    if (input.customsValueUsd !== undefined || input.exciseBasePln !== undefined || input.auctionFeeOverrideUsd !== undefined) return fail('manual_costs',['Przy wyliczaniu limitu przywróć automatyczną wartość celną, podstawę akcyzy i opłaty aukcyjne.']);
+    const fixedCosts = ['customsValueUsd','exciseBasePln','auctionFeeOverrideUsd','dutyOverridePln','vatOverridePln','exciseOverridePln'];
+    if (fixedCosts.some(key => input[key] !== undefined)) return fail('manual_costs',['Aby wyliczyć limit licytacji, wyczyść ręczne kwoty podatków, ich podstaw oraz opłaty aukcyjnej. Te koszty zależą od ceny pojazdu.']);
     const available = round(budget - reserve), calc = bid => calculate({...input,purchaseUsd:bid},profile);
     const first = calc(1);
     if (!first.complete) return fail('incomplete',first.missing);
