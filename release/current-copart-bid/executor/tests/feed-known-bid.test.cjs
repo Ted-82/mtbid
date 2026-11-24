@@ -84,3 +84,16 @@ test('missing policy, missing resource measurements and future-dated quota canno
  h.sql.prepare('UPDATE automatic_refresh_state SET quota_checked_at=?').run(new Date(T+1000).toISOString());
  await run(h.args,h.transport);assert.equal(h.calls(),0);assert.equal(h.price(),null);
 });
+test('old Copart session text needs an actual calendar date and never admits unknown or terminal statuses',async t=>{
+ for(const status of ['Sold','Sold on Approval','Pending','Expired','Unknown','Nov 12, 2026 20:00 Sold','Nov 31, 2026 20:00','Feb 29, 2025 20:00','Xyz 12, 2026 20:00','Nov 12, 2026 24:00','Nov 12, 2026 20:60','Nov 24, 2026 12:00','Dec 10, 2026 12:00','2026-11-12 20:00','']){
+  const h=await fixture(t);h.sql.prepare('UPDATE auction_listings SET source_status=?').run(status);
+  await run(h.args,h.transport);assert.equal(h.calls(),0,status);assert.equal(h.price(),null,status);
+ }
+});
+test('real Tesla with an old status date still requires same future session and fresh open source record',async t=>{
+ for(const change of [r=>r.auction.auction_at='2026-11-26T06:00:00Z',r=>r.auction.state='finished',r=>r.auction.phase='awaiting_result',r=>r.auction.result_confirmed=true,r=>r.auction.outcome_status='Sold on Approval',r=>r.updated_at='2026-11-21T11:00:00Z']){
+  const h=await fixture(t),raw=structuredClone(data.raw);change(raw);let calls=0;
+  await run(h.args,async()=>{calls++;return Response.json({ok:true,data:raw});});
+  assert.equal(calls,1);assert.equal(h.price(),null);assert.equal(h.query('SELECT count(*) n FROM auction_listing_snapshots').n,0);
+ }
+});

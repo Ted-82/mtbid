@@ -8,6 +8,7 @@
     "listing_generation": null,
     "vin_normalized": "7SAYGDED8TA458053",
     "auction_state": "open",
+    "source_status": "Nov 12, 2026 20:00",
     "auction_at": "2026-11-25T06:00:00.000Z",
     "is_timed": 0,
     "timed_end_at": null,

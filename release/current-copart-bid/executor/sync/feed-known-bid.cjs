@@ -7,6 +7,22 @@ const iso=n=>new Date(n).toISOString();
 const count=n=>Number.isSafeInteger(n)&&n>=0;
 const stamp=v=>typeof v==='string' && /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?(?:Z|[+-]\d\d:\d\d)$/.test(v)?Date.parse(v):NaN;
 const ACTIVE_STATES=new Set(['open','scheduled','upcoming','active','prebid','pre_bid']);
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+// Some older Copart rows stored a printed session date in source_status. A
+// syntactically valid old date is an unknown status. It only permits asking the
+// source; saveBid still requires a fresh open, scheduled response for this VIN,
+// lot and auction time. Never use the printed time as an auction or result.
+function allowsVerification(status,now){
+ if(status==null)return true;
+ if(typeof status!=='string')return false;
+ if(ACTIVE_STATES.has(status.trim().toLowerCase()))return true;
+ const m=/^([A-Z][a-z]{2}) ([1-9]|[12][0-9]|3[01]), (20\d\d) ([01]\d|2[0-3]):[0-5]\d$/.exec(status);
+ if(!m)return false;
+ const month=MONTHS.indexOf(m[1]),day=Number(m[2]),year=Number(m[3]);
+ if(month<0)return false;
+ const date=Date.UTC(year,month,day);
+ return new Date(date).getUTCDate()===day && date<=now-2*DAY;
+}
 const columns=['listing_id','source_key','platform','lot','vin_normalized','listing_generation','auction_state','source_status','auction_at','is_timed','timed_end_at','identity_state','current_bid_usd','current_bid2_usd','source_price_usd','final_price_usd','buy_now_usd','source_updated_at','detail_synced_at','summary_synced_at','last_seen_at','updated_at'];
 function captureBid(raw,at) {
  const a=raw?.auction,p=raw?.pricing;
@@ -26,7 +42,7 @@ function rememberPaidBid(store,raw,at){
 }
 function candidate(r,now){
  return r?.platform==='copart'&&r.identity_state==='resolved'&&r.provider==='apibara'&&r.source_identity_state==='resolved'&&r.active===1&&r.auction_state==='open'&&
-  (r.source_status==null||ACTIVE_STATES.has(String(r.source_status).trim().toLowerCase()))&&r.is_timed===0&&r.timed_end_at==null&&
+  allowsVerification(r.source_status,now)&&r.is_timed===0&&r.timed_end_at==null&&
   r.current_bid_usd===null&&r.current_bid2_usd===null&&r.final_price_usd===null&&r.source_price_usd===null&&stamp(r.auction_at)>now&&stamp(r.auction_at)<=now+DAY;
 }
 const readColumns=columns.map(k=>'l.'+k).join(',')+',m.active,m.last_sequence,s.provider,s.identity_state AS source_identity_state';
