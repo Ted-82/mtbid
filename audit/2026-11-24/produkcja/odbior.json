@@ -1,0 +1,143 @@
+{
+  "at": "2026-11-24T19:23:39.898Z",
+  "timezone": "Europe/Warsaw",
+  "approvedSource": "2296979669d8ecfd4453ad97882aecb0b38d2f71",
+  "site": {
+    "version": "808b57f2-b30e-4794-a529-756dd0d4d697",
+    "rollback": "c16d3eb3-255b-4e4a-aa83-73f50723de05"
+  },
+  "executor": {
+    "version": "11ee319d-be35-47c4-a06f-49da0464ae98",
+    "rollback": "a95d53bb-a169-4371-ba7c-08dae26a2431"
+  },
+  "photos": {
+    "version": "385cf087-4896-4161-9611-a152cb398f0f",
+    "rollback": "0caccbfa-67a8-41e5-bd4c-500265d6df99"
+  },
+  "mobile": {
+    "view": "390x844",
+    "chrome": 12,
+    "webkit": 12
+  },
+  "d1Change": {
+    "column": "exterior_color",
+    "rowsWritten": 1
+  },
+  "cutoff": 23248,
+  "published": [
+    {
+      "id": 23271,
+      "observed": "2026-11-24T18:35:52.282Z",
+      "completed": "2026-11-24T18:52:21.162Z",
+      "firstSequence": 118318555,
+      "lastSequence": 118444612
+    },
+    {
+      "id": 23293,
+      "observed": "2026-11-24T19:05:55.947Z",
+      "completed": "2026-11-24T19:22:25.307Z",
+      "firstSequence": 118444613,
+      "lastSequence": 118562645
+    }
+  ],
+  "matchingOffers": [
+    {
+      "generation": 23271,
+      "checkedAt": "2026-11-24T18:52:57.542Z",
+      "events": 232,
+      "platforms": [
+        {
+          "platform": "copart",
+          "matched": true
+        },
+        {
+          "platform": "iaai",
+          "matched": true
+        }
+      ],
+      "offers": [
+        {
+          "platform": "copart",
+          "lot": "70484956",
+          "vin": "KNDJT2A61D7488494",
+          "seq": 118327129,
+          "field": "auction.auction_at",
+          "source": "2026-11-30T18:00:00+00:00",
+          "d1": "2026-11-30T18:00:00.000Z",
+          "public": "2026-11-30T18:00:00.000Z",
+          "auctionDate": true
+        },
+        {
+          "platform": "iaai",
+          "lot": "45708079",
+          "vin": "1N4BL4DV8NN341899",
+          "seq": 118444143,
+          "field": "auction.auction_at",
+          "source": "2026-12-01T15:30:00+00:00",
+          "d1": "2026-12-01T15:30:00.000Z",
+          "public": "2026-12-01T15:30:00.000Z",
+          "auctionDate": true
+        }
+      ],
+      "displayEvents": []
+    },
+    {
+      "generation": 23293,
+      "checkedAt": "2026-11-24T19:23:23.651Z",
+      "events": 443,
+      "platforms": [
+        {
+          "platform": "copart",
+          "matched": true
+        },
+        {
+          "platform": "iaai",
+          "matched": true
+        }
+      ],
+      "offers": [
+        {
+          "platform": "iaai",
+          "lot": "46510543",
+          "vin": "1C4NJRBBXGD695063",
+          "seq": 118510880,
+          "field": "pricing.buy_now_usd",
+          "source": 875,
+          "d1": 875,
+          "public": 875,
+          "auctionDate": false
+        },
+        {
+          "platform": "copart",
+          "lot": "77185836",
+          "vin": "1FM5K8D86HGD98120",
+          "seq": 118508930,
+          "field": "auction.auction_at",
+          "source": "2026-12-03T15:00:00+00:00",
+          "d1": "2026-12-03T15:00:00.000Z",
+          "public": "2026-12-03T15:00:00.000Z",
+          "auctionDate": true
+        }
+      ],
+      "displayEvents": []
+    }
+  ],
+  "photoHistory": 2791,
+  "allowedSupplemental": false,
+  "dateReconciliation": {
+    "lot": "46510543",
+    "platform": "iaai",
+    "generation": 23293,
+    "revisions": [
+      {
+        "sequence": 118510880,
+        "start": "2026-12-01T12:30:00+00:00"
+      },
+      {
+        "sequence": 118530191,
+        "start": "2026-12-01T14:30:00+00:00"
+      }
+    ],
+    "note": "Pierwszy odczyt próbki obejmował wcześniejszy termin. Karta i D1 odpowiadały drugiej zmianie w tej samej paczce."
+  }
+}
