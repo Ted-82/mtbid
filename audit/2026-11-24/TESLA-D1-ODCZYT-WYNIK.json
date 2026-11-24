@@ -1,0 +1,1769 @@
+{
+  "runtime": "5.20261006.1-alpha",
+  "method": "Lokalny workerd + D1; rzeczywisty kod czytnika i wykonawcy. Uwierzytelniony transport źródła odtwarza zachowane pola, bez ruchu zewnętrznego.",
+  "start": "2026-11-24T22:15:05.867Z",
+  "scenarios": [
+    {
+      "id": "paid",
+      "steps": {
+        "alreadyPaidCall": {
+          "result": null,
+          "api": 1,
+          "statements": 21,
+          "rowsRead": 34,
+          "rowsWritten": 26,
+          "detail": [
+            {
+              "mode": "first",
+              "sql": "SELECT status,next_due_at,last_error_code FROM automatic_refresh_tasks WHERE task_key=?",
+              "r": 0,
+              "w": 0
+            },
+            {
+              "mode": "all",
+              "sql": "SELECT budget_key,limit_count,consumed FROM automatic_refresh_budgets WHERE budget_key IN (?,?,?)",
+              "r": 3,
+              "w": 0
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_budgets(budget_key,limit_count,created_at,updated_at) VALUES(?,?,?,?) ON CONFLIC",
+              "r": 0,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_budgets(budget_key,limit_count,created_at,updated_at) VALUES(?,?,?,?) ON CONFLIC",
+              "r": 0,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_budgets(budget_key,limit_count,created_at,updated_at) VALUES(?,?,?,?) ON CONFLIC",
+              "r": 0,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT * FROM automatic_refresh_state WHERE singleton=1",
+              "r": 1,
+              "w": 0
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT * FROM automatic_refresh_state WHERE singleton=1",
+              "r": 1,
+              "w": 0
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT COUNT(*) AS count FROM automatic_refresh_attempts WHERE attempted_at>=?",
+              "r": 1,
+              "w": 0
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "UPDATE automatic_refresh_state SET quota_allowance=MIN(quota_allowance,?) WHERE singleton=1",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_attempts(attempt_id,operation,platform,listing_id,attempted_at) SELECT ?,?,?,?,?",
+              "r": 6,
+              "w": 3
+            },
+            {
+              "mode": "batch",
+              "sql": "UPDATE automatic_refresh_budgets SET consumed=consumed+1,updated_at=? WHERE budget_key IN (?,?) AND EXISTS(SEL",
+              "r": 9,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "UPDATE automatic_refresh_state SET quota_allowance=MAX(0,quota_allowance-1) WHERE singleton=1 AND EXISTS(SELEC",
+              "r": 2,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "UPDATE automatic_refresh_attempts SET outcome=?,http_status=?,error_code=?,completed_at=? WHERE attempt_id=?",
+              "r": 2,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            }
+          ]
+        },
+        "maintenance": {
+          "result": {
+            "saved": true,
+            "source": "already_read",
+            "extraDetails": 0
+          },
+          "api": 0,
+          "statements": 8,
+          "rowsRead": 17,
+          "rowsWritten": 10,
+          "detail": [
+            {
+              "mode": "first",
+              "sql": "SELECT f.committed_sequence,g.status,g.observed_at,p.baseline_id FROM server_feed_state f JOIN feed_catalog_po",
+              "r": 4,
+              "w": 0
+            },
+            {
+              "mode": "all",
+              "sql": "SELECT l.listing_id,l.source_key,l.platform,l.lot,l.vin_normalized,l.listing_generation,l.auction_state,l.sour",
+              "r": 3,
+              "w": 0
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO sync_batch_guards(guard_id,allowed) VALUES(?,CASE WHEN EXISTS(SELECT 1 FROM server_feed_state f JO",
+              "r": 5,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "UPDATE auction_listings SET current_bid_usd=? WHERE listing_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO auction_listing_snapshots(listing_id,observed_at,auction_state,auction_at,current_bid_usd,fingerpr",
+              "r": 1,
+              "w": 3
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM sync_batch_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            }
+          ]
+        },
+        "repeat": {
+          "result": null,
+          "api": 0,
+          "statements": 6,
+          "rowsRead": 9,
+          "rowsWritten": 6,
+          "detail": [
+            {
+              "mode": "first",
+              "sql": "SELECT f.committed_sequence,g.status,g.observed_at,p.baseline_id FROM server_feed_state f JOIN feed_catalog_po",
+              "r": 4,
+              "w": 0
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT * FROM automatic_refresh_tasks WHERE task_key=?",
+              "r": 0,
+              "w": 0
+            },
+            {
+              "mode": "all",
+              "sql": "SELECT l.listing_id,l.source_key,l.platform,l.lot,l.vin_normalized,l.listing_generation,l.auction_state,l.sour",
+              "r": 3,
+              "w": 0
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_tasks(task_key,platform,listing_id,cursor,scan_started_at,scan_pages,scan_errors",
+              "r": 0,
+              "w": 3
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            }
+          ]
+        }
+      },
+      "publicReads": [
+        {
+          "phase": "before",
+          "kind": "detail",
+          "code": 200,
+          "error": null,
+          "path": "/api/car/65054066?platform=copart",
+          "vin": "7SAYGDED8TA458053",
+          "lot": "65054066",
+          "current": null,
+          "final": null,
+          "snapshot": "2026-11-08T09:28:07.000Z",
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": []
+        },
+        {
+          "phase": "before",
+          "kind": "search",
+          "code": 200,
+          "error": null,
+          "path": "/api/cars?view=cards&per_page=20&s=7SAYGDED8TA458053",
+          "vin": "7SAYGDED8TA458053",
+          "lot": "65054066",
+          "current": null,
+          "final": null,
+          "snapshot": "2026-11-08T09:28:07.000Z",
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": []
+        },
+        {
+          "phase": "before",
+          "kind": "history",
+          "code": 200,
+          "error": null,
+          "path": "/api/car/65054066/history?platform=copart",
+          "rootKeys": [
+            "ok",
+            "data",
+            "source",
+            "read_source",
+            "fallback_reason",
+            "identity",
+            "history",
+            "meta",
+            "rex_history",
+            "read"
+          ],
+          "dataType": [],
+          "current": null,
+          "final": null,
+          "snapshot": null,
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": []
+        },
+        {
+          "phase": "after",
+          "kind": "detail",
+          "code": 200,
+          "error": null,
+          "path": "/api/car/65054066?platform=copart",
+          "vin": "7SAYGDED8TA458053",
+          "lot": "65054066",
+          "current": 70,
+          "final": null,
+          "snapshot": "2026-11-08T09:28:07.000Z",
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": []
+        },
+        {
+          "phase": "after",
+          "kind": "search",
+          "code": 200,
+          "error": null,
+          "path": "/api/cars?view=cards&per_page=20&s=7SAYGDED8TA458053",
+          "vin": "7SAYGDED8TA458053",
+          "lot": "65054066",
+          "current": 70,
+          "final": null,
+          "snapshot": "2026-11-08T09:28:07.000Z",
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": []
+        },
+        {
+          "phase": "after",
+          "kind": "history",
+          "code": 200,
+          "error": null,
+          "path": "/api/car/65054066/history?platform=copart",
+          "rootKeys": [
+            "ok",
+            "data",
+            "source",
+            "read_source",
+            "fallback_reason",
+            "identity",
+            "history",
+            "meta",
+            "rex_history",
+            "read"
+          ],
+          "dataType": [],
+          "current": null,
+          "final": null,
+          "snapshot": null,
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": [
+            {
+              "kind": "observed_snapshot",
+              "price": 70,
+              "at": "2026-11-24T20:33:31.004Z"
+            }
+          ]
+        }
+      ],
+      "snapshots": [
+        {
+          "observed_at": "2026-11-24T20:33:31.004Z",
+          "current_bid_usd": 70,
+          "fingerprint": "rest-primary-bid:2026-11-24T13:03:37.000000Z"
+        }
+      ],
+      "feed": {
+        "committed_sequence": 118796735
+      },
+      "finalDb": {
+        "current_bid_usd": 70,
+        "final_price_usd": null,
+        "summary_synced_at": "2026-11-08T09:28:07.000Z"
+      },
+      "pass": true
+    },
+    {
+      "id": "fresh-cold",
+      "steps": {
+        "maintenance": {
+          "result": {
+            "saved": true,
+            "source": "counted_detail",
+            "extraDetails": 1
+          },
+          "api": 1,
+          "statements": 46,
+          "rowsRead": 81,
+          "rowsWritten": 53,
+          "detail": [
+            {
+              "mode": "first",
+              "sql": "SELECT f.committed_sequence,g.status,g.observed_at,p.baseline_id FROM server_feed_state f JOIN feed_catalog_po",
+              "r": 4,
+              "w": 0
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT * FROM automatic_refresh_tasks WHERE task_key=?",
+              "r": 0,
+              "w": 0
+            },
+            {
+              "mode": "all",
+              "sql": "SELECT l.listing_id,l.source_key,l.platform,l.lot,l.vin_normalized,l.listing_generation,l.auction_state,l.sour",
+              "r": 3,
+              "w": 0
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT * FROM automatic_refresh_state WHERE singleton=1",
+              "r": 1,
+              "w": 0
+            },
+            {
+              "mode": "all",
+              "sql": "SELECT budget_key,limit_count,consumed FROM automatic_refresh_budgets WHERE budget_key IN (?,?,?)",
+              "r": 3,
+              "w": 0
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_budgets(budget_key,limit_count,created_at,updated_at) VALUES(?,?,?,?) ON CONFLIC",
+              "r": 0,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_budgets(budget_key,limit_count,created_at,updated_at) VALUES(?,?,?,?) ON CONFLIC",
+              "r": 0,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_budgets(budget_key,limit_count,created_at,updated_at) VALUES(?,?,?,?) ON CONFLIC",
+              "r": 0,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "all",
+              "sql": "SELECT budget_key,limit_count,consumed FROM automatic_refresh_budgets WHERE budget_key IN (?,?,?)",
+              "r": 6,
+              "w": 0
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_tasks(task_key,platform,listing_id,cursor,scan_started_at,scan_pages,scan_errors",
+              "r": 0,
+              "w": 3
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT status,next_due_at,last_error_code FROM automatic_refresh_tasks WHERE task_key=?",
+              "r": 0,
+              "w": 0
+            },
+            {
+              "mode": "all",
+              "sql": "SELECT budget_key,limit_count,consumed FROM automatic_refresh_budgets WHERE budget_key IN (?,?,?)",
+              "r": 6,
+              "w": 0
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_budgets(budget_key,limit_count,created_at,updated_at) VALUES(?,?,?,?) ON CONFLIC",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_budgets(budget_key,limit_count,created_at,updated_at) VALUES(?,?,?,?) ON CONFLIC",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_budgets(budget_key,limit_count,created_at,updated_at) VALUES(?,?,?,?) ON CONFLIC",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT * FROM automatic_refresh_state WHERE singleton=1",
+              "r": 1,
+              "w": 0
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT * FROM automatic_refresh_state WHERE singleton=1",
+              "r": 1,
+              "w": 0
+            },
+            {
+              "mode": "all",
+              "sql": "SELECT budget_key,limit_count,consumed FROM automatic_refresh_budgets WHERE budget_key IN (?,?,?)",
+              "r": 6,
+              "w": 0
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_tasks(task_key,platform,listing_id,cursor,scan_started_at,scan_pages,scan_errors",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT * FROM automatic_refresh_state WHERE singleton=1",
+              "r": 1,
+              "w": 0
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT COUNT(*) AS count FROM automatic_refresh_attempts WHERE attempted_at>=?",
+              "r": 1,
+              "w": 0
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "UPDATE automatic_refresh_state SET quota_allowance=MIN(quota_allowance,?) WHERE singleton=1",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_attempts(attempt_id,operation,platform,listing_id,attempted_at) SELECT ?,?,?,?,?",
+              "r": 6,
+              "w": 3
+            },
+            {
+              "mode": "batch",
+              "sql": "UPDATE automatic_refresh_budgets SET consumed=consumed+1,updated_at=? WHERE budget_key IN (?,?) AND EXISTS(SEL",
+              "r": 9,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "UPDATE automatic_refresh_state SET quota_allowance=MAX(0,quota_allowance-1) WHERE singleton=1 AND EXISTS(SELEC",
+              "r": 2,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "UPDATE automatic_refresh_attempts SET outcome=?,http_status=?,error_code=?,completed_at=? WHERE attempt_id=?",
+              "r": 2,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO sync_batch_guards(guard_id,allowed) VALUES(?,CASE WHEN EXISTS(SELECT 1 FROM server_feed_state f JO",
+              "r": 5,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "UPDATE auction_listings SET current_bid_usd=? WHERE listing_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO auction_listing_snapshots(listing_id,observed_at,auction_state,auction_at,current_bid_usd,fingerpr",
+              "r": 1,
+              "w": 3
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM sync_batch_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            }
+          ]
+        },
+        "repeat": {
+          "result": null,
+          "api": 0,
+          "statements": 3,
+          "rowsRead": 8,
+          "rowsWritten": 0,
+          "detail": [
+            {
+              "mode": "first",
+              "sql": "SELECT f.committed_sequence,g.status,g.observed_at,p.baseline_id FROM server_feed_state f JOIN feed_catalog_po",
+              "r": 4,
+              "w": 0
+            },
+            {
+              "mode": "all",
+              "sql": "SELECT l.listing_id,l.source_key,l.platform,l.lot,l.vin_normalized,l.listing_generation,l.auction_state,l.sour",
+              "r": 3,
+              "w": 0
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT * FROM automatic_refresh_tasks WHERE task_key=?",
+              "r": 1,
+              "w": 0
+            }
+          ]
+        }
+      },
+      "publicReads": [
+        {
+          "phase": "before",
+          "kind": "detail",
+          "code": 200,
+          "error": null,
+          "path": "/api/car/65054066?platform=copart",
+          "vin": "7SAYGDED8TA458053",
+          "lot": "65054066",
+          "current": null,
+          "final": null,
+          "snapshot": "2026-11-08T09:28:07.000Z",
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": []
+        },
+        {
+          "phase": "before",
+          "kind": "search",
+          "code": 200,
+          "error": null,
+          "path": "/api/cars?view=cards&per_page=20&s=7SAYGDED8TA458053",
+          "vin": "7SAYGDED8TA458053",
+          "lot": "65054066",
+          "current": null,
+          "final": null,
+          "snapshot": "2026-11-08T09:28:07.000Z",
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": []
+        },
+        {
+          "phase": "before",
+          "kind": "history",
+          "code": 200,
+          "error": null,
+          "path": "/api/car/65054066/history?platform=copart",
+          "rootKeys": [
+            "ok",
+            "data",
+            "source",
+            "read_source",
+            "fallback_reason",
+            "identity",
+            "history",
+            "meta",
+            "rex_history",
+            "read"
+          ],
+          "dataType": [],
+          "current": null,
+          "final": null,
+          "snapshot": null,
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": []
+        },
+        {
+          "phase": "after",
+          "kind": "detail",
+          "code": 200,
+          "error": null,
+          "path": "/api/car/65054066?platform=copart",
+          "vin": "7SAYGDED8TA458053",
+          "lot": "65054066",
+          "current": 70,
+          "final": null,
+          "snapshot": "2026-11-08T09:28:07.000Z",
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": []
+        },
+        {
+          "phase": "after",
+          "kind": "search",
+          "code": 200,
+          "error": null,
+          "path": "/api/cars?view=cards&per_page=20&s=7SAYGDED8TA458053",
+          "vin": "7SAYGDED8TA458053",
+          "lot": "65054066",
+          "current": 70,
+          "final": null,
+          "snapshot": "2026-11-08T09:28:07.000Z",
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": []
+        },
+        {
+          "phase": "after",
+          "kind": "history",
+          "code": 200,
+          "error": null,
+          "path": "/api/car/65054066/history?platform=copart",
+          "rootKeys": [
+            "ok",
+            "data",
+            "source",
+            "read_source",
+            "fallback_reason",
+            "identity",
+            "history",
+            "meta",
+            "rex_history",
+            "read"
+          ],
+          "dataType": [],
+          "current": null,
+          "final": null,
+          "snapshot": null,
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": [
+            {
+              "kind": "observed_snapshot",
+              "price": 70,
+              "at": "2026-11-24T20:33:31.004Z"
+            }
+          ]
+        }
+      ],
+      "snapshots": [
+        {
+          "observed_at": "2026-11-24T20:33:31.004Z",
+          "current_bid_usd": 70,
+          "fingerprint": "rest-primary-bid:2026-11-24T13:03:37.000000Z"
+        }
+      ],
+      "feed": {
+        "committed_sequence": 118796735
+      },
+      "finalDb": {
+        "current_bid_usd": 70,
+        "final_price_usd": null,
+        "summary_synced_at": "2026-11-08T09:28:07.000Z"
+      },
+      "pass": true
+    },
+    {
+      "id": "fresh-warm-new-store",
+      "steps": {
+        "maintenance": {
+          "result": {
+            "saved": true,
+            "source": "counted_detail",
+            "extraDetails": 1
+          },
+          "api": 1,
+          "statements": 46,
+          "rowsRead": 87,
+          "rowsWritten": 50,
+          "detail": [
+            {
+              "mode": "first",
+              "sql": "SELECT f.committed_sequence,g.status,g.observed_at,p.baseline_id FROM server_feed_state f JOIN feed_catalog_po",
+              "r": 4,
+              "w": 0
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT * FROM automatic_refresh_tasks WHERE task_key=?",
+              "r": 0,
+              "w": 0
+            },
+            {
+              "mode": "all",
+              "sql": "SELECT l.listing_id,l.source_key,l.platform,l.lot,l.vin_normalized,l.listing_generation,l.auction_state,l.sour",
+              "r": 3,
+              "w": 0
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT * FROM automatic_refresh_state WHERE singleton=1",
+              "r": 1,
+              "w": 0
+            },
+            {
+              "mode": "all",
+              "sql": "SELECT budget_key,limit_count,consumed FROM automatic_refresh_budgets WHERE budget_key IN (?,?,?)",
+              "r": 6,
+              "w": 0
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_budgets(budget_key,limit_count,created_at,updated_at) VALUES(?,?,?,?) ON CONFLIC",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_budgets(budget_key,limit_count,created_at,updated_at) VALUES(?,?,?,?) ON CONFLIC",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_budgets(budget_key,limit_count,created_at,updated_at) VALUES(?,?,?,?) ON CONFLIC",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "all",
+              "sql": "SELECT budget_key,limit_count,consumed FROM automatic_refresh_budgets WHERE budget_key IN (?,?,?)",
+              "r": 6,
+              "w": 0
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_tasks(task_key,platform,listing_id,cursor,scan_started_at,scan_pages,scan_errors",
+              "r": 0,
+              "w": 3
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT status,next_due_at,last_error_code FROM automatic_refresh_tasks WHERE task_key=?",
+              "r": 0,
+              "w": 0
+            },
+            {
+              "mode": "all",
+              "sql": "SELECT budget_key,limit_count,consumed FROM automatic_refresh_budgets WHERE budget_key IN (?,?,?)",
+              "r": 6,
+              "w": 0
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_budgets(budget_key,limit_count,created_at,updated_at) VALUES(?,?,?,?) ON CONFLIC",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_budgets(budget_key,limit_count,created_at,updated_at) VALUES(?,?,?,?) ON CONFLIC",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_budgets(budget_key,limit_count,created_at,updated_at) VALUES(?,?,?,?) ON CONFLIC",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT * FROM automatic_refresh_state WHERE singleton=1",
+              "r": 1,
+              "w": 0
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT * FROM automatic_refresh_state WHERE singleton=1",
+              "r": 1,
+              "w": 0
+            },
+            {
+              "mode": "all",
+              "sql": "SELECT budget_key,limit_count,consumed FROM automatic_refresh_budgets WHERE budget_key IN (?,?,?)",
+              "r": 6,
+              "w": 0
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_tasks(task_key,platform,listing_id,cursor,scan_started_at,scan_pages,scan_errors",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT * FROM automatic_refresh_state WHERE singleton=1",
+              "r": 1,
+              "w": 0
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT COUNT(*) AS count FROM automatic_refresh_attempts WHERE attempted_at>=?",
+              "r": 1,
+              "w": 0
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "UPDATE automatic_refresh_state SET quota_allowance=MIN(quota_allowance,?) WHERE singleton=1",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_attempts(attempt_id,operation,platform,listing_id,attempted_at) SELECT ?,?,?,?,?",
+              "r": 6,
+              "w": 3
+            },
+            {
+              "mode": "batch",
+              "sql": "UPDATE automatic_refresh_budgets SET consumed=consumed+1,updated_at=? WHERE budget_key IN (?,?) AND EXISTS(SEL",
+              "r": 9,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "UPDATE automatic_refresh_state SET quota_allowance=MAX(0,quota_allowance-1) WHERE singleton=1 AND EXISTS(SELEC",
+              "r": 2,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "UPDATE automatic_refresh_attempts SET outcome=?,http_status=?,error_code=?,completed_at=? WHERE attempt_id=?",
+              "r": 2,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO sync_batch_guards(guard_id,allowed) VALUES(?,CASE WHEN EXISTS(SELECT 1 FROM server_feed_state f JO",
+              "r": 5,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "UPDATE auction_listings SET current_bid_usd=? WHERE listing_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO auction_listing_snapshots(listing_id,observed_at,auction_state,auction_at,current_bid_usd,fingerpr",
+              "r": 1,
+              "w": 3
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM sync_batch_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            }
+          ]
+        },
+        "repeat": {
+          "result": null,
+          "api": 0,
+          "statements": 3,
+          "rowsRead": 8,
+          "rowsWritten": 0,
+          "detail": [
+            {
+              "mode": "first",
+              "sql": "SELECT f.committed_sequence,g.status,g.observed_at,p.baseline_id FROM server_feed_state f JOIN feed_catalog_po",
+              "r": 4,
+              "w": 0
+            },
+            {
+              "mode": "all",
+              "sql": "SELECT l.listing_id,l.source_key,l.platform,l.lot,l.vin_normalized,l.listing_generation,l.auction_state,l.sour",
+              "r": 3,
+              "w": 0
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT * FROM automatic_refresh_tasks WHERE task_key=?",
+              "r": 1,
+              "w": 0
+            }
+          ]
+        }
+      },
+      "publicReads": [
+        {
+          "phase": "before",
+          "kind": "detail",
+          "code": 200,
+          "error": null,
+          "path": "/api/car/65054066?platform=copart",
+          "vin": "7SAYGDED8TA458053",
+          "lot": "65054066",
+          "current": null,
+          "final": null,
+          "snapshot": "2026-11-08T09:28:07.000Z",
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": []
+        },
+        {
+          "phase": "before",
+          "kind": "search",
+          "code": 200,
+          "error": null,
+          "path": "/api/cars?view=cards&per_page=20&s=7SAYGDED8TA458053",
+          "vin": "7SAYGDED8TA458053",
+          "lot": "65054066",
+          "current": null,
+          "final": null,
+          "snapshot": "2026-11-08T09:28:07.000Z",
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": []
+        },
+        {
+          "phase": "before",
+          "kind": "history",
+          "code": 200,
+          "error": null,
+          "path": "/api/car/65054066/history?platform=copart",
+          "rootKeys": [
+            "ok",
+            "data",
+            "source",
+            "read_source",
+            "fallback_reason",
+            "identity",
+            "history",
+            "meta",
+            "rex_history",
+            "read"
+          ],
+          "dataType": [],
+          "current": null,
+          "final": null,
+          "snapshot": null,
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": []
+        },
+        {
+          "phase": "after",
+          "kind": "detail",
+          "code": 200,
+          "error": null,
+          "path": "/api/car/65054066?platform=copart",
+          "vin": "7SAYGDED8TA458053",
+          "lot": "65054066",
+          "current": 70,
+          "final": null,
+          "snapshot": "2026-11-08T09:28:07.000Z",
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": []
+        },
+        {
+          "phase": "after",
+          "kind": "search",
+          "code": 200,
+          "error": null,
+          "path": "/api/cars?view=cards&per_page=20&s=7SAYGDED8TA458053",
+          "vin": "7SAYGDED8TA458053",
+          "lot": "65054066",
+          "current": 70,
+          "final": null,
+          "snapshot": "2026-11-08T09:28:07.000Z",
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": []
+        },
+        {
+          "phase": "after",
+          "kind": "history",
+          "code": 200,
+          "error": null,
+          "path": "/api/car/65054066/history?platform=copart",
+          "rootKeys": [
+            "ok",
+            "data",
+            "source",
+            "read_source",
+            "fallback_reason",
+            "identity",
+            "history",
+            "meta",
+            "rex_history",
+            "read"
+          ],
+          "dataType": [],
+          "current": null,
+          "final": null,
+          "snapshot": null,
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": [
+            {
+              "kind": "observed_snapshot",
+              "price": 70,
+              "at": "2026-11-24T20:33:31.004Z"
+            }
+          ]
+        }
+      ],
+      "snapshots": [
+        {
+          "observed_at": "2026-11-24T20:33:31.004Z",
+          "current_bid_usd": 70,
+          "fingerprint": "rest-primary-bid:2026-11-24T13:03:37.000000Z"
+        }
+      ],
+      "feed": {
+        "committed_sequence": 118796735
+      },
+      "finalDb": {
+        "current_bid_usd": 70,
+        "final_price_usd": null,
+        "summary_synced_at": "2026-11-08T09:28:07.000Z"
+      },
+      "pass": true
+    },
+    {
+      "id": "fresh-warm-reused-store",
+      "steps": {
+        "maintenance": {
+          "result": {
+            "saved": true,
+            "source": "counted_detail",
+            "extraDetails": 1
+          },
+          "api": 1,
+          "statements": 40,
+          "rowsRead": 76,
+          "rowsWritten": 44,
+          "detail": [
+            {
+              "mode": "first",
+              "sql": "SELECT f.committed_sequence,g.status,g.observed_at,p.baseline_id FROM server_feed_state f JOIN feed_catalog_po",
+              "r": 4,
+              "w": 0
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT * FROM automatic_refresh_tasks WHERE task_key=?",
+              "r": 0,
+              "w": 0
+            },
+            {
+              "mode": "all",
+              "sql": "SELECT l.listing_id,l.source_key,l.platform,l.lot,l.vin_normalized,l.listing_generation,l.auction_state,l.sour",
+              "r": 3,
+              "w": 0
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT * FROM automatic_refresh_state WHERE singleton=1",
+              "r": 1,
+              "w": 0
+            },
+            {
+              "mode": "all",
+              "sql": "SELECT budget_key,limit_count,consumed FROM automatic_refresh_budgets WHERE budget_key IN (?,?,?)",
+              "r": 6,
+              "w": 0
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_tasks(task_key,platform,listing_id,cursor,scan_started_at,scan_pages,scan_errors",
+              "r": 0,
+              "w": 3
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT status,next_due_at,last_error_code FROM automatic_refresh_tasks WHERE task_key=?",
+              "r": 0,
+              "w": 0
+            },
+            {
+              "mode": "all",
+              "sql": "SELECT budget_key,limit_count,consumed FROM automatic_refresh_budgets WHERE budget_key IN (?,?,?)",
+              "r": 6,
+              "w": 0
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_budgets(budget_key,limit_count,created_at,updated_at) VALUES(?,?,?,?) ON CONFLIC",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_budgets(budget_key,limit_count,created_at,updated_at) VALUES(?,?,?,?) ON CONFLIC",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_budgets(budget_key,limit_count,created_at,updated_at) VALUES(?,?,?,?) ON CONFLIC",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT * FROM automatic_refresh_state WHERE singleton=1",
+              "r": 1,
+              "w": 0
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT * FROM automatic_refresh_state WHERE singleton=1",
+              "r": 1,
+              "w": 0
+            },
+            {
+              "mode": "all",
+              "sql": "SELECT budget_key,limit_count,consumed FROM automatic_refresh_budgets WHERE budget_key IN (?,?,?)",
+              "r": 6,
+              "w": 0
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_tasks(task_key,platform,listing_id,cursor,scan_started_at,scan_pages,scan_errors",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT * FROM automatic_refresh_state WHERE singleton=1",
+              "r": 1,
+              "w": 0
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT COUNT(*) AS count FROM automatic_refresh_attempts WHERE attempted_at>=?",
+              "r": 1,
+              "w": 0
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "UPDATE automatic_refresh_state SET quota_allowance=MIN(quota_allowance,?) WHERE singleton=1",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_attempts(attempt_id,operation,platform,listing_id,attempted_at) SELECT ?,?,?,?,?",
+              "r": 6,
+              "w": 3
+            },
+            {
+              "mode": "batch",
+              "sql": "UPDATE automatic_refresh_budgets SET consumed=consumed+1,updated_at=? WHERE budget_key IN (?,?) AND EXISTS(SEL",
+              "r": 9,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "UPDATE automatic_refresh_state SET quota_allowance=MAX(0,quota_allowance-1) WHERE singleton=1 AND EXISTS(SELEC",
+              "r": 2,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "UPDATE automatic_refresh_attempts SET outcome=?,http_status=?,error_code=?,completed_at=? WHERE attempt_id=?",
+              "r": 2,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO automatic_refresh_guards(guard_id,valid) VALUES(?,CASE WHEN EXISTS( SELECT 1 FROM automatic_refres",
+              "r": 1,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO sync_batch_guards(guard_id,allowed) VALUES(?,CASE WHEN EXISTS(SELECT 1 FROM server_feed_state f JO",
+              "r": 5,
+              "w": 2
+            },
+            {
+              "mode": "batch",
+              "sql": "UPDATE auction_listings SET current_bid_usd=? WHERE listing_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "INSERT INTO auction_listing_snapshots(listing_id,observed_at,auction_state,auction_at,current_bid_usd,fingerpr",
+              "r": 1,
+              "w": 3
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM sync_batch_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            },
+            {
+              "mode": "batch",
+              "sql": "DELETE FROM automatic_refresh_guards WHERE guard_id=?",
+              "r": 1,
+              "w": 1
+            }
+          ]
+        },
+        "repeat": {
+          "result": null,
+          "api": 0,
+          "statements": 3,
+          "rowsRead": 8,
+          "rowsWritten": 0,
+          "detail": [
+            {
+              "mode": "first",
+              "sql": "SELECT f.committed_sequence,g.status,g.observed_at,p.baseline_id FROM server_feed_state f JOIN feed_catalog_po",
+              "r": 4,
+              "w": 0
+            },
+            {
+              "mode": "all",
+              "sql": "SELECT l.listing_id,l.source_key,l.platform,l.lot,l.vin_normalized,l.listing_generation,l.auction_state,l.sour",
+              "r": 3,
+              "w": 0
+            },
+            {
+              "mode": "first",
+              "sql": "SELECT * FROM automatic_refresh_tasks WHERE task_key=?",
+              "r": 1,
+              "w": 0
+            }
+          ]
+        }
+      },
+      "publicReads": [
+        {
+          "phase": "before",
+          "kind": "detail",
+          "code": 200,
+          "error": null,
+          "path": "/api/car/65054066?platform=copart",
+          "vin": "7SAYGDED8TA458053",
+          "lot": "65054066",
+          "current": null,
+          "final": null,
+          "snapshot": "2026-11-08T09:28:07.000Z",
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": []
+        },
+        {
+          "phase": "before",
+          "kind": "search",
+          "code": 200,
+          "error": null,
+          "path": "/api/cars?view=cards&per_page=20&s=7SAYGDED8TA458053",
+          "vin": "7SAYGDED8TA458053",
+          "lot": "65054066",
+          "current": null,
+          "final": null,
+          "snapshot": "2026-11-08T09:28:07.000Z",
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": []
+        },
+        {
+          "phase": "before",
+          "kind": "history",
+          "code": 200,
+          "error": null,
+          "path": "/api/car/65054066/history?platform=copart",
+          "rootKeys": [
+            "ok",
+            "data",
+            "source",
+            "read_source",
+            "fallback_reason",
+            "identity",
+            "history",
+            "meta",
+            "rex_history",
+            "read"
+          ],
+          "dataType": [],
+          "current": null,
+          "final": null,
+          "snapshot": null,
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": []
+        },
+        {
+          "phase": "after",
+          "kind": "detail",
+          "code": 200,
+          "error": null,
+          "path": "/api/car/65054066?platform=copart",
+          "vin": "7SAYGDED8TA458053",
+          "lot": "65054066",
+          "current": 70,
+          "final": null,
+          "snapshot": "2026-11-08T09:28:07.000Z",
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": []
+        },
+        {
+          "phase": "after",
+          "kind": "search",
+          "code": 200,
+          "error": null,
+          "path": "/api/cars?view=cards&per_page=20&s=7SAYGDED8TA458053",
+          "vin": "7SAYGDED8TA458053",
+          "lot": "65054066",
+          "current": 70,
+          "final": null,
+          "snapshot": "2026-11-08T09:28:07.000Z",
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": []
+        },
+        {
+          "phase": "after",
+          "kind": "history",
+          "code": 200,
+          "error": null,
+          "path": "/api/car/65054066/history?platform=copart",
+          "rootKeys": [
+            "ok",
+            "data",
+            "source",
+            "read_source",
+            "fallback_reason",
+            "identity",
+            "history",
+            "meta",
+            "rex_history",
+            "read"
+          ],
+          "dataType": [],
+          "current": null,
+          "final": null,
+          "snapshot": null,
+          "bidObserved": null,
+          "bidSource": null,
+          "snapshots": [
+            {
+              "kind": "observed_snapshot",
+              "price": 70,
+              "at": "2026-11-24T20:33:31.004Z"
+            }
+          ]
+        }
+      ],
+      "snapshots": [
+        {
+          "observed_at": "2026-11-24T20:33:31.004Z",
+          "current_bid_usd": 70,
+          "fingerprint": "rest-primary-bid:2026-11-24T13:03:37.000000Z"
+        }
+      ],
+      "feed": {
+        "committed_sequence": 118796735
+      },
+      "finalDb": {
+        "current_bid_usd": 70,
+        "final_price_usd": null,
+        "summary_synced_at": "2026-11-08T09:28:07.000Z"
+      },
+      "pass": true
+    }
+  ],
+  "hash": "e0b575e7efb7ea90aba2377368a6a904c9af0f260368fe7bb7b6db4fe13626b6",
+  "schemas": [
+    "0004_d1_sync_2.sql",
+    "0008_automatic_refresh.sql",
+    "0009_public_catalog_read_indexes.sql",
+    "0010_inventory_source_index.sql",
+    "0011_d1_server_feed.sql",
+    "0013_identifier_read_indexes.sql",
+    "0014_feed_catalog_membership.sql",
+    "0019_catalog_exterior_color.sql"
+  ],
+  "indexes": [
+    "idx_vsync_provider_vehicle",
+    "idx_vsync_entity",
+    "idx_vsync_due",
+    "idx_listings_vin_recent",
+    "idx_listings_lot_recent",
+    "idx_listings_catalog",
+    "idx_listings_timed",
+    "idx_listings_buy_now",
+    "idx_listings_refresh_due",
+    "idx_events_listing_date",
+    "idx_events_provider_id",
+    "idx_listing_snapshots_recent",
+    "idx_sync_scopes_due",
+    "idx_sync_scopes_lease",
+    "idx_sync_runs_scope_status",
+    "idx_sync_runs_recent",
+    "automatic_refresh_attempts_time",
+    "automatic_refresh_tasks_due",
+    "idx_listings_public_recent",
+    "idx_listings_public_platform_recent",
+    "idx_listings_public_timed_recent",
+    "idx_listings_public_platform_timed_recent",
+    "idx_listings_public_buy_now_recent",
+    "idx_listings_public_make_recent",
+    "idx_scopes_public_coverage",
+    "idx_listings_source_identity",
+    "server_feed_generations_pending",
+    "server_feed_outbox_due",
+    "idx_listings_public_vin_upper",
+    "idx_listings_public_lot_upper",
+    "idx_listings_public_source_listing_upper"
+  ],
+  "passed": true
+}

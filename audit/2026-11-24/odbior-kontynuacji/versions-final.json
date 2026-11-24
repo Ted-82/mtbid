@@ -1,0 +1,41 @@
+{
+  "at": "2026-11-24T22:19:52.282Z",
+  "rows": [
+    {
+      "name": "rexbid-production-preflight",
+      "before": "808b57f2-b30e-4794-a529-756dd0d4d697",
+      "now": "808b57f2-b30e-4794-a529-756dd0d4d697",
+      "matchesExpected": true
+    },
+    {
+      "name": "rexbid-feed-executor-production",
+      "before": "11ee319d-be35-47c4-a06f-49da0464ae98",
+      "now": "11ee319d-be35-47c4-a06f-49da0464ae98",
+      "matchesExpected": true
+    },
+    {
+      "name": "rexbid-audit-staging",
+      "before": "2fcc6a47-a0f9-4420-bb6b-b199d7d3b5f2",
+      "now": "f1460889-3904-449f-8096-a17ce2bf08b6",
+      "matchesExpected": true
+    },
+    {
+      "name": "rexbid-auth-test",
+      "before": "4f46237f-ed86-4ff7-a8f8-1105984757c4",
+      "now": "4f46237f-ed86-4ff7-a8f8-1105984757c4",
+      "matchesExpected": true
+    },
+    {
+      "name": "rexbid-auction-archive-auto",
+      "before": "85aa5440-f186-43bc-ae45-f5139f381de1",
+      "now": "85aa5440-f186-43bc-ae45-f5139f381de1",
+      "matchesExpected": true
+    },
+    {
+      "name": "rexbid-copart-week-photos",
+      "before": "f573df69-5e71-4c7a-b25a-29daad5f2756",
+      "now": "f573df69-5e71-4c7a-b25a-29daad5f2756",
+      "matchesExpected": true
+    }
+  ]
+}

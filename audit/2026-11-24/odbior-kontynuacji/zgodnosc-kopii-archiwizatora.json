@@ -1,0 +1,38 @@
+{
+  "inputs": 8,
+  "checked": [
+    {
+      "file": "sync/catalog-media-storage.cjs",
+      "sha256": "3e61566d7965f10abd7dc4a33fa3ae89cc90ab9e53e307eeade10c80733f0c88"
+    },
+    {
+      "file": "providers/contract.js",
+      "sha256": "8a26d0f6b70f9e7b6b56d8c0925b3b384f81340e086791638b1244272028bf81"
+    },
+    {
+      "file": "sync/core.js",
+      "sha256": "274541db15f53eb539dbc70318ceb0dc5828a081bc7d5bccc4c9ed2909cf1063"
+    },
+    {
+      "file": "sync/auction-archive-segments.cjs",
+      "sha256": "7efa20b70252267b95c4341cabc1a17b49fac0c4ae6dd87aad009c316b44a7d3"
+    },
+    {
+      "file": "sync/auction-archive-budget.cjs",
+      "sha256": "9dfde7207437234559ca5f40df2a21d7c13002d51e2e4f61d9c2f212edb7084c"
+    },
+    {
+      "file": "sync/auction-archive-state.cjs",
+      "sha256": "f1a95fbdc1e6e4e159e4710e1c8618360c0d6ca630539044afae6b435591384d"
+    },
+    {
+      "file": "sync/auction-archive-intake.cjs",
+      "sha256": "55b88ce49b467be238d062c86d72173afa9d48121c7fba27fb60c8a20f5add8d"
+    },
+    {
+      "file": "worker.archive-auto.js",
+      "sha256": "60f7c7831dda1ff688e43c535afb273aaa14574d510de0df80e53992665eca31"
+    }
+  ],
+  "sameInCheckout": true
+}

@@ -1,6 +1,6 @@
 # REXBID. Odbiór wersji testowej z 24 listopada 2026
 
-**Najnowsze pomiary z 24 listopada** obejmują produkcyjne rozbieżności cen, tempo archiwum, naprawę ponownego wystawienia na kopii oraz zdalny odbiór galerii IAAI. [Kontynuacja odbioru](ODBIOR-DANE-I-MEDIA.md)
+**Końcowy odbiór wersji testowej z 24 listopada.** Poprawiono ponowne wystawianie aut na przykładzie Dakoty, ceny Audi i Tesli oraz panoramę IAAI. Komplet trzech poprawek katalogu przeszedł na kopii 803/803 testy. Czysta wersja strony przeszła 2710/2710. Zdalny staging, rzeczywiste czasy publikacji dotychczasowego automatu, rosnąca zaległość odrębnego archiwum oraz warunki przed przyjęciem płatnych zleceń są w [bieżącym raporcie odbioru](ODBIOR-DANE-I-MEDIA.md).
 
 **Aktualny stan całego polecenia z 17:34** uwzględnia późniejsze wdrożenia na rexbid.pl, trzy opublikowane paczki i sprawdzenie galerii Copart na produkcji. Poniższe wyniki zachowują datę i zakres pierwotnego odbioru stagingu. [Rejestr ukończonych i otwartych punktów](STAN-AUDYTU-1734.md)
 
