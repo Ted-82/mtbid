@@ -269,7 +269,14 @@ class D1ReadRepository {
       where.push("(length(trim(COALESCE(l.media_thumbs_json, ''))) > 2 OR length(trim(COALESCE(l.media_urls_json, ''))) > 2)");
     }
     if (observedAfter) { where.push("datetime(l.summary_synced_at)>=datetime(?)"); values.push(observedAfter); }
-    if (platform) { where.push("l.platform=?"); values.push(String(platform).toLowerCase()); }
+    const liveSession = String(auctionState ?? '').trim().toLowerCase() === 'live';
+    if (platform) {
+      // In an active Live browse the platform index includes every non-live car.
+      // Unary + keeps the TEXT value but leaves SQLite free to scan the sparse Live index.
+      const recentLive = liveSession && sort === 'recent' && view?.active;
+      where.push(recentLive ? "+l.platform=?" : "l.platform=?");
+      values.push(String(platform).toLowerCase());
+    }
     if (make) {
       const names = makeFamily(make);
       where.push(`upper(trim(l.make)) IN (${names.map(() => '?').join(',')})`);
@@ -328,7 +335,7 @@ class D1ReadRepository {
     if (buyNow) where.push("l.buy_now_usd>0");
     if (auctionState) {
       const state = String(auctionState).trim();
-      if (state.toLowerCase() === 'live') {
+      if (liveSession) {
         // SQLite can match this literal predicate to the sparse Live index.
         where.push("(lower(l.auction_state)='live' OR lower(COALESCE(l.source_status,''))='live')");
       } else {

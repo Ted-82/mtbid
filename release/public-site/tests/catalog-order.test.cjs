@@ -75,6 +75,26 @@ test('session filter uses a sparse index and keeps normalized and raw Live offer
  assert.deepEqual([...after.records,...next.records].map(row=>row.listing_id),['a','b']);
  assert.equal(next.page.next_cursor,null);
 });
+test('platform Live window scans the existing sparse session index with either platform selected',async t=>{
+ const {db,sql}=fixture(t,true,false,true);
+ sql.exec("CREATE INDEX idx_listings_public_platform_recent ON auction_listings(platform,last_seen_at DESC,listing_id ASC)");
+ sql.exec("CREATE INDEX idx_listings_public_live_recent ON auction_listings(last_seen_at DESC,listing_id ASC) WHERE (lower(auction_state)='live' OR lower(COALESCE(source_status,''))='live')");
+ let plan;
+ const traced={prepare(query){
+  const stmt=db.prepare(query);
+  return {...stmt,bind(...params){
+   if(query.startsWith('SELECT l.*'))plan=sql.prepare('EXPLAIN QUERY PLAN '+query).all(...params).map(row=>row.detail).join('\n');
+   return stmt.bind(...params);
+  }};
+ }};
+ const repo=new D1ReadRepository(traced,{membership:{view:async()=>({active:true,baselineId:'active',revision:1}),coverage:async()=>null}});
+ for(const [platform,id] of [['copart','a'],['iaai','b']]){
+  const url=new URL('/api/cars?lot_sub_status=Live&view=cards&per_page=20&platform='+platform,'https://rexbid.pl');
+  const page=await repo.listCatalog(reads.queryOptions(url,Date.parse('2026-11-17T10:12:00Z'),true));
+  assert.deepEqual(page.records.map(row=>row.listing_id),[id]);
+  assert.match(plan,/idx_listings_public_live_recent/);
+ }
+});
 for(const sort of Object.keys(expected))test('stored sort '+sort+' has exact stable order, NULL last and complete cursor pages',async t=>{
  const {repo}=fixture(t);let cursor=null,ids=[],pages=0;
  do{const r=await repo.listCatalog({sort,limit:2,cursor});assert.equal(r.page.sort,sort);ids.push(...r.records.map(x=>x.listing_id));cursor=r.page.next_cursor;pages++;assert.ok(pages<9);}while(cursor);

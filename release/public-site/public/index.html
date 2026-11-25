@@ -936,7 +936,7 @@
       <div class="catalog-sort-field">
         <label for="catalogSort">Sortuj oferty</label>
         <select id="catalogSort" aria-describedby="catalogSortNote">
-          <option value="">Termin licytacji: najbliższe</option>
+          <option value="" id="catalogDefaultSort">Termin licytacji: najbliższe</option>
           <option value="auction_later">Termin licytacji: najdalsze</option>
           <option value="recent">Ostatnio zapisane</option>
           <option value="year_desc">Rocznik: od najnowszych</option>
@@ -1143,6 +1143,7 @@
   // A colour code must never become a document name or silently disappear.
   const legacyDocumentInput = {value: ""};
   const catalogSort = document.getElementById("catalogSort");
+  let effectiveCatalogDefaultSort = "";
   const catalogView = document.getElementById("catalogView");
   const filterDefinitions = [
     {id:"catalogSort",element:catalogSort,param:"sort",viewOption:true},
@@ -1682,7 +1683,8 @@
       window.history.replaceState({...window.history.state, rexBidList: true, rexBidCatalog: {
         url: window.location.pathname + window.location.search,
         cars: listedCars, nextCursor: listCursor, query: activeListQuery, pages: listPageCount, savedAt: listLoadedAt, scrollY: window.scrollY || 0,
-        coverage: notice?.textContent || "", catalogPartial: listCatalogPartial
+        coverage: notice?.textContent || "", catalogPartial: listCatalogPartial,
+        defaultSort: effectiveCatalogDefaultSort
       }}, "", window.location.href);
     } catch (error) { console.warn("Nie udało się zachować widoku katalogu.", error); }
   }
@@ -1701,6 +1703,8 @@
     ++listRequestId;
     listedCars = snapshot.cars;
     listCatalogPartial = snapshot.catalogPartial === true;
+    effectiveCatalogDefaultSort = snapshot.defaultSort || "";
+    updateCatalogPresentation();
     listCursor = snapshot.nextCursor || null;
     activeListQuery = snapshot.query;
     listLoadedAt = snapshot.savedAt;
@@ -3485,6 +3489,8 @@
     carsContainer.setAttribute?.("aria-busy", "true");
     if (!append) {
       clearCatalogReturn();
+      effectiveCatalogDefaultSort = "";
+      updateCatalogPresentation();
       listPageCount = 0;
       listCursor = null;
       listedCars = [];
@@ -3638,6 +3644,10 @@
       if (nextCursor !== null && (typeof nextCursor !== "string" || nextCursor.length > 4096)) throw new Error("Nieprawidłowa kolejna strona katalogu");
       activeListQuery = queryKey;
       const catalogMeta = result.meta ?? result.data?.meta;
+      if (!params.has("sort")) {
+        effectiveCatalogDefaultSort = catalogMeta?.sort || "";
+        updateCatalogPresentation();
+      }
       listCatalogPartial = catalogMeta?.catalog_complete === false || String(catalogMeta?.scope_status || "").toLowerCase() === "partial";
       listedCars = append
         ? mergeCarsWithoutDuplicates(listedCars, cars)
@@ -3746,7 +3756,13 @@
       bid_desc:"Według zapisanej oferty w USD. Bez zastępowania ceną sprzedaży lub ofertą warunkową. Aukcje zakończone i brak kwoty są na końcu.",
       buy_now_asc:"Według zapisanej kwoty Kup teraz w USD. Dostępność wymaga potwierdzenia. Aukcje zakończone i brak kwoty są na końcu."
     };
-    document.getElementById("catalogSortNote").textContent = notes[catalogSort.value] || "Od najbliższej licytacji lub zakończenia aukcji czasowej.";
+    const waitingForSessionSort = lotSubStatus.value === "Live" && !effectiveCatalogDefaultSort;
+    document.getElementById("catalogDefaultSort").textContent = effectiveCatalogDefaultSort === "recent"
+      ? "Domyślnie: ostatnio zapisane"
+      : waitingForSessionSort ? "Domyślna kolejność" : "Termin licytacji: najbliższe";
+    const displayedSort = catalogSort.value || effectiveCatalogDefaultSort;
+    document.getElementById("catalogSortNote").textContent = notes[displayedSort] ||
+      (waitingForSessionSort && !displayedSort ? "Kolejność określa katalog dla wybranych filtrów." : "Od najbliższej licytacji lub zakończenia aukcji czasowej.");
   }
   catalogSort.addEventListener("change", () => loadCars());
   document.querySelectorAll("[data-catalog-view]").forEach(button => button.addEventListener("click", () => {
