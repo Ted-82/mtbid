@@ -136,7 +136,37 @@
     if(category==='electric'){where.push(`lower(trim(COALESCE(l.fuel_type,''))) IN (${placeholders(electric)})`);values.push(...electric);}
     return {where,values};
   }
-  const api={categories,resolve,fromParams,returnPath,eligible,sql,hasConfirmedAvailability,confirmedSale,priceObservationLabel,availabilityStatus,auctionSessionLabel,damageLabel,normalizeSearch};
+  function reconcileTimedSales(records){
+   const sold=e=>e.kind==='confirmed_auction_event' && e.provider==='apibara' && e.platform && e.lot && e.vin && String(e.status).toLowerCase()==='sold' &&
+    String(e.source_status).toLowerCase()==='sold' && e.result_confirmed!==false && typeof e.final_price==='number' && e.final_price>0;
+   const proofs=records.filter(e=>e.timed_cycle_verified===true && sold(e));
+   if(!proofs.length)return records;
+   const precise=d=>typeof d==='string' && /(?:Z|[+-]\d\d:\d\d)$/i.test(d) && Number.isFinite(Date.parse(d));
+   const sellerByCycle=new Map();
+   const reconciled=records.flatMap(e=>{
+    if(e.timed_cycle_verified===true || !sold(e))return [e];
+    const matches=proofs.filter(p=>p.platform===e.platform && p.lot===e.lot && p.vin===e.vin && p.final_price===e.final_price);
+    if(!matches.length)return [e];
+    if(precise(e.auction_date)){
+     const exact=matches.filter(p=>Date.parse(p.auction_date)===Date.parse(e.auction_date) &&
+        (!e.sale_date || !p.sale_date || e.sale_date===p.sale_date));
+     if(exact.length===1){
+      if(e.seller && !exact[0].seller){
+       const key=exact[0].event_key;
+       if(!sellerByCycle.has(key)) sellerByCycle.set(key,e.seller);
+       else if(JSON.stringify(sellerByCycle.get(key))!==JSON.stringify(e.seller)) sellerByCycle.set(key,null);
+      }
+      return [];
+     }
+     return exact.length>1 ? [{...e,cycle_unassigned_observation:true}] : [e];
+    }
+    const day=e.sale_date || e.auction_date;
+    return /^\d{4}-\d{2}-\d{2}$/.test(day||'') && matches.some(p=>p.sale_date===day)
+       ? [{...e,cycle_unassigned_observation:true}] : [e];
+   });
+   return reconciled.map(e=>!e.seller && sellerByCycle.get(e.event_key) ? {...e,seller:sellerByCycle.get(e.event_key)} : e);
+  }
+  const api={reconcileTimedSales,categories,resolve,fromParams,returnPath,eligible,sql,hasConfirmedAvailability,confirmedSale,priceObservationLabel,availabilityStatus,auctionSessionLabel,damageLabel,normalizeSearch};
   if(typeof module==='object'&&module.exports)module.exports=api;
   if(root)root.RexBidMarket=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

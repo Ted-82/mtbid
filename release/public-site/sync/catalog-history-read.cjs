@@ -1,4 +1,5 @@
 'use strict';
+const {reconcileTimedSales}=require('../public/rexbid-market.js');
 const {requestHistory}=require('./history-request.cjs');
 const PREFIX='rexh1_';
 function encode(x){return PREFIX+btoa(JSON.stringify(x)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/g,'');}
@@ -17,36 +18,6 @@ function decode(cursor){
 const identity=x=>x?.identity&&[x.identity.platform,x.identity.vin,x.identity.lot].join('/');
 function unique(items,key){const rows=new Map();for(const x of items){const k=key(x),old=rows.get(k);if(!old||Date.parse(x.observed_at||'')>=Date.parse(old.observed_at||''))rows.set(k,x);}return[...rows.values()];}
 const eventKey=x=>[x.platform,x.lot,x.event_key||x.source_event_id||[x.auction_date,x.sale_date].join('/')].join('/');
-function reconcileTimedSales(records){
- const sold=e=>e.kind==='confirmed_auction_event' && e.provider==='apibara' && String(e.status).toLowerCase()==='sold' &&
-  String(e.source_status).toLowerCase()==='sold' && e.result_confirmed!==false && typeof e.final_price==='number' && e.final_price>0;
- const proofs=records.filter(e=>e.timed_cycle_verified===true && sold(e));
- if(!proofs.length)return records;
- const precise=d=>typeof d==='string' && /(?:Z|[+-]\d\d:\d\d)$/i.test(d) && Number.isFinite(Date.parse(d));
- const sellerByCycle=new Map();
- const reconciled=records.flatMap(e=>{
-  if(e.timed_cycle_verified===true || !sold(e))return [e];
-  const matches=proofs.filter(p=>p.platform===e.platform && p.lot===e.lot && p.vin===e.vin && p.final_price===e.final_price);
-  if(!matches.length)return [e];
-  if(precise(e.auction_date)){
-   const exact=matches.filter(p=>Date.parse(p.auction_date)===Date.parse(e.auction_date) &&
-      (!e.sale_date || !p.sale_date || e.sale_date===p.sale_date));
-   if(exact.length===1){
-    if(e.seller && !exact[0].seller){
-     const key=exact[0].event_key;
-     if(!sellerByCycle.has(key)) sellerByCycle.set(key,e.seller);
-     else if(JSON.stringify(sellerByCycle.get(key))!==JSON.stringify(e.seller)) sellerByCycle.set(key,null);
-    }
-    return [];
-   }
-   return exact.length>1 ? [{...e,cycle_unassigned_observation:true}] : [e];
-  }
-  const day=e.sale_date || e.auction_date;
-  return /^\d{4}-\d{2}-\d{2}$/.test(day||'') && matches.some(p=>p.sale_date===day)
-     ? [{...e,cycle_unassigned_observation:true}] : [e];
- });
- return reconciled.map(e=>!e.seller && sellerByCycle.get(e.event_key) ? {...e,seller:sellerByCycle.get(e.event_key)} : e);
-}
 const snapshotKey=x=>JSON.stringify([x.observed_at,x.auction_state,x.auction_at,x.timed_end_at,x.current_bid_usd,x.buy_now_usd]);
 function merge(active,legacy,state){
  state={...state};

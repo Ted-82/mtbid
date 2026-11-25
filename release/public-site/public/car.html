@@ -1655,7 +1655,7 @@ main{padding-top:22px}
 <script src="/rexbid-auth.js?v=21437df8759b"></script>
 <script src="/rexbid-media.js?v=4"></script>
 <script src="/rexbid-gallery-gestures.js?v=5a00310a18"></script>
-<script src="/rexbid-market.js?v=de032632212a"></script>
+<script src="/rexbid-market.js?v=198129955ce6"></script>
 <script src="/rexbid-powertrain.js?v=3baadbf40a"></script>
 <link rel="stylesheet" href="/rexbid-compare.css?v=20261025">
 <script src="/rexbid-compare.js?v=37d22f982c37" defer></script>
@@ -3983,6 +3983,11 @@ main{padding-top:22px}
     if (!date && !lot && !status && currentBid === null && finalPrice === null && buyNow === null && sourcePrice === null) return null;
     return {
       event_key: record.event_key || null,
+      kind: record.kind,
+      // Match only the identifiers supplied by the source event.
+      provider: record.platform && record.lot && record.vin ? record.provider : null,
+      source_status: record.source_status,
+      result_confirmed: record.result_confirmed,
       timed_cycle_verified: record.timed_cycle_verified === true,
       cycle_unassigned_observation: record.cycle_unassigned_observation === true,
       observed_at: record.observed_at || null,
@@ -4041,11 +4046,13 @@ main{padding-top:22px}
     if (item.source_event_id) return `source:${platform}:${item.source_event_id}`;
     const identity = item.lot ? `lot:${String(item.lot).trim().toUpperCase()}`
       : item.vin ? `vin:${String(item.vin).trim().toUpperCase()}` : "";
-    const date = String(item.auction_date || item.sale_date || item.date || "").match(/^\d{4}-\d{2}-\d{2}/)?.[0] || String(item.auction_date || item.sale_date || item.date || "");
+    const raw = String(item.auction_date || item.sale_date || item.date || "");
+    const time = /(?:Z|[+-]\d{2}:\d{2})$/i.test(raw) ? Date.parse(raw) : NaN;
+    const date = Number.isFinite(time) ? new Date(time).toISOString() : raw;
     return identity && date ? `fallback:${platform}:${identity}:${date}` : null;
   }
 
-  function historyRecordsForRender(records = auctionHistoryRecords) {
+  function historyRecordsForRender(records = auctionHistoryRecords, {keepSourceRows = false} = {}) {
     const map = new Map();
     let anonymous = 0;
     const completeness = item => [item.event_key,item.source_event_id,item.vin,item.platform,item.lot,item.auction_date,item.sale_date,item.current_bid,item.final_price,item.buy_now,item.status,item.seller].filter(value => value !== null && value !== undefined && value !== "").length;
@@ -4053,12 +4060,21 @@ main{padding-top:22px}
     for (const item of records) {
       const key = historyRecordKey(item) || `anonymous:${anonymous++}`;
       const existing = map.get(key);
-      if (!existing || completeness(item) >= completeness(existing)) map.set(key,item);
+      if (existing?.timed_cycle_verified && !item.timed_cycle_verified) continue;
+      if (!existing || item.timed_cycle_verified && !existing.timed_cycle_verified || completeness(item) >= completeness(existing)) map.set(key,item);
     }
 
-    return Array.from(map.values()).sort((a,b) => {
+    const sourceRows = Array.from(map.values());
+    // A continuation can come from just one catalogue. Keep assertions from
+    // all pages and reconcile the complete set for each display.
+    if (keepSourceRows) return sourceRows;
+    const rows = globalThis.RexBidMarket?.reconcileTimedSales?.(sourceRows) || sourceRows;
+    return rows.sort((a,b) => {
       const dateKey = item => String(item.sale_date || item.auction_date || item.date || "").match(/^\d{4}-\d{2}-\d{2}/)?.[0] || "";
-      return dateKey(b).localeCompare(dateKey(a));
+      const byDay = dateKey(b).localeCompare(dateKey(a));
+      const precise = item => /(?:Z|[+-]\d{2}:\d{2})$/i.test(item.auction_date || "") ? Date.parse(item.auction_date) : NaN;
+      const at = precise(a), bt = precise(b);
+      return byDay || (Number.isFinite(at) && Number.isFinite(bt) ? bt - at : Number.isFinite(bt) - Number.isFinite(at));
     });
   }
 
@@ -4125,7 +4141,7 @@ function renderObservedHistory() {
       return;
     }
 
-    const platforms = [...new Set(list.map(item => String(item.platform || platformName()).toLowerCase()))];
+    const unassigned = list.filter(item => item.cycle_unassigned_observation).length;
     const showPlatform = true;
     const observationZone=new Intl.DateTimeFormat("pl-PL",{timeZone:"Europe/Warsaw",dateStyle:"short",timeStyle:"medium"});
     const rows = list.map(item => {
@@ -4169,7 +4185,7 @@ function renderObservedHistory() {
           <tbody>${rows}</tbody>
         </table>
       </div>
-      <div class="history-count">Zapisane wydarzenia aukcyjne: <strong>${list.length}</strong>. Najnowsze jako pierwsze. Oferta nie oznacza potwierdzonej ceny sprzedaży.${auctionHistoryAvailability.state === "read_failed" ? " Nie udało się odświeżyć odczytu; pokazujemy zachowane wydarzenia." : auctionHistoryAvailability.complete === false ? " Historia pobrana częściowo." : ""}</div>
+      <div class="history-count">Zapisane wydarzenia aukcyjne: <strong>${list.length - unassigned}</strong>.${unassigned ? ` Odczyty bez przypisanej aukcji: ${unassigned}.` : ''} Najnowsze jako pierwsze. Oferta nie oznacza potwierdzonej ceny sprzedaży.${auctionHistoryAvailability.state === "read_failed" ? " Nie udało się odświeżyć odczytu; pokazujemy zachowane wydarzenia." : auctionHistoryAvailability.complete === false ? " Historia pobrana częściowo." : ""}</div>
     `;
   }
 
@@ -4187,7 +4203,8 @@ function renderObservedHistory() {
     const currentLot = String(getLot() || "").trim();
     const currentDate = getAuctionStart();
     const currentTime = currentDate ? new Date(currentDate).getTime() : NaN;
-    const candidates = auctionHistoryRecords.filter(item => {
+    const reconciled = globalThis.RexBidMarket?.reconcileTimedSales?.(auctionHistoryRecords) || auctionHistoryRecords;
+    const candidates = reconciled.filter(item => {
       if(item.cycle_unassigned_observation)return false;
       if(String(item.event_key||"").startsWith("feed-timed-result:v1:")){
         const end=car.auction?.timed_end_at;
@@ -4263,7 +4280,7 @@ function renderObservedHistory() {
     try {
       const page = await fetchAuctionHistoryPage(identifier);
       auctionHistoryAvailability = page.availability;
-      auctionHistoryRecords = historyRecordsForRender(page.records);
+      auctionHistoryRecords = historyRecordsForRender(page.records, {keepSourceRows:true});
       observedHistoryRecords = observedRecordsForRender(page.snapshots);
       auctionHistoryNextCursor = page.nextCursor || null;
       auctionHistorySeenCursors = new Set(auctionHistoryNextCursor ? [String(auctionHistoryNextCursor)] : []);
@@ -4293,7 +4310,7 @@ function renderObservedHistory() {
     if (button) { button.disabled = true; button.textContent = "Ładowanie…"; }
     try {
       const page = await fetchAuctionHistoryPage(identifier, auctionHistoryNextCursor);
-      auctionHistoryRecords = historyRecordsForRender([...auctionHistoryRecords, ...page.records]);
+      auctionHistoryRecords = historyRecordsForRender([...auctionHistoryRecords, ...page.records], {keepSourceRows:true});
       observedHistoryRecords = observedRecordsForRender([...observedHistoryRecords, ...page.snapshots]);
       const nextCursor = page.nextCursor || null;
       const repeated = nextCursor !== null && auctionHistorySeenCursors.has(String(nextCursor));
