@@ -4,6 +4,7 @@ const market = require("../public/rexbid-market.js");
 const contract = require("../providers/contract.js");
 const { safeMediaReferences } = require("./core.js");
 const { unpackMediaJson } = require("./catalog-media-storage.cjs");
+const { verifiedTimedSale } = require("./verified-timed-sale.cjs");
 const catalogOrder = require("./catalog-order.cjs");
 
 const KNOWN_PLATFORMS = Object.freeze(["copart", "iaai"]);
@@ -473,9 +474,12 @@ class D1ReadRepository {
     if (!listingId || !Number.isInteger(limit) || limit < 1 || limit > 100) throw new TypeError("Nieprawidłowe parametry event history.");
     const result = await this.db.prepare(`SELECT event_id,provider,provider_event_id,event_key,vin_normalized,platform,lot,
       auction_date,sale_date,source_status,canonical_status,current_bid_usd,buy_now_usd,source_price_usd,final_price_usd,
-      seller_name,seller_type,observed_at FROM auction_events WHERE listing_id=?
+      seller_name,seller_type,observed_at,fingerprint,identity_state FROM auction_events WHERE listing_id=?
       ORDER BY COALESCE(sale_date,auction_date,observed_at) DESC,event_id ASC LIMIT ?`).bind(listingId,limit).all();
-    return (result.results || []).map(row => ({
+    const records=await Promise.all((result.results || []).map(async row => {
+      const timed=typeof row.event_key==='string' && row.event_key.startsWith('feed-timed-result:v1:');
+      if(timed && !await verifiedTimedSale(row)) return null;
+      return {
       kind: "confirmed_auction_event", event_id: row.event_id, provider: row.provider,
       provider_event_id: clean(row.provider_event_id), event_key: clean(row.event_key),
       vin: clean(row.vin_normalized), platform: clean(row.platform), lot: clean(row.lot),
@@ -484,8 +488,10 @@ class D1ReadRepository {
       current_bid: numberOrNull(row.current_bid_usd), buy_now: numberOrNull(row.buy_now_usd),
       source_price: numberOrNull(row.source_price_usd), final_price: numberOrNull(row.final_price_usd),
       seller: row.seller_name ? {name: row.seller_name, type: clean(row.seller_type)} : null,
-      observed_at: clean(row.observed_at)
-    }));
+      observed_at: clean(row.observed_at),
+      ...(timed ? {timed_cycle_verified:true} : {})
+    };}));
+    return records.filter(Boolean);
   }
 
   async getHistoryAvailability({listingId, events = []} = {}) {

@@ -24,6 +24,35 @@ test('incomplete vehicle identifiers require a single exact auction across both 
    if(code===200)assert.deepEqual((await r.json()).identity,id);
  }
 });
+test('a REST confirmation coalesces only the same proven source, lot, VIN, exact cycle time and sale amount',()=>{
+ const feed={...event('2026-11-24',12700),kind:'confirmed_auction_event',provider:'apibara',vin:id.vin,timed_cycle_verified:true,
+    source_status:'Sold',sale_date:'2026-11-24',auction_date:'2026-11-24T23:59:00Z',event_key:'feed-timed-result:v1:'+'a'.repeat(64)};
+ const rest={...feed,timed_cycle_verified:undefined,event_key:'history-fallback',auction_date:'2026-11-25T00:59:00+01:00'};
+ const pair=(a,b)=>merge(body(a),body(b),start).history;
+ assert.equal(pair([feed],[rest]).length,1);assert.equal(pair([feed],[rest])[0].timed_cycle_verified,true);
+ const seller={name:'Verified seller',type:'Insurance'};assert.deepEqual(pair([feed],[{...rest,seller}])[0].seller,seller);
+ const daily=pair([feed],[{...rest,auction_date:'2026-11-24'}]);
+ assert.equal(daily.length,2);assert.equal(daily.filter(x=>x.cycle_unassigned_observation===true).length,1);
+ for(const changes of [{vin:'WVWZZZ1JZXW000001'},{lot:'1'},{platform:'iaai'},{final_price:5000},{auction_date:'2026-11-25T12:00:00Z'},{source_status:'Sold on Approval'}]){
+   const retained=pair([feed],[{...rest,...changes}]);assert.equal(retained.length,2);assert.ok(!retained.some(x=>x.cycle_unassigned_observation));
+ }
+ const next={...feed,event_key:'feed-timed-result:v1:'+'b'.repeat(64),auction_date:'2026-11-25T22:00:00Z'};
+ assert.equal(pair([feed,next],[rest]).length,2);
+});
+test('current card cannot reuse a verified feed price from another Timed cycle on the same VIN and lot',()=>{
+ const source=fs.readFileSync(path.join(__dirname,'../public/car.html'),'utf8');const begin=source.indexOf('  function getCurrentAuctionHistoryFinalBid(');
+ const end=source.indexOf('  async function fetchAuctionHistoryPage',begin),scope='a'.repeat(64),deadline='2026-11-24T23:59:00.000Z';
+ const row={...id,event_key:'feed-timed-result:v1:'+scope,timed_cycle_verified:true,auction_date:deadline,sale_date:'2026-11-24',status:'Sold',final_price:12700};
+ const c={car:{platform:id.platform,auction:{is_timed:true,timed_end_at:deadline}},getVin:()=>id.vin,getLot:()=>id.lot,getAuctionStart:()=>null,
+   observedHistoryRecords:[{timed_end_at:deadline,fingerprint:'feed-timed-bid:v1:'+scope+':0000000119386158'}],historyStatusLabel:()=> 'Sprzedano',auctionHistoryRecords:[row]};
+ vm.createContext(c);vm.runInContext(source.slice(begin,end)+';globalThis.price=getCurrentAuctionHistoryFinalBid;',c);
+ assert.equal(c.price(),12700);
+ for(const changed of [{timed_cycle_verified:false},{cycle_unassigned_observation:true},{lot:'1'},{vin:'WRONG'},{platform:'iaai'},
+   {auction_date:'2026-11-25T23:59:00.000Z'},{event_key:'feed-timed-result:v1:'+'b'.repeat(64)}]){
+   c.auctionHistoryRecords=[{...row,...changed}];assert.equal(c.price(),null);
+ }
+ c.auctionHistoryRecords=[row];c.observedHistoryRecords=[];assert.equal(c.price(),null);
+});
 test('active events cannot be hidden by successful empty legacy history; old events are retained',()=>{
  const active=body([event('2026-11-13',16300)]),legacy=body([event('2026-10-13',15000)]);
  const m=merge(active,legacy,start);assert.equal(m.history.length,2);assert.equal(m.history[0].final_price,16300);assert.equal(m.meta.next_cursor,null);

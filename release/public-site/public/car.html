@@ -3983,6 +3983,9 @@ main{padding-top:22px}
     if (!date && !lot && !status && currentBid === null && finalPrice === null && buyNow === null && sourcePrice === null) return null;
     return {
       event_key: record.event_key || null,
+      timed_cycle_verified: record.timed_cycle_verified === true,
+      cycle_unassigned_observation: record.cycle_unassigned_observation === true,
+      observed_at: record.observed_at || null,
       source_event_id: record.source_event_id || null,
       vin: record.vin || null,
       platform: String(displayValue(platform) || platformName()).toLowerCase(),
@@ -4124,27 +4127,32 @@ function renderObservedHistory() {
 
     const platforms = [...new Set(list.map(item => String(item.platform || platformName()).toLowerCase()))];
     const showPlatform = true;
+    const observationZone=new Intl.DateTimeFormat("pl-PL",{timeZone:"Europe/Warsaw",dateStyle:"short",timeStyle:"medium"});
     const rows = list.map(item => {
       const hasFinalPrice = item.final_price !== null && item.final_price !== undefined && item.final_price !== "";
       const hasCurrentBid = item.current_bid !== null && item.current_bid !== undefined && item.current_bid !== "" && Number(item.current_bid) > 0;
       const hasBuyNow = item.buy_now !== null && item.buy_now !== undefined && item.buy_now !== "";
       const amount = hasFinalPrice ? item.final_price : hasCurrentBid ? item.current_bid : hasBuyNow ? item.buy_now : null;
-      const amountLabel = hasFinalPrice ? "Cena końcowa"
+      const amountLabel = item.cycle_unassigned_observation ? "Odczyt kwoty bez przypisanej aukcji" : hasFinalPrice ? "Cena końcowa"
         : hasCurrentBid ? "Oferta w tej licytacji"
         : hasBuyNow ? "Kup teraz" : !isEmpty(item.source_price) ? (/not[ _-]?sold|no[ _-]?sale|unsold|failed/i.test(item.status) ? "Oferta z wydarzenia · nie sprzedano" : hasApprovalPendingOutcome(item.status) ? "Oferta z wydarzenia · sprzedaż niepotwierdzona" : "Kwota z rekordu · typ nieokreślony") : "";
       const displayAmount = amount === null || amount === undefined ? item.source_price : amount;
       const price = displayAmount === null || displayAmount === undefined || Number.isNaN(Number(displayAmount)) ? "—" : money(displayAmount);
       const sellerLabel = item.seller ? esc(item.seller) : item.seller_type ? `Typ: ${esc(historySellerTypeLabel(item.seller_type))}` : "—";
-      const status = historyStatusLabel(item.status);
+      const status = item.cycle_unassigned_observation ? "Odczyt bez przypisanej aukcji" : historyStatusLabel(item.status);
+      const timedDate = item.timed_cycle_verified && Number.isFinite(Date.parse(item.auction_date || "")) ?
+        '<small style="display:block">Termin Timed (Polska): '+esc(observationZone.format(new Date(item.auction_date)))+'</small>' : "";
+      const resultObservation=item.timed_cycle_verified && Number.isFinite(Date.parse(item.observed_at || "")) ?
+        '<small style="display:block">Odczyt wyniku (Polska): '+esc(observationZone.format(new Date(item.observed_at)))+'</small>' : "";
       const platform = String(item.platform || platformName()).toUpperCase();
       const platformCls = platform.toLowerCase().includes("iaai") || platform === "IAA" ? "iaai" : "copart";
       return `
         <tr>
           <td data-label="Aukcja"><span class="history-platform ${platformCls}">${esc(platform)}</span></td>
-          <td data-label="Data wydarzenia">${esc(formatHistoryDate(item.sale_date || item.auction_date || item.date))}</td>
+          <td data-label="Data wydarzenia">${esc(formatHistoryDate(item.sale_date || item.auction_date || item.date))}${timedDate}${resultObservation}</td>
           <td data-label="LOT">${esc(item.lot || "—")}</td>
           <td data-label="Cena / oferta" class="history-price">${esc(price)}${amountLabel ? `<small style="display:block;font-size:10px;font-weight:600;opacity:.75">${esc(amountLabel)}</small>` : ""}</td>
-          <td data-label="Status"><span class="history-status ${historyStatusClass(item.status)}">${esc(status)}</span>${status === "Oferta warunkowa" ? '<p class="history-outcome-note">Sprzedaż wymagała zatwierdzenia; końcowy wynik niepotwierdzony.</p>' : ""}${item.status ? `<details class="history-source-status"><summary>Status źródłowy</summary>${esc(item.status)}</details>` : ""}</td>
+          <td data-label="Status"><span class="history-status ${item.cycle_unassigned_observation ? "unknown" : historyStatusClass(item.status)}">${esc(status)}</span>${status === "Oferta warunkowa" ? '<p class="history-outcome-note">Sprzedaż wymagała zatwierdzenia; końcowy wynik niepotwierdzony.</p>' : ""}${item.status ? `<details class="history-source-status"><summary>Status źródłowy</summary>${esc(item.status)}</details>` : ""}</td>
           <td data-label="Sprzedający">${sellerLabel}</td>
         </tr>
       `;
@@ -4180,6 +4188,17 @@ function renderObservedHistory() {
     const currentDate = getAuctionStart();
     const currentTime = currentDate ? new Date(currentDate).getTime() : NaN;
     const candidates = auctionHistoryRecords.filter(item => {
+      if(item.cycle_unassigned_observation)return false;
+      if(String(item.event_key||"").startsWith("feed-timed-result:v1:")){
+        const end=car.auction?.timed_end_at;
+        if(item.timed_cycle_verified!==true || car.auction?.is_timed!==true || !end ||
+          Date.parse(end)!==Date.parse(item.auction_date) || item.platform!==car.platform ||
+          item.vin!==getVin() || item.lot!==currentLot)return false;
+        const scope=item.event_key.slice("feed-timed-result:v1:".length);
+        const signatures=new Set(observedHistoryRecords.filter(s=>Date.parse(s.timed_end_at)===Date.parse(end))
+          .map(s=>/^feed-timed-bid:v1:([a-f0-9]{64}):\d{16}$/.exec(s.fingerprint)?.[1]).filter(Boolean));
+        return signatures.size===1 && signatures.has(scope);
+      }
       const lotMatch = !currentLot || String(item.lot || "").trim() === currentLot;
       if (!lotMatch) return false;
       const eventDate = item.sale_date || item.auction_date || item.date;

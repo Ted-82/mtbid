@@ -8,3 +8,9 @@
 #observedHistory table { width: 100%; border-collapse: collapse; text-align: left; }
 #observedHistory th, #observedHistory td { padding: 10px 15px; border-top: 1px solid #e1e7eb; }
 #observedHistory small { color: #38536a; }
+#confirmedAuctionResult { padding: 18px; border: 1px solid #d5dee6; border-radius: 12px; background: #fff; }
+#confirmedAuctionResult h2 { margin: 0 0 4px; }
+#confirmedAuctionResult p { margin: 0 0 14px; color: #215438; font-weight: 700; }
+#confirmedAuctionResult dl { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(150px,100%),1fr)); gap: 12px 18px; margin: 0; }
+#confirmedAuctionResult dt { font-size: .85rem; color: #38536a; }
+#confirmedAuctionResult dd { margin: 2px 0 0; }

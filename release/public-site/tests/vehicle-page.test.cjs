@@ -12,13 +12,13 @@ const savedResult={ok:true,identity:savedIdentity,rex_history:{snapshots:[
   observed('2026-11-25T00:00:37.000Z',12700),observed('2026-11-25T00:42:43.000Z',12700),
   observed('2026-11-25T00:42:43+00:00',12700),observed('2026-11-25T00:43:43',22000)
 ]}};
-async function savedPage({query=id,detailError='auction_date_pending',data=savedResult,visible=true,status=200,method='GET'}={}) {
+async function savedPage({query=id,detailError='auction_date_pending',data=savedResult,summary=data,visible=true,status=200,method='GET'}={}) {
   const reads=[], historyOptions=[];
   const response=await vehiclePage(new Request('https://rexbid.pl/car'+query,{method}),{
     read:async (route,options)=>{
       reads.push(route);
       if(route.includes('/history?')) historyOptions.push(options);
-      return route.includes('/history?')?Response.json(data,{status}):Response.json({error:detailError},{status:404});
+      return route.includes('/history?')?Response.json(route.endsWith('per_page=1')?summary:data,{status}):Response.json({error:detailError},{status:404});
     },
     render:()=>{throw Error('Unsold vehicle history must not render an active card');},
     historyVisible:async vin=>{assert.equal(vin,car.vin);return visible;}
@@ -77,6 +77,33 @@ test('a later unknown or zero snapshot retains the last positive recorded amount
   const result=await savedPage({data});assert.equal(result.response.status,200);
   assert.deepEqual([...new JSDOM(result.html).window.document.querySelectorAll('tbody td:nth-child(2)')].map(e=>e.textContent),
     ['Brak danych','Odczyt 0 USD','$860Ostatnia zapisana oferta']);
+});
+const receipt={kind:'confirmed_auction_event',provider:'apibara',source_status:'Sold',status:'Sold',timed_cycle_verified:true,
+  platform:car.platform,vin:car.vin,lot:car.lot_number,provider_event_id:'chg_119386159',event_key:'feed-timed-result:v1:'+'a'.repeat(64),
+  auction_date:'2026-11-24T23:59:00Z',sale_date:'2026-11-24',observed_at:'2026-11-25T00:42:43Z',final_price:12700};
+test('a verified Timed outcome is separate from the bid, and does not depend on observing the same bid, a first page or sale-time guesses',async()=>{
+  for(const query of [id,id+'&bid_cursor=rexh1_abcdef']){
+    const r=await savedPage({query,data:{...savedResult,history:[receipt],rex_history:{snapshots:[]}}});
+    assert.equal(r.response.status,200);const doc=new JSDOM(r.html).window.document;
+    const result=doc.querySelector('#confirmedAuctionResult');assert.match(result.textContent,/Cena sprzedaży \(USD\)\$12,700/);
+    assert.match(result.textContent,/Dzień sprzedaży wg źródła24\.11\.2026/);assert.match(result.textContent,/Termin zakończenia Timed \(Polska\)25\.11\.2026, 00:59:00/);
+    assert.match(result.textContent,/Odczyt wyniku \(Polska\)25\.11\.2026, 01:42:43/);assert.equal(doc.querySelector('#observedHistory'),null);
+  }
+  const singleSource={...savedResult,history:[],read:{history_databases:'legacy'},rex_history:{snapshots:[]}};
+  const continued=await savedPage({query:id+'&bid_cursor=rexh1_abcdef',data:singleSource,summary:{...savedResult,history:[receipt]}});
+  assert.equal(continued.reads.length,3);assert.match(continued.html,/id="confirmedAuctionResult"/);assert.ok(!continued.html.includes('id="observedHistory"'));
+  const incompatible=await savedPage({query:id+'&bid_cursor=rexh1_abcdef',data:singleSource,summary:{...savedResult,history:[receipt],identity:{...savedIdentity,lot:'99999999'}}});
+  assert.ok(!incompatible.html.includes('id="confirmedAuctionResult"'));assert.match(incompatible.html,/Wróć do najnowszych/);
+  const other={...receipt,event_key:'feed-timed-result:v1:'+'b'.repeat(64),auction_date:'2026-10-24T15:00:00Z',final_price:11900};
+  const r=await savedPage({data:{...savedResult,history:[other,receipt]}});
+  const doc=new JSDOM(r.html).window.document;assert.equal(doc.querySelectorAll('#confirmedAuctionResult article').length,2);
+  assert.match(doc.querySelector('#observedHistory').textContent,/\$12,700Ostatnia zapisana oferta/);
+  assert.ok(!doc.querySelector('#observedHistory').textContent.includes('$11,900'));
+  for(const change of [{timed_cycle_verified:false},{kind:'observed_snapshot'},{status:'Sold on Approval'},
+     {platform:'copart'},{lot:'1'},{vin:'WVWZZZ1JZXW000001'},{final_price:null},{sale_status:'approved',source_status:'Approved'}]){
+     const r=await savedPage({data:{...savedResult,history:[{...receipt,...change}]}});assert.ok(!r.html.includes('id="confirmedAuctionResult"'));
+  }
+  const removed=await savedPage({visible:false,data:{...savedResult,history:[receipt]}});assert.equal(removed.response.status,404);
 });
 test('recorded bid context uses a source snapshot timestamp with the Polish time zone',()=>{
  const label=require('../public/rexbid-market.js').priceObservationLabel;

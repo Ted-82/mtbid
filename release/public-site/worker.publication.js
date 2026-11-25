@@ -190,8 +190,8 @@ async function readPublicCatalog(request, env, context, strictMissing = false, {
   const catalogue = env.REXBID_ACTIVE_CATALOG;
   if (history) {
     return {response: await savedReadCache.historyReads.readCatalogHistory(request, {
-      active: req => stored(req, {...env, REXBID_DB: catalogue}, "active-history-merged-v1"),
-      legacy: req => stored(req, env, "legacy-history-merged-v1"), db: queueHistoryRefresh ? catalogue : null, requireUniqueIdentity
+      active: req => stored(req, {...env, REXBID_DB: catalogue}, "active-history-merged-v2"),
+      legacy: req => stored(req, env, "legacy-history-merged-v2"), db: queueHistoryRefresh ? catalogue : null, requireUniqueIdentity
     })};
   }
   const readActive = async () => {
