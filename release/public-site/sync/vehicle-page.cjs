@@ -36,8 +36,8 @@ async function vehiclePage(request,{read,render,historyVisible}) {
     if (!response) throw Error('unavailable');
     const json=await response.json();
     if (response.status===404 && (json.error==='auction_date_pending' || json.error==='vehicle_not_in_saved_catalog')) {
-      if(json.error==='auction_date_pending' && platform && lot && vin && historyVisible){
-        const history=await savedBidPage(request,{platform,lot,vin,read,historyVisible,escapeHtml});
+      if(json.error==='auction_date_pending' && historyVisible){
+        const history=await savedBidPage(request,{platform,lot,vin,read,historyVisible,escapeHtml,problem});
         if(history) return history;
       }
       return problem(request,404,json.error==='auction_date_pending'?'Dom aukcyjny nie wyznaczył jeszcze terminu.':'Takiej aukcji obecnie nie ma w katalogu REXBID. Możesz ją również wyszukać w archiwum.');

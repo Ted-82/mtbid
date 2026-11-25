@@ -13,16 +13,17 @@ const savedResult={ok:true,identity:savedIdentity,rex_history:{snapshots:[
   observed('2026-11-25T00:42:43+00:00',12700),observed('2026-11-25T00:43:43',22000)
 ]}};
 async function savedPage({query=id,detailError='auction_date_pending',data=savedResult,visible=true,status=200,method='GET'}={}) {
-  const reads=[];
+  const reads=[], historyOptions=[];
   const response=await vehiclePage(new Request('https://rexbid.pl/car'+query,{method}),{
-    read:async route=>{
+    read:async (route,options)=>{
       reads.push(route);
+      if(route.includes('/history?')) historyOptions.push(options);
       return route.includes('/history?')?Response.json(data,{status}):Response.json({error:detailError},{status:404});
     },
     render:()=>{throw Error('Unsold vehicle history must not render an active card');},
     historyVisible:async vin=>{assert.equal(vin,car.vin);return visible;}
   });
-  return {response,html:await response.text(),reads};
+  return {response,html:await response.text(),reads,historyOptions};
 }
 test('undated exact identity keeps its verified bid times on a distinct, non-indexed history page',async()=>{
   const {response,html,reads}=await savedPage();assert.equal(response.status,200);assert.deepEqual(reads,
@@ -40,13 +41,27 @@ test('missing or withdrawn lots and mismatched VIN, platform or lot do not expos
     {data:{...savedResult,identity:{...savedIdentity,vin:'WVWZZZ1JZXW000001'}}},
     {data:{...savedResult,identity:{...savedIdentity,platform:'copart'}}},
     {data:{...savedResult,identity:{...savedIdentity,lot:'11111111'}}},
-    {query:'?vin='+car.vin},{query:id+'&bid_cursor=not-a-cursor'},
+    {query:'?vin='+car.vin,data:{...savedResult,identity:{...savedIdentity,vin:'WVWZZZ1JZXW000001'}}},{query:id+'&bid_cursor=not-a-cursor'},
     {data:{...savedResult,rex_history:{snapshots:[observed('2026-11-25T00:42:43Z',null)]}}}]) {
     const r=await savedPage(entry);assert.equal(r.response.status,404);assert.ok(!r.html.includes('12,700'));
   }
   for(const status of [429,503]){
     const r=await savedPage({status});assert.equal(r.response.status,503);assert.equal(r.response.headers.get('Retry-After'),'60');
   }
+});
+test('real budget, Live, comparison and VIN-only card URLs recover a uniquely resolved saved identity',async()=>{
+  const partial=['?lot='+car.lot_number+'&platform=iaai','?vin='+car.vin,'?vin='+car.vin+'&platform=iaai','?lot='+car.lot_number];
+  for(const query of partial) {
+    const r=await savedPage({query});assert.equal(r.response.status,200);assert.deepEqual(r.historyOptions,[{requireUniqueIdentity:true}]);
+    assert.ok(r.html.includes('LOT '+car.lot_number) && r.html.includes('VIN '+car.vin));
+    const rejected=await savedPage({query,status:409});assert.equal(rejected.response.status,409);
+    assert.ok(!rejected.html.includes('$12,700'));
+    const withdrawn=await savedPage({query,visible:false});assert.equal(withdrawn.response.status,404);
+  }
+  const lotMismatch=await savedPage({query:'?lot='+car.lot_number+'&platform=iaai',data:{...savedResult,identity:{...savedIdentity,lot:'99999999'}}});
+  assert.equal(lotMismatch.response.status,404);
+  const platformMismatch=await savedPage({query:'?lot='+car.lot_number+'&platform=iaai',data:{...savedResult,identity:{...savedIdentity,platform:'copart'}}});
+  assert.equal(platformMismatch.response.status,404);
 });
 test('saved history keeps conflicting same-time bids undecided and paged bids free of a current price label',async()=>{
   const clash={...savedResult,rex_history:{snapshots:[observed('2026-11-25T00:42:43Z',100),observed('2026-11-25T00:42:43Z',200)]},

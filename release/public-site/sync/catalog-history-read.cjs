@@ -36,7 +36,7 @@ function merge(active,legacy,state){
   meta:{...base.meta,next_cursor:nextCursor,has_more_stored_rows:!!nextCursor,history_kind:kind,history_availability:{...av,stored_event_count:records.length}},
   read:{...base.read,history_kind:kind,confirmed_event_count:records.length,observed_snapshot_count:snapshots.length,history_databases:active&&legacy?'active_and_legacy':active?'active':'legacy'}};
 }
-async function readCatalogHistory(request,{active,legacy,db}){
+async function readCatalogHistory(request,{active,legacy,db,requireUniqueIdentity=false}){
  const url=new URL(request.url);let cursor;
  try{cursor=decode(url.searchParams.get('cursor'));}catch{return new Response(JSON.stringify({ok:false,error:'invalid_history_cursor'}),{status:400,headers:{'Content-Type':'application/json'}});}
  const read=async(fn,value,done)=>{
@@ -44,6 +44,12 @@ async function readCatalogHistory(request,{active,legacy,db}){
   try{const response=await fn(new Request(u,request));if(response.status!==200)return{response};const data=await response.clone().json();return{response,body:data?.ok===true&&identity(data)?data:null};}catch{return null;}
  };
  const [a,b]=await Promise.all([read(active,cursor.a,cursor.ad),read(legacy,cursor.b,cursor.bd)]);
+ if(requireUniqueIdentity){
+  if([a,b].some(r=>r?.response?.status===409) || (a?.body && b?.body && identity(a.body)!==identity(b.body)))
+   return Response.json({ok:false,error:'ambiguous_history_identity'},{status:409});
+  if([a,b].some(r=>!r?.body && r?.response?.status!==404))
+   return Response.json({ok:false,error:'history_identity_unavailable'},{status:503});
+ }
  const state={...cursor,ad:cursor.ad||a?.response?.status===404,bd:cursor.bd||b?.response?.status===404};
  const body=merge(a?.body,b?.body,state);
  if(!body&&cursor.i)return new Response(JSON.stringify({ok:false,error:'history_identity_changed'}),{status:409,headers:{'Content-Type':'application/json'}});

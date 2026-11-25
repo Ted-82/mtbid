@@ -167,7 +167,7 @@ function configuredPublicationPhase(env) {
   return null;
 }
 
-async function readPublicCatalog(request, env, context, strictMissing = false, queueHistoryRefresh = true) {
+async function readPublicCatalog(request, env, context, strictMissing = false, {queueHistoryRefresh=true, requireUniqueIdentity=false}={}) {
   const url = new URL(request.url);
   const list = url.pathname === "/api/cars";
   const history = /^\/api\/car\/[^/]+\/history$/.test(url.pathname);
@@ -183,6 +183,7 @@ async function readPublicCatalog(request, env, context, strictMissing = false, q
   const legacy = () => stored(request, env, "isolated-" + namespace);
   if (request.method !== "GET") return {response: await legacy()};
   if (!env.REXBID_ACTIVE_CATALOG?.prepare) {
+    if(history && requireUniqueIdentity) return {response:safeResponse(request,503,"history_identity_unavailable")};
     return {response: await publicBackup.fallback(request,env) ?? await legacy()};
   }
   if (!list && !history && !detail && url.pathname !== "/api/filters") return {response: await legacy()};
@@ -190,7 +191,7 @@ async function readPublicCatalog(request, env, context, strictMissing = false, q
   if (history) {
     return {response: await savedReadCache.historyReads.readCatalogHistory(request, {
       active: req => stored(req, {...env, REXBID_DB: catalogue}, "active-history-merged-v1"),
-      legacy: req => stored(req, env, "legacy-history-merged-v1"), db: queueHistoryRefresh ? catalogue : null
+      legacy: req => stored(req, env, "legacy-history-merged-v1"), db: queueHistoryRefresh ? catalogue : null, requireUniqueIdentity
     })};
   }
   const readActive = async () => {
@@ -327,9 +328,9 @@ export default {
     }
     if (["/car","/car.html"].includes(url.pathname) && ["GET","HEAD"].includes(request.method)) {
       const render=()=>rexWorker.fetch(request.method==="HEAD" ? new Request(request,{method:"GET"}) : request,env,context);
-      const read=async route=>{
+      const read=async (route,{requireUniqueIdentity=false}={})=>{
         const detail=new Request(new URL(route,ORIGIN),{headers:{Accept:"application/json"},signal:request.signal});
-        const normal=()=>readPublicCatalog(detail,env,context,true,false);
+        const normal=()=>readPublicCatalog(detail,env,context,true,{queueHistoryRefresh:false,requireUniqueIdentity});
         const timed=env.REXBID_TIMED_IAAI_ENABLED==="enabled" ? await storedReads.readTimed?.(detail,env,normal) : null;
         return (timed || await normal()).response;
       };

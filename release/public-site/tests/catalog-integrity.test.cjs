@@ -10,6 +10,20 @@ const at='2026-11-18T18:00:00.000Z';
 const event=(date,price,status='Sold')=>({platform:id.platform,lot:id.lot,event_key:'fallback:'+date,auction_date:date,final_price:status==='Sold'?price:null,source_price:price,status,observed_at:at});
 const body=(events=[],cursor=null)=>({ok:true,identity:id,history:events,rex_history:{snapshots:[]},meta:{next_cursor:cursor,history_availability:{state:events.length?'stored':'not_fetched',complete:!!events.length,fetched_at:events.length?at:null}},read:{}});
 const start={a:null,b:null,ad:false,bd:false};
+test('incomplete vehicle identifiers require a single exact auction across both saved catalogs',async()=>{
+ const good=body(),otherLot={...good,identity:{...id,lot:'11111111'}},wrongSource={...good,identity:{...id,platform:'iaai'}};
+ const existing=data=>async()=>Response.json(data),missing=async()=>Response.json({ok:false},{status:404});
+ const status=code=>async()=>Response.json({ok:false},{status:code});
+ const probe=async(active,legacy)=>readCatalogHistory(new Request('https://rexbid.pl/api/car/'+id.vin+'/history'),
+   {active,legacy,db:null,requireUniqueIdentity:true});
+ for(const [a,b,code] of [[existing(good),existing(good),200],[existing(good),missing,200],[missing,existing(good),200],
+   [existing(good),existing(otherLot),409],[existing(good),existing(wrongSource),409],[status(409),existing(good),409],
+   [existing(good),status(409),409],[existing(good),status(503),503],[status(503),existing(good),503],
+   [existing(good),existing({ok:true}),503],[existing(good),async()=>{throw Error('offline');},503],[missing,missing,404]]){
+   const r=await probe(a,b);assert.equal(r.status,code);
+   if(code===200)assert.deepEqual((await r.json()).identity,id);
+ }
+});
 test('active events cannot be hidden by successful empty legacy history; old events are retained',()=>{
  const active=body([event('2026-11-13',16300)]),legacy=body([event('2026-10-13',15000)]);
  const m=merge(active,legacy,start);assert.equal(m.history.length,2);assert.equal(m.history[0].final_price,16300);assert.equal(m.meta.next_cursor,null);
