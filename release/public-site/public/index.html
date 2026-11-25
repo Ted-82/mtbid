@@ -1018,7 +1018,7 @@
 <script src="/rexbid-storage.js?v=73c07260d040"></script>
 <script src="/rexbid-auth.js?v=21437df8759b"></script>
 <script src="/rexbid-powertrain.js?v=3baadbf40a"></script>
-<script src="/rexbid-market.js?v=198129955ce6"></script>
+<script src="/rexbid-market.js?v=1a3d39128e15"></script>
 <script src="/rexbid-vehicle-labels.js?v=20261025-catalog-labels"></script>
 <script>
   document.addEventListener?.("error", event => {
@@ -1704,7 +1704,7 @@
     listedCars = snapshot.cars;
     listCatalogPartial = snapshot.catalogPartial === true;
     effectiveCatalogDefaultSort = snapshot.defaultSort || "";
-    updateCatalogPresentation();
+    updateCatalogSortDescription();
     listCursor = snapshot.nextCursor || null;
     activeListQuery = snapshot.query;
     listLoadedAt = snapshot.savedAt;
@@ -3490,7 +3490,7 @@
     if (!append) {
       clearCatalogReturn();
       effectiveCatalogDefaultSort = "";
-      updateCatalogPresentation();
+      updateCatalogSortDescription();
       listPageCount = 0;
       listCursor = null;
       listedCars = [];
@@ -3646,7 +3646,7 @@
       const catalogMeta = result.meta ?? result.data?.meta;
       if (!params.has("sort")) {
         effectiveCatalogDefaultSort = catalogMeta?.sort || "";
-        updateCatalogPresentation();
+        updateCatalogSortDescription();
       }
       listCatalogPartial = catalogMeta?.catalog_complete === false || String(catalogMeta?.scope_status || "").toLowerCase() === "partial";
       listedCars = append
@@ -3746,6 +3746,9 @@
     const list = catalogView.value === "list";
     catalogResults.classList.toggle("catalog-list-view",list);
     document.querySelectorAll("[data-catalog-view]").forEach(button => button.setAttribute("aria-pressed",String(button.dataset.catalogView === catalogView.value)));
+    updateCatalogSortDescription();
+  }
+  function updateCatalogSortDescription() {
     const notes = {
       auction_later:"Od najdalszej licytacji lub zakończenia aukcji czasowej.",
       recent:"Kolejność według ostatniego zapisu. Data zapisu nie oznacza nowej aukcji.",
