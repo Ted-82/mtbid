@@ -4,6 +4,7 @@ const base = 'https://rexbid.pl';
 const platformPattern = /^(copart|iaai)$/;
 const lotPattern = /^\d{1,20}$/;
 const vinPattern = /^[A-HJ-NPR-Z0-9]{17}$/;
+const {savedBidPage} = require('./vehicle-saved-bids.cjs');
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -17,7 +18,7 @@ function problem(request, status, message) {
   return new Response(request.method === 'HEAD' ? null : page,{status,headers});
 }
 
-async function vehiclePage(request,{read,render}) {
+async function vehiclePage(request,{read,render,historyVisible}) {
   const url = new URL(request.url);
   const lot = (url.searchParams.get('lot') || '').trim(), vin = (url.searchParams.get('vin') || '').trim().toUpperCase();
   const platform = (url.searchParams.get('platform') || '').trim().toLowerCase();
@@ -35,6 +36,10 @@ async function vehiclePage(request,{read,render}) {
     if (!response) throw Error('unavailable');
     const json=await response.json();
     if (response.status===404 && (json.error==='auction_date_pending' || json.error==='vehicle_not_in_saved_catalog')) {
+      if(json.error==='auction_date_pending' && platform && lot && vin && historyVisible){
+        const history=await savedBidPage(request,{platform,lot,vin,read,historyVisible,escapeHtml});
+        if(history) return history;
+      }
       return problem(request,404,json.error==='auction_date_pending'?'Dom aukcyjny nie wyznaczył jeszcze terminu.':'Takiej aukcji obecnie nie ma w katalogu REXBID. Możesz ją również wyszukać w archiwum.');
     }
     if(response.status===409) return problem(request,409,'Wyszukaj numer LOT i wybierz platformę aukcyjną.');

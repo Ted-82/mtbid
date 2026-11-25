@@ -6,6 +6,7 @@ import accountsReadinessModule from "./auth/routes.js";
 import trafficModule from "./portal/traffic.cjs";
 import liveModule from "./portal/live-auction.cjs";
 import archiveModule from "./sync/auction-archive-public.cjs";
+import archiveState from "./sync/auction-archive-state.cjs";
 import contactDelivery from "./portal/contact-delivery.cjs";
 import transactionalMail from "./portal/transactional-mail.cjs";
 import fileDeletion from "./portal/file-deletions.cjs";
@@ -167,7 +168,7 @@ function configuredPublicationPhase(env) {
   return null;
 }
 
-async function readPublicCatalog(request, env, context, strictMissing = false) {
+async function readPublicCatalog(request, env, context, strictMissing = false, queueHistoryRefresh = true) {
   const url = new URL(request.url);
   const list = url.pathname === "/api/cars";
   const history = /^\/api\/car\/[^/]+\/history$/.test(url.pathname);
@@ -190,7 +191,7 @@ async function readPublicCatalog(request, env, context, strictMissing = false) {
   if (history) {
     return {response: await savedReadCache.historyReads.readCatalogHistory(request, {
       active: req => stored(req, {...env, REXBID_DB: catalogue}, "active-history-merged-v1"),
-      legacy: req => stored(req, env, "legacy-history-merged-v1"), db: catalogue
+      legacy: req => stored(req, env, "legacy-history-merged-v1"), db: queueHistoryRefresh ? catalogue : null
     })};
   }
   const readActive = async () => {
@@ -329,11 +330,15 @@ export default {
       const render=()=>rexWorker.fetch(request.method==="HEAD" ? new Request(request,{method:"GET"}) : request,env,context);
       const read=async route=>{
         const detail=new Request(new URL(route,ORIGIN),{headers:{Accept:"application/json"},signal:request.signal});
-        const normal=()=>readPublicCatalog(detail,env,context,true);
+        const normal=()=>readPublicCatalog(detail,env,context,true,false);
         const timed=env.REXBID_TIMED_IAAI_ENABLED==="enabled" ? await storedReads.readTimed?.(detail,env,normal) : null;
         return (timed || await normal()).response;
       };
-      const response=await vehiclePages.vehiclePage(request,{read,render});
+      const historyVisible=async vin=>{
+        const {index}=await archiveState.getIndex(env.REXBID_AUCTION_ARCHIVE);
+        return !index.hidden.includes(await archiveState.hash(vin));
+      };
+      const response=await vehiclePages.vehiclePage(request,{read,render,historyVisible});
       trafficModule.recordTraffic(request,response,env,context);
       return phase==="catalog" ? catalogOnlyNavigation(response) : response;
     }

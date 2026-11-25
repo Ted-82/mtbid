@@ -1,0 +1,10 @@
+.rex-guide .guide-shell { max-width: 760px; }
+.rex-guide header { background: #102436; color: #fff; }
+.rex-guide .header-inner { max-width: 760px; margin: auto; padding: 10px 24px; }
+.rex-guide header nav a { color: #fff; }
+.rex-guide .logo img { display: block; width: 110px; height: auto; }
+#observedHistoryDetails { border: 1px solid #d5dee6; border-radius: 12px; margin: 20px 0 12px; background: #fff; }
+#observedHistoryDetails summary { cursor: pointer; padding: 15px; font-weight: 700; }
+#observedHistory table { width: 100%; border-collapse: collapse; text-align: left; }
+#observedHistory th, #observedHistory td { padding: 10px 15px; border-top: 1px solid #e1e7eb; }
+#observedHistory small { color: #38536a; }

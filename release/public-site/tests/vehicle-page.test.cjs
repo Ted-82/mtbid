@@ -6,6 +6,56 @@ const {JSDOM}=require('jsdom');
 const {vehiclePage}=require('../sync/vehicle-page.cjs');
 const car={platform:'iaai',vin:'2T3A1RFV7RW473296',lot_number:'45111614',title:'2024 Toyota RAV4',location:{display:'Portland West'},media:{thumbs:['example.jpg']}};
 const id='?vin='+car.vin+'&lot='+car.lot_number+'&platform=iaai';
+const savedIdentity={vin:car.vin,lot:car.lot_number,platform:car.platform};
+const observed=(at,bid)=>({kind:'observed_snapshot',observed_at:at,current_bid_usd:bid});
+const savedResult={ok:true,identity:savedIdentity,rex_history:{snapshots:[
+  observed('2026-11-25T00:00:37.000Z',12700),observed('2026-11-25T00:42:43.000Z',12700),
+  observed('2026-11-25T00:42:43+00:00',12700),observed('2026-11-25T00:43:43',22000)
+]}};
+async function savedPage({query=id,detailError='auction_date_pending',data=savedResult,visible=true,status=200,method='GET'}={}) {
+  const reads=[];
+  const response=await vehiclePage(new Request('https://rexbid.pl/car'+query,{method}),{
+    read:async route=>{
+      reads.push(route);
+      return route.includes('/history?')?Response.json(data,{status}):Response.json({error:detailError},{status:404});
+    },
+    render:()=>{throw Error('Unsold vehicle history must not render an active card');},
+    historyVisible:async vin=>{assert.equal(vin,car.vin);return visible;}
+  });
+  return {response,html:await response.text(),reads};
+}
+test('undated exact identity keeps its verified bid times on a distinct, non-indexed history page',async()=>{
+  const {response,html,reads}=await savedPage();assert.equal(response.status,200);assert.deepEqual(reads,
+    ['/api/car/'+car.lot_number+'?platform=iaai','/api/car/'+car.lot_number+'/history?platform=iaai&per_page=20']);
+  const doc=new JSDOM(html).window.document;
+  assert.equal(doc.querySelector('h1').textContent,'Historia ofert');assert.match(html,/Termin aukcji jest nieznany/);
+  assert.match(response.headers.get('X-Robots-Tag'),/noindex/);assert.match(response.headers.get('Cache-Control'),/no-store/);
+  assert.deepEqual([...doc.querySelectorAll('tbody tr')].map(tr=>tr.textContent),
+    ['25.11.2026, 01:42:43$12,700Ostatnia zapisana oferta','25.11.2026, 01:00:37$12,700']);
+  assert.equal(doc.querySelectorAll('form,script,button').length,0);
+  const head=await savedPage({method:'HEAD'});assert.equal(head.response.status,200);assert.equal(head.html,'');
+});
+test('missing or withdrawn lots and mismatched VIN, platform or lot do not expose saved bids',async()=>{
+  for(const entry of [{visible:false},{detailError:'vehicle_not_in_saved_catalog'},
+    {data:{...savedResult,identity:{...savedIdentity,vin:'WVWZZZ1JZXW000001'}}},
+    {data:{...savedResult,identity:{...savedIdentity,platform:'copart'}}},
+    {data:{...savedResult,identity:{...savedIdentity,lot:'11111111'}}},
+    {query:'?vin='+car.vin},{query:id+'&bid_cursor=not-a-cursor'},
+    {data:{...savedResult,rex_history:{snapshots:[observed('2026-11-25T00:42:43Z',null)]}}}]) {
+    const r=await savedPage(entry);assert.equal(r.response.status,404);assert.ok(!r.html.includes('12,700'));
+  }
+  for(const status of [429,503]){
+    const r=await savedPage({status});assert.equal(r.response.status,503);assert.equal(r.response.headers.get('Retry-After'),'60');
+  }
+});
+test('saved history keeps conflicting same-time bids undecided and paged bids free of a current price label',async()=>{
+  const clash={...savedResult,rex_history:{snapshots:[observed('2026-11-25T00:42:43Z',100),observed('2026-11-25T00:42:43Z',200)]},
+    meta:{next_cursor:'rexh1_abcdef'}};
+  const r=await savedPage({data:clash});assert.equal(r.response.status,200);
+  assert.match(r.html,/Pokaż starsze odczyty/);assert.ok(!r.html.includes('Ostatnia zapisana oferta'));
+  const older=await savedPage({query:id+'&bid_cursor=rexh1_abcdef'});assert.equal(older.response.status,200);
+  assert.ok(older.reads.at(-1).endsWith('&cursor=rexh1_abcdef'));assert.ok(!older.html.includes('Ostatnia zapisana oferta'));
+});
 test('recorded bid context uses a source snapshot timestamp with the Polish time zone',()=>{
  const label=require('../public/rexbid-market.js').priceObservationLabel;
  assert.match(label({read:{last_synced_at:'2026-11-17T15:46:07Z'}}),/17\.11\.2026.*16:46.*(?:GMT|UTC)\+1/);
