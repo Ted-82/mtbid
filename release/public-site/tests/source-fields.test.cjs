@@ -11,5 +11,12 @@ test('normalization, actual listing SQL values and public DTO retain source capa
  const dto=toPublicVehicleDTO(canonicalVehicle(row));assert.equal(dto.engine_size_l,1.5);assert.equal(dto.auction.phase,'scheduled');
  const changed={...raw,auction:{...raw.auction,phase:'awaiting_result'}};assert.notEqual(p.fingerprintNormalizedVehicle(n),p.fingerprintNormalizedVehicle(p.normalizeVehicle(changed)));
 });
-for(const [phase,label]of [['awaiting_auction','Oczekuje'],['in_progress','Aktywne okno'],['awaiting_result','wynik do potwierdzenia'],['removed','wycofana'],['finished','zakończona'],['unscheduled','nieustalony'],['unknown','do potwierdzenia']])test('source phase '+phase+' survives persisted status and is not live bidding',()=>{const dto=toPublicVehicleDTO(canonicalVehicle({platform:'iaai',auction_state:'open',source_status:phase}));assert.equal(dto.auction.phase,phase);assert.match(market.auctionSessionLabel(dto),new RegExp(label));assert.doesNotMatch(market.auctionSessionLabel(dto),/^Trwa licytacja/);});
+for(const [phase,label]of [['awaiting_auction','Oczekuje'],['in_progress','Aktywne okno'],['awaiting_result','wynik do potwierdzenia'],['removed','wycofana'],['finished','zakończona'],['unscheduled','nieustalony'],['unknown','do potwierdzenia']])test('source phase '+phase+' survives persisted status and is not live bidding',()=>{
+ const auction_at='2026-11-25T18:00:00Z';
+ const now=Date.parse(auction_at)+(phase==='awaiting_auction'?-600_000:600_000);
+ const dto=toPublicVehicleDTO(canonicalVehicle({platform:'iaai',auction_state:'open',source_status:phase,auction_at}));
+ assert.equal(dto.auction.phase,phase);
+ assert.match(market.auctionSessionLabel(dto,now),new RegExp(label));
+ assert.doesNotMatch(market.auctionSessionLabel(dto,now),/^Trwa licytacja/);
+});
 test('old formatted status remains readable and an explicit outcome wins over phase',()=>{assert.equal(toPublicVehicleDTO(canonicalVehicle({source_status:'Nov 25, 2026 19:30',auction_state:'open'})).auction.phase,null);const x={...raw,auction:{state:'finished',phase:'finished',outcome_status:'not_sold'}};const car=p.toCanonicalVehicle(x,p.normalizeVehicle(x));assert.equal(car.auction.source_status,'not_sold');});

@@ -23,7 +23,7 @@ class D1Fixture {
   }
 }
 
-function fixture(t, {upcoming = false, mixedDates = false} = {}) {
+function fixture(t, {upcoming = false, mixedDates = false, session = false} = {}) {
   const sqlite=new DatabaseSync(":memory:");
   sqlite.exec("PRAGMA foreign_keys=ON");
   for(const file of ["migrations/0000_rexbid_base.sql","migrations/0001_auction_history_events.sql","migrations-staging/0003_accounts_foundation.sql","docs/proposals/0004_d1_sync_2.sql"])
@@ -64,6 +64,11 @@ function fixture(t, {upcoming = false, mixedDates = false} = {}) {
     sqlite.prepare("UPDATE auction_listings SET auction_at=NULL WHERE listing_id='copart-old'").run();
     sqlite.prepare("UPDATE auction_listings SET auction_at=? WHERE listing_id='iaai-old'").run(OLD_EVENT);
     sqlite.prepare("UPDATE auction_listings SET auction_at=? WHERE listing_id='copart-fresh'").run(new Date(Date.now()+500*86400000).toISOString());
+  }
+  if(session){
+    sqlite.exec("UPDATE auction_listings SET auction_state='live',source_status='in_progress',is_timed=0,auction_at=NULL,timed_end_at=NULL");
+    sqlite.prepare("UPDATE auction_listings SET auction_at=? WHERE listing_id='iaai-fresh'").run(fresh);
+    sqlite.prepare("UPDATE auction_listings SET is_timed=1,timed_end_at=? WHERE listing_id='copart-fresh'").run(timedEndAt);
   }
   const d1=new D1Fixture(sqlite);
   const env={REXBID_RELEASE_D1_TARGET:TARGET,REXBID_RELEASE_D1_DATABASE_ID:DATABASE_ID,REXBID_PUBLIC_CATALOG_MODE:"stored",REXBID_DB:d1};
@@ -131,6 +136,32 @@ test("public results show only dated eligible auctions while exact saved histori
     assert.equal(history.body.identity.vin,row.vin);
     assert.equal(history.body.rex_history.snapshots.length,1);
   }
+});
+test("public Live cards and details retain an assigned start after the session begins, while an undated lot remains history-only",async t=>{
+  t.mock.method(Date,'now',()=>Date.parse('2026-11-25T18:00:00Z'));
+  const {env, rows, fresh} = fixture(t,{session:true});
+  const {body} = await read('/api/cars?lot_sub_status=Live&view=cards&per_page=1',env);
+  const next = await read('/api/cars?lot_sub_status=Live&view=cards&per_page=1&cursor='+encodeURIComponent(body.meta.next_cursor),env);
+  const offers=[...body.data,...next.body.data];
+  assert.deepEqual(offers.map(car=>car.vin).sort(),[rows[2].vin,rows[3].vin].sort());
+  assert.equal(next.body.meta.next_cursor,null);
+  const regular=offers.find(car=>car.platform==='iaai');
+  assert.equal(regular.auction.auction_at,fresh);
+  assert.equal(regular.auction.state,'live');
+  assert.equal(regular.auction.phase,'in_progress');
+  const detail=await read('/api/car/'+regular.lot_number+'?platform=iaai',env);
+  assert.equal(detail.response.status,200);
+  assert.deepEqual(detail.body.data.auction,regular.auction);
+  const timed=offers.find(car=>car.platform==='copart');
+  for(const sort of ['auction_next','auction_later','year_desc']){
+    const sorted=await read('/api/cars?lot_sub_status=Live&view=cards&sort='+sort,env);
+    assert.deepEqual(sorted.body.data.map(car=>car.vin).sort(),[regular.vin,timed.vin].sort());
+  }
+  assert.equal(timed.auction.auction_at,null);
+  assert.equal(timed.auction.is_timed,true);
+  assert.ok(Date.parse(timed.auction.timed_end_at)>Date.now());
+  assert.equal((await read('/api/car/'+rows[1].vin+'?platform=iaai',env)).body.error,'auction_date_pending');
+  assert.equal((await read('/api/car/'+rows[1].vin+'/history?platform=iaai',env)).body.identity.vin,rows[1].vin);
 });
 test("indexed make candidates preserve model, platform and cursor restrictions",async t=>{
  const f=fixture(t);

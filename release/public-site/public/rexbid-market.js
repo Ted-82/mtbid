@@ -40,6 +40,17 @@
     if(uncertain.includes(state)||uncertain.includes(source))return 'unknown';
     return available.includes(state)||available.includes(source)?'active':'unknown';
   }
+  const easternHour = new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',hourCycle:'h23'});
+  const hourMs = 3_600_000;
+  function sessionWindow(now) {
+    const parts = Object.fromEntries(easternHour.formatToParts(now).map(part=>[part.type,part.value]));
+    const day = Date.UTC(+parts.year,+parts.month-1,+parts.day) - (Number(parts.hour)<6 ? 24*hourMs : 0);
+    // At 12 UTC the American clock has completed any DST transition that day.
+    const noon = day+12*hourMs;
+    const localHour = Number(easternHour.formatToParts(noon).find(part=>part.type==='hour').value);
+    const rollover = noon-(localHour-6)*hourMs;
+    return {earliest:Math.max(now-3*hourMs+1,rollover),latest:now+hourMs/2};
+  }
   function auctionSessionLabel(car, now = Date.now()){
     const auction = car?.auction || {};
     const phase = lower(auction.phase);
@@ -60,8 +71,11 @@
     // The broad source window starts before the scheduled session and expires without confirming an outcome.
     const start = !["date_only", "unassigned", "unknown", "conflict"].includes(schedule) &&
       typeof scheduled === "string" && /T\d{2}:\d{2}.*(?:Z|[+-]\d{2}:?\d{2})$/i.test(scheduled) ? Date.parse(scheduled) : NaN;
-    if (Number.isFinite(start) && now >= start + 86_400_000) return "Termin minął · wynik do potwierdzenia";
-    if (Number.isFinite(start) ? now < start : phase === "awaiting_auction") return "Oczekuje na rozpoczęcie sesji";
+    if (!Number.isFinite(start)) return "Status sesji do potwierdzenia";
+    const window = sessionWindow(now);
+    if (start < window.earliest) return "Termin minął · wynik do potwierdzenia";
+    if (start > window.latest) return "Zaplanowana sesja aukcji";
+    if (now < start) return "Oczekuje na rozpoczęcie sesji";
     return "Aktywne okno sesji · licytacja auta do potwierdzenia";
   }
   function hasConfirmedAvailability(car){return availabilityStatus(car)==='active';}
@@ -166,7 +180,7 @@
    });
    return reconciled.map(e=>!e.seller && sellerByCycle.get(e.event_key) ? {...e,seller:sellerByCycle.get(e.event_key)} : e);
   }
-  const api={reconcileTimedSales,categories,resolve,fromParams,returnPath,eligible,sql,hasConfirmedAvailability,confirmedSale,priceObservationLabel,availabilityStatus,auctionSessionLabel,damageLabel,normalizeSearch};
+  const api={reconcileTimedSales,categories,resolve,fromParams,returnPath,eligible,sql,hasConfirmedAvailability,confirmedSale,priceObservationLabel,availabilityStatus,sessionWindow,auctionSessionLabel,damageLabel,normalizeSearch};
   if(typeof module==='object'&&module.exports)module.exports=api;
   if(root)root.RexBidMarket=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

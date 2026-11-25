@@ -90,7 +90,7 @@ function decodeCursor(cursor, maxLength = 512) {
 function canonicalVehicle(row) {
   const provider = clean(row.provider) || "unknown";
   const schedule = contract.classifyAuctionSchedule({platform: row.platform, state: row.auction_state,
-    source_status: row.source_status, auction_at: row.auction_at, timed: Number(row.is_timed) === 1});
+    source_status: row.source_status, auction_at: row.auction_at, timed: Number(row.is_timed) === 1}, {readStoredSessionStart:true});
   return contract.createRexVehicle({
     provider,
     provider_vehicle_id: clean(row.provider_vehicle_id),
@@ -233,9 +233,10 @@ class D1ReadRepository {
     sort = catalogOrder.parseSort(sort);
     const anchor = afterId && catalogOrder.ORDERS[sort] ? catalogOrder.parseAnchor(afterId,sort) : null;
     const chronological = catalogOrder.isAuctionOrder(sort);
+    const publicSession = assignedOnly && String(auctionState ?? '').trim().toLowerCase() === 'live';
     const asOf = chronological || datedOnly ? anchor?.asOf ?? Date.parse(nowIso) : null;
     if (asOf !== null && (!Number.isSafeInteger(asOf) || asOf<0 || asOf>Date.parse(nowIso))) throw catalogOrder.invalid('INVALID_CATALOG_CURSOR');
-    const order = chronological ? {...catalogOrder.ORDERS[sort],expression:catalogOrder.auctionKey} : catalogOrder.ORDERS[sort];
+    const order = chronological ? {...catalogOrder.ORDERS[sort],expression:publicSession ? catalogOrder.assignedDateKey : catalogOrder.auctionKey} : catalogOrder.ORDERS[sort];
     const where = [];
     const values = [];
     let candidatePredicate = null;
@@ -251,11 +252,17 @@ class D1ReadRepository {
       values.push(nowIso, nowIso, nowIso, nowIso);
     }
     if(view?.active){where.push("l.auction_state IN ('open','live') AND EXISTS(SELECT 1 FROM feed_catalog_membership cm WHERE cm.baseline_id=? AND cm.listing_id=l.listing_id AND cm.active=1)");values.push(view.baselineId);}
-    if (chronological || datedOnly) {
+    if (!publicSession && (chronological || datedOnly)) {
       const filter=catalogOrder.futureAuction(asOf, {after: chronological ? anchor?.value : null, direction: order?.direction});
       where.push(filter.sql); values.push(...filter.values);
     }
     if (assignedOnly) where.push(`(${catalogOrder.assignedDateKey}) IS NOT NULL`);
+    if (publicSession) {
+      const current = asOf ?? Date.parse(nowIso);
+      const window = market.sessionWindow(current);
+      where.push("(l.is_timed=1 AND unixepoch(l.timed_end_at)>? OR l.is_timed IS NOT 1 AND length(trim(l.auction_at))>10 AND unixepoch(l.auction_at) BETWEEN ? AND ?)");
+      values.push(Math.floor(current/1000),Math.ceil(window.earliest/1000),Math.floor(window.latest/1000));
+    }
     if (saleDocumentName !== null && saleDocumentName !== '') {
       if (typeof saleDocumentName !== 'string' || saleDocumentName.length > 256 || !saleDocumentName.trim()) throw new TypeError('Nieprawidłowa nazwa dokumentu.');
       where.push("lower(trim(COALESCE(l.document_name,'')))=lower(?)");
@@ -386,7 +393,7 @@ class D1ReadRepository {
     const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
     const orderSql = chronological ? `(${order.expression}) ${order.direction},l.listing_id ${order.direction}`
       : order ? `(${order.expression} IS NULL) ASC,${order.expression} ${order.direction},l.listing_id ASC` : 'l.last_seen_at DESC,l.listing_id ASC';
-    const useAuctionIndex = chronological && view?.active && !candidatePredicate && category!=='timed';
+    const useAuctionIndex = chronological && !publicSession && view?.active && !candidatePredicate && category!=='timed';
     // These four first pages sort by the latest observation. The date index
     // instead scans and sorts the entire eligible window before LIMIT applies.
     const showcaseIndex = homeShowcase && view?.active && sort==='recent' && !afterId &&

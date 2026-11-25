@@ -57,7 +57,7 @@ function createRexAuction(input = {}) {
   };
 }
 
-function classifyAuctionSchedule(input = {}) {
+function classifyAuctionSchedule(input = {}, {readStoredSessionStart = false} = {}) {
   const platform = nullableString(input.platform)?.toLowerCase() || "";
   const state = nullableString(input.state)?.toLowerCase().trim() || "";
   const sourceStatus = nullableString(input.source_status)?.toLowerCase().trim() || "";
@@ -103,7 +103,11 @@ function classifyAuctionSchedule(input = {}) {
     return {status: "ended", precision: "unknown", auction_at: null, timezone: null};
   }
   if (/^(?:live|running|in progress|started)$/.test(state) || /^(?:live|running|in progress|started)$/.test(sourceStatus) || explicit === "live") {
-    return {status: "live", precision: "unknown", auction_at: null, timezone: null};
+    // On a catalogue read the source phase and the assigned session date are
+    // independent. Reuse the ordinary date validation without changing ingestion.
+    const storedStart = readStoredSessionStart && input.timed !== true && (dateOnly || (validDate && zoneSuffix))
+      && !["unknown","unscheduled","awaiting_result","removed","future sale","auction not assigned"].includes(sourceStatus);
+    if (!storedStart) return {status: "live", precision: "unknown", auction_at: null, timezone: null};
   }
   if (input.timed === true || /^(?:timed|timed auction)$/.test(state) || /^(?:timed|timed auction)$/.test(sourceStatus) || explicit === "timed") {
     return {status: "timed", precision: "unknown", auction_at: null, timezone: null};

@@ -136,7 +136,7 @@ test("stored D1 observations and previews identify the saved bid while provider 
   for (const read of [undefined,{source:"d1",freshness:"fresh"}]) {
     const record=car({read});
     assert.equal(view.api.price(record).label,read ? "Ostatnia zapisana oferta" : "Aktualna oferta");
-    assert.equal(view.api.status(record),"Oczekuje na rozpoczęcie sesji");
+    assert.equal(view.api.status(record),"Zaplanowana sesja aukcji");
     view.api.render([record]);
     if (read) assert.match(view.cars.innerHTML,/Zapis danych/);
     else assert.doesNotMatch(view.cars.innerHTML,/Zapis danych/);
@@ -283,6 +283,12 @@ test("a regular session window never proves that bidding on the vehicle is under
   const offer = {auction:{state:"live",schedule_status:"live",auction_at:new Date(start).toISOString()}};
   assert.equal(auctionSessionLabel(offer,start-600_000),"Oczekuje na rozpoczęcie sesji");
   assert.equal(auctionSessionLabel(offer,start+600_000),"Aktywne okno sesji · licytacja auta do potwierdzenia");
+  assert.equal(auctionSessionLabel(offer,start-1_800_001),"Zaplanowana sesja aukcji");
+  assert.equal(auctionSessionLabel(offer,start+10_800_000),"Termin minął · wynik do potwierdzenia");
+  assert.equal(auctionSessionLabel({auction:{...offer.auction,auction_at:'2026-03-08T09:50:00Z'}},Date.parse('2026-03-08T10:01:00Z')),"Termin minął · wynik do potwierdzenia");
+  assert.equal(auctionSessionLabel({auction:{...offer.auction,auction_at:'2026-11-01T10:50:00Z'}},Date.parse('2026-11-01T11:01:00Z')),"Termin minął · wynik do potwierdzenia");
   assert.equal(auctionSessionLabel(offer,start+86_400_000),"Termin minął · wynik do potwierdzenia");
+  assert.equal(auctionSessionLabel({auction:{state:"live",phase:"in_progress",auction_at:null}},start),"Status sesji do potwierdzenia");
+  assert.equal(auctionSessionLabel({auction:{state:"live",phase:"in_progress",schedule_status:"date_only",auction_at:"2026-11-16"}},start),"Status sesji do potwierdzenia");
   assert.equal(auctionSessionLabel({auction:{...offer.auction,is_timed:true}},start),"");
 });

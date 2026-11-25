@@ -65,7 +65,7 @@ test('session filter uses a sparse index and keeps normalized and raw Live offer
   }};
  }};
  const repo=new D1ReadRepository(traced);
- const options={auctionState:' LiVe ',assignedOnly:true,limit:1,sort:'recent'};
+ const options={auctionState:' LiVe ',assignedOnly:true,limit:1,sort:'recent',nowIso:'2026-11-17T10:12:00Z'};
  const before=await repo.listCatalog(options);
  sql.exec("CREATE INDEX idx_listings_public_live_recent ON auction_listings(last_seen_at DESC,listing_id ASC) WHERE (lower(auction_state)='live' OR lower(COALESCE(source_status,''))='live')");
  const after=await repo.listCatalog(options);
