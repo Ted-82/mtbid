@@ -1,6 +1,6 @@
 'use strict';
 
-const {INDEX_KEY,MAX_ENTRIES,MAX_INDEX_BYTES,MAX_PHOTO_BYTES,GALLERY_OBJECT,baseKey,minimumYear}=require('./auction-archive-state.cjs');
+const {INDEX_KEY,MAX_ENTRIES,MAX_INDEX_BYTES,MAX_PHOTO_BYTES,GALLERY_OBJECT,baseKey,minimumYear,getIndex,hash}=require('./auction-archive-state.cjs');
 const {queryEntries,validateSegments}=require('./auction-archive-segments.cjs');
 const PAGE_SIZE = 12;
 const PHOTO_ROUTE = /^\/archiwum-zdjecie\/(copart|iaai)\/(\d{5,14})\/(\d{1,15})\/(\d{2}\.jpg)$/;
@@ -146,5 +146,11 @@ async function handleArchive(request, env, now = new Date(), context) {
   }
 }
 
-module.exports = {handleArchive};
+async function visibleHistoryVin(bucket, vin) {
+  if (!VIN.test(vin)) return false;
+  const {index}=await getIndex(bucket);
+  return !index.hidden.includes(await hash(vin));
+}
+
+module.exports = {handleArchive,visibleHistoryVin};
 

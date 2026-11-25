@@ -56,6 +56,13 @@ test('saved history keeps conflicting same-time bids undecided and paged bids fr
   const older=await savedPage({query:id+'&bid_cursor=rexh1_abcdef'});assert.equal(older.response.status,200);
   assert.ok(older.reads.at(-1).endsWith('&cursor=rexh1_abcdef'));assert.ok(!older.html.includes('Ostatnia zapisana oferta'));
 });
+test('a later unknown or zero snapshot retains the last positive recorded amount without inventing a bid',async()=>{
+  const data={...savedResult,rex_history:{snapshots:[observed('2026-11-25T01:15:00Z',null),
+    observed('2026-11-25T01:10:00Z',0),observed('2026-11-25T01:00:00Z',860)]}};
+  const result=await savedPage({data});assert.equal(result.response.status,200);
+  assert.deepEqual([...new JSDOM(result.html).window.document.querySelectorAll('tbody td:nth-child(2)')].map(e=>e.textContent),
+    ['Brak danych','Odczyt 0 USD','$860Ostatnia zapisana oferta']);
+});
 test('recorded bid context uses a source snapshot timestamp with the Polish time zone',()=>{
  const label=require('../public/rexbid-market.js').priceObservationLabel;
  assert.match(label({read:{last_synced_at:'2026-11-17T15:46:07Z'}}),/17\.11\.2026.*16:46.*(?:GMT|UTC)\+1/);

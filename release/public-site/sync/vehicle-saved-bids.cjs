@@ -23,14 +23,14 @@ async function savedBidPage(request, {platform, lot, vin, read, historyVisible, 
         !/(?:Z|[+-]\d\d:\d\d)$/i.test(snapshot.observed_at) || !Number.isFinite(Date.parse(snapshot.observed_at))) continue;
     const time = Date.parse(snapshot.observed_at), bid = snapshot.current_bid_usd;
     if (!byTime.has(time)) byTime.set(time, new Set());
-    byTime.get(time).add(typeof bid === 'number' && Number.isFinite(bid) && bid > 0 ? bid : null);
+    byTime.get(time).add(typeof bid === 'number' && Number.isFinite(bid) && bid >= 0 ? bid : null);
   }
   const observations = [...byTime.entries()].sort((a,b)=>b[0]-a[0]);
-  const hasBids = observations.some(([,prices])=>[...prices].some(price=>price!==null));
-  if ((!hasBids && !cursor) || !await historyVisible(vin)) return null;
+  const firstBid = observations.findIndex(([,prices])=>[...prices].some(price=>price>0));
+  if ((firstBid===-1 && !cursor) || !await historyVisible(vin)) return null;
   const rows = observations.flatMap(([time,prices],index)=>[...prices].map(price=>{
-    const latest = !cursor && index===0 && prices.size===1 && price!==null;
-    const amount = price===null ? 'Brak danych' : amounts.format(price);
+    const latest = !cursor && index===firstBid && price>0 && [...prices].every(value=>value===null || value===price);
+    const amount = price===null ? 'Brak danych' : price===0 ? 'Odczyt 0 USD' : amounts.format(price);
     return '<tr><td><time datetime="'+new Date(time).toISOString()+'">'+dates.format(time)+'</time></td><td>'+
       (latest ? '<strong>'+amount+'</strong><br><small>Ostatnia zapisana oferta</small>' : amount)+'</td></tr>';
   })).join('');

@@ -4079,12 +4079,17 @@ function renderObservedHistory() {
   box.hidden = !list.length;
   if (!list.length) { box.innerHTML = ""; return; }
   const recordedPrice = value => ((typeof value === "number" || typeof value === "string" && value.trim() !== "") && Number.isFinite(Number(value)) && Number(value) > 0) ? money(Number(value)) : "Brak danych";
+  const bidAmount = value => (typeof value === "number" || typeof value === "string" && value.trim() !== "") &&
+    Number.isFinite(Number(value)) && Number(value) >= 0 ? Number(value) : null;
+  const firstBid = list.findIndex(item => bidAmount(item.current_bid_usd) > 0);
+  const candidate = list[firstBid];
+  const uniqueBid = candidate && !list.some(item => Date.parse(item.observed_at) === Date.parse(candidate.observed_at) &&
+    bidAmount(item.current_bid_usd) !== null && bidAmount(item.current_bid_usd) !== bidAmount(candidate.current_bid_usd));
   const observationTime = new Intl.DateTimeFormat("pl-PL", {timeZone:"Europe/Warsaw",
     year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", second:"2-digit", hourCycle:"h23"});
   const rows = list.map((item, index) => {
-    const price = recordedPrice(item.current_bid_usd);
-    const latest = index === 0 && price !== "Brak danych" && !list.some(other =>
-      Date.parse(other.observed_at) === Date.parse(item.observed_at) && recordedPrice(other.current_bid_usd) !== price);
+    const price = bidAmount(item.current_bid_usd) === 0 ? "Odczyt 0 USD" : recordedPrice(item.current_bid_usd);
+    const latest = index === firstBid && uniqueBid;
     const bid = latest
       ? '<strong>' + esc(price) + '</strong><small>Ostatnia zapisana oferta</small>'
       : esc(price);

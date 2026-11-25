@@ -1530,4 +1530,12 @@ test("D1 snapshots display observed dates and prices separately from confirmed a
   assert.match(table, /25\.11\.2026, 01:00:37/);
   assert.equal(table.split('Ostatnia zapisana oferta').length-1,1);
   assert.doesNotMatch(table,/Sprzedano|Cena sprzedaży/);
+  const unknown={...postDeadline, observed_at:'2026-11-25T00:15:00Z',current_bid_usd:null};
+  const zero={...postDeadline,observed_at:'2026-11-25T00:10:00Z',current_bid_usd:0};
+  context.observedHistoryRecords=context.normalize([unknown,zero,postDeadline,snapshot]);
+  context.render();
+  assert.match(boxes.observedHistory.innerHTML,/<strong>\$12700<\/strong><small>Ostatnia zapisana oferta/);
+  assert.match(boxes.observedHistory.innerHTML,/Odczyt 0 USD/);
+  context.observedHistoryRecords=context.normalize([unknown,postDeadline,{...postDeadline,current_bid_usd:12000},snapshot]);
+  context.render();assert.doesNotMatch(boxes.observedHistory.innerHTML,/Ostatnia zapisana oferta/);
 });

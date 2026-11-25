@@ -6,7 +6,6 @@ import accountsReadinessModule from "./auth/routes.js";
 import trafficModule from "./portal/traffic.cjs";
 import liveModule from "./portal/live-auction.cjs";
 import archiveModule from "./sync/auction-archive-public.cjs";
-import archiveState from "./sync/auction-archive-state.cjs";
 import contactDelivery from "./portal/contact-delivery.cjs";
 import transactionalMail from "./portal/transactional-mail.cjs";
 import fileDeletion from "./portal/file-deletions.cjs";
@@ -334,10 +333,7 @@ export default {
         const timed=env.REXBID_TIMED_IAAI_ENABLED==="enabled" ? await storedReads.readTimed?.(detail,env,normal) : null;
         return (timed || await normal()).response;
       };
-      const historyVisible=async vin=>{
-        const {index}=await archiveState.getIndex(env.REXBID_AUCTION_ARCHIVE);
-        return !index.hidden.includes(await archiveState.hash(vin));
-      };
+      const historyVisible=vin=>archiveModule.visibleHistoryVin(env.REXBID_AUCTION_ARCHIVE,vin);
       const response=await vehiclePages.vehiclePage(request,{read,render,historyVisible});
       trafficModule.recordTraffic(request,response,env,context);
       return phase==="catalog" ? catalogOnlyNavigation(response) : response;

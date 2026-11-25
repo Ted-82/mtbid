@@ -1,7 +1,8 @@
 'use strict';
 const assert = require('node:assert/strict');
 const {test} = require('node:test');
-const {handleArchive} = require('../sync/auction-archive-public.cjs');
+const {handleArchive,visibleHistoryVin} = require('../sync/auction-archive-public.cjs');
+const {hash} = require('../sync/auction-archive-state.cjs');
 
 const archived = {platform:'copart',lot:'59807226',vin:'3KPF24AD6RE719531',year:2018,title:'KIA Forte',
   sequence:103110000,recordedAt:'2026-11-17T10:30:00Z',saleCents:350000,visible:true,photos:['01.jpg']};
@@ -22,6 +23,16 @@ function fixture(entries = [archived,other]) {
   return {env, requests};
 }
 const request = (path,method='GET') => new Request('https://rexbid.pl'+path,{method});
+
+test('undated bid history respects the current owner removal even after an earlier lookup allowed it',async()=>{
+  const index={version:1,entries:[],hidden:[]};
+  const bucket={get:async()=>({size:48,etag:'current',json:async()=>index})};
+  assert.equal(await visibleHistoryVin(bucket,archived.vin),true);
+  index.hidden=[await hash(archived.vin)];
+  assert.equal(await visibleHistoryVin(bucket,archived.vin),false);
+  assert.equal(await visibleHistoryVin(bucket,'bad'),false);
+  await assert.rejects(visibleHistoryVin({get:async()=>null},archived.vin));
+});
 
 test('VIN and LOT find two separate auctions and publish only archive URLs',async()=>{
   const {env} = fixture();
