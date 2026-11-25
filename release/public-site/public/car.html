@@ -1573,6 +1573,9 @@ main{padding-top:22px}
 .title-source-fact{margin-top:3px;color:#56636f;font-size:11px;line-height:1.4}
 @media(max-width:520px){.top-grid,.content-grid{grid-template-columns:minmax(0,1fr)}.summary{position:static;top:auto}.main-photo{height:72vw;min-height:220px;max-height:390px}.calc-v4-panel{padding:14px}.calc-v4-head{flex-direction:column;gap:4px}.calc-v4-source{white-space:normal}.calc-v4-price-grid,.calc-v4-detail-grid,.calc-v4-lines{grid-template-columns:minmax(0,1fr)}.calc-v4-result{grid-column:auto}.calc-v4-result strong{font-size:21px}.auction-prices{grid-template-columns:repeat(2,minmax(0,1fr))}.auction-price-option{padding:9px}.auction-price-option .auction-price{font-size:clamp(17px,6vw,23px)}.spec-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.spec:nth-child(3n){border-right:1px solid var(--border)}.spec:nth-child(2n){border-right:0}.spec:nth-last-child(-n+3){border-bottom:1px solid var(--border)}.spec:nth-last-child(-n+2){border-bottom:0}}
 
+#observedHistory .history-table{min-width:0;width:100%}
+#observedHistory th,#observedHistory td{white-space:normal}
+#observedHistory td small{display:block;color:#526477;margin-top:3px}
 </style>
 
 <link rel="stylesheet" href="/rexbid-brand.css?v=20261117-integrated" />
@@ -4060,7 +4063,8 @@ function observedRecordsForRender(records = observedHistoryRecords) {
   const entries = new Map();
   for (const item of records) {
     if (item?.kind !== "observed_snapshot" || typeof item.observed_at !== "string" || !Number.isFinite(Date.parse(item.observed_at))) continue;
-    const key = item.snapshot_id || JSON.stringify([item.observed_at, item.current_bid_usd, item.buy_now_usd]);
+    // Active and historical databases assign snapshot IDs independently.
+    const key = JSON.stringify([item.observed_at, item.auction_state, item.auction_at, item.timed_end_at, item.current_bid_usd, item.buy_now_usd]);
     entries.set(key, item);
   }
   return [...entries.values()].sort((a,b) => Date.parse(b.observed_at) - Date.parse(a.observed_at));
@@ -4075,7 +4079,19 @@ function renderObservedHistory() {
   box.hidden = !list.length;
   if (!list.length) { box.innerHTML = ""; return; }
   const recordedPrice = value => ((typeof value === "number" || typeof value === "string" && value.trim() !== "") && Number.isFinite(Number(value)) && Number(value) > 0) ? money(Number(value)) : "Brak danych";
-  box.innerHTML = '<div class="history-scroll"><table class="history-table"><thead><tr><th>Data odczytu</th><th>Zapisana oferta</th><th>Zapisane Kup teraz</th></tr></thead><tbody>' + list.map(item => '<tr><td>' + esc(formatDate(item.observed_at)) + '</td><td>' + esc(recordedPrice(item.current_bid_usd, true)) + '</td><td>' + esc(recordedPrice(item.buy_now_usd)) + '</td></tr>').join("") + '</tbody></table></div>';
+  const observationTime = new Intl.DateTimeFormat("pl-PL", {timeZone:"Europe/Warsaw",
+    year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", second:"2-digit", hourCycle:"h23"});
+  const rows = list.map((item, index) => {
+    const price = recordedPrice(item.current_bid_usd);
+    const latest = index === 0 && price !== "Brak danych" && !list.some(other =>
+      Date.parse(other.observed_at) === Date.parse(item.observed_at) && recordedPrice(other.current_bid_usd) !== price);
+    const bid = latest
+      ? '<strong>' + esc(price) + '</strong><small>Ostatnia zapisana oferta</small>'
+      : esc(price);
+    return '<tr><td><time datetime="' + esc(item.observed_at) + '">' + esc(observationTime.format(new Date(item.observed_at))) +
+      '</time></td><td>' + bid + '</td><td>' + esc(recordedPrice(item.buy_now_usd)) + '</td></tr>';
+  });
+  box.innerHTML = '<div class="history-scroll"><table class="history-table"><thead><tr><th scope="col">Data odczytu (Polska)</th><th scope="col">Zapisana oferta</th><th scope="col">Zapisane Kup teraz</th></tr></thead><tbody>' + rows.join("") + '</tbody></table></div>';
 }
 
   function historyAvailabilityMessage() {

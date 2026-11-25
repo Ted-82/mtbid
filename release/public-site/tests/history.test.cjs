@@ -1514,8 +1514,20 @@ test("D1 snapshots display observed dates and prices separately from confirmed a
   assert.match(carSource,/<summary>Zapisane obserwacje<\/summary>/);
   assert.match(boxes.observedHistory.innerHTML,/Data odczytu/);
   assert.match(boxes.observedHistory.innerHTML,/2026-10-08T09:52:23Z/);
+  assert.match(boxes.observedHistory.innerHTML,/08\.10\.2026, 11:52:23/);
+  assert.match(boxes.observedHistory.innerHTML,/Ostatnia zapisana oferta/);
   assert.match(boxes.observedHistory.innerHTML,/\$5000/);
   assert.match(boxes.observedHistory.innerHTML,/Brak danych/);
   assert.doesNotMatch(boxes.observedHistory.innerHTML,/Sprzedano|Cena końcowa|\$0/);
   assert.match(boxes.auctionHistory.innerHTML,/nie została jeszcze pobrana/);
+
+  const postDeadline = {...snapshot, observed_at:'2026-11-25T00:00:37.000Z', current_bid_usd:12700, auction_state:null};
+  context.observedHistoryRecords = context.normalize([snapshot, postDeadline, {...postDeadline, snapshot_id:'another-database'}]);
+  assert.equal(context.observedHistoryRecords.length,2,'identical local IDs from two catalogs may describe different observations');
+  context.render();
+  const table = boxes.observedHistory.innerHTML;
+  assert.ok(table.indexOf('$12700') < table.indexOf('$5000'));
+  assert.match(table, /25\.11\.2026, 01:00:37/);
+  assert.equal(table.split('Ostatnia zapisana oferta').length-1,1);
+  assert.doesNotMatch(table,/Sprzedano|Cena sprzedaży/);
 });
