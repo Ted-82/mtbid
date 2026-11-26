@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="/rexbid-traffic.css?v=2">
   <link rel="stylesheet" href="/rexbid-owner-tools.css?v=20261118-accounts">
   <script src="/rexbid-owner-mfa.js?v=eec0cf23a9a9" defer></script>
-  <script src="/rexbid-client-portal.js?v=20261118-owner-contact" defer></script>
+  <script src="/rexbid-client-portal.js?v=20261126-sync-health" defer></script>
   <script src="/rexbid-archive-owner.js?v=20261118-compact" defer></script>
 </head>
 <body data-portal-view="owner">
@@ -41,6 +41,10 @@
     </section>
     <section id="portalWorkspace" hidden aria-label="Realizacja importu">
       <div class="portal-owner-tools-grid" aria-label="Narzędzia administratora">
+      <details class="portal-gate portal-owner-tool" id="ownerSyncHealth" name="owner-tools" hidden>
+        <summary><strong>Aktualność katalogu</strong><span>Paczki, Copart, IAAI i wykorzystanie API</span></summary>
+        <div class="portal-owner-tool-content"><button id="ownerSyncRefresh" type="button" class="portal-button portal-button-secondary">Sprawdź synchronizację</button><div id="ownerSyncResult" aria-live="polite"></div></div>
+      </details>
       <details class="portal-gate portal-owner-tool" id="ownerRegistrations" name="owner-tools" hidden>
         <summary><strong>Rejestracje i konta klientów</strong><span>Zgłoszenia i potwierdzone konta</span></summary>
         <div class="portal-owner-tool-content"><p>Potwierdzenie e-maila uruchamia konto i ulubione. Realizację importu przypisujesz osobno. Rejestracja nie daje prawa do licytacji ani dostępu do cudzych danych.</p><button id="ownerRegistrationsRefresh" type="button" class="portal-button portal-button-secondary">Odśwież rejestracje</button><div id="ownerRegistrationsResult" aria-live="polite"></div></div>

@@ -58,6 +58,8 @@
     sessionBanner.id = "portalSessionRole"; sessionBanner.hidden = true; sessionBanner.setAttribute("aria-label", "Bieżąca sesja konta");
     find("portalNotice").before(sessionBanner);
     function renderSessionRole() {
+      const syncTool=find('ownerSyncHealth');
+      if(syncTool){syncTool.hidden=state.role!=='owner';if(state.role!=='owner'){syncTool.open=false;find('ownerSyncResult').replaceChildren();}}
       sessionBanner.replaceChildren(); sessionBanner.hidden = !["owner", "client"].includes(state.role);
       if (sessionBanner.hidden) { delete sessionBanner.dataset.role; return; }
       sessionBanner.dataset.role = state.role;
@@ -66,6 +68,24 @@
         ? "Korzystasz z uprawnień właściciela. Aby sprawdzić widok klienta, wyloguj się i zaloguj na konto klienta."
         : "Widzisz realizacje przypisane do Twojego konta klienta."));
     }
+    async function loadSyncHealth(){
+      if(state.role!=='owner')return;
+      const host=find('ownerSyncResult');
+      if(!host)return;host.textContent='Sprawdzam synchronizację…';
+      try{
+        const data=await api('/api/portal/sync-health');
+        if(state.role!=='owner')return;
+        const s=data.sync;
+        host.replaceChildren(node('strong','',s.status),node('p','','Oczekujące weryfikacje: '+s.pending));
+        for(const q of s.queues)host.append(node('p','',q.platform.toUpperCase()+': '+q.pending+' · Najstarsze zadanie: '+dateText(q.oldest,true)));
+        if(s.last_generation)host.append(node('p','','Paczka '+s.last_generation.generation_id+' · Ostatni zapis: '+dateText(s.last_generation.updated_at,true)+' · Wiek dostawy: '+s.delay_minutes+' min'));
+        if(s.quota)host.append(node('p','','Pozostała pula API przy odczycie: '+s.quota.quota_left+' / '+s.quota.quota_limit+' · Odczyt: '+dateText(s.quota.quota_checked_at,true)));
+        for(const b of s.budgets)host.append(node('p','',b.budget_key.startsWith('day:')?'Dziś: '+b.consumed+' / '+b.limit_count:'Miesiąc: '+b.consumed+' / '+b.limit_count));
+        host.append(node('small','',s.completeness));
+      }catch(error){if(!authError(error)&&state.role==='owner')host.textContent=errorMessage(error);}
+    }
+    find('ownerSyncHealth')?.addEventListener('toggle',()=>{if(find('ownerSyncHealth').open)loadSyncHealth();});
+    find('ownerSyncRefresh')?.addEventListener('click',loadSyncHealth);
     const notice = (text, tone = "info") => { const box = find("portalNotice"); box.textContent = text; box.dataset.tone = tone; box.hidden = !text; };
     const feedback = (host, text, tone = "info") => { host.textContent = text; host.dataset.tone = tone; if (tone === "error") host.setAttribute("role", "alert"); else host.setAttribute("role", "status"); };
     function gate(title, message, login = false) {

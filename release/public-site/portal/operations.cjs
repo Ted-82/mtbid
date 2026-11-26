@@ -127,6 +127,12 @@ function createImportPortalHandler({resolveAccount,cryptoImpl=globalThis.crypto,
         return Number(row?.count || 0);
       }
       const reply = (data,status=200) => response({ok:true,role,...data},status,cookies);
+      if(url.pathname===`${PREFIX}/sync-health`){
+        if(!owner)return fail('forbidden',403,cookies);
+        if(request.method!=='GET')return fail('method_not_allowed',405,cookies);
+        try{return reply({sync:await require('./sync-health.cjs').readSyncHealth(env.REXBID_ACTIVE_CATALOG)});}
+        catch{return fail('unavailable',503,cookies);}
+      }
       if(url.pathname===`${PREFIX}/registrations`){
         if(!owner)return fail('forbidden',403,cookies);
         if(!accountNotices.enabled(env))return fail('unavailable',503,cookies);
