@@ -177,6 +177,23 @@ test('compact LOT identity set preserves full20digits, leading zeros and platfor
 });
 
 function packedFixture(rows){const f=fixture(rows);f.options.prefix='prepared-packed-gzip';f.root='prepared-packed-gzip/'+f.options.rawSha256+'/v1-b4';f.prepare=prepareFeedArchivePackedStep;return f;}
+
+test('expanded highly compressible input reserves metadata for its decoded routing fanout and resumes completed windows',async()=>{
+ const rows=Array.from({length:20000},(_,i)=>event(i+1,String(i+1)));
+ const f=packedFixture(rows);
+ f.options.bucketCount=128;f.root='prepared-packed-gzip/'+f.options.rawSha256+'/v1-b128';
+ f.options.limits={line:1024,buffered:131072,chunk:512};
+ f.options.step={spoolBytes:32768,fanoutChunks:2,fragmentBytes:2048};
+ f.options.allowLargeFiles=true;f.options.compressedBytes=f.bucket.objects.get(f.options.rawKey).length;
+ f.options.windowsPerRun=3;f.options.beforePhaseWrite=async()=>{};
+ const ready=await finish(f);
+ assert.equal(ready.manifest.records,20000);assert.equal(ready.manifest.limits.records,800000);
+ const actualBytes=[...f.bucket.objects].filter(([key])=>key.startsWith(f.root+'/')).reduce((sum,[,body])=>sum+body.length,0);
+ assert.ok(actualBytes<=ready.archiveBytes,'metadata admission covers all retained objects');
+ const rawReads=f.bucket.calls.filter(([method,key])=>method==='get'&&key===f.options.rawKey).length;
+ assert.equal(rawReads,1,'durable routing windows reuse the decoded source');
+ assert.equal((await f.prepare(f.options)).reused,true);
+});
 test('expanded packed policy preserves an old spool and reuses the exact completed manifest',async()=>{
  const f=packedFixture([event(1)]);delete f.options.limits;delete f.options.step;
  const first=await f.prepare(f.options);assert.equal(first.phase,'spool');

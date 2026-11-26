@@ -152,6 +152,7 @@ function publicationSchedulerForAuthority(env,run){
  context.__traffic=require('../portal/traffic.cjs');
  context.__mail=require('../portal/transactional-mail.cjs');
  context.__vehiclePages=require('../sync/vehicle-page.cjs');
+  context.__syncMonitor={async monitorSync(){return {status:'fixture'};}};
  let source=fs.readFileSync(path.join(root,'worker.publication.js'),'utf8').replace('import trafficModule from "./portal/traffic.cjs";','const trafficModule=globalThis.__traffic;').replace('import liveModule from "./portal/live-auction.cjs";','const liveModule={RexBidLive:class{}};').replace('export const RexBidLive','const RexBidLive').replace('export const RexBidTraffic','const RexBidTraffic');for(const [line,replacement]of [
  ['import rexWorker from "./worker.js";','const rexWorker=globalThis.__shared;'],['import storedReads from "./staging/d1-primary-reads.cjs";','const storedReads=globalThis.__stored;'],['import savedReadCache from "./sync/stored-read-cache.cjs";','const savedReadCache=globalThis.__cache;'],['import automaticRefreshModule from "./sync/automatic-refresh.cjs";','const automaticRefreshModule=globalThis.__automatic;'],['import accountsReadinessModule from "./auth/routes.js";','const accountsReadinessModule=globalThis.__accounts;'],
  ['import transactionalMail from "./portal/transactional-mail.cjs";','const transactionalMail=globalThis.__mail;'],
@@ -162,18 +163,19 @@ function publicationSchedulerForAuthority(env,run){
  ['import publicBackup from "./sync/catalog-backup.cjs";',''],
  ['import {CatalogBackup, refreshCatalogBackup} from "./sync/catalog-backup-service.mjs";',''],
  ['export {CatalogBackup};','']])source=source.replace(line,replacement);
+ source=source.replace("import('./portal/sync-monitor.cjs')",'Promise.resolve({default:globalThis.__syncMonitor})');
  vm.runInContext(source.replace('export default {','globalThis.__worker={'),context);
  const config=JSON.parse(fs.readFileSync(path.join(root,'wrangler.production-publication.jsonc'),'utf8'));return{worker:context.__worker,env:{...config.vars,REXBID_DB:env.REXBID_DB}};
 }
 
 test('actual publication scheduler never starts the old API cursor beside an activated or replaying file catalogue',async t=>{
- const f=fixture(t);let legacy=0,pending=0;const w=publicationSchedulerForAuthority(f.env,async()=>{legacy++;throw Error('OLD_CURSOR_MUST_NOT_RUN');});const run=()=>w.worker.scheduled({cron:'*/15 * * * *'},w.env,{waitUntil(){pending++;}});
+ const f=fixture(t);let legacy=0;const pending=[];const w=publicationSchedulerForAuthority(f.env,async()=>{legacy++;throw Error('OLD_CURSOR_MUST_NOT_RUN');});const run=()=>w.worker.scheduled({cron:'*/15 * * * *'},w.env,{waitUntil:p=>pending.push(p)});
  assert.equal((await run()).stopReason,'server_feed_owns_updates');
- const row=f.sql.prepare("SELECT checkpoint_json FROM feed_catalog_baselines WHERE baseline_id='fresh-a'").get(),state=JSON.parse(row.checkpoint_json);Object.assign(state,{status:'replaying',replayVerified:false,pendingDelta:{after:200,through:300,resumeReady:true}});f.sql.prepare("UPDATE feed_catalog_baselines SET checkpoint_json=? WHERE baseline_id='fresh-a'").run(JSON.stringify(state));assert.equal((await run()).stopReason,'server_feed_owns_updates');assert.equal(legacy,0);assert.equal(pending,0);
+ const row=f.sql.prepare("SELECT checkpoint_json FROM feed_catalog_baselines WHERE baseline_id='fresh-a'").get(),state=JSON.parse(row.checkpoint_json);Object.assign(state,{status:'replaying',replayVerified:false,pendingDelta:{after:200,through:300,resumeReady:true}});f.sql.prepare("UPDATE feed_catalog_baselines SET checkpoint_json=? WHERE baseline_id='fresh-a'").run(JSON.stringify(state));assert.equal((await run()).stopReason,'server_feed_owns_updates');await Promise.all(pending);assert.equal(legacy,0);assert.equal(pending.length,2,'one monitoring task per run; no legacy import');
 });
 
 test('null file pointer preserves the prior bounded scheduler; an invalid active proof fails closed',async t=>{
  const f=fixture(t,{active:false});let legacy=0;const w=publicationSchedulerForAuthority(f.env,async()=>{legacy++;return{ok:true,stopReason:'bounded-legacy-before-activation'};});assert.equal(await reads.scheduledCatalogAuthority({...f.env,REXBID_CATALOG_MEMBERSHIP_ENABLED:'disabled'}),null);assert.equal(await reads.scheduledCatalogAuthority(f.env),null);
  const pending=[];let result=await w.worker.scheduled({cron:'*/15 * * * *'},w.env,{waitUntil:p=>pending.push(p)});await Promise.all(pending);assert.equal(result.stopReason,'bounded-legacy-before-activation');assert.equal(legacy,1);
- f.pointer('fresh-a',1);f.sql.prepare("UPDATE feed_catalog_baselines SET plan_sha256='0000000000000000000000000000000000000000000000000000000000000000' WHERE baseline_id='fresh-a'").run();result=await w.worker.scheduled({cron:'*/15 * * * *'},w.env,{waitUntil(){throw Error('NO_LEGACY_FALLBACK');}});assert.equal(result.stopReason,'publication_scheduler_unavailable');assert.equal(legacy,1);
+ f.pointer('fresh-a',1);f.sql.prepare("UPDATE feed_catalog_baselines SET plan_sha256='0000000000000000000000000000000000000000000000000000000000000000' WHERE baseline_id='fresh-a'").run();result=await w.worker.scheduled({cron:'*/15 * * * *'},w.env,{waitUntil:p=>pending.push(p)});await Promise.all(pending);assert.equal(result.stopReason,'publication_scheduler_unavailable');assert.equal(legacy,1);
 });

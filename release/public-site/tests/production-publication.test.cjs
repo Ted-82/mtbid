@@ -50,7 +50,10 @@ function wrapper(config = buildPublicationConfig(base()), sharedFetch = null, au
   context.__fileDeletion = require('../portal/file-deletions.cjs');
   context.__publicBackup = require('../sync/catalog-backup.cjs');
   context.__vehiclePages = require('../sync/vehicle-page.cjs');
+  let monitoring = 0;
+  context.__syncMonitor = {async monitorSync(){monitoring++;return {status:'fixture'};}};
   vm.runInContext(fs.readFileSync(path.join(ROOT, 'worker.publication.js'), 'utf8')
+    .replace("import('./portal/sync-monitor.cjs')", 'Promise.resolve({default:globalThis.__syncMonitor})')
     .replace('import rexWorker from "./worker.js";', 'const rexWorker = globalThis.__shared;')
     .replace('import storedReads from "./staging/d1-primary-reads.cjs";', 'const storedReads = globalThis.__stored;')
     .replace('import savedReadCache from "./sync/stored-read-cache.cjs";', 'const savedReadCache = globalThis.__cache;')
@@ -69,7 +72,7 @@ function wrapper(config = buildPublicationConfig(base()), sharedFetch = null, au
     .replace('export const RexBidLive', 'const RexBidLive')
     .replace('export const RexBidTraffic', 'const RexBidTraffic')
     .replace('export default {', 'globalThis.__worker = {'), context);
-  return {worker: context.__worker, env: {...config.vars}, calls};
+  return {worker: context.__worker, env: {...config.vars}, calls, monitoring:()=>monitoring};
 }
 
 function sharedWorker() {
@@ -528,7 +531,7 @@ test('approved Auth phases keep the scheduled handler working but HTTP catalogue
     assert.equal(scheduled, before); assert.equal(f.calls.length, 0);
     const pending = [];
     assert.equal((await f.worker.scheduled({cron: '*/15 * * * *'}, f.env, {waitUntil: task => pending.push(task)})).ok, true);
-    await Promise.all(pending); assert.equal(pending.length, 1); assert.equal(scheduled, before + 1);
+    await Promise.all(pending); assert.equal(pending.length, 2); assert.equal(scheduled, before + 1); assert.equal(f.monitoring(),1);
   }
   assert.ok(queries.length > 0); assert.equal(network.mock.callCount(), 0);
 });
@@ -541,8 +544,9 @@ test('scheduled handler alone dispatches refresh; HTTP browsing never enters pro
   await f.worker.fetch(request('/ready'),f.env,{waitUntil:p=>pending.push(p)});
   assert.equal(calls.length,0);
   const result=await f.worker.scheduled({cron:'*/15 * * * *'},f.env,{waitUntil:p=>pending.push(p)});
-  assert.equal(result.ok,true);assert.equal(calls.length,1);assert.equal(calls[0],f.env);assert.equal(pending.length,1);
+  assert.equal(result.ok,true);assert.equal(calls.length,1);assert.equal(calls[0],f.env);assert.equal(pending.length,2);
   await Promise.all(pending);
+  assert.equal(f.monitoring(),1);
 });
 
 test('scheduled handler fails closed for disabled, mistargeted, unbounded and wrong cadence configurations',async()=>{

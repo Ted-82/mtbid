@@ -31,8 +31,12 @@ function createBoundedArchivePreparer(p, {packed = false} = {}) {
       this.occupied[slot] = 1; this.count++; return true;
     }
   }
-  // Larger delivery manifests contain more checked fragments and receipts. Account for these bytes before writing.
-  const metadataAllowance = limits => limits.compressed > LIMITS.compressed ? 32 * MiB : 4 * MiB;
+  // Routing metadata follows decoded windows and records, not gzip size. A
+  // highly compressible expanded delivery can be below32MiB yet exceed4MiB
+  // of checked receipts/manifests. Preserve capture hashes and reuse windows;
+  // the same larger bound is admitted before writes and checked at finalize.
+  const metadataAllowance = limits => limits.compressed > LIMITS.compressed
+    || limits.decoded > LIMITS.decoded || limits.records > LIMITS.records ? 32 * MiB : 4 * MiB;
   function stepOptions(value, limits) {
     ensure(value === undefined || record(value), 'FEED_ARCHIVE_STEP_LIMITS_INVALID');
     const step = {...DEFAULT_STEP, ...value};

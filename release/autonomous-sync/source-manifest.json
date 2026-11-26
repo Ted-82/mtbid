@@ -3,13 +3,13 @@
   "source": "executor",
   "baselineVersion": "9e664c82-559a-4a37-a7f6-614075ae56fb",
   "tests": {
-    "tests": 841,
-    "pass": 841,
+    "tests": 842,
+    "pass": 842,
     "fail": 0,
     "cancelled": 0,
     "skipped": 0,
     "todo": 0,
-    "duration_ms": 25443.5617
+    "duration_ms": 28686.5711
   },
   "hashes": {
     "auth/identity.js": "15ea5dbeb5c6f0adf02a04cb61c5703ae4920f8be3dfc730758083899bcfcd97",
@@ -421,7 +421,7 @@
     "sync/feed-relist-budget.cjs": "35da94a53e517b5b834a63eba43e006819fb691ca72c8debf07ff6301577f535",
     "sync/feed-relist-fairness.cjs": "a104a56dacc5ba4c2ccd96f5cf3b9982b2f6910480cb52957f5b4520e368bd28",
     "sync/feed-relist-maintenance.cjs": "c50084c0bd82c75e8aa6c3d603e5b32483b40e435e3e70281e9f1a0b1723c875",
-    "sync/feed-relist-pages.cjs": "6f9f99840c207b1bf22882d732e724895bff1a0db39d5f6dbd197160ba4e9dc1",
+    "sync/feed-relist-pages.cjs": "5eb8922fdab1fbd4c69758a9a554b2adbd85d37348fc41af2752eddfd3f6d1ab",
     "sync/feed-relist-priority.cjs": "21f993f8d899784a4a5b5faec32e55a13c35420483f600f052b783222a1864a6",
     "sync/feed-relist-review.cjs": "eca4a221caabb75ec39806e69833a891885096c239559333d909b1ce5cc1ac69",
     "sync/feed-relist-selection.cjs": "0dba62778ee10d137dc369a978678ec14a1374b60fb4d954b57aacd2c014ce23",
@@ -433,7 +433,7 @@
     "sync/feed-snapshot-import.cjs": "bc592d9d00b856194bc5a28e820db695447e599bf69e218c3fed85af43032629",
     "sync/feed-sparse-repair.cjs": "ef27c993033f528dfd46ad3a2d998d752100f37f23b6e05c7185c26e46c8fa34",
     "sync/feed-supplemental-allocation.cjs": "3576d004a9ef037fedd2759d46b018060ca7e3b21beae8d1c011c1adeb664038",
-    "sync/feed-worker-archive-step.cjs": "b69c44b538c8bb6308839244252307a263071880c81b3ef025303c2bfa84b9b4",
+    "sync/feed-worker-archive-step.cjs": "07ca94fde2f8b988cbbc77d0d3d2370f655230bcefd720d3c0470c464bfc2794",
     "sync/feed-worker-archive.cjs": "19717085d32c6277aed73088b6f4e708e147330a4b7b6a8de89ed8078801e359",
     "sync/history-request.cjs": "6d5ba1b5c96ba1e32972568c041e4129701f3bb9dcc1c8a62fb2175f78847cc1",
     "sync/inventory-change-group.cjs": "9d326d2c4501a49572888c0cf1cca86ae7d903de268456aefa1d3e9102d7e7a3",
@@ -566,7 +566,7 @@
     "tests/feed-supplemental-allocation.test.cjs": "9878b03a70a8ff4ddfd2061eb1e674152daa0fdfedc936174b07ce670c54b457",
     "tests/feed-terminal-eligibility.test.cjs": "b217a44103bb7bb6bc9af4b548d40d1a2e5fc919813e1a3567fffb93f5fade43",
     "tests/feed-worker-archive-admission.test.cjs": "4dcb3934851ffbcb00043b9ef658ce13368f71cf886ec88dc789fb5b8d73443a",
-    "tests/feed-worker-archive-step.test.cjs": "256dbd59b6549445844a9d60a3b379f60be5d0e0fddc4a7e27f39e8aef3a9a62",
+    "tests/feed-worker-archive-step.test.cjs": "6c1c41bb3f737c731489a84cc67016e4668ce4fbb74e5a504b908759261e9761",
     "tests/feed-worker-archive.test.cjs": "4087e1809dff1c4855ee5ed5b60b9266353d36cb66ca56f60859d4bfe35d742f",
     "tests/fixtures/apibara-discovery-page-shape.json": "6cc87e9eea588afd1c2eaad2a3d196cd253a415cd1dafcf584832097a36e216e",
     "tests/fixtures/apibara-live-observations.json": "b8abfb63f4ebcda7307a30b5c97960161fa7578fa8ec27336854b64c04a851b9",
@@ -672,12 +672,14 @@
     "wrangler.rexbid-production.jsonc": "af2bac93a2bcffcec75e87fa5db36cbae385843e6718474bb86daaae45cc156f",
     "wrangler.staging.jsonc": "80373eadc43b6482f6330c22585c97aa584c02576732df96208f74be330f12c0"
   },
-  "productionVersion": "18b87ec2-b682-421b-9e52-ac0623e8cdf3",
-  "productionBundleSha256": "0b1701709aa8d6b16e28053a5b725e29d0cd1fb5f7e0c0824d2c4fe73ba2d359",
+  "productionVersion": "ca3ba0d9-77c3-4637-8c37-a8682b055e55",
+  "productionBundleSha256": "1ad5152c4d2262105d74bc8556aa6d2d8b30dfbeacfa1c834da022a281b29b5a",
   "candidate": {
     "directory": "media-reuse-candidate",
     "bundleSha256": "34d8552139dcecb8da369dc12b9ae9471439ee544dbf1f4764d03f0f7d0cdbcb",
-    "deployed": false,
-    "blocker": "Management API HTTP503 code10001 on deployments list"
+    "deployed": true,
+    "version": "125e910f-c63a-4d0f-943a-0b1e62cd1c43",
+    "supersededBy": "ca3ba0d9-77c3-4637-8c37-a8682b055e55",
+    "blocker": null
   }
 }

@@ -1,0 +1,117 @@
+{
+  "source": {
+    "at": "2026-11-26T16:49:07.972Z",
+    "generation": {
+      "generation_id": 25281,
+      "sha256": "c901397bc7af0908e3afe41a7c42df4d02a551cbd3bf2cab39cc53b7ea78c900",
+      "compressed_bytes": 33537346,
+      "observed_at": "2026-11-26T16:35:52.733Z",
+      "status": "downloaded",
+      "first_sequence": null,
+      "last_sequence": null,
+      "updated_at": "2026-11-26T16:45:57.856Z"
+    },
+    "rows": 627178,
+    "first": 123100251,
+    "last": 123727597,
+    "minRecordedAt": "2026-11-26T07:44:08+00:00",
+    "maxRecordedAt": "2026-11-26T16:32:38+00:00",
+    "events": {
+      "lot.removed": 5403,
+      "lot.created": 4947,
+      "auction.rescheduled": 9760,
+      "bid.changed": 431073,
+      "lot.updated": 69874,
+      "lot.sold": 1030,
+      "buy_now.changed": 105091
+    },
+    "platforms": {
+      "iaai": 26210,
+      "copart": 600968
+    },
+    "targets": {
+      "copart:65917836": {
+        "events": 8,
+        "lastSequence": 123706653,
+        "lastEvent": "lot.updated",
+        "lastRecordedAt": "2026-11-26T16:25:29+00:00"
+      }
+    },
+    "hashVerified": true,
+    "strictSequenceOrder": true
+  },
+  "providerResume": {
+    "observedDate": "2026-11-26",
+    "source": "Authenticated Apibara Sync Center UI",
+    "plan": "Pro",
+    "before": {
+      "feed": 20,
+      "status": "paused",
+      "latestReady": 24932,
+      "failed": 24953,
+      "warning": "The current plan no longer includes Scheduled Data Feeds."
+    },
+    "action": "Resume existing feed; UI confirmed Feed resumed / ACTIVE; no purchase or plan change",
+    "extraGeneration": "Not performed: automatic safety review rejected Generate now; no workaround used",
+    "after": {
+      "status": "active",
+      "delivery": "On schedule",
+      "latestReady": 25281,
+      "queuedAt": "2026-11-26T16:31:00Z",
+      "startedAt": "2026-11-26T16:32:00Z",
+      "readyAt": "2026-11-26T16:34:00Z",
+      "records": 627178,
+      "fileMiB": 31.98,
+      "nextAttemptAt": "2026-11-26T17:01:00Z",
+      "planWarningStillVisible": false
+    },
+    "timePrecision": "UI minute precision; local publication must be verified separately",
+    "originalPauseCause": "Not established"
+  },
+  "legacyClassification": {
+    "at": "2026-11-26T16:20:56.969Z",
+    "data": [
+      {
+        "platform": "copart",
+        "tasks": 231679,
+        "joined_rows": 231679,
+        "known_lots": 210744,
+        "active_dated": 20249,
+        "with_source_eligibility": 0,
+        "source_terminal": 0,
+        "source_identity_error": 0,
+        "oldest_attempt": "2026-11-10T20:10:54.557Z",
+        "newest_attempt": "2026-11-26T07:15:53.782Z"
+      },
+      {
+        "platform": "iaai",
+        "tasks": 159702,
+        "joined_rows": 159702,
+        "known_lots": 141946,
+        "active_dated": 20540,
+        "with_source_eligibility": 0,
+        "source_terminal": 0,
+        "source_identity_error": 0,
+        "oldest_attempt": "2026-11-10T20:10:54.557Z",
+        "newest_attempt": "2026-11-26T07:45:51.359Z"
+      }
+    ],
+    "rowsRead": 1844174,
+    "rowsWritten": 0,
+    "sqlMs": 12262.6531
+  },
+  "fullPublicTests": {
+    "at": "2026-11-26T16:46:16.904Z",
+    "files": 197,
+    "exit": 0,
+    "counts": {
+      "tests": 2735,
+      "pass": 2735,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "duration_ms": 102982.3918
+    },
+    "errors": []
+  }
+}

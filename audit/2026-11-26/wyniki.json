@@ -1,15 +1,15 @@
 {
-  "measuredAt": "2026-11-26T16:08:49.476Z",
-  "queue": 20932,
+  "measuredAt": "2026-11-26T16:49:33.182Z",
+  "queue": 19663,
   "queues": [
     {
       "platform": "copart",
-      "pending": 14185,
+      "pending": 13206,
       "oldest": "2026-11-24T17:34:49+00:00"
     },
     {
       "platform": "iaai",
-      "pending": 6747,
+      "pending": 6457,
       "oldest": "2026-11-24T17:33:09+00:00"
     }
   ],
@@ -24,38 +24,38 @@
   "resources": {
     "writeLimit": 34293208,
     "readLimit": 19255027912,
-    "writes": 23685742,
-    "reads": 448494993,
-    "remainingWrites": 10607466,
-    "remainingReads": 18806532919
+    "writes": 23822593,
+    "reads": 457041720,
+    "remainingWrites": 10470615,
+    "remainingReads": 18797986192
   },
-  "dbBytes": 2662596608,
+  "dbBytes": 2616541184,
   "photos": [
     {
       "platform": "copart",
-      "listings": 45908,
-      "missing_addresses": 16690,
-      "next7": 41416,
-      "missing_next7": 15058
+      "listings": 47261,
+      "missing_addresses": 16687,
+      "next7": 42725,
+      "missing_next7": 15055
     },
     {
       "platform": "iaai",
-      "listings": 32768,
+      "listings": 33061,
       "missing_addresses": 4,
-      "next7": 28585,
+      "next7": 29153,
       "missing_next7": 1
     }
   ],
   "catchup": [
     {
       "budget_key": "new:2026-11-26",
-      "limit_count": 62580,
-      "consumed": 1323
+      "limit_count": 56820,
+      "consumed": 1789
     },
     {
       "budget_key": "relist-catchup:2026-12-26",
       "limit_count": 43584,
-      "consumed": 813
+      "consumed": 2365
     }
   ],
   "alerts": [
@@ -65,33 +65,33 @@
       "messages": 1
     }
   ],
-  "productionExecutor": "18b87ec2-b682-421b-9e52-ac0623e8cdf3",
-  "productionWeb": "7fbf788c-6d97-4fd6-b19a-98b3705d95c8",
+  "productionExecutor": "ca3ba0d9-77c3-4637-8c37-a8682b055e55",
+  "productionWeb": "9960f80f-ccbb-4405-ab3b-9327fd7a59aa",
   "tests": {
-    "tests": 841,
-    "pass": 841,
+    "tests": 842,
+    "pass": 842,
     "fail": 0,
     "cancelled": 0,
     "skipped": 0,
     "todo": 0,
-    "duration_ms": 25443.5617
+    "duration_ms": 28686.5711
   },
   "webTests": {
-    "tests": 169,
-    "pass": 169,
+    "tests": 170,
+    "pass": 170,
     "fail": 0,
     "cancelled": 0,
     "skipped": 0,
-    "duration_ms": 6150.7072
+    "duration_ms": 8439.0487
   },
   "sharedBudgetTests": 46,
   "public": {
-    "at": "2026-11-26T15:53:31.193Z",
+    "at": "2026-11-26T16:55:17.754Z",
     "parallel": [
       {
         "name": "subaru-vin",
         "http": 200,
-        "ms": 1440,
+        "ms": 435,
         "rows": 1,
         "first": [
           {
@@ -105,7 +105,7 @@
       {
         "name": "hyundai-vin",
         "http": 200,
-        "ms": 1165,
+        "ms": 340,
         "rows": 1,
         "first": [
           {
@@ -119,7 +119,7 @@
       {
         "name": "subaru-2025",
         "http": 200,
-        "ms": 1547,
+        "ms": 648,
         "rows": 20,
         "first": [
           {
@@ -139,7 +139,7 @@
       {
         "name": "electric",
         "http": 200,
-        "ms": 1165,
+        "ms": 688,
         "rows": 20,
         "first": [
           {
@@ -159,7 +159,7 @@
     ],
     "electricSecondPage": {
       "http": 200,
-      "ms": 356,
+      "ms": 190,
       "rows": 20,
       "noDuplicates": true
     },

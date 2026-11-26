@@ -20,6 +20,7 @@ async function warmRescheduled({db,store,getRequest,now,prior}){
  if(!Array.isArray(events)||events.length>100||!Number.isSafeInteger(next)||next<state.after||
   events.some(e=>e.event!=='auction.rescheduled'||!Number.isSafeInteger(e.sequence)||e.sequence<=state.after||e.sequence>next))throw Error('RELIST_STREAM_RESPONSE');
  const records=events.map(e=>e.record).filter(r=>r&&['copart','iaai'].includes(r.platform)&&/^\d{1,20}$/.test(String(r.lot_number)));
+ const media=await require('./feed-available-media.cjs').fillAvailableMedia({db,store,records,now:now()});
  const keys=[...new Set(records.map(r=>PREFIX+r.platform+':'+r.lot_number))];
  const tasks=keys.length?(await db.prepare("SELECT task_key,cursor FROM automatic_refresh_tasks WHERE task_key IN (SELECT value FROM json_each(?)) AND status='pending'").bind(JSON.stringify(keys)).all()).results:[];
  const writes=[],matchedKeys=[];
@@ -32,7 +33,7 @@ async function warmRescheduled({db,store,getRequest,now,prior}){
  }
  writes.push(store.taskStatement({key:STREAM,platform:'all',status:'complete',success:true,due:now(),cursor:JSON.stringify({after:next,batchFrom:state.after,matchedKeys,checkedAt:observedAt})}));
  await store.guarded(writes);
- return {stream:true,records:records.length,matched:matchedKeys.length,matchedKeys,more:meta.has_more===true,after:next};
+ return {stream:true,records:records.length,matched:matchedKeys.length,matchedKeys,mediaFilled:media.filled,more:meta.has_more===true,after:next};
 }
 async function warmRelistPage({db,store,getRequest,now}){
  const stream=await store.task(STREAM);

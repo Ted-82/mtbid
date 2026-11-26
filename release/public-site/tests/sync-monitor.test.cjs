@@ -36,3 +36,19 @@ test('operational alert uses encrypted outbox and provider idempotency without c
  }});
  assert.equal(out.sent,1);assert.equal(calls,1);
 });
+
+test('a fresh downloaded file cannot replace the last fully published file in monitoring',async t=>{
+ const {sql,db}=fixture(t),now=Date.parse('2026-11-26T16:45:00Z');
+ sql.prepare('INSERT INTO server_feed_generations VALUES(?,?,?,?,?,?)').run(25281,'downloaded','2026-11-26T16:40:00Z','2026-11-26T16:40:00Z',null,null);
+ const {readSyncHealth}=require('../portal/sync-health.cjs');
+ const health=await readSyncHealth(db,now);
+ assert.equal(health.last_generation.generation_id,24932);
+ assert.equal(health.received_generation.generation_id,25281);
+ assert.equal(health.publication_pending,true);
+ assert.equal(health.delay_minutes,545);
+ assert.equal(health.status,'Występuje opóźnienie danych');
+ sql.prepare("UPDATE server_feed_generations SET status='complete',last_sequence=123727428 WHERE generation_id=25281").run();
+ const published=await readSyncHealth(db,now);
+ assert.equal(published.last_generation.generation_id,25281);
+ assert.equal(published.publication_pending,false);
+});
