@@ -24,26 +24,26 @@
   "resources": {
     "writeLimit": 34293208,
     "readLimit": 19255027912,
-    "writes": 23822593,
-    "reads": 457041720,
-    "remainingWrites": 10470615,
-    "remainingReads": 18797986192
+    "writes": 23835256,
+    "reads": 457326433,
+    "remainingWrites": 10457952,
+    "remainingReads": 18797701479
   },
-  "dbBytes": 2616541184,
+  "dbBytes": 2606141440,
   "photos": [
     {
       "platform": "copart",
       "listings": 47261,
       "missing_addresses": 16687,
-      "next7": 42725,
-      "missing_next7": 15055
+      "next7": 44273,
+      "missing_next7": 15839
     },
     {
       "platform": "iaai",
       "listings": 33061,
       "missing_addresses": 4,
-      "next7": 29153,
-      "missing_next7": 1
+      "next7": 30404,
+      "missing_next7": 2
     }
   ],
   "catchup": [
@@ -62,7 +62,7 @@
     {
       "status": "sent",
       "last_error": null,
-      "messages": 1
+      "messages": 2
     }
   ],
   "productionExecutor": "61e0a130-b8f5-4987-a300-2b89693e66d6",
