@@ -9,7 +9,7 @@
     "cancelled": 0,
     "skipped": 0,
     "todo": 0,
-    "duration_ms": 28686.5711
+    "duration_ms": 29990.4536
   },
   "hashes": {
     "auth/identity.js": "15ea5dbeb5c6f0adf02a04cb61c5703ae4920f8be3dfc730758083899bcfcd97",
@@ -427,7 +427,7 @@
     "sync/feed-relist-selection.cjs": "0dba62778ee10d137dc369a978678ec14a1374b60fb4d954b57aacd2c014ce23",
     "sync/feed-server-batch-policy.cjs": "85f163009b648edba8b7a3e814fd59ad1521c6e84ca010538d3dd4d8d10c915b",
     "sync/feed-server-batch-width.cjs": "9ac04e072b15180f32741d2881291c486453fb5ab56af21018ffa1ce3648ed4f",
-    "sync/feed-server-runner.cjs": "e10423f87aa347bb47b2f9d93fc30d656209419c3525df7a1f339639a9d6bcd9",
+    "sync/feed-server-runner.cjs": "45d99ecaf41da08e9b280b2179904029c6fe40a00be09f09f1810c68c3dbbe11",
     "sync/feed-server-state.cjs": "328e7d594f7fd2eafdd59643d89a1af29a79044ceeca88562bcc70f04c74d721",
     "sync/feed-server-window-plan.cjs": "26d5710f464cdfc5fce1f95f6b94bf32ae6fa6300acc6e992aed63d62a48a7d9",
     "sync/feed-snapshot-import.cjs": "bc592d9d00b856194bc5a28e820db695447e599bf69e218c3fed85af43032629",
@@ -566,7 +566,7 @@
     "tests/feed-supplemental-allocation.test.cjs": "9878b03a70a8ff4ddfd2061eb1e674152daa0fdfedc936174b07ce670c54b457",
     "tests/feed-terminal-eligibility.test.cjs": "b217a44103bb7bb6bc9af4b548d40d1a2e5fc919813e1a3567fffb93f5fade43",
     "tests/feed-worker-archive-admission.test.cjs": "4dcb3934851ffbcb00043b9ef658ce13368f71cf886ec88dc789fb5b8d73443a",
-    "tests/feed-worker-archive-step.test.cjs": "6c1c41bb3f737c731489a84cc67016e4668ce4fbb74e5a504b908759261e9761",
+    "tests/feed-worker-archive-step.test.cjs": "534d4f51aefac924c03ba3f615c36c3b2f529c7c762eb396f66f9885195605e5",
     "tests/feed-worker-archive.test.cjs": "4087e1809dff1c4855ee5ed5b60b9266353d36cb66ca56f60859d4bfe35d742f",
     "tests/fixtures/apibara-discovery-page-shape.json": "6cc87e9eea588afd1c2eaad2a3d196cd253a415cd1dafcf584832097a36e216e",
     "tests/fixtures/apibara-live-observations.json": "b8abfb63f4ebcda7307a30b5c97960161fa7578fa8ec27336854b64c04a851b9",
@@ -672,14 +672,14 @@
     "wrangler.rexbid-production.jsonc": "af2bac93a2bcffcec75e87fa5db36cbae385843e6718474bb86daaae45cc156f",
     "wrangler.staging.jsonc": "80373eadc43b6482f6330c22585c97aa584c02576732df96208f74be330f12c0"
   },
-  "productionVersion": "ca3ba0d9-77c3-4637-8c37-a8682b055e55",
-  "productionBundleSha256": "1ad5152c4d2262105d74bc8556aa6d2d8b30dfbeacfa1c834da022a281b29b5a",
+  "productionVersion": "61e0a130-b8f5-4987-a300-2b89693e66d6",
+  "productionBundleSha256": "e4b1c61915335d69f7ce7386ac681faadcc26a3f59884e13f862dc4167cd3590",
   "candidate": {
     "directory": "media-reuse-candidate",
     "bundleSha256": "34d8552139dcecb8da369dc12b9ae9471439ee544dbf1f4764d03f0f7d0cdbcb",
     "deployed": true,
     "version": "125e910f-c63a-4d0f-943a-0b1e62cd1c43",
-    "supersededBy": "ca3ba0d9-77c3-4637-8c37-a8682b055e55",
+    "supersededBy": "61e0a130-b8f5-4987-a300-2b89693e66d6",
     "blocker": null
   }
 }

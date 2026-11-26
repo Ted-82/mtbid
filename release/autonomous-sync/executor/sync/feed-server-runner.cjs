@@ -85,6 +85,10 @@ function parseJob(row){
   ||row.job_key!==workSpec(p.generationId,p.phase,p.bucketIndex,p.groupOffset).jobKey)fail('SERVER_FEED_JOB_INVALID');
  return p;
 }
+function readPublicationBucket(bucket,manifest,bucketIndex,materialized=16*1024*1024){
+ const windowed=(manifest.manifest??manifest).limits.decoded>256*1024*1024;
+ return readFeedBucket({bucket,manifest,bucketIndex,windowed,limits:{materialized}});
+}
 async function loadManifest(bucket,generation){
  const object=await bucket.get(generation.manifest_key);
  if(!object||object.size>1024*1024)fail('SERVER_FEED_MANIFEST_MISSING');
@@ -257,8 +261,7 @@ async function processJob({env,state,db,store,job,usage,now=store.now.bind(store
  }
  if(generation.status!=='applying'||generation.bucket_index!==p.bucketIndex||generation.group_offset!==p.groupOffset)fail('SERVER_FEED_JOB_ORDER');
  const manifest=await loadManifest(env.REXBID_FEED_ARCHIVE,generation);
- const readBucket = bucketIndex => readFeedBucket({bucket:env.REXBID_FEED_ARCHIVE,manifest,bucketIndex,
-  windowed:generation.compressed_bytes>32*1024*1024, limits:{materialized:16*1024*1024}});
+ const readBucket = bucketIndex => readPublicationBucket(env.REXBID_FEED_ARCHIVE,manifest,bucketIndex);
  let data=await readBucket(p.bucketIndex);
  let dataset=data.records?bucketDataset(generation,data,state.activation?.baselineId??null):null;const provider=createApibaraProvider();
  const canonicalStore=state.canonicalStore(),liveState=state.activation?await state.getState():null;
@@ -522,4 +525,4 @@ async function runMessage({env,body,now=Date.now,fetchImpl=fetch}={}){
    if(state.flexibleBudget)result.d1BudgetMode=state.flexibleBudget;}
  }
 }
-module.exports={SETTLEMENT_WRITE_OVERHEAD,configuration,measuredDatabase,workSpec,bucketDataset,runMessage,processJob,pollLatest,dispatchDue,safeCode,maintainTaxonomy};
+module.exports={SETTLEMENT_WRITE_OVERHEAD,configuration,measuredDatabase,workSpec,bucketDataset,runMessage,processJob,pollLatest,dispatchDue,safeCode,maintainTaxonomy,readPublicationBucket};

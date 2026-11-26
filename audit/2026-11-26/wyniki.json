@@ -1,5 +1,5 @@
 {
-  "measuredAt": "2026-11-26T16:49:33.182Z",
+  "measuredAt": "2026-11-26T20:07:15.792Z",
   "queue": 19663,
   "queues": [
     {
@@ -65,7 +65,7 @@
       "messages": 1
     }
   ],
-  "productionExecutor": "ca3ba0d9-77c3-4637-8c37-a8682b055e55",
+  "productionExecutor": "61e0a130-b8f5-4987-a300-2b89693e66d6",
   "productionWeb": "9960f80f-ccbb-4405-ab3b-9327fd7a59aa",
   "tests": {
     "tests": 842,
@@ -74,7 +74,7 @@
     "cancelled": 0,
     "skipped": 0,
     "todo": 0,
-    "duration_ms": 28686.5711
+    "duration_ms": 29990.4536
   },
   "webTests": {
     "tests": 170,
@@ -86,12 +86,12 @@
   },
   "sharedBudgetTests": 46,
   "public": {
-    "at": "2026-11-26T16:55:17.754Z",
+    "at": "2026-11-26T20:07:21.537Z",
     "parallel": [
       {
         "name": "subaru-vin",
         "http": 200,
-        "ms": 435,
+        "ms": 3650,
         "rows": 1,
         "first": [
           {
@@ -105,7 +105,7 @@
       {
         "name": "hyundai-vin",
         "http": 200,
-        "ms": 340,
+        "ms": 3661,
         "rows": 1,
         "first": [
           {
@@ -119,19 +119,19 @@
       {
         "name": "subaru-2025",
         "http": 200,
-        "ms": 648,
+        "ms": 3620,
         "rows": 20,
         "first": [
           {
-            "platform": "copart",
-            "lot": "68178906",
-            "vin": "JF2SLDRC1SH608328",
+            "platform": "iaai",
+            "lot": "46087747",
+            "vin": "4S4BTANC5S3110211",
             "year": 2025
           },
           {
-            "platform": "copart",
-            "lot": "76077466",
-            "vin": "JF2GUHFC2SH332952",
+            "platform": "iaai",
+            "lot": "46570526",
+            "vin": "JF2SKAJC4SH401851",
             "year": 2025
           }
         ]
@@ -139,27 +139,27 @@
       {
         "name": "electric",
         "http": 200,
-        "ms": 688,
+        "ms": 3163,
         "rows": 20,
         "first": [
           {
-            "platform": "copart",
-            "lot": "63195036",
-            "vin": "7SAYGDEE6RF003254",
-            "year": 2024
+            "platform": "iaai",
+            "lot": "46559047",
+            "vin": "5YJ3E1EA3JF061643",
+            "year": 2018
           },
           {
-            "platform": "copart",
-            "lot": "65472536",
-            "vin": "7SAYGDEE6TF323651",
-            "year": 2026
+            "platform": "iaai",
+            "lot": "46436784",
+            "vin": "5YJ3E1EA5NF375395",
+            "year": 2022
           }
         ]
       }
     ],
     "electricSecondPage": {
       "http": 200,
-      "ms": 190,
+      "ms": 353,
       "rows": 20,
       "noDuplicates": true
     },

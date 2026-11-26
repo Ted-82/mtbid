@@ -193,6 +193,17 @@ test('expanded highly compressible input reserves metadata for its decoded routi
  const rawReads=f.bucket.calls.filter(([method,key])=>method==='get'&&key===f.options.rawKey).length;
  assert.equal(rawReads,1,'durable routing windows reuse the decoded source');
  assert.equal((await f.prepare(f.options)).reused,true);
+ const {readPublicationBucket}=require('../sync/feed-server-runner.cjs');
+ const index=ready.manifest.buckets.findIndex(bucket=>bucket.records>100);
+ assert.ok(index>=0);
+ await assert.rejects(readFeedBucket({bucket:f.bucket,manifest:ready,bucketIndex:index,limits:{materialized:32000}}),{code:'FEED_ARCHIVE_MATERIALIZED_LIMIT'});
+ const publication=await readPublicationBucket(f.bucket,ready,index,32000);
+ const reference=await readFeedBucket({bucket:f.bucket,manifest:ready,bucketIndex:index});
+ for(let offset=0;offset<publication.uniqueLots;){
+   const end=publication.materializeWindow(offset);
+   assert.deepEqual(publication.groups.slice(offset,end),reference.groups.slice(offset,end));
+   offset=end;
+ }
 });
 test('expanded packed policy preserves an old spool and reuses the exact completed manifest',async()=>{
  const f=packedFixture([event(1)]);delete f.options.limits;delete f.options.step;
