@@ -78,9 +78,13 @@
         const s=data.sync;
         host.replaceChildren(node('strong','',s.status),node('p','','Oczekujące weryfikacje: '+s.pending));
         for(const q of s.queues)host.append(node('p','',q.platform.toUpperCase()+': '+q.pending+' · Najstarszy oczekujący sygnał źródła: '+dateText(q.oldest,true)));
+        for(const count of s.stored_active_with_date||[])host.append(node('p','',count.platform.toUpperCase()+' — aktywne wpisy z terminem w bazie: '+count.listings));
+        for(const queue of s.other_queues||[])if(queue.family!=='Ponowne wystawienia')host.append(node('p','',queue.family+' · '+queue.status+': '+queue.jobs));
         if(s.last_generation)host.append(node('p','','Paczka '+s.last_generation.generation_id+' · Ostatni zapis: '+dateText(s.last_generation.updated_at,true)+' · Wiek dostawy: '+s.delay_minutes+' min'));
         if(s.quota)host.append(node('p','','Pozostała pula API przy odczycie: '+s.quota.quota_left+' / '+s.quota.quota_limit+' · Odczyt: '+dateText(s.quota.quota_checked_at,true)));
         for(const b of s.budgets)host.append(node('p','',b.budget_key.startsWith('day:')?'Dziś: '+b.consumed+' / '+b.limit_count:'Miesiąc: '+b.consumed+' / '+b.limit_count));
+        if(s.resource_policy?.catchup)host.append(node('p','','Przydział nadrabiania do odnowienia puli: '+s.resource_policy.catchup.remaining+' zapytań. Wykorzystanie nie zeruje się o północy.'));
+        if(s.cost_policy)host.append(node('p','','Zatwierdzony dodatkowy budżet miesięczny: do '+s.cost_policy.monthlyTotalUsd+' USD, w tym do '+s.cost_policy.d1WriteUsd+' USD na zapisy D1. To budżet, nie kwota naliczonej faktury.'));
         if(s.observation){
           const o=s.observation;
           if(Number.isFinite(o.net_queue_per_hour))host.append(node('p','','Zmiana kolejki na godzinę: '+Math.round(o.net_queue_per_hour)+' · Pomiar: '+dateText(o.at,true)));

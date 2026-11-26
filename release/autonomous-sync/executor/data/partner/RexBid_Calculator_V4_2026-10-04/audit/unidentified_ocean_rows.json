@@ -1,0 +1,77 @@
+[
+  {
+    "photo_row_after_known_block": 1,
+    "row_label": null,
+    "values": [
+      2250,
+      2250,
+      2800,
+      4800,
+      null,
+      null
+    ],
+    "source": "IMG_20261002_120132335.jpg",
+    "enabled": false,
+    "reason": "Ucięte etykiety wierszy; nie ustalono jednostki ani kategorii"
+  },
+  {
+    "photo_row_after_known_block": 2,
+    "row_label": null,
+    "values": [
+      1150,
+      1150,
+      1500,
+      2500,
+      null,
+      null
+    ],
+    "source": "IMG_20261002_120132335.jpg",
+    "enabled": false,
+    "reason": "Ucięte etykiety wierszy; nie ustalono jednostki ani kategorii"
+  },
+  {
+    "photo_row_after_known_block": 3,
+    "row_label": null,
+    "values": [
+      785,
+      785,
+      1015,
+      1685,
+      null,
+      null
+    ],
+    "source": "IMG_20261002_120132335.jpg",
+    "enabled": false,
+    "reason": "Ucięte etykiety wierszy; nie ustalono jednostki ani kategorii"
+  },
+  {
+    "photo_row_after_known_block": 4,
+    "row_label": null,
+    "values": [
+      675,
+      675,
+      775,
+      1275,
+      null,
+      null
+    ],
+    "source": "IMG_20261002_120132335.jpg",
+    "enabled": false,
+    "reason": "Ucięte etykiety wierszy; nie ustalono jednostki ani kategorii"
+  },
+  {
+    "photo_row_after_known_block": 5,
+    "row_label": null,
+    "values": [
+      560,
+      560,
+      640,
+      1040,
+      null,
+      null
+    ],
+    "source": "IMG_20261002_120132335.jpg",
+    "enabled": false,
+    "reason": "Ucięte etykiety wierszy; nie ustalono jednostki ani kategorii"
+  }
+]

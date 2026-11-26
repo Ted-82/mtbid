@@ -1,0 +1,80 @@
+{
+  "created": "2026-10-05",
+  "type": "owner review specification and original reference copies",
+  "rate_changes": false,
+  "repository_modified": false,
+  "items": [
+    {
+      "path": "references/hero_direction.png",
+      "original_filename": "a_wide_cinematic_modern_website_hero_banner_scen.png",
+      "purpose": "Zaakceptowany kierunek kompozycji/koloru. Nie publikować jako całego interfejsu; fałszywe hasła marketingowe z grafiki są wykluczone.",
+      "sha256": "5f85a7ec43875dcc6d7e3b1340105ad39568af453327f718bbf58374f9295344",
+      "bytes": 2137570,
+      "distribution": "reference_only; not automatically a public asset"
+    },
+    {
+      "path": "references/corvette_original.jpg",
+      "original_filename": "IMG-20260807-WA0003.jpg",
+      "purpose": "Zdjęcie własnego pojazdu przekazane przez właściciela. Materiał do przygotowania oddzielnego assetu, z usunięciem obcych aut i tablicą REX/PL.",
+      "sha256": "9456ae2f87c400b85f6161c0ad83ecd53b35949a7df39e9a42bbcf875c417061",
+      "bytes": 1047762,
+      "distribution": "reference_only; not automatically a public asset"
+    },
+    {
+      "path": "references/owner_car_full_2026-10-05.png",
+      "original_filename": "Zrzut ekranu 2026-10-05 131505.png",
+      "purpose": "Karta Camry Hybrid: panel kalkulatora widać, ale bez oczekiwanej użytecznej kalkulacji; inne zgłoszenia dotyczą braku panelu.",
+      "sha256": "49d6cc918011752c6ed29d36555912d46d73f052134f178ef0033d97cd0d4aea",
+      "bytes": 215872,
+      "distribution": "reference_only; not automatically a public asset"
+    },
+    {
+      "path": "references/owner_buy_now_catalog_2026-10-05.png",
+      "original_filename": "Zrzut ekranu 2026-10-05 131904.png",
+      "purpose": "Kup teraz z minionym terminem na kafelkach. Rozróżnić estetykę nakładek od prawdziwej dostępności zakupu.",
+      "sha256": "72a1bd5a6d3b46bcd24e323ab383c7fba43f9194a3873472bf47c017c756e5d4",
+      "bytes": 424893,
+      "distribution": "reference_only; not automatically a public asset"
+    },
+    {
+      "path": "references/dreambid_cards_reference.png",
+      "original_filename": "Zrzut ekranu 2026-10-05 132052.png",
+      "purpose": "Referencja hierarchii miniatur; nie kopiować logo, kodu ani obrazów do serwisu.",
+      "sha256": "a798e37d3e81e21164026ff0c0b0804e2465d78e7dffe551d79d1974cb8f1578",
+      "bytes": 825693,
+      "distribution": "reference_only; not automatically a public asset"
+    },
+    {
+      "path": "references/bidcars_cost_reference.png",
+      "original_filename": "Zrzut ekranu 2026-10-04 141230.png",
+      "purpose": "Historyczny benchmark kosztowy użytkownika, nie obowiązujący cennik partnera.",
+      "sha256": "07fdf347d5b3e58e8a4df1aab55c704767d6427adcade5cb6acc28334ad943e8",
+      "bytes": 882656,
+      "distribution": "reference_only; not automatically a public asset"
+    },
+    {
+      "path": "references/copart_upcoming_reference.png",
+      "original_filename": "Zrzut ekranu 2026-10-04 141830.png",
+      "purpose": "Historyczne źródło błędu harmonogramu LOT 58307896. Nie jest dowodem aktualnego statusu aukcji.",
+      "sha256": "2a07295bac208f45d549f968c779ee7f6661484b60e93b25c51d5615b5f74f20",
+      "bytes": 1362849,
+      "distribution": "reference_only; not automatically a public asset"
+    },
+    {
+      "path": "references/owner_auction_date_reference.png",
+      "original_filename": "Zrzut ekranu 2026-10-04 141742.png",
+      "purpose": "Rex.Bid: historyczny screen błędnej daty/licznika, porównać z Copart.",
+      "sha256": "63fb208b5d4e1ac4e2e4596622db701a32b75211a4476cd14afff5d2cbef49c1",
+      "bytes": 1789922,
+      "distribution": "reference_only; not automatically a public asset"
+    },
+    {
+      "path": "references/owner_legacy_calculator_reference.png",
+      "original_filename": "Zrzut ekranu 2026-10-04 140751.png",
+      "purpose": "Wcześniejsze trzy panele kalkulatora, referencja problemu z powtórzeniami UI.",
+      "sha256": "5fcd0be7d8a92fa56cfa711a5905b8508d7aab9b0efca3990f8523450f64e9bc",
+      "bytes": 89625,
+      "distribution": "reference_only; not automatically a public asset"
+    }
+  ]
+}

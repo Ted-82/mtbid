@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /konto.html
+Disallow: /ulubione.html
+Disallow: /logowanie.html
+Disallow: /rejestracja.html
+Disallow: /reset-hasla.html
+Disallow: /api/
+
+Sitemap: https://mtbid.tedn828.workers.dev/sitemap.xml

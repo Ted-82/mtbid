@@ -1,0 +1,42 @@
+{
+  "response": {
+    "data": [
+      {
+        "vehicle_id": "synthetic-provider-listing-001",
+        "platform": "copart",
+        "vin": "SYNTHETICVIN000001",
+        "lot_number": "PHASEC-001",
+        "year": 2021,
+        "make": "Synthetic Motors",
+        "model": "Shadow",
+        "series": "Fixture",
+        "auction": {
+          "state": "upcoming",
+          "formatted": "Upcoming",
+          "auction_at": "2026-12-01T12:00:00.000Z",
+          "is_timed": false,
+          "lot_status": "active"
+        },
+        "pricing": {
+          "current_bid_usd": 4100,
+          "current_bid2_usd": null,
+          "buy_now_usd": 6200
+        },
+        "seller": {"name": "Synthetic Seller", "type": "INS"},
+        "condition": {
+          "primary_damage": "Synthetic Damage",
+          "run_condition": "Run & Drive",
+          "has_key": true
+        },
+        "sale_document": {"name": "Synthetic Salvage", "export": true},
+        "odometer": {"value": 18000, "unit": "mi"},
+        "location": {"display": "Synthetic, TX", "state": "TX"},
+        "media": {
+          "items": ["https://example.invalid/synthetic.jpg"],
+          "thumbs": ["https://example.invalid/synthetic-small.jpg"]
+        }
+      }
+    ],
+    "meta": {"next_cursor": null}
+  }
+}

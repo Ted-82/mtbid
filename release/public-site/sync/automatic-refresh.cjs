@@ -128,6 +128,16 @@ class RefreshStore {
     const at = iso(this.now());
     this.keys = [`day:${at.slice(0, 10)}`, `month:${at.slice(0, 7)}`, `new:${at.slice(0, 10)}`];
     const current = await this.budgets();
+    // All consumers share the controller's persisted decision. A legacy
+    // initializer must not shrink today's admitted account pool back to 500.
+    let centrallyManaged=false;
+    try {
+      const policy=await this.task('feed-adaptive-policy:v1');
+      const value=JSON.parse(policy?.cursor);
+      centrallyManaged=policy?.status==='complete'&&value?.version===1&&value.day===at.slice(0,10)
+        &&Number.isSafeInteger(value.daily)&&value.daily>=0&&Number.isSafeInteger(value.monthly)&&value.monthly>=0
+        &&Date.parse(value.checkedAt)<=this.now()&&this.now()-Date.parse(value.checkedAt)<DAY;
+    } catch { /* No verified central policy: preserve the conservative initializer. */ }
     const month = current.find(row => row.budget_key === this.keys[1]);
     const day = current.find(row => row.budget_key === this.keys[0]);
     const date = new Date(this.now()), daysRemaining = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0)).getUTCDate() - date.getUTCDate() + 1;
@@ -135,22 +145,25 @@ class RefreshStore {
     // Pace our own calendar-month ceiling; this does not infer the provider's
     // subscription renewal from its reporting period.to field.
     const daily = Math.min(config.daily, Math.max(1, Math.floor(monthlyRemainingAtDayStart / daysRemaining)));
-    await this.guarded(this.keys.map((key, i) => this.db.prepare(`INSERT INTO automatic_refresh_budgets(budget_key,limit_count,created_at,updated_at)
-      VALUES(?,?,?,?) ON CONFLICT(budget_key) DO UPDATE SET limit_count=MIN(limit_count,excluded.limit_count),updated_at=excluded.updated_at`)
-      .bind(key, [daily, config.monthly, config.newPerDay][i], at, at)));
+    await this.guarded(this.keys.flatMap((key, i) => centrallyManaged&&!config.adaptiveProvider?[]:[this.db.prepare(`INSERT INTO automatic_refresh_budgets(budget_key,limit_count,created_at,updated_at)
+      VALUES(?,?,?,?) ON CONFLICT(budget_key) DO UPDATE SET limit_count=${config.adaptiveProvider&&i<2 ? 'MAX' : 'MIN'}(limit_count,excluded.limit_count),updated_at=excluded.updated_at`)
+      .bind(key, [daily, config.monthly, config.newPerDay][i], at, at)]));
   }
   async reserve(spec, listingId, isUsage) {
     const id = crypto.randomUUID(), at = iso(this.now());
+    const catchup=this.catchupBudgetKey||null;
+    if(catchup!==null&&!/^relist-catchup:\d{4}-\d\d-\d\d$/.test(catchup))throw Error('AUTOMATIC_REFRESH_CATCHUP_INVALID');
     if (this.keys[0] !== `day:${at.slice(0, 10)}`) throw Error("AUTOMATIC_REFRESH_DAY_CHANGED");
     // INSERT and both increments commit together. A crash after this transaction
     // still counts the attempted call and cannot recover budget by restarting.
     const statements = [this.db.prepare(`INSERT INTO automatic_refresh_attempts(attempt_id,operation,platform,listing_id,attempted_at)
       SELECT ?,?,?,?,? WHERE (SELECT COUNT(*) FROM automatic_refresh_budgets WHERE budget_key IN (?,?) AND consumed<limit_count)=2
       AND EXISTS(SELECT 1 FROM automatic_refresh_state WHERE singleton=1 AND blocked_reason IS NULL AND lease_owner=? AND lease_until>?
-        AND (?=1 OR (quota_checked_at>? AND quota_allowance>0)))`)
-      .bind(id, spec.operation, spec.platform || null, listingId, at, this.keys[0], this.keys[1], this.owner, at, isUsage ? 1 : 0, iso(this.now() - DAY)),
-      this.db.prepare(`UPDATE automatic_refresh_budgets SET consumed=consumed+1,updated_at=? WHERE budget_key IN (?,?)
-        AND EXISTS(SELECT 1 FROM automatic_refresh_attempts WHERE attempt_id=?)`).bind(at, this.keys[0], this.keys[1], id),
+        AND (?=1 OR (quota_checked_at>? AND quota_allowance>0)))
+      AND (? IS NULL OR EXISTS(SELECT 1 FROM automatic_refresh_budgets WHERE budget_key=? AND consumed<limit_count))`)
+      .bind(id, spec.operation, spec.platform || null, listingId, at, this.keys[0], this.keys[1], this.owner, at, isUsage ? 1 : 0, iso(this.now() - DAY),catchup,catchup),
+      this.db.prepare(`UPDATE automatic_refresh_budgets SET consumed=consumed+1,updated_at=? WHERE budget_key IN (?,?,?)
+        AND EXISTS(SELECT 1 FROM automatic_refresh_attempts WHERE attempt_id=?)`).bind(at, this.keys[0], this.keys[1], catchup,id),
       this.db.prepare(`UPDATE automatic_refresh_state SET quota_allowance=MAX(0,quota_allowance-1) WHERE singleton=1
         AND EXISTS(SELECT 1 FROM automatic_refresh_attempts WHERE attempt_id=?)`).bind(id)];
     const result = await this.guarded(statements);

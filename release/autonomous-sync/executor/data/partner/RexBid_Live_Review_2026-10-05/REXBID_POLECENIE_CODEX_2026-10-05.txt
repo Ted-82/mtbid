@@ -1,0 +1,178 @@
+REXBID — POLECENIE WYKONAWCZE DLA AKTUALNEJ SESJI CODEXA
+Data: 5 października 2026
+Cel: poprawić istniejącą stronę i przetestować ją na rzeczywistych danych.
+
+STATUS TEGO PLIKU
+To kompletny zakres prac i wyniki częściowego audytu, NIE gotowy kod strony ani potwierdzenie wdrożenia. W tej sesji ChatGPT odczytano GitHub i źródła publiczne; zapis zadania na GitHub został odrzucony błędem 403. Nie uruchomiono Codexa ani deployu. Pobranie stagingu nie powiodło się w środowisku audytu. Podane niżej kwoty konkurencji to odczyty z indeksowanych/keszowanych stron, a nie pięć ukończonych kalkulacji interaktywnych. Zweryfikuj je podczas wykonywania zadania.
+
+ZLECENIE WŁAŚCICIELA
+Wykonaj poniższe poprawki samodzielnie w istniejącym projekcie. Nie kończ na planie, raporcie syntetycznym ani informacji, że puste sekcje są spodziewane na starych danych. Właściciel zezwala na potrzebne odczyty Apibara, synchronizację stagingowej bazy i testy, a także na poprawki aktualnego kodu. Według właściciela zostało około 25 000 requestów na około 15 dni. Nie ograniczaj rozwoju wcześniejszym zakazem discovery/backfill. Zachowaj kontrolę zużycia, nie uruchamiaj bezcelowych pętli ani płatnych zakupów, nie kupuj innego planu i nie wyłączaj zabezpieczeń kont.
+
+Pracuj w tej samej sesji i na najnowszych plikach, które już poprawiasz. Jeżeli trwa obecny test, zachowaj jego wynik, potem scal nowy zakres z bieżącymi zmianami. Nie uruchamiaj drugiego procesu, który nadpisze pierwszy.
+
+1. USTAL I ZABEZPIECZ PRAWDZIWĄ BAZĘ V4
+
+Repozytorium: Ted-82/mtbid.
+Staging: https://rexbid-auth-test.tedn828.workers.dev/
+Przykład V4: https://rexbid-auth-test.tedn828.workers.dev/__staging/owner-review?case=bev&lot=OWNER-V4-BEV-HOUSTON#importCalculator
+Ten przykład jest syntetyczny; nie przedstawiaj go jako rzeczywistej aukcji ani wystarczającego testu całej strony.
+
+Audyt GitHuba odczytał main na 5c781c7a6db9a8ac3f70aedb638f4543dfce16e0. PROJECT_HANDOFF.md opisuje tam 3 października i V3, nie najnowszy V4. Nie cofaj projektu do tego commita. Najpierw odczytaj lokalny HEAD, branch, status i diff oraz ostatni raport swojej sesji. Zachowaj bieżące niezatwierdzone zmiany. Nie wykonuj reset --hard, clean ani automatycznego odrzucania plików. Zachowaj wcześniej istniejący .codex-wrangler-cache/.
+
+Porównaj lokalny kod z rzeczywistym stagingowym wdrożeniem. Ustal, które pliki publikuje Wrangler: w sprawdzonej konfiguracji assets.directory=./public, więc root index.html/car.html nie muszą być obsługiwanymi plikami. Edytuj faktyczne źródła, a duplikaty aktualizuj tylko zgodnie z istniejącym mechanizmem projektu.
+
+Zapisz bezpieczny checkpoint aktualnego V4 bez sekretów, a kolejne poprawki w osobnych czytelnych commitach/gałęzi roboczej. Nie wykonuj force push. GitHub ma odtwarzać rzeczywisty najnowszy stan, a nie pozostać kilka wersji za stagingiem.
+
+2. WYGLĄD I MARKA — KONKRETNY REZULTAT
+
+Usuń wyłącznie dekoracyjny samochód z hero oraz kontener/reguły, które rezerwują mu miejsce. Nie usuwaj zdjęć ofert, galerii ani mediów pojazdów. Zachowaj dotychczasową kolorystykę. Pozostały panel wyszukiwania wyśrodkuj i dopasuj szerokością oraz wysokością do strony; bez pustej połowy hero, przypadkowej nowej grafiki i nadmiernej pustej przestrzeni.
+
+Widoczny znak to REXBID bez kropki. REX i BID pozostają w dotychczasowych dwóch kolorach. Ujednolić nagłówek, stopkę, mobile, tytuły i teksty marki. Nie zmieniaj automatycznie klas technicznych, nazw tabel, identyfikatorów, hostów, DNS ani originów autoryzacji. Nie zgaduj końcówki domeny.
+
+Sprawdź desktop ok. 1440 px i telefon ok. 390 px, a także szerszy/zwężony ekran. Wyszukiwarka ma być proporcjonalna, bez poziomego przewijania, z czytelną kolejnością pól i działającą klawiaturą.
+
+3. DOKŁADNIE CZTERY KATEGORIE W CAŁYM SERWISIE
+
+Aktualne aukcje / Timed Auction / Kup teraz / Samochody elektryczne.
+
+Jedno wspólne źródło definicji i predykatów dla głównej, katalogu i mobile. Usuń Nadchodzące oraz dodatkową zakładkę Wszystkie aukcje. Zwykła akcja „Wyczyść filtry” może zostać, nie jest piątą kategorią. Nie dodawaj nowych kategorii zastępczych.
+
+Usunięcie zakładki Nadchodzące nie oznacza usuwania aktywnych aukcji z przyszłą datą. Ustal kwalifikację według prawdziwych pól Apibara i aktualnych statusów; nie wymyślaj statusów. Zakończony lot ze starą ceną Buy Now nie może udawać aktywnej możliwości zakupu. Zachowaj zaakceptowane poprawki Kup teraz.
+
+Dawne linki i zapamiętane filtry obsłuż zgodnie z nową nawigacją, bez pustej strony ani błędnego przekierowania do innego auta. Nie zmieniaj archiwalnych danych, aby pasowały do bieżącej kategorii.
+
+4. SAMOCHODY I ZDJĘCIA — NAPRAW DOPŁYW DANYCH
+
+Wskazówka z historycznego raportu, nie obecny pomiar D1: 3 października staging zawierał 380 listingów (260 Copart, 120 IAAI), scope były częściowe, ostatni sukces synchronizacji pochodził z 1 października, a URL-e/miniatury były zapisane w 80 rekordach. Katalog czytał D1 bez katalogowego fallbacku do Apibara; detail potrafił wzbogacać nieświeży rekord.
+
+W historycznej konfiguracji stagingu limit globalny wynosił 500/dzień, discovery 30/dzień i media 10/dzień. Zweryfikuj obecny V4 i rzeczywiste deployowane wartości, nie zakładaj ich aktualności. Nowa zgoda właściciela ma przełożyć się na potrzebną zmianę tych limitów i wykonanie synchronizacji, nie tylko dopisek w raporcie.
+
+Najpierw odczytaj aktualne odpowiedzi API, poprawny binding stagingowej D1, zakresy, cursory, świeżość, liczby aktywnych ofert i pokrycie mediów. Oddziel przyczynę danych od błędów filtrów, paginacji i renderowania. Następnie wykonaj kontrolowane uzupełnianie/odświeżanie aktywnych ofert obu platform oraz zapis prawdziwych URL-i zdjęć.
+
+Jeżeli provider udostępnia saldo, sprawdź je. Jeżeli nie, traktuj około 25 000 jako niezweryfikowaną informację właściciela, zapisuj rzeczywiste wywołania od początku tej pracy i zachowaj rezerwę. Dobierz oraz zwiększ budżety operacyjne do potrzebnych partii pracy, bez żądania zgody na każdą stronę API. Zachowaj limity techniczne providera, obsługę 429, deduplikację, atomowe rozliczanie budżetu, checkpointy i ochronę przed zapętlonym cursorem. Nie pobieraj bez potrzeby całej historii każdego auta tylko po to, aby wyświetlić miniaturę.
+
+Nie fałszuj dat, nie zmieniaj starych ofert na aktualne, nie używaj fixture do zapełnienia głównej. Nie ustawiaj catalog_complete=true zanim przejdziesz cały wymagany zakres. Częściowy katalog ma działać i uczciwie opisywać zakres, zamiast udawać pełną ofertę obu domów aukcyjnych.
+
+Sprawdź per_page, next_cursor i has_more dla obu platform. Pierwsze 20 wyników nie może być traktowane jak cały katalog. Filtruj i sortuj właściwy zbiór, a nie tylko już załadowaną pierwszą stronę. Pokaż działającą paginację lub „Załaduj więcej”, zgodnie z obecną architekturą.
+
+Dokładny VIN/LOT ma otwierać właściwą ofertę, także gdy poprzednio ustawiono inne filtry. Nie przywracaj fallbacku exact || data[0]. Dla wielu aukcji jednego VIN zachowaj identyfikację konkretnego lotu/platformy i nie mieszaj jego zdjęć lub cen z innym lotem.
+
+Sprawdź prawdziwą strukturę mediów obu dostawców, mapowanie listy/detail, CSP, lazy loading, onerror i ważność URL-i. Nie nadpisuj istniejących dobrych zdjęć pustą aktualizacją. Obecność pola image_url nie jest testem ładowania: w przeglądarce sprawdź faktyczne załadowanie, np. naturalWidth > 0. Placeholder jest poprawny dla realnego braku zdjęcia, nie jako maskowanie błędu całego katalogu.
+
+Po synchronizacji sprawdź główną i wszystkie cztery kategorie. Jeżeli dana kategoria naprawdę nie ma ofert u providera, opisz udokumentowany stan pusty; nie twórz fikcyjnych ofert.
+
+5. PIĘĆ POJAZDÓW DO PORÓWNANIA KALKULATORÓW
+
+Poniżej zapisano CZĘŚCIOWY benchmark transportu lądowego w USD. Kwoty BidCars pochodzą z publicznych kopii stron o różnych datach. Nie są świeżą wiążącą ofertą ani pięcioma pełnymi kwotami pod dom. Kolumny partnera w audytowanym main mają neutralne nazwy route_1…route_6. Przypisanie terminali i równoważność zakresu usług trzeba potwierdzić na aktualnych materiałach/V4.
+
+1. 2024 Tesla Model 3 | Copart | LOT 62674546 | VIN 5YJ3E1EA3RF866005
+   BidCars: Houston (TX) -> Houston (TX), ląd 285 USD.
+   Partner main: HOUSTON 77073, route_3, ląd 205 USD; różnica liczb -80 USD.
+   Źródło: https://bid.cars/en/lot/1-62674546/2024-Tesla-MODEL-3-5YJ3E1EA3RF866005
+   Data kursów widoczna na kopii strony: 2026-10-03 06:00; timezone not verified. To nie data obowiązywania transportu.
+
+2. 2026 BMW 330i | IAAI | LOT 45439613 | VIN 3MW69CW09T8G26811
+   BidCars: Los Angeles (CA) -> Los Angeles (CA), ląd 320 USD.
+   Partner main: Los Angeles 90248, route_4, ląd 220 USD; różnica liczb -100 USD.
+   Źródło: https://bid.cars/en/lot/0-45439613/2026-BMW-3-Series-3MW69CW09T8G26811
+   Data kursów widoczna na kopii strony: 2026-10-02 13:00; timezone not verified. To nie data obowiązywania transportu.
+
+3. 2023 Hyundai Elantra SEL | IAAI | LOT 45674212 | VIN 5NPLS4AG3PH107017
+   BidCars: Miami-North (FL) -> Savannah (GA), ląd 520 USD.
+   Partner main: Miami-North 33332, route_1, ląd 415 USD; różnica liczb -105 USD.
+   Źródło: https://bid.cars/en/lot/0-45674212/2023-Hyundai-Elantra-5NPLS4AG3PH107017
+   Data kursów widoczna na kopii strony: 2026-09-08 02:00; timezone not verified. To nie data obowiązywania transportu.
+
+4. 2021 Toyota Prius L Eco | Copart | LOT 65595416 | VIN JTDKAMFU4M3135817
+   BidCars: Rancho Cucamonga (CA) -> Los Angeles (CA), ląd 340 USD.
+   Partner main: RANCHO CUCAMONGA (CA) 91739, route_4, ląd 270 USD; różnica liczb -70 USD.
+   Źródło: https://bid.cars/en/lot/1-65595416/2021-Toyota-Prius-JTDKAMFU4M3135817
+   Data kursów widoczna na kopii strony: 2026-09-24 11:00; timezone not verified. To nie data obowiązywania transportu.
+
+5. 2021 Volkswagen Atlas SE | Copart | LOT 61699166 | VIN 1V2KR2CA8MC555442
+   BidCars: Hampton (VA) -> Newark (NJ), ląd 470 USD.
+   Partner main: HAMPTON,VA 23666, route_2, ląd 405 USD; różnica liczb -65 USD.
+   Źródło: https://bid.cars/en/lot/1-61699166/2021-Volkswagen-Atlas-1V2KR2CA8MC555442
+   Data kursów widoczna na kopii strony: 2026-08-09 21:00; timezone not verified. To nie data obowiązywania transportu.
+
+Te pojazdy są próbką techniczną, nie rekomendacją zakupu lub potwierdzeniem możliwości rejestracji. Jeżeli stary lot nie pozwala już uruchomić kalkulatora, zastąp go realną ofertą tej samej platformy, placu i klasy pojazdu/napędu; zapisz zastąpienie oraz jego powód.
+
+Otwórz dynamiczne kalkulatory BidCars, pomocniczo DreamBid i REXBID. Dla pięciu aut ustaw tę samą kontrolną cenę zakupu (np. 10 000 USD, wyłącznie do porównania), identyczny port/kraj odprawy, miejsce dostawy w Polsce, klasę pojazdu, opcje i sposób porównania netto/brutto. Bieżący bid lub automatyczny przedział estymacji nie zastępuje zadanej ceny zakupu. Nie składaj ofert, nie dokonuj zakupów, wpłat ani odpłatnych zamówień.
+
+Zapisz datę/godzinę, URL, VIN/lot, parametry, screen oraz osobne pozycje: zakup; opłaty aukcji; ląd; morze; dodatki wliczone/oddzielne; prowizja; port/odprawa; cło; VAT; akcyza; dostawa PL; pełna suma PLN. Zachowaj surowe kwoty i porównanie na wspólnym kursie kontrolnym. Kurs kontrolny w analizie nie zastępuje właściwego kursu celnego/podatkowego w rzeczywistym modelu.
+
+Jeżeli zakres usługi, podstawa celna lub profil opłat aukcyjnych konkurenta różni się od REXBID, wypisz to i policz wpływ. Nie obniżaj sztucznie wartości celnej, nie pomijaj obowiązkowych pozycji. Brak odczytu to null/niezweryfikowane, nie zero. Nie przypisuj fikcyjnego screena, wyniku ani daty weryfikacji.
+
+6. TRANSPORT — SPRAWDŹ MODEL, NIE TYLKO CYFRY
+
+Źródła partnera to data/partner/land_transport_rates.md i sea_transport_rates.md. Odczytaj ich najnowsze wersje, mapping terminali i warunki. W starszym modelu V3 wariant standardowy brał fracht na pojazd przy 4 autach w 40'HC, ostrożny przy 3, a wybór minimalizował kompletną sumę ląd+morskie dla tej samej trasy. Ustal, jaką regułę i preferowane terminale rzeczywiście ma zatwierdzony V4. Nie wymyślaj nazw portów ani nie nadpisuj źródła z kolorami na podstawie domysłu.
+
+Przykład diagnostyczny z main, NIE potwierdzony błąd V4:
+Houston/Copart route_3: ląd 205 USD;
+- fracht przy 4 autach w kontenerze: 675 USD na auto -> razem 880 USD;
+- przy 3 autach: 850 USD na auto -> razem 1055 USD;
+- przy 1 aucie: 2400 USD -> razem 2605 USD.
+Różnica 1 vs 4 wynosi 1725 USD przed pozostałymi kosztami. Kupno jednego auta nie oznacza kontenera tylko dla tego auta. Nie wolno również stosować wariantu czterech aut do pojazdu, który wymaga innej klasy załadunku.
+
+Sprawdź błędną kolumnę portu, pomieszanie land/sea z innych tras, stawkę kontenera zamiast stawki na pojazd, klasy SUV/oversize, waluty, zaokrąglenia, nakładanie manual override na automat i podwójne naliczanie dodatków. Szczególnie sprawdź stawki i pola, które już zmieniała bieżąca sesja V4.
+
+Zapisz potwierdzone obserwacje konkurencji w oddzielnej tabeli benchmarkowej z datą i zakresem. Nie traktuj pięciu odczytów jako pełnego cennika setek lokalizacji i nie interpoluj automatycznie reszty. Napraw błędne mapowanie lub dane źródłowe na podstawie dowodów; ewentualne ceny ofertowe REXBID i marżę trzymaj oddzielnie od kosztu zakupowego partnera. Nie dodawaj ukrytego współczynnika wyrównującego końcową sumę.
+
+Przy identycznym zakresie rozlicz każdą istotną różnicę. Niewyjaśniona różnica rzędu tysięcy PLN oznacza niezamknięty punkt, a nie powód do arbitralnego dopisania/odjęcia kwoty. Nie obiecuj identyczności ofert różnych usługodawców.
+
+7. BEV, HEV, PHEV I DOPŁATA 150 USD
+
+Odszukaj zatwierdzone wcześniej źródło i warunki pozycji 150 USD za auto elektryczne. Sama kwota nie dowodzi, że obejmuje wszystkie hybrydy, każdy port i każdy stan baterii, ani że nie jest już częścią frachtu. Rozróżniaj BEV, HEV, PHEV i nieznany napęd; nie oznaczaj każdej hybrydy jako BEV.
+
+BidCars na https://bid.cars/en/calculator publikuje m.in. Hazardous cargo 100 USD. To nie dowód, że konkurencja nie ma dopłat, ani że ta pozycja jest tym samym co nasze pakowanie 150 USD. Nie kopiuj warunków opłaty z samej podobnej nazwy.
+
+Każdy rzeczywisty koszt naliczaj dokładnie raz. Jeżeli jest zawarty w taryfie all-in, pokaż w szczegółach jako wliczony zamiast dodawać ponownie. Jeżeli nie ma podstaw do automatycznego naliczania 150 USD HEV, usuń nieuzasadnione naliczanie; nie udawaj przy tym potwierdzonej zerowej taryfy przewoźnika, gdy warunki nadal są nieznane.
+
+Dla klienta główna pozycja może brzmieć „Transport USA + morski”, z rozwijanym rozbiciem na ląd, morze i potwierdzoną dopłatę. Całkowita kwota ma obejmować ujawnione koszty przed decyzją klienta, bez niespodzianki dopisywanej później.
+
+8. PODATKI — NOWA WAŻNA KONTROLA WERSJI I POCHODZENIA
+
+Oficjalne źródło: https://eur-lex.europa.eu/eli/reg/2026/1455/oj/eng
+Rozporządzenie (UE) 2026/1455: art. 1 ust. 1 przewiduje 0% dla towarów z załącznika I pochodzących z USA, załącznik obejmuje dział CN 87, art. 6 reguluje pochodzenie, art. 8 wskazuje stosowanie od 1 lipca 2026. Przed implementacją sprawdź aktualny TARIC, warunki i ewentualne zmiany/zawieszenia. To wskazanie źródła, nie indywidualna kwalifikacja celna pięciu aut.
+
+Zakup/plac aukcyjny w USA to nie dowód amerykańskiego pochodzenia. VIN/dekoder może wspomagać identyfikację, ale nie zastępuje wymaganych dowodów pochodzenia. Nie stosuj automatycznie 0% ani 10% do każdej oferty. Dla niepotwierdzonego pochodzenia pokaż wyraźne założenie/wariant, a nie gwarantowane zwolnienie. Zachowaj datę obowiązywania i źródło reguły.
+
+Sprawdź również aktualne zasady VAT i akcyzy dla napędu/pojemności/procedury odprawy, właściwe podstawy oraz netto/brutto prowizji. Weryfikuj w aktualnych oficjalnych źródłach; nie przenoś procentu z reklamy konkurencji. Na hipotetycznej podstawie 10 000 USD różnica między 10% a 0% to 1000 USD samego cła — diagnostycznie znacznie więcej niż odczytane różnice w lądzie.
+
+9. KALKULATOR MA BYĆ ZROZUMIAŁY DLA KLIENTA
+
+W głównym widoku: cena zakupu, opłaty aukcyjne, łączny transport, odprawa/podatki, obsługa/dostawa i wyraźny szacowany koszt końcowy. Szczegóły i założenia rozwijane, bez technicznych route_id oraz kilkunastu niejasnych dodatkowych pól.
+
+Uzupełniaj automatycznie dane dostępne jednoznacznie w aktualnej ofercie. Nie zgaduj brakujących. Oznacz, co zawiera wycena, jakiego miejsca dostawy dotyczy i czego nie obejmuje. Uzasadniony szacunek z opisanymi założeniami jest lepszy od pozornego „kosztu gwarantowanego”; nie prezentuj subtotal jako pełnej kwoty pod dom, jeśli brakuje obowiązkowej pozycji.
+
+10. ODBIÓR — REALNA STRONA, NIE TYLKO ZIELONY SUITE
+
+Po poprawkach i synchronizacji wykonaj testy jednostkowe/integracyjne oraz niezależne testy w prawdziwej przeglądarce. Rozdziel ich wyniki w raporcie. Potwierdź:
+- hero bez dekoracyjnego auta i pustego kontenera, REXBID bez kropki, cztery zakładki wszędzie;
+- świeże realne oferty obu platform, działające filtry/paginację, poprawne liczniki i scope;
+- zdjęcia na listach i kartach rzeczywiście się ładują;
+- dokładny VIN/LOT, poprawną ofertę, galerię i dostępne HD/video/360;
+- historię aukcji, rzeczywiste daty bez przesunięcia dnia i końcowe kwoty z właściwych pól;
+- Buy Now, ulubione i logowanie bez regresji; nie resetuj danych kont;
+- kalkulator dla BEV, HEV, PHEV, ICE i unknown, granice stawek, waluty, brak double charge;
+- pięć pełnych porównań lub uczciwie nazwany brak odczytu, nigdy fałszywy PASS;
+- desktop i telefon, obsługę klawiaturą, brak błędów konsoli i poziomego przewijania;
+- rzeczywiste wykorzystanie providera oraz brak identycznego wywołania na każde odświeżenie klienta.
+
+Po testach wdróż poprawki na ISTNIEJĄCY STAGING. Przed deployem potwierdź target Workera i D1. Nie zmieniaj produkcyjnego mtbid, nie rób migracji produkcji ani zmian DNS. Nie uruchamiaj wszystkich zaległych migracji w ciemno: wcześniejszy handoff ostrzega o kolumnach mediów obecnych już w 0004 i duplikowanych przez 0005. Ewentualną potrzebną zmianę stagingowej bazy wykonaj dopiero po sprawdzeniu schematu i odwracalności.
+
+Raport końcowy: co naprawiono, przyczyny błędów, commit/branch, Worker Version ID, zmienione pliki, pełne zmienione pliki do pobrania, linki stagingowe do REALNYCH aut, screeny przed/po, pięć tabel wycen, testy wykonane i niewykonane, świeżość i pokrycie mediów oraz rzeczywiste zużycie API. Zaktualizuj PROJECT_HANDOFF.md aktualnym stanem.
+
+Nie przerywaj wykonalnych prac, żeby pytać właściciela o już rozstrzygnięte sprawy. Gdy konieczna jest interaktywna autoryzacja jego konta, wskaż jeden konkretny krok i kontynuuj pozostałe niezależne prace. Nie twierdź, że coś wdrożono, zapisano albo przetestowano, dopóki nie masz dowodu.
+
+ŹRÓDŁA AUDYTU (stan odczytany 5.10.2026; starszy main nie jest bazą do nadpisania V4)
+https://github.com/Ted-82/mtbid/blob/5c781c7a6db9a8ac3f70aedb638f4543dfce16e0/PROJECT_HANDOFF.md
+https://github.com/Ted-82/mtbid/blob/5c781c7a6db9a8ac3f70aedb638f4543dfce16e0/wrangler.staging.jsonc
+https://github.com/Ted-82/mtbid/blob/5c781c7a6db9a8ac3f70aedb638f4543dfce16e0/docs/TRANSPORT_RATE_MODEL.md
+https://github.com/Ted-82/mtbid/blob/5c781c7a6db9a8ac3f70aedb638f4543dfce16e0/data/partner/land_transport_rates.md
+https://github.com/Ted-82/mtbid/blob/5c781c7a6db9a8ac3f70aedb638f4543dfce16e0/data/partner/sea_transport_rates.md
+https://bid.cars/en/calculator
+https://dreambid.pl/pl/calculator
+https://eur-lex.europa.eu/eli/reg/2026/1455/oj/eng
+
+Pamiętaj: dołączony JSON jest zapisem obserwacji, nie konfiguracją stawek do automatycznego importu.

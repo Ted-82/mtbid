@@ -1,0 +1,168 @@
+{
+  "measuredAt": "2026-11-26T16:08:49.476Z",
+  "queue": 20932,
+  "queues": [
+    {
+      "platform": "copart",
+      "pending": 14185,
+      "oldest": "2026-11-24T17:34:49+00:00"
+    },
+    {
+      "platform": "iaai",
+      "pending": 6747,
+      "oldest": "2026-11-24T17:33:09+00:00"
+    }
+  ],
+  "source": {
+    "generation_id": 24932,
+    "status": "complete",
+    "observed_at": "2026-11-26T07:45:51.359Z",
+    "updated_at": "2026-11-26T07:49:56.463Z",
+    "last_sequence": 123100250,
+    "last_error_code": null
+  },
+  "resources": {
+    "writeLimit": 34293208,
+    "readLimit": 19255027912,
+    "writes": 23685742,
+    "reads": 448494993,
+    "remainingWrites": 10607466,
+    "remainingReads": 18806532919
+  },
+  "dbBytes": 2662596608,
+  "photos": [
+    {
+      "platform": "copart",
+      "listings": 45908,
+      "missing_addresses": 16690,
+      "next7": 41416,
+      "missing_next7": 15058
+    },
+    {
+      "platform": "iaai",
+      "listings": 32768,
+      "missing_addresses": 4,
+      "next7": 28585,
+      "missing_next7": 1
+    }
+  ],
+  "catchup": [
+    {
+      "budget_key": "new:2026-11-26",
+      "limit_count": 62580,
+      "consumed": 1323
+    },
+    {
+      "budget_key": "relist-catchup:2026-12-26",
+      "limit_count": 43584,
+      "consumed": 813
+    }
+  ],
+  "alerts": [
+    {
+      "status": "sent",
+      "last_error": null,
+      "messages": 1
+    }
+  ],
+  "productionExecutor": "18b87ec2-b682-421b-9e52-ac0623e8cdf3",
+  "productionWeb": "7fbf788c-6d97-4fd6-b19a-98b3705d95c8",
+  "tests": {
+    "tests": 841,
+    "pass": 841,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0,
+    "duration_ms": 25443.5617
+  },
+  "webTests": {
+    "tests": 169,
+    "pass": 169,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "duration_ms": 6150.7072
+  },
+  "sharedBudgetTests": 46,
+  "public": {
+    "at": "2026-11-26T15:53:31.193Z",
+    "parallel": [
+      {
+        "name": "subaru-vin",
+        "http": 200,
+        "ms": 1440,
+        "rows": 1,
+        "first": [
+          {
+            "platform": "iaai",
+            "lot": "46496930",
+            "vin": "JF1SG63648G714701",
+            "year": 2008
+          }
+        ]
+      },
+      {
+        "name": "hyundai-vin",
+        "http": 200,
+        "ms": 1165,
+        "rows": 1,
+        "first": [
+          {
+            "platform": "iaai",
+            "lot": "46528339",
+            "vin": "KMHDH4AE0DU637914",
+            "year": 2013
+          }
+        ]
+      },
+      {
+        "name": "subaru-2025",
+        "http": 200,
+        "ms": 1547,
+        "rows": 20,
+        "first": [
+          {
+            "platform": "copart",
+            "lot": "68178906",
+            "vin": "JF2SLDRC1SH608328",
+            "year": 2025
+          },
+          {
+            "platform": "copart",
+            "lot": "76077466",
+            "vin": "JF2GUHFC2SH332952",
+            "year": 2025
+          }
+        ]
+      },
+      {
+        "name": "electric",
+        "http": 200,
+        "ms": 1165,
+        "rows": 20,
+        "first": [
+          {
+            "platform": "copart",
+            "lot": "63195036",
+            "vin": "7SAYGDEE6RF003254",
+            "year": 2024
+          },
+          {
+            "platform": "copart",
+            "lot": "65472536",
+            "vin": "7SAYGDEE6TF323651",
+            "year": 2026
+          }
+        ]
+      }
+    ],
+    "electricSecondPage": {
+      "http": 200,
+      "ms": 356,
+      "rows": 20,
+      "noDuplicates": true
+    },
+    "anonymousOwnerEndpoint": 401
+  }
+}

@@ -1,0 +1,1480 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+
+const root = path.resolve(__dirname, '..');
+const fixtures = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/auction-history.json'), 'utf8'));
+const workerSource = fs.readFileSync(path.join(root, 'worker.js'), 'utf8');
+const carSource = fs.readFileSync(path.join(root, 'public/car.html'), 'utf8');
+const indexSource = fs.readFileSync(path.join(root, 'public/index.html'), 'utf8');
+
+function loadWorker(fetchImpl = async () => { throw new Error('Unexpected network request'); }, timer = {}) {
+  const source = workerSource
+    .replace('import apibaraModule from "./providers/apibara.js";', 'const apibaraModule = globalThis.__apibaraModule;')
+    .replace('import contract from "./providers/contract.js";', 'const contract = globalThis.__providerContract;')
+    .replace('import authProviderModule from "./auth/supabase.js";', 'const authProviderModule = globalThis.__authProviderModule;')
+    .replace('import accountsModule from "./auth/routes.js";', 'const accountsModule = globalThis.__accountsModule;')
+    .replace('import providerBudgetModule from "./providers/request-budget.js";', 'const providerBudgetModule = globalThis.__providerBudgetModule;')
+    .replace('export default {', 'globalThis.__worker = {');
+  assert.notEqual(source, workerSource, 'Worker module export marker should exist');
+  const context = {
+    URL, URLSearchParams, Request, Response, Headers, AbortController, crypto: require('node:crypto').webcrypto,
+    __apibaraModule: require('../providers/apibara.js'), __providerContract: require('../providers/contract.js'), console: timer.console || console,
+    __authProviderModule: require('../auth/supabase.js'), __accountsModule: require('../auth/routes.js'),
+    __providerBudgetModule: require('../providers/request-budget.js'),
+    fetch: fetchImpl,
+    setTimeout: timer.setTimeout || setTimeout,
+    clearTimeout: timer.clearTimeout || clearTimeout,
+    setInterval, clearInterval,
+    caches: { default: { match: async () => null, put: async () => {} } }
+  };
+  context.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(context);
+  vm.runInContext(`${source}\nglobalThis.__history = { normalizeHistoryRecord, normalizeVehicle, mergeProviderPayload, normalizeApibaraHistory: normalizeProviderHistory, normalizeApibaraVehicleList: normalizeProviderVehicleList, historyEventHash, saveAuctionHistory, saveVehicle, saveApiVehicle, syncVehicle, syncVehicleList, getSavedAuctionHistory, requestApibara: (env, spec) => apibaraProvider.request(env, spec), fetchApibaraVehicle: fetchProviderVehicle, searchApibaraVehicles: searchProviderVehicles, fetchApibaraHistory: fetchProviderHistory, fetchApibaraVehicles: fetchProviderVehicles, fetchApibaraVehicleFilters: fetchProviderFilters, getVehicleFilters, buildApibaraUrl: apibaraProvider.buildRequestUrl, ApibaraRequestError: ProviderError, apibaraErrorResponse: providerErrorResponse, provider: apibaraProvider };`, context);
+  return context;
+}
+
+class MemoryD1 {
+  constructor(rows = []) { this.rows = rows; this.nextId = rows.reduce((n, row) => Math.max(n, row.id || 0), 0) + 1; }
+  prepare(sql) {
+    const db = this;
+    let args = [];
+    return {
+      bind(...values) { args = values; return this; },
+      async first() { return null; },
+      async all() {
+        if (!/FROM\s+auction_history/i.test(sql)) return { results: [] };
+        return { results: db.rows.filter(row => row.vehicle_key === args[0]).map(row => ({ ...row })) };
+      },
+      async run() {
+        if (/^\s*UPDATE\s+auction_history/i.test(sql)) {
+          const row = db.rows.find(item => item.id === args[17] && item.vehicle_key === args[18]);
+          if (row) {
+            const keys = ['event_key','source_event_id','vin','platform','lot','auction_date','sale_date','current_bid'];
+            keys.forEach((key, i) => { if (args[i] !== null && args[i] !== undefined) row[key] = args[i]; });
+            if (args[8] === 1) row.final_price = null;
+            else if (args[9] !== null && args[9] !== undefined) row.final_price = args[9];
+            if (args[10] !== null && args[10] !== undefined) row.buy_now = args[10];
+            if (args[11] !== null && args[11] !== undefined) row.price = args[11];
+            if (args[12] !== null && args[12] !== undefined) row.seller = args[12];
+            if (args[13] !== null && args[13] !== undefined) row.status = args[13];
+            row.event_hash = args[14]; row.captured_at = args[15]; row.raw_json = args[16];
+          }
+          return { success: true };
+        }
+        if (/^\s*INSERT\s+INTO\s+auction_history/i.test(sql)) {
+          const keys = ['vehicle_key','event_key','source_event_id','vin','platform','lot','auction_date','sale_date','current_bid','final_price','buy_now','price','seller','status','event_hash','captured_at','raw_json'];
+          const row = { id: db.nextId++ };
+          keys.forEach((key, i) => { row[key] = args[i]; });
+          db.rows.push(row);
+        }
+        return { success: true };
+      }
+    };
+  }
+}
+
+class SyncMemoryD1 {
+  constructor() { this.vehicles = []; this.snapshots = []; this.history = []; this.statements = []; }
+  prepare(sql) {
+    const db = this;
+    let args = [];
+    db.statements.push(sql);
+    return {
+      bind(...values) { args = values; return this; },
+      async first() {
+        if (/FROM\s+vehicles/i.test(sql) && /WHERE\s+vehicle_key/i.test(sql)) return db.vehicles.find(row => row.vehicle_key === args[0]) || null;
+        if (/COUNT\(\*\)/i.test(sql) && /vehicle_snapshots/i.test(sql)) return { count: db.snapshots.length };
+        return null;
+      },
+      async all() {
+        if (/FROM\s+auction_history/i.test(sql)) return { results: db.history.filter(row => row.vehicle_key === args[0]).map(row => ({ ...row })) };
+        if (/FROM\s+vehicle_snapshots/i.test(sql)) return { results: db.snapshots.filter(row => row.vehicle_key === args[0]).map(row => ({ ...row })) };
+        return { results: [] };
+      },
+      async run() {
+        if (/^\s*CREATE\s/i.test(sql)) return { success: true };
+        const insertMatch = sql.match(/^\s*INSERT\s+INTO\s+(vehicles|vehicle_snapshots)\s*\(([\s\S]*?)\)\s*VALUES/i);
+        if (insertMatch) {
+          const table = insertMatch[1];
+          const columns = insertMatch[2].split(',').map(column => column.trim());
+          const row = Object.fromEntries(columns.map((column, index) => [column, args[index]]));
+          if (table === 'vehicles') {
+            const old = db.vehicles.find(item => item.vehicle_key === row.vehicle_key);
+            if (old) Object.assign(old, Object.fromEntries(Object.entries(row).filter(([, value]) => value !== null && value !== undefined && value !== '')));
+            else db.vehicles.push(row);
+          } else {
+            row.id = db.snapshots.length + 1;
+            db.snapshots.push(row);
+          }
+          return { success: true };
+        }
+        if (/^\s*UPDATE\s+auction_history/i.test(sql)) {
+          const row = db.history.find(item => item.id === args[17] && item.vehicle_key === args[18]);
+          if (row) {
+            const keys = ['event_key','source_event_id','vin','platform','lot','auction_date','sale_date','current_bid'];
+            keys.forEach((key, i) => { if (args[i] !== null && args[i] !== undefined) row[key] = args[i]; });
+            if (args[8] === 1) row.final_price = null;
+            else if (args[9] !== null && args[9] !== undefined) row.final_price = args[9];
+            if (args[10] !== null && args[10] !== undefined) row.buy_now = args[10];
+            if (args[11] !== null && args[11] !== undefined) row.price = args[11];
+            if (args[12] !== null && args[12] !== undefined) row.seller = args[12];
+            if (args[13] !== null && args[13] !== undefined) row.status = args[13];
+            row.event_hash = args[14]; row.captured_at = args[15]; row.raw_json = args[16];
+          }
+          return { success: true };
+        }
+        if (/^\s*INSERT\s+INTO\s+auction_history/i.test(sql)) {
+          const keys = ['vehicle_key','event_key','source_event_id','vin','platform','lot','auction_date','sale_date','current_bid','final_price','buy_now','price','seller','status','event_hash','captured_at','raw_json'];
+          const row = { id: db.history.length + 1 };
+          keys.forEach((key, i) => { row[key] = args[i]; });
+          db.history.push(row);
+        }
+        return { success: true };
+      }
+    };
+  }
+}
+
+class ReadOnlyD1 {
+  constructor({ vehicle = null, history = [], snapshots = [] } = {}) {
+    this.statements = []; this.vehicle = vehicle; this.history = history; this.snapshots = snapshots;
+  }
+  prepare(sql) {
+    const db = this;
+    this.statements.push(sql);
+    assert.match(sql.trim(), /^(SELECT|PRAGMA)\b/i, 'GET attempted non-read-only D1 SQL');
+    let args = [];
+    return {
+      bind(...values) { args = values; return this; },
+      async first() {
+        if (/COUNT\(\*\)/i.test(sql)) return { count: 0 };
+        if (/FROM\s+vehicles/i.test(sql)) return db.vehicle;
+        return null;
+      },
+      async all() {
+        if (/FROM\s+auction_history/i.test(sql)) return { results: db.history.filter(row => row.vehicle_key === args[0]) };
+        if (/FROM\s+vehicle_snapshots/i.test(sql)) return { results: db.snapshots.filter(row => row.vehicle_key === args[0]) };
+        return { results: [] };
+      }
+    };
+  }
+}
+
+function extractFunctionBlock(source, name, nextName) {
+  const start = source.search(new RegExp(`(?:async\\s+)?function ${name}\\(`));
+  const end = source.search(new RegExp(`(?:async\\s+)?function ${nextName}\\(`, 'g'));
+  const nextStart = end > start ? end : -1;
+  assert.ok(start >= 0 && nextStart > start, `Could not locate ${name} block`);
+  return source.slice(start, nextStart);
+}
+
+test('canonical normalization keeps prices separate, preserves raw JSON, and accepts missing price', () => {
+  const { __history } = loadWorker();
+  const sold = __history.normalizeHistoryRecord(fixtures.single, fixtures.vehicle);
+  assert.equal(sold.vin, fixtures.vehicle.vin);
+  assert.equal(sold.platform, 'copart');
+  assert.equal(sold.lot, 'LOT-123');
+  assert.equal(sold.auction_date, '2025-01-10T14:30:00-05:00');
+  assert.equal(sold.current_bid, 500);
+  assert.equal(sold.final_price, 5200);
+  assert.equal(sold.buy_now, 7000);
+  assert.equal(sold.source_price, 5200);
+  assert.equal(sold.seller, 'Copart Direct');
+  assert.deepEqual(JSON.parse(JSON.stringify(sold.raw_json)), fixtures.single);
+  assert.ok(sold.event_key);
+
+  const genericPrice = __history.normalizeHistoryRecord(fixtures.genericPriceOnly);
+  assert.equal(genericPrice.source_price, 5200);
+  assert.equal(genericPrice.final_price, null, 'generic price must not become final price');
+  const noPrice = __history.normalizeHistoryRecord(fixtures.notSold);
+  assert.equal(noPrice.status, 'not sold');
+  assert.equal(noPrice.final_price, null);
+  assert.equal(noPrice.current_bid, 1800);
+  assert.ok(noPrice.event_key, 'an event without a price must be retained');
+});
+
+test('requestApibara builds only approved endpoints, uses only the named secret, and forwards cursor opaquely', async () => {
+  let requestUrl;
+  let requestOptions;
+  let calls = 0;
+  const { __history } = loadWorker(async (url, options) => {
+    calls++;
+    requestUrl = new URL(url);
+    requestOptions = options;
+    return new Response(JSON.stringify({ data: [] }), { status: 200 });
+  });
+  await __history.requestApibara({ APIBARA_API_KEY: 'fixture-secret', APIBARA_KEY: 'ignored-secret' }, {
+    operation: 'vehicleHistory', identifier: 'VIN/1', per_page: 999,
+    cursor: 'opaque A+/='
+  });
+  assert.equal(calls, 1, 'one client invocation makes exactly one upstream request');
+  assert.equal(requestUrl.pathname, '/api/v1/vehicle-auction/vehicles/VIN%2F1/history');
+  assert.equal(requestUrl.searchParams.get('per_page'), '20');
+  assert.equal(requestUrl.searchParams.get('cursor'), 'opaque A+/=');
+  assert.equal(requestOptions.headers['X-API-Key'], 'fixture-secret');
+  assert.equal(requestOptions.redirect, 'manual', 'the API key is not sent to redirect targets');
+  assert.equal(requestOptions.signal.aborted, false);
+  assert.throws(() => __history.buildApibaraUrl({ operation: 'https://attacker.invalid' }), error => error.code === 'INVALID_REQUEST');
+
+  await assert.rejects(
+    __history.requestApibara({ APIBARA_KEY: 'fallback-is-not-accepted' }, { operation: 'vehicleByIdentifier', identifier: 'VIN' }),
+    error => error.code === 'CONFIGURATION' && !error.message.includes('fallback-is-not-accepted')
+  );
+});
+
+test('Apibara read helpers make no D1 access and keep endpoint persistence outside the read layer', async () => {
+  const requests = [];
+  const { __history } = loadWorker(async url => {
+    requests.push(new URL(url));
+    return new Response(JSON.stringify({
+      data: { history: [{ source_event_id: 'EV-1', vin: fixtures.vehicle.vin, lot_number: 'LOT-123' }] },
+      meta: { next_cursor: 'cursor-next' }
+    }), { status: 200 });
+  });
+  const env = {
+    APIBARA_API_KEY: 'fixture-secret',
+    get REXBID_DB() { throw new Error('read helpers must not access D1'); }
+  };
+
+  await __history.fetchApibaraVehicle(env, fixtures.vehicle.vin);
+  await __history.searchApibaraVehicles(env, 'LOT-123', 20);
+  const page = await __history.fetchApibaraHistory(env, fixtures.vehicle.vin, {
+    per_page: 20,
+    cursor: 'opaque-cursor'
+  });
+  await __history.fetchApibaraVehicles(env, { per_page: '20' });
+
+  assert.equal(requests.length, 4);
+  assert.equal(requests[2].searchParams.get('cursor'), 'opaque-cursor');
+  assert.equal(page.nextCursor, 'cursor-next');
+  assert.equal(page.records.length, 1);
+  assert.equal(page.records[0].source_event_id, 'EV-1');
+});
+
+test('filter metadata proxy uses the shared client, keeps documented response data and caches per make', async () => {
+  let requestedUrl;
+  let savedResponse;
+  const payload = { data: { makes: ['Honda', 'Toyota'], models: { Honda: ['Civic'], Toyota: ['Camry'] }, year_ranges: { min: 1990, max: 2026 }, fuel: ['Gasoline'] } };
+  const context = loadWorker(async (url, options) => {
+    requestedUrl = new URL(url);
+    assert.equal(options.method, 'GET');
+    assert.equal(options.headers['X-API-Key'], 'filters-secret');
+    return new Response(JSON.stringify(payload), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  });
+  context.caches.default = {
+    async match() { return null; },
+    async put(key, response) { savedResponse = { key, response }; }
+  };
+  const response = await context.__history.getVehicleFilters(
+    new Request('https://rex.example/api/filters?make=Honda&unknown=ignored'),
+    { APIBARA_API_KEY: 'filters-secret', get REXBID_DB() { throw new Error('metadata read cannot touch D1'); } }
+  );
+  const result = await response.json();
+  assert.equal(response.status, 200);
+  assert.deepEqual(JSON.parse(JSON.stringify(result.data.makes)), ['Honda', 'Toyota']);
+  assert.equal(response.headers.get('Cache-Control'), 'public, max-age=21600');
+  assert.ok(savedResponse);
+  assert.equal(requestedUrl.pathname, '/api/v1/vehicle-auction/vehicles/filters');
+  assert.equal(requestedUrl.searchParams.get('make'), 'Honda');
+  assert.equal(requestedUrl.searchParams.has('unknown'), false);
+});
+
+test('production GET routes use D1 SELECT only and preserve vehicle/history responses', async () => {
+  const rawVehicle = { vin: 'VIN-1', platform: 'copart', lot_number: 'LOT-1', title: 'Test car' };
+  const { __worker } = loadWorker(async url => {
+    const parsed = new URL(url);
+    if (parsed.pathname.endsWith('/history')) {
+      return new Response(JSON.stringify({ data: { history: [fixtures.eventFirst] }, meta: { next_cursor: null } }));
+    }
+    if (parsed.pathname.endsWith('/VIN-1')) return new Response(JSON.stringify({ data: rawVehicle }));
+    return new Response(JSON.stringify({ data: [rawVehicle], meta: { next_cursor: null } }));
+  });
+  const db = new ReadOnlyD1();
+  const env = { APIBARA_API_KEY: 'fixture-key', REXBID_DB: db, ASSETS: { fetch: async () => new Response('asset') } };
+
+  const car = await __worker.fetch(new Request('https://rex.bid/api/car/VIN-1'), env);
+  assert.equal(car.status, 200);
+  assert.equal((await car.json()).data.vin, 'VIN-1');
+
+  const history = await __worker.fetch(new Request('https://rex.bid/api/car/VIN-1/history?per_page=20'), env);
+  const historyJson = await history.json();
+  assert.equal(history.status, 200);
+  assert.equal(historyJson.history[0].source_event_id, 'ABC');
+  assert.equal(historyJson.meta.next_cursor, null);
+
+  const cars = await __worker.fetch(new Request('https://rex.bid/api/cars?per_page=20'), env);
+  assert.equal(cars.status, 200);
+  assert.equal((await cars.json()).data[0].vin, 'VIN-1');
+
+  const dbStatus = await __worker.fetch(new Request('https://rex.bid/api/database'), env);
+  assert.equal(dbStatus.status, 200);
+  assert.ok(db.statements.length > 0);
+  assert.ok(db.statements.every(sql => /^\s*(SELECT|PRAGMA)\b/i.test(sql)));
+});
+
+test('manual synchronization trigger is authenticated, explicit, and persists only on authorized POST', async () => {
+  let upstreamCalls = 0;
+  const rawVehicle = { vin: 'VIN-1', platform: 'copart', lot_number: 'LOT-123' };
+  const db = new SyncMemoryD1();
+  const { __worker } = loadWorker(async url => {
+    upstreamCalls++;
+    const parsed = new URL(url);
+    if (parsed.pathname.endsWith('/history')) {
+      return new Response(JSON.stringify({ data: { history: [fixtures.eventFirst] }, meta: { next_cursor: null } }));
+    }
+    return new Response(JSON.stringify({ data: rawVehicle }));
+  });
+  const env = {
+    APIBARA_API_KEY: 'fixture-key',
+    REXBID_SYNC_TOKEN: 's'.repeat(40),
+    REXBID_LEGACY_SYNC_ENABLED: 'true',
+    REXBID_DB: db,
+    ASSETS: { fetch: async () => new Response('asset') }
+  };
+
+  const path = 'https://rex.bid/api/sync/vehicle/VIN-1';
+  const noAuth = await __worker.fetch(new Request(path, { method: 'POST' }), env);
+  assert.equal(noAuth.status, 401);
+  assert.equal(upstreamCalls, 0);
+  assert.equal(db.statements.length, 0);
+
+  const wrongAuth = await __worker.fetch(new Request(path, {
+    method: 'POST', headers: { Authorization: 'Bearer wrong-token' }
+  }), env);
+  assert.equal(wrongAuth.status, 401);
+  assert.equal(upstreamCalls, 0);
+
+  const get = await __worker.fetch(new Request(path), env);
+  assert.equal(get.status, 405);
+  assert.equal(upstreamCalls, 0);
+
+  const disabledByDefault = await __worker.fetch(new Request(path, {
+    method: 'POST', headers: { Authorization: `Bearer ${env.REXBID_SYNC_TOKEN}` }
+  }), { ...env, REXBID_LEGACY_SYNC_ENABLED: 'false' });
+  assert.equal(disabledByDefault.status, 503);
+  assert.equal(upstreamCalls, 0);
+
+  const response = await __worker.fetch(new Request(path, {
+    method: 'POST', headers: { Authorization: `Bearer ${env.REXBID_SYNC_TOKEN}` }
+  }), env);
+  const result = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('Cache-Control'), 'no-store');
+  assert.equal(result.completed, true);
+  assert.equal(upstreamCalls, 2);
+  assert.equal(db.vehicles.length, 1);
+  assert.equal(db.snapshots.length, 1);
+  assert.equal(db.history.length, 1);
+  assert.ok(db.statements.some(sql => /^\s*INSERT\s+INTO\s+vehicles/i.test(sql)));
+});
+
+test('GET local fallback remains readable without schema creation or writes', async () => {
+  const vehicle = {
+    vehicle_key: 'copart:VIN-1', vin: 'VIN-1', slug_vin: null, platform: 'copart', lot: 'LOT-1',
+    raw_json: JSON.stringify({ vin: 'VIN-1', platform: 'copart', lot_number: 'LOT-1' })
+  };
+  const historyRecord = { ...fixtures.eventFirst, vin: 'VIN-1', raw_json: JSON.stringify({ ...fixtures.eventFirst, vin: 'VIN-1' }) };
+  const db = new ReadOnlyD1({ vehicle, history: [{
+    vehicle_key: 'copart:VIN-1', event_key: 'source:copart:ABC', source_event_id: 'ABC',
+    vin: 'VIN-1', platform: 'copart', lot: 'LOT-123', auction_date: '2025-01-10', sale_date: null,
+    current_bid: 500, final_price: null, buy_now: null, price: 500, seller: 'Copart Direct',
+    status: 'pre-bid', captured_at: '2025-01-10T00:00:00Z', raw_json: historyRecord.raw_json
+  }] });
+  const { __worker } = loadWorker(async () => new Response(JSON.stringify({ error: 'upstream unavailable' }), { status: 503 }));
+  const env = { APIBARA_API_KEY: 'fixture-key', REXBID_DB: db, ASSETS: { fetch: async () => new Response('asset') } };
+
+  const car = await __worker.fetch(new Request('https://rex.bid/api/car/VIN-1'), env);
+  assert.equal((await car.json()).source, 'rexbid-database');
+  const history = await __worker.fetch(new Request('https://rex.bid/api/car/VIN-1/history'), env);
+  const result = await history.json();
+  assert.equal(result.source, 'd1');
+  assert.equal(result.history[0].source_event_id, 'ABC');
+  assert.equal(result.history[0].final_price, null, 'legacy price remains source-only');
+  assert.ok(db.statements.every(sql => /^\s*(SELECT|PRAGMA)\b/i.test(sql)));
+});
+
+test('syncVehicle upserts vehicles/history idempotently and snapshots only on fingerprint changes', async () => {
+  const rawVehicle = { vin: 'VIN-1', platform: 'copart', lot_number: 'LOT-123', pricing: { current_bid_usd: 500 } };
+  const calls = [];
+  const db = new SyncMemoryD1();
+  const { __history } = loadWorker(async url => {
+    const parsed = new URL(url);
+    calls.push(parsed);
+    if (parsed.pathname.endsWith('/history')) {
+      const cursor = parsed.searchParams.get('cursor');
+      return new Response(JSON.stringify(cursor
+        ? { data: { history: [fixtures.eventOther] }, meta: { next_cursor: null } }
+        : { data: { history: [fixtures.eventFirst] }, meta: { next_cursor: 'CURSOR-A' } }));
+    }
+    return new Response(JSON.stringify({ data: rawVehicle }));
+  });
+  const env = { APIBARA_API_KEY: 'fixture-key', REXBID_DB: db };
+
+  const first = await __history.syncVehicle(env, 'VIN-1');
+  assert.equal(first.completed, true);
+  assert.equal(first.historyPages, 2);
+  assert.equal(db.vehicles.length, 1);
+  assert.equal(db.snapshots.length, 1);
+  assert.equal(db.history.length, 2, 'same LOT/date with different explicit IDs remains two events');
+  assert.deepEqual(calls.filter(url => url.pathname.endsWith('/history')).map(url => url.searchParams.get('cursor')), [null, 'CURSOR-A']);
+
+  const second = await __history.syncVehicle(env, 'VIN-1');
+  assert.equal(second.completed, true);
+  assert.equal(db.vehicles.length, 1, 'vehicle is upserted, not duplicated');
+  assert.equal(db.snapshots.length, 1, 'unchanged fingerprint does not create a snapshot');
+  assert.equal(db.history.length, 2, 'repeated sync updates existing events');
+
+  rawVehicle.pricing.current_bid_usd = 650;
+  const changed = await __history.syncVehicle(env, 'VIN-1');
+  assert.equal(changed.completed, true);
+  assert.equal(db.vehicles.length, 1);
+  assert.equal(db.snapshots.length, 2, 'changed fingerprint adds exactly one snapshot');
+  assert.equal(db.history.length, 2);
+});
+
+test('incomplete history pagination does not persist or report a completed sync', async () => {
+  const db = new SyncMemoryD1();
+  const { __history } = loadWorker(async url => {
+    const parsed = new URL(url);
+    if (parsed.pathname.endsWith('/history')) {
+      if (!parsed.searchParams.has('cursor')) {
+        return new Response(JSON.stringify({ data: { history: [fixtures.eventFirst] }, meta: { next_cursor: 'CURSOR-A' } }));
+      }
+      return new Response(JSON.stringify({ error: 'upstream failure' }), { status: 503 });
+    }
+    return new Response(JSON.stringify({ data: { vin: 'VIN-1', platform: 'copart', lot_number: 'LOT-123' } }));
+  });
+  const result = await __history.syncVehicle({ APIBARA_API_KEY: 'fixture-key', REXBID_DB: db }, 'VIN-1');
+  assert.equal(result.ok, false);
+  assert.equal(result.completed, false);
+  assert.equal(result.pagesFetched, 1);
+  assert.equal(db.vehicles.length, 0);
+  assert.equal(db.snapshots.length, 0);
+  assert.equal(db.history.length, 0);
+  assert.equal(db.statements.length, 0, 'D1 is not touched until all history pages are fetched');
+});
+
+test('requestApibara maps upstream errors without exposing response bodies and does not retry', async () => {
+  let calls = 0;
+  const { __history } = loadWorker(async () => {
+    calls++;
+    return new Response(JSON.stringify({ message: 'UPSTREAM_BODY_SECRET_MARKER' }), {
+      status: 429, headers: { 'Retry-After': '12' }
+    });
+  });
+  let caught;
+  await assert.rejects(__history.requestApibara({ APIBARA_API_KEY: 'fixture-secret' }, {
+    operation: 'searchVehicles', search: 'VIN', per_page: 20
+  }), error => {
+    caught = error;
+    return error.code === 'RATE_LIMITED' && error.status === 429 && error.retryAfter === 12;
+  });
+  assert.equal(calls, 1, '429 response is not retried');
+  assert.ok(!caught.message.includes('UPSTREAM_BODY_SECRET_MARKER'));
+  const response = __history.apibaraErrorResponse(caught);
+  assert.equal(response.status, 429);
+  assert.equal(response.headers.get('Retry-After'), '12');
+  assert.ok(!(await response.text()).includes('UPSTREAM_BODY_SECRET_MARKER'));
+});
+
+test('requestApibara logs safe fetch diagnostics and redacts secrets and upstream bodies', async () => {
+  const logs = [];
+  const logger = {
+    warn(...parts) { logs.push(parts.join(' ')); },
+    error(...parts) { logs.push(parts.join(' ')); }
+  };
+  const { __history } = loadWorker(async () => {
+    throw Object.assign(new TypeError('fetch failed PRIVATE_API_KEY'), {
+      cause: Object.assign(new Error('socket failure PRIVATE_API_KEY'), {
+        code: 'ECONNRESET', errno: -104, syscall: 'connect'
+      })
+    });
+  }, { console: logger });
+
+  await assert.rejects(__history.requestApibara({ APIBARA_API_KEY: 'PRIVATE_API_KEY' }, {
+    operation: 'vehicleByIdentifier', identifier: 'VIN'
+  }), error => error.code === 'UPSTREAM' && error.status === null);
+
+  assert.equal(logs.length, 1);
+  assert.match(logs[0], /rex.bid.provider/);
+  assert.match(logs[0], /"stage":"fetch"/);
+  assert.match(logs[0], /"error_type":"TypeError"/);
+  assert.doesNotMatch(logs[0], /errorMessage|cause|ECONNRESET|socket failure/);
+  assert.doesNotMatch(logs[0], /PRIVATE_API_KEY/);
+});
+
+test('requestApibara identifies URL-stage failures without logging credentials', async () => {
+  const logs = [];
+  const logger = {
+    warn(...parts) { logs.push(parts.join(' ')); },
+    error(...parts) { logs.push(parts.join(' ')); }
+  };
+  const { __history } = loadWorker(async () => {
+    throw new Error('URL stage should not call fetch');
+  }, { console: logger });
+
+  await assert.rejects(__history.requestApibara({ APIBARA_API_KEY: 'PRIVATE_API_KEY' }, {
+    operation: 'unsupportedOperation'
+  }), error => error.code === 'INVALID_REQUEST');
+
+  assert.equal(logs.length, 1);
+  assert.match(logs[0], /"stage":"URL"/);
+  assert.match(logs[0], /"error_type":"unknown"/);
+  assert.doesNotMatch(logs[0], /PRIVATE_API_KEY/);
+});
+
+test('requestApibara timeout aborts the one request without retry', async () => {
+  let calls = 0;
+  const { __history } = loadWorker(async (_url, options) => {
+    calls++;
+    assert.equal(options.signal.aborted, true);
+    throw Object.assign(new Error('abort'), { name: 'AbortError' });
+  }, {
+    setTimeout(callback) { callback(); return 1; },
+    clearTimeout() {}
+  });
+  await assert.rejects(__history.requestApibara({ APIBARA_API_KEY: 'fixture-secret' }, {
+    operation: 'vehicleByIdentifier', identifier: 'VIN'
+  }), error => error.code === 'TIMEOUT');
+  assert.equal(calls, 1);
+});
+
+test('fallback keys distinguish separate auctions for the same VIN and LOT', () => {
+  const { __history } = loadWorker();
+  const first = __history.normalizeHistoryRecord({ ...fixtures.genericPriceOnly, date: '2025-01-10' });
+  const second = __history.normalizeHistoryRecord({ ...fixtures.genericPriceOnly, date: '2025-02-15' });
+  assert.notEqual(first.event_key, second.event_key);
+  assert.equal(__history.normalizeHistoryRecord(fixtures.eventFirst).event_key, 'source:copart:ABC');
+  assert.notEqual(
+    __history.normalizeHistoryRecord(fixtures.eventFirst).event_key,
+    __history.normalizeHistoryRecord(fixtures.eventOther).event_key
+  );
+});
+
+test('explicit event_key values remain distinct and stable across mutable fields', () => {
+  const { __history } = loadWorker();
+  const first = __history.normalizeHistoryRecord({ ...fixtures.eventFirst, source_event_id: undefined, event_key: 'EV-ONE' });
+  const other = __history.normalizeHistoryRecord({ ...fixtures.eventFirst, source_event_id: undefined, event_key: 'EV-TWO', status: 'sold', price: 9000 });
+  const changed = __history.normalizeHistoryRecord({ ...fixtures.eventFirst, source_event_id: undefined, event_key: 'EV-ONE', status: 'sold', price: 9000 });
+  assert.notEqual(first.event_key, other.event_key);
+  assert.equal(first.event_key, changed.event_key);
+});
+
+test('auction history migration is additive and does not infer final price or delete legacy data', () => {
+  const migration = fs.readFileSync(path.join(root, 'migrations/0001_auction_history_events.sql'), 'utf8');
+  assert.match(migration, /ALTER\s+TABLE\s+auction_history\s+ADD\s+COLUMN\s+event_key/i);
+  assert.match(migration, /ALTER\s+TABLE\s+auction_history\s+ADD\s+COLUMN\s+final_price/i);
+  assert.match(migration, /CREATE\s+INDEX\s+IF\s+NOT\s+EXISTS/i);
+  assert.doesNotMatch(migration, /\b(DROP|DELETE|UPDATE|INSERT|REPLACE)\b/i);
+  assert.doesNotMatch(migration, /CREATE\s+UNIQUE\s+INDEX/i);
+  assert.match(migration, /price[\s\S]*?not copied to final_price/i);
+});
+test('same event ID updates one D1 record when status and price change', async () => {
+  const { __history } = loadWorker();
+  const db = new MemoryD1();
+  const env = { REXBID_DB: db };
+  await __history.saveAuctionHistory(env, 'copart:VIN-1', __history.normalizeApibaraHistory({ data: [fixtures.eventFirst] }, fixtures.vehicle));
+  await __history.saveAuctionHistory(env, 'copart:VIN-1', __history.normalizeApibaraHistory({ data: [fixtures.eventUpdated] }, fixtures.vehicle));
+  assert.equal(db.rows.length, 1);
+  assert.equal(db.rows[0].status, 'sold');
+  assert.equal(db.rows[0].final_price, 5200);
+  assert.equal(JSON.parse(db.rows[0].raw_json).status, 'sold');
+  assert.equal(db.rows[0].seller, 'Copart Direct');
+  await __history.saveAuctionHistory(env, 'copart:VIN-1', __history.normalizeApibaraHistory({ data: [fixtures.eventOther] }, fixtures.vehicle));
+  assert.equal(db.rows.length, 2, 'different source event IDs stay separate');
+  assert.equal(db.rows[0].source_event_id, 'ABC');
+  assert.equal(db.rows[1].source_event_id, 'DEF', 'different IDs with the same LOT and date remain separate');
+});
+
+test('public detail/history edge cache reduces repeat provider requests without caching across history cursors', async () => {
+  const cached = new Map();
+  const cache = {
+    async match(request) { return cached.get(request.url)?.clone() || null; },
+    async put(request, response) { cached.set(request.url, response.clone()); }
+  };
+  let vehicleCalls = 0;
+  const historyCursors = [];
+  const context = loadWorker(async url => {
+    const parsed = new URL(url);
+    if (parsed.pathname.endsWith('/history')) {
+      historyCursors.push(parsed.searchParams.get('cursor'));
+      return new Response(JSON.stringify({data:{history:[]},meta:{next_cursor:null}}),{status:200});
+    }
+    vehicleCalls++;
+    return new Response(JSON.stringify({data:{vin:'VIN-CACHED',platform:'copart',lot_number:'LOT-CACHED'}}),{status:200});
+  });
+  context.caches.default = cache;
+  const env = {APIBARA_API_KEY:'fixture-key'};
+  // A pre-schedule-semantics cached response may contain an unassigned lot's
+  // helper timestamp. The new cache namespace must bypass it after deploy.
+  cached.set('https://rex.bid/api/car/VIN-CACHED', new Response(JSON.stringify({ok:true,match:'exact',data:{vin:'VIN-CACHED',platform:'copart',auction:{auction_at:'2026-10-04T12:00:00Z'}}}),{status:200,headers:{'Content-Type':'application/json'}}));
+  const detailOne = await context.__worker.fetch(new Request('https://rex.bid/api/car/VIN-CACHED'),env);
+  const detailTwo = await context.__worker.fetch(new Request('https://rex.bid/api/car/VIN-CACHED?ignored=cache-buster'),env);
+  assert.equal(vehicleCalls,1,'repeat detail and ignored query values share the path-keyed detail cache');
+  assert.equal(detailOne.headers.get('X-RexBid-Cache'),'MISS','old unversioned helper-date response is bypassed once after schedule semantics change');
+  assert.ok([...cached.keys()].some(key => key.includes('__rex_auction_semantics=schedule-v2')),'new schedule semantics use an isolated edge-cache namespace');
+  assert.equal(detailOne.headers.get('Cache-Control'),'no-store','client-facing detail stays no-store');
+  assert.equal(detailTwo.headers.get('X-RexBid-Cache'),'HIT');
+
+  const first = 'https://rex.bid/api/car/VIN-CACHED/history?per_page=20';
+  const cursorA = 'https://rex.bid/api/car/VIN-CACHED/history?per_page=20&cursor=CURSOR-A';
+  await context.__worker.fetch(new Request(first),env);
+  await context.__worker.fetch(new Request(first),env);
+  await context.__worker.fetch(new Request(cursorA),env);
+  assert.deepEqual(historyCursors,[null,'CURSOR-A'],'repeat first-page history is cached, but a distinct opaque cursor is a distinct cache key');
+  assert.equal((await context.__worker.fetch(new Request(first),env)).headers.get('Cache-Control'),'no-store');
+});
+
+test('partial provider payload does not blank persisted good fields or erase raw source data', async () => {
+  const db = new SyncMemoryD1();
+  const { __history } = loadWorker();
+  const env = { REXBID_DB: db };
+  const full = { vin: 'VIN-PARTIAL', platform: 'copart', lot_number: 'LOT-PARTIAL', pricing: { current_bid_usd: 500 }, seller: { name: 'Known Seller' }, condition: { primary_damage: 'Front End' } };
+  await __history.saveVehicle(env, __history.normalizeVehicle(full), full);
+  const partial = { vin: 'VIN-PARTIAL', platform: 'copart', lot_number: 'LOT-PARTIAL', pricing: { current_bid_usd: null }, seller: { name: '' }, condition: { primary_damage: '' } };
+  await __history.saveVehicle(env, __history.normalizeVehicle(partial), partial);
+  assert.equal(db.vehicles[0].current_bid, 500);
+  assert.equal(db.vehicles[0].seller_name, 'Known Seller');
+  assert.equal(db.vehicles[0].damage, 'Front End');
+  const raw = JSON.parse(db.vehicles[0].raw_json);
+  assert.equal(raw.pricing.current_bid_usd, 500);
+  assert.equal(raw.seller.name, 'Known Seller');
+  assert.equal(db.snapshots.length, 1, 'a partial response with no source changes does not create a false snapshot');
+  assert.ok(db.statements.some(sql => /COALESCE\(NULLIF\(excluded\.seller_name/i.test(sql)));
+});
+
+test('Sold on Approval clears a previously persisted final price without assigning the event seller', async () => {
+  const context = loadWorker();
+  const db = new MemoryD1();
+  const env = { REXBID_DB: db };
+  db.rows.push({
+    id: 88, vehicle_key: 'iaai:VIN-88', event_key: 'fallback:iaai:lot:L88:date:2026-09-21',
+    source_event_id: null, vin: 'VIN-88', platform: 'iaai', lot: 'L88', auction_date: '2026-09-21',
+    sale_date: null, current_bid: null, final_price: 9000, buy_now: null, price: 9000, seller: null,
+    status: 'Sold', event_hash: 'old', captured_at: 'old', raw_json: JSON.stringify({ date: '2026-09-21', status: 'Sold', price: 9000 })
+  });
+  const record = context.__history.normalizeApibaraHistory({ data: { history: [{ platform: 'iaai', lot_number: 'L88', date: '2026-09-21', price: 9225, status: 'Sold on Approval' }] } }, { vin: 'VIN-88' });
+  await context.__history.saveAuctionHistory(env, 'iaai:VIN-88', record);
+  assert.equal(db.rows.length, 1);
+  assert.equal(db.rows[0].final_price, null);
+  assert.equal(db.rows[0].seller, null);
+});
+
+test('legacy D1 rows remain readable and generic price is not backfilled as final price', async () => {
+  const { __history } = loadWorker();
+  const legacyRaw = fixtures.genericPriceOnly;
+  const db = new MemoryD1([{
+    id: 7, vehicle_key: 'copart:VIN-1', platform: 'copart', auction_date: '2025-01-11',
+    price: 5200, status: 'sold', event_hash: 'old-hash', captured_at: '2025-01-12T00:00:00Z',
+    raw_json: JSON.stringify(legacyRaw)
+  }]);
+  const history = await __history.getSavedAuctionHistory({ REXBID_DB: db }, 'copart:VIN-1');
+  assert.equal(history.length, 1);
+  assert.equal(history[0].source_price, 5200);
+  assert.equal(history[0].final_price, null);
+  assert.equal(history[0].raw_json.price, 5200);
+  assert.equal(db.rows[0].raw_json, JSON.stringify(legacyRaw), 'read path does not rewrite legacy raw_json');
+});
+
+test('history endpoint forwards an opaque cursor and returns canonical history with no-store', async () => {
+  let requested;
+  const page = { data: [fixtures.single], meta: { per_page: 20, next_cursor: 'NEXT/+=opaque' } };
+  const context = loadWorker(async url => {
+    requested = new URL(url);
+    return new Response(JSON.stringify(page), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  });
+  const response = await context.__worker.fetch(
+    new Request('https://rex.bid/api/car/1HGCM82633A123456/history?per_page=88&cursor=opaque%2F%2B%3D'),
+    { APIBARA_API_KEY: 'fixture-key' }
+  );
+  const body = await response.json();
+  assert.equal(requested.searchParams.get('per_page'), '20', 'Apibara history max per_page is 20');
+  assert.equal(requested.searchParams.get('cursor'), 'opaque/+=');
+  assert.equal(body.meta.next_cursor, 'NEXT/+=opaque');
+  assert.equal(body.meta.has_more, true);
+  assert.equal(body.history.length, 1);
+  assert.equal(body.history[0].final_price, 5200);
+  assert.equal(response.headers.get('Cache-Control'), 'no-store');
+});
+
+test('history endpoint validates per_page and ends pagination when cursor is null', async () => {
+  let calls = 0;
+  const context = loadWorker(async () => {
+    calls++;
+    return new Response(JSON.stringify({ data: [], meta: { next_cursor: null } }), { status: 200 });
+  });
+  const invalid = await context.__worker.fetch(new Request('https://rex.bid/api/car/VIN/history?per_page=abc'), { APIBARA_API_KEY: 'fixture-key' });
+  assert.equal(invalid.status, 400);
+  const response = await context.__worker.fetch(new Request('https://rex.bid/api/car/VIN/history?per_page=0'), { APIBARA_API_KEY: 'fixture-key' });
+  const body = await response.json();
+  assert.equal(calls, 1);
+  assert.equal(body.meta.per_page, 1);
+  assert.equal(body.meta.next_cursor, null);
+  assert.equal(body.meta.has_more, false);
+});
+
+test('vehicle history opens with one page and exposes the exact opaque next cursor', async () => {
+  const pageBlock = extractFunctionBlock(carSource, 'fetchAuctionHistoryPage', 'getAuctionDisplayDate');
+  const context = { API_BASE:'https://rex.bid/api', URLSearchParams, normalizeHistoryRecord: record => record,
+    fetch: async url => { context.requests.push(new URL(url)); return new Response(JSON.stringify({history:[{event_key:'E1'}],meta:{next_cursor:'CURSOR/opaque+='}}), {status:200}); }, requests:[] };
+  context.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(context);
+  vm.runInContext(`${pageBlock}\nglobalThis.loadOne = fetchAuctionHistoryPage;`, context);
+  const first = await context.loadOne('VIN-1');
+  assert.equal(context.requests.length, 1, 'opening the detail page requests only the first history page');
+  assert.equal(context.requests[0].searchParams.has('cursor'), false);
+  assert.equal(first.records.length, 1);
+  assert.equal(first.nextCursor, 'CURSOR/opaque+=');
+});
+
+test('detail initialization loads one history page and shows the manual continuation control', async () => {
+  const pageBlock = extractFunctionBlock(carSource, 'fetchAuctionHistoryPage', 'getAuctionDisplayDate');
+  const fetchBlock = extractFunctionBlock(carSource, 'fetchAuctionHistory', 'updateHistoryMoreButton');
+  const button = {hidden:true};
+  const context = { API_BASE:'https://rex.bid/api', URLSearchParams, normalizeHistoryRecord:record=>record,
+    auctionHistoryRecords:[],auctionHistoryNextCursor:null,observedHistoryRecords:[],observedRecordsForRender:records=>records,
+    document:{getElementById:id=>id==='auctionHistory'?{}:id==='loadOlderAuctionHistory'?button:null},
+    getVin:()=> 'VIN-1', getLot:()=>null,
+    historyRecordsForRender:records=>records, renderAuctionHistory(){}, updateAuctionUi(){},updateForecastFromCalculator(){},
+    fetch:async url=>{context.requested.push(new URL(url));return new Response(JSON.stringify({history:[{event_key:'E1'}],meta:{next_cursor:'CURSOR-1'}}),{status:200});},requested:[]};
+  context.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(context);
+  vm.runInContext(`${pageBlock}${fetchBlock}function updateHistoryMoreButton(){const b=document.getElementById('loadOlderAuctionHistory');if(b)b.hidden=!auctionHistoryNextCursor;}\nglobalThis.initHistory=fetchAuctionHistory;`,context);
+  await context.initHistory();
+  assert.equal(context.requested.length,1);
+  assert.equal(context.auctionHistoryRecords.length,1);
+  assert.equal(context.auctionHistoryNextCursor,'CURSOR-1');
+  assert.equal(button.hidden,false);
+});
+
+test('manual older-history action requests one opaque cursor page, deduplicates, and preserves records on error', async () => {
+  const renderFunctions = extractFunctionBlock(carSource, 'historyRecordKey', 'renderAuctionHistory');
+  const pageBlock = extractFunctionBlock(carSource, 'fetchAuctionHistoryPage', 'getAuctionDisplayDate');
+  const updateBlock = extractFunctionBlock(carSource, 'updateHistoryMoreButton', 'loadOlderAuctionHistory');
+  const loadBlock = extractFunctionBlock(carSource, 'loadOlderAuctionHistory', 'auctionRefreshIntervalMs');
+  const button = {hidden:false,disabled:false,textContent:'Załaduj starsze wydarzenia'};
+  const original = {event_key:'E1',platform:'iaai',lot:'LOT-1',auction_date:'2025-01-01'};
+  const context = { API_BASE:'https://rex.bid/api', URLSearchParams, normalizeHistoryRecord: record => record,
+    observedHistoryRecords:[], auctionHistoryRecords:[original], auctionHistoryNextCursor:'CURSOR/opaque+=', auctionHistorySeenCursors:new Set(['CURSOR/opaque+=']), auctionHistoryLoading:false,
+    getVin:()=>'VIN-1',getLot:()=>null, isEmpty:value=>value===null||value===undefined||value==='',
+    document:{getElementById:id=>id==='loadOlderAuctionHistory'?button:null},
+    historyRecordsForRender:records=>{const map=new Map(); for(const item of records)map.set(item.event_key,item); return [...map.values()];},
+    renderAuctionHistory(){context.rendered=(context.rendered||0)+1;}, console:{warn(){}}, requests:[],
+    fetch:async url=>{context.requests.push(new URL(url));return new Response(JSON.stringify({history:[original,{event_key:'E2',lot:'LOT-2'}],meta:{next_cursor:null}}),{status:200});}};
+  context.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(context);
+  vm.runInContext(`${renderFunctions}${pageBlock}${updateBlock}${loadBlock}\nglobalThis.loadOlder = loadOlderAuctionHistory;`,context);
+  await context.loadOlder();
+  assert.equal(context.requests.length,1);
+  assert.equal(context.requests[0].searchParams.get('cursor'),'CURSOR/opaque+=');
+  assert.equal(context.auctionHistoryRecords.length,2,'overlapping records are deduplicated while earlier events remain');
+  assert.equal(button.hidden,true,'the button disappears when there is no next cursor');
+
+  context.auctionHistoryNextCursor='CURSOR-CYCLE';
+  context.auctionHistorySeenCursors.add('CURSOR-CYCLE');
+  button.hidden=false;
+  context.fetch=async()=>new Response(JSON.stringify({history:[],meta:{next_cursor:'CURSOR-CYCLE'}}),{status:200});
+  await context.loadOlder();
+  assert.equal(context.auctionHistoryNextCursor,null,'a repeated opaque cursor ends paging instead of allowing repeated provider requests');
+  assert.equal(button.hidden,true);
+
+  context.auctionHistoryNextCursor='CURSOR-RETRY';
+  button.hidden=false;
+  context.fetch=async()=>{throw new Error('offline');};
+  await context.loadOlder();
+  assert.equal(context.auctionHistoryRecords.length,2,'a later failure preserves already-rendered history');
+  assert.equal(context.auctionHistoryNextCursor,'CURSOR-RETRY','failed page remains retryable');
+  assert.equal(button.disabled,false);
+});
+
+test('vehicle detail does not duplicate the Worker exact-search fallback after 404 or transient API failure', async () => {
+  const block = extractFunctionBlock(carSource, 'fetchVehicle', 'collectObjects');
+  const calls = [];
+  const context = { API_BASE:'/api', VIN:'VIN-1', LOT:'', PLATFORM:'',
+    fetch:async url=>{calls.push(url);return new Response(JSON.stringify({error:'provider unavailable'}),{status:502});},
+    unwrapResult:body=>body?.data||null };
+  context.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(context);
+  vm.runInContext(`${block}\nglobalThis.loadVehicle = fetchVehicle;`,context);
+  await assert.rejects(context.loadVehicle(),/provider unavailable/);
+  assert.deepEqual(calls,['/api/car/VIN-1'],'a 502 does not trigger a second upstream-backed list request');
+
+  calls.length=0;
+  context.fetch=async url=>{calls.push(url);return new Response(JSON.stringify({error:'not found'}),{status:404});};
+  await assert.rejects(context.loadVehicle(),/not found/);
+  assert.deepEqual(calls,['/api/car/VIN-1'],'the Worker already searched exactly; a client-side duplicate /api/cars search is unnecessary');
+});
+
+test('missing or failing media module degrades to an empty gallery without blocking vehicle data', () => {
+  const block = extractFunctionBlock(carSource, 'normalizeVehicleMedia', 'findAllByKeys');
+  const warnings = [];
+  const context = {
+    window:{},
+    isHttpMediaUrl:value=>typeof value==='string'&&value.startsWith('https://'),
+    console:{warn:(...args)=>warnings.push(args)}
+  };
+  context.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(context);
+  vm.runInContext(`${block}\nglobalThis.normalize = normalizeVehicleMedia;`,context);
+
+  assert.deepEqual(Array.from(context.normalize({}),),[],'missing media asset must not block the primary car DTO');
+  context.window.RexBidMedia={normalizeMedia(){throw new TypeError('private media failure');}};
+  assert.deepEqual(Array.from(context.normalize({vehicle:'safe'})),[],'a failing media normalizer degrades to no photos');
+  assert.equal(warnings.length,1);
+  assert.deepEqual(Array.from(warnings[0]),['REXBID media normalization module failed:','TypeError'],'diagnostic contains only a safe error class');
+  context.window.RexBidMedia={normalizeMedia:()=>[
+    {large:'https://media.example/one.jpg',thumb:'https://media.example/thumb.jpg'},
+    {large:'http://media.example/insecure.jpg'},
+    null
+  ]};
+  assert.deepEqual(Array.from(context.normalize({})).map(photo=>photo.large),['https://media.example/one.jpg'],'only valid HTTPS image entries are retained');
+});
+
+test('primary vehicle detail renders before calculator/history work and never exits buildPage silently', async () => {
+  const block = extractFunctionBlock(carSource, 'buildPage', 'renderPhotos');
+  const page = { innerHTML:'' };
+  const elements = new Map();
+  const pendingTimers = [];
+  const warnings = [];
+  const getElement = id => {
+    if (!elements.has(id)) elements.set(id, {
+      id, style:{}, textContent:'', innerHTML:'', hidden:false, disabled:false,
+      removeAttribute(){}, addEventListener(){}, querySelectorAll(){return []}
+    });
+    return elements.get(id);
+  };
+  const context = {
+    CATALOG_RETURN:'/?catalog=1#results',
+    window:{RexBidCarNavigation:{
+      placeCalculatorAfterVehicleDetails(){return false;},
+      restoreCalculatorHash(){return false;}
+    }},
+    car:{auction:{state:'live'},condition:{},damage:{},odometer:{},vehicle_specs:{},details:{attributes:{}},sale_document:{}},
+    photos:[], photoIndex:0, page,
+    document:{getElementById:id=>id==='page'?page:getElement(id)},
+    console:{warn:(...args)=>warnings.push(args)},
+    setTimeout:fn=>{pendingTimers.push(fn);return pendingTimers.length;},
+    getVin:()=> 'VIN-TEST-1', getLot:()=> 'LOT-TEST-1', getTitle:()=> 'Fixture Honda Civic',
+    sellerName:()=> 'Fixture Seller', sellerProfile:name=>({name,type:'dealer',note:'Fixture source'}),
+    sellerDisplay:info=>info.name, getYear:()=>2020, getMake:()=> 'Honda', getModel:()=> 'Civic', getSeries:()=>null,
+    first:(...values)=>values.find(value=>value!==null&&value!==undefined&&value!=='')??null,
+    getInfo:()=>null, valueFrom:()=>null, getTitleDocument:()=> 'Salvage Title', getSale:()=>null,
+    titleRegistration:()=>({cls:'unknown'}), titleSourceStatus:()=> 'unknown',
+    renderPrimaryAuctionScheduleHtml:()=> '<small>Termin aukcji</small><strong>Termin nieustalony</strong>',
+    renderAuctionScheduleDetailHtml:()=> '<div class="kv">Termin aukcji: Do potwierdzenia</div>',
+    findMediaUrl:()=>null, getAuctionEnd:()=>null, getAuctionDisplayDate:()=>null, getAuctionStart:()=>null,
+    getAuctionPriceInfo:()=>({current_bid:1250}), auctionPhase:()=> 'live', getCurrentBid:()=>1250,
+    getBuyNow:()=>2500, auctionStatusLabel:()=> 'Aukcja aktywna', originalAuctionUrl:()=>null,
+    getAuctionPriceFacts:()=>[], getLocation:()=> 'Houston, TX', getDescription:()=>null,
+    runConditionLabel:()=>'', displayValue:value=>value, isEmpty:value=>value===null||value===undefined||value==='',
+    platformName:()=> 'Copart', platformBadgeHtml:()=> '<span>Copart</span>',
+    esc:value=>String(value??''), nice:value=>String(value??''), field:()=>'', kv:()=>'',
+    formatDate:value=>value??'—', auctionStatusClass:()=> 'live', money:value=>value==null?'do potwierdzenia':`$${value}`,
+    renderAuctionPriceFactsHtml:()=>'', titleVerdictLabel:()=> 'Do weryfikacji', titleVerdictNote:()=> '',
+    getShippingOrigin:()=>null, getBranchState:()=>null,
+    bindPageEvents(){}, renderPhotos(){}, startCountdown(){}, initImportCalculator(){throw new Error('calculator unavailable');},
+    saveAuctionSnapshot(){}, renderAuctionHistory(){}, fetchAuctionHistory:()=>Promise.reject(new Error('history unavailable')),
+    startAuctionRefresh(){}
+  };
+  context.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(context);
+  vm.runInContext(`${block}\nglobalThis.renderPrimaryVehicle = buildPage;`,context);
+
+  assert.doesNotThrow(()=>context.renderPrimaryVehicle());
+  assert.match(page.innerHTML,/Fixture Honda Civic/);
+  assert.match(page.innerHTML,/Aktualna oferta/);
+  assert.match(page.innerHTML,/Kup teraz/);
+  assert.match(page.innerHTML,/calculatorV4Mount/);
+  assert.doesNotMatch(page.innerHTML,/Pobieranie danych samochodu/);
+  assert.equal(pendingTimers.length,2,'secondary calculator and history work is scheduled after primary markup is assigned');
+
+  for (const run of pendingTimers) run();
+  await Promise.resolve();
+  await Promise.resolve();
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.match(page.innerHTML,/Fixture Honda Civic/,'secondary module failures cannot restore or retain the loading screen');
+  assert.equal(getElement('calculatorV4Mount').innerHTML.includes('Informacje o aucie pozostają dostępne.'),true);
+  assert.equal(warnings.length,2,'calculator and history failures are isolated and observable');
+});
+
+test('auction Buy Now price action outside the calculator panel changes V4 price basis', () => {
+  const block = extractFunctionBlock(carSource, 'bindV4PriceSelection', 'updateForecastFromCalculator');
+  const actions = [];
+  const doc = {handlers:{}, addEventListener(type, handler) { this.handlers[type] = handler; }};
+  const scrolls = [];
+  const root = {scrollIntoView: options => scrolls.push(options)};
+  const context = {document:doc};
+  context.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(context);
+  vm.runInContext(`${block}\nglobalThis.bindPriceSelection = bindV4PriceSelection;`, context);
+  context.bindPriceSelection(doc, root, {setPriceKind:kind => actions.push(kind)});
+  let prevented = 0;
+  const buyNowButton = {disabled:false, dataset:{calcPriceKind:'buy-now'}};
+  // The price button lives in the auction card, outside #importCalculator.
+  doc.handlers.click({target:{closest:selector => selector === '.auction-prices [data-calc-price-kind]' ? buyNowButton : null}, preventDefault(){prevented++;}});
+  assert.deepEqual(actions, ['buy-now']);
+  assert.equal(prevented, 1);
+  assert.equal(scrolls.length, 1);
+  const disabledButton = {disabled:true, dataset:{calcPriceKind:'current'}};
+  doc.handlers.click({target:{closest:() => disabledButton}, preventDefault(){prevented++;}});
+  assert.deepEqual(actions, ['buy-now'], 'unavailable price options do not change the calculator basis');
+  assert.equal(prevented, 1);
+});
+
+test('auction refresh cadence is phase-aware and stops polling when no real start is known', () => {
+  const block = extractFunctionBlock(carSource, 'auctionRefreshIntervalMs', 'startAuctionRefresh');
+  const now = Date.parse('2026-09-28T12:00:00Z');
+  const context = { Date, getAuctionStart:()=>new Date(now + 2*24*60*60*1000).toISOString() };
+  context.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(context);
+  vm.runInContext(`${block}\nglobalThis.interval = auctionRefreshIntervalMs;`,context);
+  assert.equal(context.interval('live',now),30000);
+  assert.equal(context.interval('prebid',now),600000,'far-future auctions refresh no more than every ten minutes');
+  context.getAuctionStart=()=>new Date(now+30*60*1000).toISOString();
+  assert.equal(context.interval('prebid',now),120000,'nearer auctions use a tighter two-minute cadence');
+  context.getAuctionStart=()=>new Date(now+2*60*1000).toISOString();
+  assert.equal(context.interval('prebid',now),30000,'the final five minutes use a 30-second cadence');
+  context.getAuctionStart=()=>null;
+  assert.equal(context.interval('prebid',now),null,'unknown dates do not cause periodic provider reads');
+  assert.equal(context.interval('ended',now),null,'finished auctions do not poll');
+});
+
+test('frontend history code consumes canonical pages, caps requests, guards cursor loops, and preserves date-only values', () => {
+  const scripts = [...carSource.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)]
+    .filter(match => !/\bsrc\s*=/.test(match[1]) && (!/\btype\s*=/.test(match[1]) || /type\s*=\s*["']?(?:text\/javascript|module)/i.test(match[1])));
+  assert.ok(scripts.length > 0, 'inline frontend script exists');
+  scripts.forEach((match, index) => new vm.Script(match[2], {filename:`public/car.html:inline-${index+1}`}));
+
+  assert.match(carSource, /json\?\.history/);
+  assert.match(carSource, /json\?\.meta\?\.next_cursor/);
+  assert.match(carSource, /id="loadOlderAuctionHistory"[^>]*hidden/);
+  assert.match(carSource, /event\.target\?\.closest\?\.\("#loadOlderAuctionHistory"\)\) loadOlderAuctionHistory\(\)/);
+  assert.doesNotMatch(extractFunctionBlock(carSource, 'fetchAuctionHistory', 'updateHistoryMoreButton'), /fetchAuctionHistoryPages/);
+  assert.match(carSource, /cache: "no-store"/);
+  assert.match(carSource, /item\.final_price/);
+
+  const formatBlock = extractFunctionBlock(carSource, 'formatHistoryDate', 'getCurrentAuctionHistoryFinalBid');
+  const dateContext = { isEmpty: value => value === null || value === undefined || value === '' };
+  dateContext.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(dateContext);
+  vm.runInContext(`${formatBlock}\nglobalThis.format = formatHistoryDate;`, dateContext);
+  assert.equal(dateContext.format('2026-09-20'), '20.09.2026');
+  assert.equal(dateContext.format('2026-09-20T00:30:00+02:00'), '20.09.2026');
+
+  const renderBlock = extractFunctionBlock(carSource, 'historyRecordKey', 'renderAuctionHistory');
+  const renderContext = { auctionHistoryRecords: [], isEmpty: value => value === null || value === undefined || value === '' };
+  renderContext.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(renderContext);
+  vm.runInContext(`${renderBlock}\nglobalThis.dedupe = historyRecordsForRender;`, renderContext);
+  const a = { event_key: 'source:copart:ABC', status: 'pre-bid', current_bid: 500 };
+  const updated = { event_key: 'source:copart:ABC', status: 'sold', final_price: 5200 };
+  const b = { event_key: 'source:copart:DEF', status: 'not sold' };
+  assert.equal(renderContext.dedupe([a, updated, b]).length, 2);
+  const overlap = renderContext.dedupe([
+    ...Array.from({length:20}, (_,i)=>({event_key:`P${i}`,auction_date:'2025-01-01'})),
+    {event_key:'P19',auction_date:'2025-01-01'},
+    ...Array.from({length:19}, (_,i)=>({event_key:`Q${i}`,auction_date:'2025-02-01'})),
+    ...Array.from({length:7}, (_,i)=>({event_key:`R${i}`,auction_date:'2025-03-01'}))
+  ]);
+  assert.equal(overlap.length, 46, 'one overlapping event is removed while unique events remain');
+});
+
+test('index list pagination appends by cursor, resets filters, deduplicates by platform/LOT, and preserves links on failure', async () => {
+  const scripts = [...indexSource.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)]
+    .filter(match => !/\bsrc\s*=/.test(match[1]));
+  assert.ok(scripts.length > 0, 'inline index script exists');
+
+  const elements = new Map();
+  const element = id => {
+    if (!elements.has(id)) {
+      elements.set(id, {
+        id, value: '', innerHTML: '', textContent: '', hidden: false, disabled: false,
+        options: [], classList: { toggle() {} }, style: {}, dataset: {}, listeners: {}, addEventListener(name, callback) { this.listeners[name] = callback; }, querySelectorAll() { return []; }, getAttribute(name) { return name === "list" ? "modelOptions" : null; }, replaceChildren() { this.innerHTML = ""; }, setAttribute() {},
+        scrollIntoView() {}
+      });
+    }
+    return elements.get(id);
+  };
+
+  const requests = [];
+  let nextFetch;
+  const fetchImpl = url => {
+    requests.push(new URL(url, 'https://rex.bid'));
+    return new Promise((resolve, reject) => { nextFetch = { resolve, reject }; });
+  };
+  const context = {
+    document: { getElementById: element, querySelectorAll() { return []; } },
+    window: { location: { href: 'https://rex.bid/?catalog=1', pathname: '/', search: '?catalog=1', hash: '' }, addEventListener() {} },
+    URLSearchParams,
+    Response,
+    fetch: fetchImpl,
+    console: { error() {}, warn() {}, log() {} }
+  };
+  context.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(context);
+
+  const startup = scripts[0][2].lastIndexOf('  restoreFiltersFromUrl();');
+  assert.ok(startup > 0, 'startup is present independently of cache restoration syntax');
+  const script = scripts[0][2].slice(0, startup) + '\n  restoreFiltersFromUrl(); globalThis.initialLoad = loadCars({ updateUrl: false });';
+  vm.runInContext(`${script}\nglobalThis.testLoadCars = loadCars;`, context);
+
+  const response = (data, nextCursor) => new Response(JSON.stringify({
+    ok: true, data, meta: { next_cursor: nextCursor }
+  }), { status:  200, headers: { 'Content-Type': 'application/json' } });
+  const loadMore = element('loadMoreButton');
+  const car = (vin, lot) => ({ vin, lot_number: lot, platform: 'copart', make: 'Toyota', model: 'Test' });
+
+  nextFetch.resolve(response([car('VIN-A', 'LOT-A'), car('VIN-B', 'LOT-B')], 'opaque/+cursor'));
+  await context.initialLoad;
+  assert.equal(requests[0].searchParams.get('per_page'), '20');
+  assert.equal(requests[0].searchParams.has('cursor'), false);
+  assert.equal(loadMore.hidden, false);
+
+  const deferredPage = loadMore.listeners.click();
+  assert.equal(loadMore.disabled, true, 'load more disables while its request is pending');
+  assert.equal(requests[1].searchParams.get('cursor'), 'opaque/+cursor');
+  nextFetch.resolve(response([car('VIN-B', 'LOT-B'), car('VIN-C', 'LOT-C'), car('', 'LOT-D'), car('VIN-B', 'LOT-E')], null));
+  await deferredPage;
+  assert.equal((element('cars').innerHTML.match(/<article class="car-card">/g) || []).length, 5,
+    'the exact repeated LOT is removed while a later auction of the same VIN remains');
+  assert.match(element('cars').innerHTML, /car\?vin=VIN-C/);
+  assert.match(element('cars').innerHTML, /car\?lot=LOT-D/);
+  assert.match(element('cars').innerHTML, /vin=VIN-B&lot=LOT-E&platform=copart/);
+  assert.equal(loadMore.hidden, true, 'no next cursor hides the button');
+  assert.equal(loadMore.disabled, false);
+
+  element('platform').value = 'copart';
+  const filterLoad = element('platform').listeners.change();
+  assert.equal(requests[2].searchParams.get('platform'), 'copart');
+  assert.equal(requests[2].searchParams.has('cursor'), false, 'platform change starts at page one');
+  nextFetch.resolve(response([car('VIN-COPART', 'LOT-COPART')], 'copart-next'));
+  await filterLoad;
+  assert.equal((element('cars').innerHTML.match(/<article class="car-card">/g) || []).length, 1);
+
+  element('searchInput').value = 'Toyota';
+  const searchLoad = element('searchForm').listeners.submit({ preventDefault() {} });
+  assert.equal(requests[3].searchParams.get('s'), 'Toyota');
+  assert.equal(requests[3].searchParams.has('cursor'), false, 'changed search starts at page one');
+  nextFetch.resolve(response([car('VIN-SEARCH', 'LOT-SEARCH')], 'search-next'));
+  await new Promise(resolve => setImmediate(resolve));
+
+  const retryablePage = loadMore.listeners.click();
+  nextFetch.reject(new Error('temporary failure'));
+  await retryablePage;
+  assert.equal((element('cars').innerHTML.match(/<article class="car-card">/g) || []).length, 1,
+    'previously loaded cards remain after a later page fails');
+  assert.equal(loadMore.disabled, false, 'load more can be retried after failure');
+  assert.equal(loadMore.hidden, false, 'failed cursor remains available for retry');
+});
+
+test('index exposes only Worker-supported advanced filters and restores shareable filter URL state', async () => {
+  const scripts = [...indexSource.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)]
+    .filter(match => !/\bsrc\s*=/.test(match[1]));
+  const elements = new Map();
+  const element = id => {
+    if (!elements.has(id)) {
+      elements.set(id, {
+        id, value: '', innerHTML: '', textContent: '', hidden: false, disabled: false,
+        options: [], classList: { toggle() {} }, style: {}, dataset: {}, listeners: {}, addEventListener(name, callback) { this.listeners[name] = callback; }, querySelectorAll() { return []; }, getAttribute(name) { return name === "list" ? "modelOptions" : null; }, replaceChildren() { this.innerHTML = ""; }, setAttribute() {},
+        scrollIntoView() {}
+      });
+    }
+    return elements.get(id);
+  };
+
+  const location = { href: 'https://rex.bid/', pathname: '/', search: '', hash: '' };
+  const historyCalls = [];
+  const window = {
+    location,
+    history: {
+      state: null,
+      replaceState(state) { this.state = state; },
+      pushState(state, _title, nextUrl) {
+        this.state = state;
+        historyCalls.push(nextUrl);
+        const parsed = new URL(nextUrl, location.href);
+        Object.assign(location, { href: parsed.href, pathname: parsed.pathname, search: parsed.search, hash: parsed.hash });
+      }
+    },
+    listeners: {},
+    addEventListener(name, callback) { this.listeners[name] = callback; }
+  };
+  const requests = [];
+  let nextFetch;
+  // This case tests filter application and URL state. Native make debounce is
+  // exercised with dispatched events in catalog-filter-metadata-reuse tests.
+  const metadataTimers = new Map();
+  let metadataTimerId = 0;
+  const context = {
+    document: { getElementById: element, querySelectorAll() { return []; } },
+    URL, URLSearchParams, Response, window,
+    setTimeout(callback) { const id = ++metadataTimerId; metadataTimers.set(id, callback); return id; },
+    clearTimeout(id) { metadataTimers.delete(id); },
+    fetch(url) {
+      requests.push(new URL(url, 'https://rex.bid'));
+      return new Promise((resolve, reject) => { nextFetch = { resolve, reject }; });
+    },
+    console: { error() {}, warn() {}, log() {} }
+  };
+  context.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(context);
+  const startup = scripts[0][2].lastIndexOf('  restoreFiltersFromUrl();');
+  assert.ok(startup > 0);
+  const script = scripts[0][2].slice(0, startup) + '\n  restoreFiltersFromUrl(); globalThis.initialLoad = loadCars({ updateUrl: false });';
+  vm.runInContext(`${script}\nglobalThis.testLoadCars = loadCars;`, context);
+
+  const response = (data, nextCursor) => new Response(JSON.stringify({
+    ok: true, data, meta: { next_cursor: nextCursor }
+  }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  nextFetch.resolve(response([{ vin: 'VIN-FILTER', lot_number: 'LOT-FILTER' }], 'cursor-filtered'));
+  await context.initialLoad;
+
+  const selected = {
+    searchInput: 'Toyota', platform: 'copart', make: 'Toyota', model: 'Camry', yearFrom: '2018', yearTo: '2024',
+    lotStatus: 'Buy Now', lotSubStatus: 'Open', upcoming: 'only', priceMin: '1000', priceMax: '15000',
+    odometerFrom: '0', odometerTo: '120000', fuelType: 'Gasoline', transmission: 'Automatic',
+    driveType: 'AWD', runCond: 'RUNS AND DRIVES'
+  };
+  for (const [id, value] of Object.entries(selected)) {
+    const control = element(id);
+    control.value = value;
+    control.listeners.input?.();
+  }
+  assert.equal(element('advancedFilterCount').textContent, '11');
+  assert.match(element('activeFilterChips').innerHTML, /Przebieg od/);
+
+  const filteredLoad = element('advancedFilterButton').listeners.click();
+  const expected = {
+    s: 'Toyota', platform: 'copart', make: 'Toyota', model: 'Camry', year_from: '2018', year_to: '2024',
+    lot_status: 'Buy Now', lot_sub_status: 'Open', upcoming: 'only', price_min: '1000', price_max: '15000',
+    odometer_from: '0', odometer_to: '120000', fuel_type: 'Gasoline', transmission: 'Automatic',
+    drive_type: 'AWD', run_cond: 'RUNS AND DRIVES'
+  };
+  for (const [name, value] of Object.entries(expected)) assert.equal(requests[1].searchParams.get(name), value, name);
+  assert.equal(requests[1].searchParams.has('cursor'), false, 'filter apply starts at page one');
+  const shareUrl = new URL(location.href);
+  for (const [name, value] of Object.entries(expected)) assert.equal(shareUrl.searchParams.get(name), value, `URL ${name}`);
+  assert.equal(historyCalls.length, 1);
+  nextFetch.resolve(response([{ vin: 'VIN-FILTER', lot_number: 'LOT-FILTER' }], 'cursor-filtered'));
+  await filteredLoad;
+
+  const nextPage = element('loadMoreButton').listeners.click();
+  assert.equal(requests[2].searchParams.get('cursor'), 'cursor-filtered');
+  assert.equal(requests[2].searchParams.get('price_min'), '1000', 'active filters carry to the next cursor page');
+  nextFetch.resolve(response([{ vin: 'VIN-FILTER', lot_number: 'LOT-FILTER' }, { vin: 'VIN-NEXT', lot_number: 'LOT-NEXT' }], null));
+  await nextPage;
+  assert.equal((element('cars').innerHTML.match(/<article class="car-card">/g) || []).length, 2);
+
+  const reset = element('clearFiltersButton').listeners.click();
+  assert.equal(requests[3].searchParams.has('cursor'), false);
+  for (const name of Object.keys(expected)) assert.equal(requests[3].searchParams.has(name), false, `cleared ${name}`);
+  assert.equal(location.search, '?catalog=1', 'clearing criteria returns to all known offers, not a hidden current-only category');
+  assert.equal(element('advancedFilterCount').textContent, '0');
+  nextFetch.resolve(response([], null));
+  await reset;
+
+  Object.assign(location, { href: 'https://rex.bid/?catalog=1&platform=iaai&fuel_type=Electric', search: '?catalog=1&platform=iaai&fuel_type=Electric' });
+  const restoreState = window.listeners.popstate();
+  assert.equal(element('platform').value, 'iaai', 'back/forward restores the platform filter');
+  assert.equal(element('fuelType').value, 'Electric', 'back/forward restores advanced filters');
+  assert.equal(requests[4].searchParams.get('platform'), 'iaai');
+  assert.equal(requests[4].searchParams.get('fuel_type'), 'Electric');
+  assert.equal(requests[4].searchParams.has('cursor'), false, 'restoring URL state starts at page one');
+  assert.equal(requests.length, 5, 'restoration reads results directly instead of issuing an extra metadata request');
+  nextFetch.resolve(response([], null));
+  await restoreState;
+  await new Promise(resolve => setImmediate(resolve));
+});
+
+test('market category shortcuts use only supported list filters and always start at page one', async () => {
+  const scripts = [...indexSource.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].filter(match => !/\bsrc\s*=/.test(match[1]));
+  const elements = new Map();
+  const element = id => {
+    if (!elements.has(id)) elements.set(id, { id, value: '', innerHTML: '', textContent: '', hidden: false, disabled: false,
+      options: [], classList: { toggle() {} }, style: {}, dataset: {}, listeners: {}, addEventListener(name, callback) { this.listeners[name] = callback; },
+      querySelectorAll() { return []; }, getAttribute(name) { return name === "list" ? "modelOptions" : null; }, replaceChildren() { this.innerHTML = ""; }, setAttribute() {}, scrollIntoView() {} });
+    return elements.get(id);
+  };
+  const requests = [];
+  const context = { document: { getElementById: element, querySelectorAll() { return []; } }, URL, URLSearchParams, Response,
+    fetch(url) { requests.push(new URL(url, 'https://rex.bid')); return Promise.resolve(new Response(JSON.stringify({ ok:true, data:[], meta:{ next_cursor:null } }), { status:200 })); },
+    console: { error(){}, warn(){}, log(){} } };
+  context.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(context);
+  const startup = scripts[0][2].lastIndexOf('  restoreFiltersFromUrl();');
+  assert.ok(startup > 0);
+  const script = scripts[0][2].slice(0, startup) + '\n  restoreFiltersFromUrl();';
+  vm.runInContext(`${script}\nglobalThis.quickFilter = applyMarketShortcut; globalThis.loadExact = loadCars;`, context);
+  for (const [shortcut, param, value] of [['all','category',null],['current','category','current'],['timed','lot_status','Timed'],['buy-now','lot_status','Buy Now'],['electric','fuel_type','Electric']]) {
+    await context.quickFilter(shortcut);
+    const request = requests.at(-1);
+    assert.equal(request.searchParams.get(param), value, shortcut);
+    assert.equal(request.searchParams.has('cursor'), false, `${shortcut} resets pagination`);
+  }
+  for (const identity of ['45439613', '3MW69CW09T8G26811']) {
+    element('searchInput').value = identity;
+    element('platform').value = 'copart';
+    element('fuelType').value = 'Electric';
+    element('yearFrom').value = '2020';
+    element('make').value = 'Tesla';
+    await context.loadExact();
+    const query = requests.at(-1).searchParams;
+    assert.equal(query.get('s'), identity);
+    for (const key of ['platform', 'fuel_type', 'year_from', 'make', 'category', 'cursor']) assert.equal(query.has(key), false, key);
+    for (const id of ['platform', 'fuelType', 'yearFrom', 'make']) assert.equal(element(id).value, '', id);
+  }
+});
+
+test('filter metadata option text and values are escaped before select markup', () => {
+  const blocks = [
+    extractFunctionBlock(indexSource, 'escapeHtml', 'getFilterValue'),
+    extractFunctionBlock(indexSource, 'metadataOption', 'metadataOptions'),
+    extractFunctionBlock(indexSource, 'setMetadataOptions', 'modelOptionsFor')
+  ].join('\n');
+  const select = { innerHTML: '', value: '', tagName: 'SELECT' };
+  const context = { element: select, escapeHtml: value => String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;') };
+  context.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(context);
+  vm.runInContext(`${blocks}\nsetMetadataOptions(element, [{ value: '\"><img src=x onerror=alert(1)>', label: '<script>alert(1)</script>' }], 'Marka');`, context);
+  assert.doesNotMatch(select.innerHTML, /<img|<script>/i);
+  assert.match(select.innerHTML, /&lt;script&gt;/);
+});
+
+test('listing and detail price labels preserve price meaning and finished overrides a future auction date', () => {
+  const listingBlock = [extractFunctionBlock(indexSource, 'hasApprovalPendingOutcome', 'getPriceInfo'), extractFunctionBlock(indexSource, 'getPriceInfo', 'getMileage')].join('\n');
+  const listingContext = {};
+  listingContext.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(listingContext);
+  vm.runInContext(`${listingBlock}\nglobalThis.priceInfo = getPriceInfo;`, listingContext);
+  const soldListingPrice = listingContext.priceInfo({ auction: { state: 'finished' }, pricing: { sale_price_usd: 2025, current_bid_usd: 1800 } });
+  const buyNowListingPrice = listingContext.priceInfo({ auction: {state: 'open'}, pricing: { current_bid_usd: null, buy_now_usd: 2925 } });
+  assert.deepEqual(JSON.parse(JSON.stringify(soldListingPrice)), { value: 2025, label: 'Cena sprzedaży' });
+  assert.deepEqual(JSON.parse(JSON.stringify(buyNowListingPrice)), { value: 2925, label: 'Kup teraz' });
+  assert.equal(listingContext.priceInfo({ price: 1000, estimated_cost: { from: 500, to: 1500 } }).value, null);
+  assert.deepEqual(JSON.parse(JSON.stringify(listingContext.priceInfo({ pricing: { current_bid2_usd: 2600, buy_now_usd: 3500 }, auction: { state: 'open', is_timed: true } }))),
+    { value: 2600, label: 'Aktualna oferta · Timed Auction' }, 'secondary current bid is used when the primary value is empty');
+  assert.deepEqual(JSON.parse(JSON.stringify(listingContext.priceInfo({auction:{state:'unknown'},pricing:{current_bid_usd:1800}}))),
+    {value:1800,label:'Ostatnia zapisana oferta'}, 'an unknown source availability retains the observed amount without calling it current');
+  assert.deepEqual(JSON.parse(JSON.stringify(listingContext.priceInfo({auction:{state:'unknown'},pricing:{buy_now_usd:2925}}))),
+    {value:2925,label:'Kup teraz · zapis danych'}, 'a retained Buy Now amount is not proof that purchase is currently available');
+  assert.deepEqual(JSON.parse(JSON.stringify(listingContext.priceInfo({ auction: { state: 'finished' }, pricing: { buy_now_usd: 0, last_sold_price_usd: 1500 } }))),
+    { value: 1500, label: 'Ostatnia cena sprzedaży' }, 'a stale last-sale value stays explicit and is never labeled current or final');
+  assert.deepEqual(JSON.parse(JSON.stringify(listingContext.priceInfo({ auction: { state: 'finished' }, pricing: { last_sold_price_usd: 1500 } }))),
+    { value: 1500, label: 'Ostatnia cena sprzedaży' });
+  const dateBlock = extractFunctionBlock(indexSource, 'parseConfirmedAuctionDate', 'getConfirmedUpcomingDate') + extractFunctionBlock(indexSource, 'getAuctionDate', 'renderCars');
+  const dateContext = {};
+  dateContext.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(dateContext);
+  vm.runInContext(`${dateBlock}\nglobalThis.auctionDate = getAuctionDate;`, dateContext);
+  assert.equal(dateContext.auctionDate({ auction: { state:'open', is_timed: true, timed_end_at: '2026-10-03T17:00:00Z', auction_at: '2026-10-02T09:00:00Z' } }), '03.10.2026, 19:00');
+  assert.equal(dateContext.auctionDate({ auction: { state: 'finished', auction_at: '2099-10-03T17:00:00Z' } }), '', 'a future scheduled timestamp is not shown for a finished listing');
+  assert.match(dateContext.auctionDate({ auction: { state: 'open', auction_at: '2099-10-03T17:00:00Z' } }), /03\.10\.2099/, 'an active listing keeps its confirmed future date');
+  const statusBlock = [extractFunctionBlock(indexSource, 'parseConfirmedAuctionDate', 'getConfirmedUpcomingDate'), extractFunctionBlock(indexSource, 'hasApprovalPendingOutcome', 'getAuctionStatusLabel'), extractFunctionBlock(indexSource, 'getAuctionStatusLabel', 'getMileage')].join('\n');
+  assert.equal(dateContext.auctionDate({auction:{state:"open",schedule_status:"scheduled",auction_at:"2026-10-05T23:30:00Z"}}), "06.10.2026, 01:30", "Home uses Warsaw timezone like the car, including midnight rollover");
+  const statusContext = { getAuctionDate: () => null };
+  statusContext.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(statusContext);
+  vm.runInContext(`${statusBlock}\nglobalThis.statusLabel = getAuctionStatusLabel;`, statusContext);
+  assert.equal(statusContext.statusLabel({ auction: { state: 'open', is_timed: true } }), 'Timed Auction');
+  assert.equal(statusContext.statusLabel({ auction: { state: 'upcoming', auction_at: null, full_date: null, formatted: null } }), 'Nadchodząca · termin nieustalony');
+  assert.equal(statusContext.statusLabel({ auction: {} }), 'Status do potwierdzenia');
+  const countdownBlock = extractFunctionBlock(carSource, 'startCountdown', 'updateAuctionUi');
+  const timerNodes = new Map([['countdown', { textContent: '' }], ['countdownLabel', { textContent: '' }], ['auctionTimerBox', { style: {} }]]);
+  const now = Date.now();
+  const countdownContext = {
+    car: { auction: { state:'open', is_timed: true } }, auctionCountdownTimer: null, Date,
+    document: { getElementById: id => timerNodes.get(id) || null },
+    auctionPhase: () => 'prebid',
+    getAuctionStart: () => new Date(now + 7200000).toISOString(),
+    getAuctionEnd: () => new Date(now + 3600000).toISOString(),
+    clearInterval() {}, setInterval() { return 1; },
+    formatDate: value => value
+  };
+  countdownContext.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(countdownContext);
+  vm.runInContext(`${countdownBlock}\nglobalThis.beginCountdown = startCountdown;\nstartCountdown();`, countdownContext);
+  assert.equal(timerNodes.get('countdownLabel').textContent, 'Do końca aukcji czasowej');
+  assert.match(timerNodes.get('countdown').textContent, /^\d+:\d{2}:\d{2}$/);
+  countdownContext.car.auction.is_timed = false;
+  countdownContext.auctionPhase = () => 'scheduled';
+  countdownContext.getAuctionStart = () => null;
+  countdownContext.getAuctionEnd = () => null;
+  timerNodes.get('auctionTimerBox').style.display = '';
+  countdownContext.beginCountdown();
+  assert.equal(timerNodes.get('auctionTimerBox').style.display, 'none', 'unassigned upcoming listings do not display an empty date/countdown row');
+
+  const finalBidBlock = extractFunctionBlock(carSource, 'getFinalBid', 'getCurrentBid');
+  const finalBidContext = { car: { pricing: { last_sold_price_usd: 9876 } }, first: (...values) => values.find(value => value !== null && value !== undefined && value !== ''), valueFrom: () => undefined };
+  finalBidContext.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(finalBidContext);
+  vm.runInContext(`${finalBidBlock}\nglobalThis.finalBid = getFinalBid;`, finalBidContext);
+  assert.equal(finalBidContext.finalBid(), undefined, 'last historical sale is not treated as final bid for this event');
+
+  const phaseBlock = extractFunctionBlock(carSource, 'auctionPhase', 'auctionStatusLabel');
+  const phaseContext = {
+    car: { auction: { state: 'finished' } },
+    getAuctionStatus: () => 'finished',
+    getAuctionStart: () => '2099-12-28T17:30:00Z',
+    getAuctionEnd: () => null,
+    getFinalBid: () => null,
+    isEmpty: value => value === null || value === undefined || value === ''
+  };
+  phaseContext.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(phaseContext);
+  vm.runInContext(`${phaseBlock}\nglobalThis.phase = auctionPhase;`, phaseContext);
+  assert.equal(phaseContext.phase(), 'ended');
+
+  const startBlock = extractFunctionBlock(carSource, 'confirmedAuctionTimestamp', 'formatAuctionDate') + extractFunctionBlock(carSource, 'getAuctionStart', 'getAuctionEnd');
+  const startContext = { car: { auction: { state: 'finished', auction_at: '2099-12-28T17:30:00Z' } }, first: (...values) => values.find(value => value !== null && value !== undefined && value !== ''), getAuctionStatus: () => 'finished', Date, getSale: () => null, valueFrom: () => null };
+  startContext.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(startContext);
+  vm.runInContext(`${startBlock}\nglobalThis.start = getAuctionStart;`, startContext);
+  assert.equal(startContext.start(), null, 'detail view does not expose future auction_at for terminal state');
+  startContext.car = { auction: { state: 'open', auction_at: '2099-12-28T17:30:00Z' } };
+  assert.equal(startContext.start(), '2099-12-28T17:30:00Z', 'active detail view retains its confirmed date');
+
+  const detailBlock = [extractFunctionBlock(carSource, 'hasApprovalPendingOutcome', 'getAuctionPriceInfo'), extractFunctionBlock(carSource, 'getAuctionPriceInfo', 'getBuyNow')].join('\n');
+  const detailContext = {
+    car: { pricing: { sale_price_usd: 2025, last_sold_price_usd: 2025, buy_now_usd: 2925 } },
+    auctionPhase: phaseContext.phase,
+    getCurrentBid: () => null,
+    getBuyNow: () => 2925,
+    first: (...values) => values.find(value => value !== null && value !== undefined && value !== ''),
+    isEmpty: value => value === null || value === undefined || value === ''
+  };
+  detailContext.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(detailContext);
+  vm.runInContext(`${detailBlock}\nglobalThis.priceInfo = getAuctionPriceInfo;`, detailContext);
+  assert.deepEqual(JSON.parse(JSON.stringify(detailContext.priceInfo())), { value: 2025, label: 'Cena sprzedaży' });
+  detailContext.car = { pricing: { last_sold_price_usd: 12500 } };
+  assert.deepEqual(JSON.parse(JSON.stringify(detailContext.priceInfo())), { value: 12500, label: 'Ostatnia cena sprzedaży' });
+});
+
+test('unassigned upcoming detail shows an explicit unknown date without rendering a stale helper timestamp', () => {
+  const scheduleBlock = extractFunctionBlock(carSource, 'renderAuctionScheduleDetailHtml', 'getAuctionEnd');
+  const detailContext = {
+    car: { auction: { state: 'upcoming', schedule_status: 'unassigned', auction_at: null } },
+    getAuctionDisplayDate: () => '2099-12-28T17:30:00Z',
+    kv: (label, value) => `${label}: ${value}`,
+    isEmpty: value => value === null || value === undefined || value === ''
+  };
+  detailContext.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(detailContext);
+  vm.runInContext(`${scheduleBlock}\nglobalThis.scheduleHtml = renderAuctionScheduleDetailHtml;`, detailContext);
+  assert.equal(detailContext.scheduleHtml(), 'Termin aukcji: Nieustalony');
+
+  const statusBlock = extractFunctionBlock(carSource, 'auctionStatusLabel', 'auctionStatusClass');
+  const statusContext = {
+    car: { auction: { state: 'upcoming', schedule_status: 'unassigned' } },
+    auctionPhase: () => 'scheduled', getAuctionStatus: () => 'upcoming', getAuctionStart: () => null,
+    auctionApprovalPending: () => false
+  };
+  statusContext.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(statusContext);
+  vm.runInContext(`${statusBlock}\nglobalThis.statusLabel = auctionStatusLabel;`, statusContext);
+  assert.equal(statusContext.statusLabel(), 'Nadchodząca aukcja');
+});
+
+test('Car 2.0 keeps vehicle actions and media controls explicit without implying unavailable features work', () => {
+  for (const id of ['mainPhoto', 'mainImage', 'thumbs', 'photoCount', 'prevPhoto', 'nextPhoto', 'openHd', 'openVideo', 'open360', 'lightbox', 'viewerModal', 'auctionHistory', 'importCalculator', 'copyVin', 'copyLink']) {
+    assert.match(carSource, new RegExp(`id="${id}"`), `preserved detail-page control ${id}`);
+  }
+  for (const fn of ['fetchVehicle', 'getVin', 'getLot', 'originalAuctionUrl', 'renderPhotos', 'openLightbox', 'setZoom', 'openViewer', 'startCountdown', 'initImportCalculator', 'fetchAuctionHistoryPage', 'loadOlderAuctionHistory', 'updateAuctionUi']) {
+    assert.match(carSource, new RegExp(`function ${fn}\\(`), `preserved detail-page function ${fn}`);
+  }
+  assert.match(carSource, /function originalAuctionUrl\(/);
+  assert.match(carSource, /id="toggleFavorite"/);
+  assert.doesNotMatch(carSource, /id="toggleCompare"|Dodaj do porównania|compare\.html/);
+  assert.match(carSource, /Ulubione zapisane na tym urządzeniu/);
+  assert.match(carSource, /Źródło aukcyjne maskuje nazwę sprzedawcy/);
+  assert.match(carSource, /nie ocena prawna/);
+  assert.match(carSource, /\.main-column,\.right-column\{display:contents\}/);
+  assert.match(carSource, /#auctionHistoryPanel\{order:9\}/);
+});
+
+test('title document guidance uses explicit registration and export flags with conservative term mapping', () => {
+  const block = extractFunctionBlock(carSource, 'titleSourceStatus', 'titleVerdictLabel');
+  const context = { car: { sale_document: { registration: true, export: true } }, displayValue: value => value };
+  context.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(context);
+  vm.runInContext(`${block}\nglobalThis.classify = titleSourceStatus;`, context);
+  assert.equal(context.classify('Clean Title', '', '', '', ''), 'good');
+  context.car.sale_document.export = undefined;
+  assert.equal(context.classify('Salvage', '', '', '', ''), 'warn', 'one positive source flag alone is insufficient');
+  context.car.sale_document.registration = undefined;
+  context.car.sale_document.export = undefined;
+  assert.equal(context.classify('Salvage', '', '', '', ''), 'warn');
+  assert.equal(context.classify('Certificate of Destruction', '', '', '', ''), 'bad');
+  assert.equal(context.classify('Title Pending', '', '', '', ''), 'warn');
+  assert.equal(context.classify('Unknown document', '', '', '', ''), 'unknown');
+});
+
+test('car detail keeps exact VIN and LOT selection and never falls back to the first list item', () => {
+  const exactMatchBlock = extractFunctionBlock(carSource, 'normalizeIdentifier', 'fetchVehicle');
+  const context = {
+    VIN: 'VIN-TARGET', LOT: '', PLATFORM: '',
+    collectObjects: data => Array.isArray(data) ? data : [data]
+  };
+  context.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(context);
+  vm.runInContext(`${exactMatchBlock}\nglobalThis.unwrap = unwrapResult;`, context);
+  const results = [{ vin: 'VIN-OTHER', lot_number: 'LOT-1' }, { vin: 'VIN-TARGET', lot_number: 'LOT-2' }];
+  assert.equal(context.unwrap({ data: results }).vin, 'VIN-TARGET');
+  assert.equal(context.unwrap({ data: [{ vin: 'VIN-OTHER' }] }), null, 'does not use the first result if no exact VIN exists');
+
+  context.VIN = '';
+  context.LOT = 'LOT-TARGET';
+  assert.equal(context.unwrap({ data: [{ lot_number: 'LOT-OTHER' }, { lot_number: 'LOT-TARGET', vin: 'VIN-2' }] }).vin, 'VIN-2');
+  assert.equal(context.unwrap({ data: [{ lot_number: 'LOT-OTHER' }] }), null, 'does not use the first result if no exact LOT exists');
+  context.VIN = 'VIN-2'; context.PLATFORM = 'iaai';
+  assert.equal(context.unwrap({data:[{lot_number:'LOT-TARGET',vin:'VIN-2',platform:'iaai'}]}).platform,'iaai');
+  assert.equal(context.unwrap({data:[{lot_number:'LOT-OTHER',vin:'VIN-2',platform:'iaai'}]}),null,'VIN cannot select another listing');
+  assert.equal(context.unwrap({data:[{lot_number:'LOT-TARGET',vin:'VIN-2',platform:'copart'}]}),null,'platform collision is rejected');
+
+});
+
+test('detail price facts stay distinct and updateable, and missing final price labels history bid correctly', () => {
+  const priceBlock = [extractFunctionBlock(carSource, 'hasApprovalPendingOutcome', 'getAuctionPriceFacts'), extractFunctionBlock(carSource, 'getAuctionPriceFacts', 'getBuyNow')].join('\n');
+  let phase = 'live';
+  const priceContext = {
+    car: { pricing: { current_bid_usd: 1700, buy_now_usd: 2900, sale_price_usd: 2025, last_sold_price_usd: 2025 }, auction: { outcome_status: 'Sold' } },
+    auctionPhase: () => phase,
+    getCurrentBid: () => 1700,
+    getBuyNow: () => 2900,
+    getAuctionPriceInfo: () => ({ value: 1700 }),
+    first: (...values) => values.find(value => value !== null && value !== undefined && value !== ''),
+    isEmpty: value => value === null || value === undefined || value === '',
+    esc: value => String(value),
+    money: value => `$${value}`
+  };
+  priceContext.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(priceContext);
+  vm.runInContext(`${priceBlock}\nglobalThis.priceFacts = getAuctionPriceFacts; globalThis.priceFactsHtml = renderAuctionPriceFactsHtml;`, priceContext);
+  assert.deepEqual(JSON.parse(JSON.stringify(priceContext.priceFacts({ value: 1700, label: 'Aktualna oferta' }))), [{ label: 'Kup teraz', value: 2900 }], 'old sale prices are not surfaced while the auction is active');
+  phase = 'ended';
+  assert.deepEqual(JSON.parse(JSON.stringify(priceContext.priceFacts({ value: 2025, label: 'Cena sprzedaży' }))), []);
+  priceContext.car = { pricing: { sale_price_usd: 950, last_sold_price_usd: 950 }, auction: { outcome_status: 'Sold on Approval', last_sold_status: 'Sold on Approval' } };
+  assert.deepEqual(JSON.parse(JSON.stringify(priceContext.priceFacts())), [], 'approval-pending amounts are not surfaced as completed sale facts');
+
+  const historyBlock = extractFunctionBlock(carSource, 'observedRecordsForRender', 'formatHistoryDate');
+  const historyBox = { innerHTML: '' };
+  const historyContext = { auctionHistoryAvailability:{state:"stored"}, observedHistoryRecords:[],
+    document: { getElementById: () => historyBox },
+    historyRecordsForRender: () => [{ final_price: undefined, current_bid: 700, buy_now: null, sale_date: '2026-09-20', lot: 'LOT-7', platform: 'copart', status: 'live', seller: 'Example Seller' }],
+    isEmpty: value => value === null || value === undefined || value === '',
+    money: value => `$${value}`,
+    historyStatusLabel: () => 'W trakcie',
+    historyStatusClass: () => 'live',
+    platformName: () => 'COPART',
+    formatHistoryDate: value => value,
+    esc: value => String(value)
+  };
+  historyContext.RexBidMarket = require("../public/rexbid-market.js"); vm.createContext(historyContext);
+  vm.runInContext(`${historyBlock}\nglobalThis.render = renderAuctionHistory;`, historyContext);
+  historyContext.render();
+  assert.match(historyBox.innerHTML, /Oferta w tej licytacji/);
+  assert.doesNotMatch(historyBox.innerHTML, /Cena końcowa/);
+  assert.match(historyBox.innerHTML, /Example Seller/);
+  assert.match(historyBox.innerHTML, /<th>Aukcja<\/th>/, 'platform is explicit even for a single-platform history');
+  assert.match(historyBox.innerHTML, /Zapisane wydarzenia aukcyjne/);
+  assert.match(carSource, /Historia aukcji/);
+});
+
+test("D1 snapshots display observed dates and prices separately from confirmed auction events", async function snapshotRegression() {
+  const functions = extractFunctionBlock(carSource, 'observedRecordsForRender', 'formatHistoryDate');
+  const pageBlock = extractFunctionBlock(carSource, 'fetchAuctionHistoryPage', 'getAuctionDisplayDate');
+  const boxes = {observedHistory:{},auctionHistory:{}};
+  const snapshot = {kind:'observed_snapshot',snapshot_id:'S1',observed_at:'2026-10-08T09:52:23Z',current_bid_usd:5000,buy_now_usd:null,auction_state:'open'};
+  const context = {API_BASE:'/api',URLSearchParams,auctionHistoryAvailability:{state:"not_fetched"},document:{getElementById:id=>boxes[id]},observedHistoryRecords:[],
+    historyRecordsForRender:()=>[],normalizeHistoryRecord:record=>record,esc:value=>String(value).replaceAll('<','&lt;'),
+    money:value=>'$'+value,formatDate:value=>value,fetch:async()=>new Response(JSON.stringify({history:[],rex_history:{snapshots:[snapshot]},meta:{next_cursor:null}}))};
+  vm.createContext(context);
+  vm.runInContext(functions+pageBlock+';globalThis.load=fetchAuctionHistoryPage;globalThis.render=renderAuctionHistory;globalThis.normalize=observedRecordsForRender;',context);
+  const page=await context.load('LOT-1');
+  assert.equal(page.records.length,0);
+  context.observedHistoryRecords=context.normalize([...page.snapshots,snapshot,{kind:'auction_event',observed_at:snapshot.observed_at},{...snapshot,snapshot_id:'bad',observed_at:'invalid'}]);
+  assert.equal(context.observedHistoryRecords.length,1,'duplicate and non-observation rows are not displayed');
+  context.render();
+  assert.match(carSource,/<summary>Zapisane obserwacje<\/summary>/);
+  assert.match(boxes.observedHistory.innerHTML,/Data odczytu/);
+  assert.match(boxes.observedHistory.innerHTML,/2026-10-08T09:52:23Z/);
+  assert.match(boxes.observedHistory.innerHTML,/\$5000/);
+  assert.match(boxes.observedHistory.innerHTML,/Brak danych/);
+  assert.doesNotMatch(boxes.observedHistory.innerHTML,/Sprzedano|Cena końcowa|\$0/);
+  assert.match(boxes.auctionHistory.innerHTML,/nie została jeszcze pobrana/);
+});

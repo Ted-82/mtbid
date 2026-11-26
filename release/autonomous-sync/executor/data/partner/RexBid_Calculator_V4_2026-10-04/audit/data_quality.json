@@ -1,0 +1,36 @@
+{
+  "land_rows": 610,
+  "platforms": {
+    "Copart": 252,
+    "IAAI": 202,
+    "Manheim": 90,
+    "Adesa": 66
+  },
+  "countries": {
+    "CA": 25,
+    "US": 585
+  },
+  "empty_rate_cells": 718,
+  "total_rate_cells": 3660,
+  "missing_city": 14,
+  "missing_postal": 14,
+  "preferred_routes_resolved": 610,
+  "preferred_route_counts": {
+    "montreal_qc": 25,
+    "houston_tx": 83,
+    "los_angeles_ca": 116,
+    "elizabeth_nj": 126,
+    "indianapolis_in": 102,
+    "savannah_ga": 158
+  },
+  "unresolved_routing": 0,
+  "preferred_rate_missing": 0,
+  "routing_evidence_overlap_conflicts": 0,
+  "location_normalization_collisions": 0,
+  "location_label_postal_disagreements": 10,
+  "known_amount_conflicts": 2,
+  "preferred_cost_greater_than_arithmetic_minimum_4cars_baseclass": 69,
+  "assumptions_for_comparison": "Wspólne nagłówki, kwoty na auto, mnożnik lądu 1.0; port docelowy nieustalony.",
+  "ocr_used": false,
+  "extraction_note": "Kwoty MD zachowane. Preferencje odczytane z barwnych obramowań 9 zrzutów; porządek rekordów zweryfikowany kotwicami i nakładaniem zrzutów."
+}

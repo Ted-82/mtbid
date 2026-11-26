@@ -1,0 +1,17 @@
+﻿class_id;source_label;land_multiplier;scope;effective_from;source;note
+sedan;Sedan;1.0;land_only;2026-10-01;IMG_20261002_120158716.jpg;Nie stosować mnożnika do frachtu morskiego
+suv_standard;SUV (Standard);1.0;land_only;2026-10-01;IMG_20261002_120158716.jpg;Nie stosować mnożnika do frachtu morskiego
+van_standard;Van (Standard);1.0;land_only;2026-10-01;IMG_20261002_120158716.jpg;Nie stosować mnożnika do frachtu morskiego
+muv_side_by_side;MUV (Side-by-side);1.0;land_only;2026-10-01;IMG_20261002_120158716.jpg;Nie stosować mnożnika do frachtu morskiego
+golf_cart;Golf cart;1.0;land_only;2026-10-01;IMG_20261002_120158716.jpg;Nie stosować mnożnika do frachtu morskiego
+snowmobile;Snowmobile;1.0;land_only;2026-10-01;IMG_20261002_120158716.jpg;Nie stosować mnożnika do frachtu morskiego
+jet_ski;Jet Ski;1.0;land_only;2026-10-01;IMG_20261002_120158716.jpg;Nie stosować mnożnika do frachtu morskiego
+motorcycle;Motorcycle;0.8;land_only;2026-10-01;IMG_20261002_120158716.jpg;Nie stosować mnożnika do frachtu morskiego
+atv;ATV;0.8;land_only;2026-10-01;IMG_20261002_120158716.jpg;Nie stosować mnożnika do frachtu morskiego
+lawn_mower;Lawn Mower;0.8;land_only;2026-10-01;IMG_20261002_120158716.jpg;Nie stosować mnożnika do frachtu morskiego
+suv_large;SUV (Large);1.5;land_only;2026-10-01;IMG_20261002_120158716.jpg;Nie stosować mnożnika do frachtu morskiego
+pickup_standard;Pickup Truck (Standard);1.5;land_only;2026-10-01;IMG_20261002_120158716.jpg;Nie stosować mnożnika do frachtu morskiego
+pickup_large;Pickup Truck (Large);1.5;land_only;2026-10-01;IMG_20261002_120158716.jpg;Nie stosować mnożnika do frachtu morskiego
+van_large;Van (Large);2.0;land_only;2026-10-01;IMG_20261002_120158716.jpg;Nie stosować mnożnika do frachtu morskiego
+pickup_oversized;Pickup Truck (Oversized);2.0;land_only;2026-10-01;IMG_20261002_120158716.jpg;Nie stosować mnożnika do frachtu morskiego
+other;All other cargo types;;land_only;2026-10-01;IMG_20261002_120158716.jpg;Wycena indywidualna

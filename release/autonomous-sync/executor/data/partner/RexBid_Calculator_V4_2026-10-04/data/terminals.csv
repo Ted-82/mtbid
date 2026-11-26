@@ -1,0 +1,7 @@
+﻿terminal_id;legacy_route_id;column_index;display_name;country;source_color_rgb;source;role;ocean_port_confirmed
+savannah_ga;route_1;1;Savannah, GA;US;71,215,141;"IMG_20261002_120158716.jpg; IMG_20261002_120132335.jpg";origin_terminal;
+elizabeth_nj;route_2;2;Elizabeth, NJ;US;249,182,90;"IMG_20261002_120158716.jpg; IMG_20261002_120132335.jpg";origin_terminal;
+houston_tx;route_3;3;Houston, TX;US;251,137,72;"IMG_20261002_120158716.jpg; IMG_20261002_120132335.jpg";origin_terminal;
+los_angeles_ca;route_4;4;Los Angeles, CA;US;92,169,251;"IMG_20261002_120158716.jpg; IMG_20261002_120132335.jpg";origin_terminal;
+indianapolis_in;route_5;5;Indianapolis, IN;US;93,98,207;"IMG_20261002_120158716.jpg; IMG_20261002_120132335.jpg";origin_terminal;
+montreal_qc;route_6;6;Montreal, QC;CA;128,128,128;"IMG_20261002_120158716.jpg; IMG_20261002_120132335.jpg";origin_terminal;

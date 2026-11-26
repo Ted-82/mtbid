@@ -1,0 +1,6 @@
+Pakiet: partner-rates-d8167ad4ef8bce56
+610 rekordów lądowych, 24 stawki morskie, 16 klas, 1 osobna dopłata EV 150 USD/auto.
+Preferencje/kwoty 610 wierszy zachowane względem poprzedniego pakietu.
+Testy referencyjne pakietu: 14/14 PASS. Generator --check: PASS.
+To nie testy repo Rex.Bid ani weryfikacja kompletnej ceny importu.
+Bez zmian repo, D1, staging/production i bez requestów Apibara w tej pracy.

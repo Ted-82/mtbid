@@ -1,0 +1,142 @@
+{
+  "generation": 23956,
+  "first": 120609876,
+  "last": 120713699,
+  "received": "2026-11-25T09:40:53.026Z",
+  "rows": [
+    {
+      "raw": {
+        "lot_number": "46496930",
+        "platform": "iaai",
+        "title": "2008 SUBARU FORESTER 2.5X",
+        "year": 2008,
+        "make": "SUBARU",
+        "model": "FORESTER",
+        "updated_at": "2026-11-25T09:12:05.000000Z",
+        "vin": "JF1SG63648G714701",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "phase_label": "Scheduled",
+          "auction_at": "2026-12-01T16:30:00+00:00",
+          "auction_date_pending": false,
+          "is_timed": false,
+          "timed_end_at": null,
+          "lot_removed": false,
+          "result_confirmed": false,
+          "completion_source": null,
+          "outcome_status": null,
+          "last_sold_status": null,
+          "is_buy_now": true,
+          "live_window_expires_at": "2026-12-01T19:30:00+00:00",
+          "is_bidding_now": null
+        },
+        "pricing": {
+          "current_bid_usd": null,
+          "buy_now_usd": 800,
+          "last_sold_price_usd": null
+        }
+      },
+      "observedAt": "2026-11-25T10:01:21.645Z",
+      "events": [
+        {
+          "sequence": 120636210,
+          "event_id": "chg_120636210",
+          "event": "auction.rescheduled",
+          "terminal": false,
+          "reason": null,
+          "vehicle": {
+            "id": 4334243,
+            "platform": "iaai",
+            "platform_id": 2,
+            "lot_number": "46496930",
+            "vin": "JF1SG63648G714701"
+          },
+          "changed_fields": [
+            "auction.auction_at"
+          ],
+          "before": {
+            "auction.auction_at": "2026-12-01T06:30:00+00:00",
+            "auction.auction_date_pending": false
+          },
+          "after": {
+            "auction.auction_at": "2026-12-01T16:30:00+00:00",
+            "auction.auction_date_pending": false
+          },
+          "vehicle_updated_at": "2026-11-25T11:12:05+02:00",
+          "recorded_at": "2026-11-25T09:12:05+00:00"
+        }
+      ]
+    },
+    {
+      "raw": {
+        "lot_number": "46528339",
+        "platform": "iaai",
+        "title": "2013 HYUNDAI ELANTRA LIMITED",
+        "year": 2013,
+        "make": "HYUNDAI",
+        "model": "ELANTRA",
+        "updated_at": "2026-11-25T09:10:18.000000Z",
+        "vin": "KMHDH4AE0DU637914",
+        "auction": {
+          "state": "open",
+          "phase": "scheduled",
+          "phase_label": "Scheduled",
+          "auction_at": "2026-12-01T16:30:00+00:00",
+          "auction_date_pending": false,
+          "is_timed": false,
+          "timed_end_at": null,
+          "lot_removed": false,
+          "result_confirmed": false,
+          "completion_source": null,
+          "outcome_status": null,
+          "last_sold_status": null,
+          "is_buy_now": true,
+          "live_window_expires_at": "2026-12-01T19:30:00+00:00",
+          "is_bidding_now": null
+        },
+        "pricing": {
+          "current_bid_usd": null,
+          "buy_now_usd": 1300,
+          "last_sold_price_usd": null
+        }
+      },
+      "observedAt": "2026-11-25T10:01:22.534Z",
+      "events": [
+        {
+          "sequence": 120618399,
+          "event_id": "chg_120618399",
+          "event": "auction.rescheduled",
+          "terminal": false,
+          "reason": null,
+          "vehicle": {
+            "id": 4360702,
+            "platform": "iaai",
+            "platform_id": 2,
+            "lot_number": "46528339",
+            "vin": "KMHDH4AE0DU637914"
+          },
+          "changed_fields": [
+            "auction.auction_at",
+            "pricing.current_bid_usd",
+            "pricing.previous_bid_usd"
+          ],
+          "before": {
+            "auction.auction_at": "2026-12-01T06:30:00+00:00",
+            "pricing.current_bid_usd": 50,
+            "pricing.previous_bid_usd": 50,
+            "auction.auction_date_pending": false
+          },
+          "after": {
+            "auction.auction_at": "2026-12-01T16:30:00+00:00",
+            "pricing.current_bid_usd": null,
+            "pricing.previous_bid_usd": 0,
+            "auction.auction_date_pending": false
+          },
+          "vehicle_updated_at": "2026-11-25T11:10:18+02:00",
+          "recorded_at": "2026-11-25T09:10:18+00:00"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+# Public Home / Catalog — local polish, 2026-10-07
+
+Base checkpoint: `364b1d7`. Existing working tree changes were preserved. This subtask changes only the public Home/Catalog surface, its shared market helper and dedicated behavior tests. Root coordinates hosting, public read envelope and real browser QA.
+
+## Visible changes
+
+- Mobile filter panel has a visible expand/collapse button, active filter count and accessible focus after applying filters. Active chips stay outside the folded controls; removal buttons have larger touch targets and describe the removed value.
+- Removing a make clears its dependent model. Non-default categories have a removable chip; matching category aliases are shown as one choice. Restoring a filter URL preserves selected values even before metadata options arrive.
+- Buy Now category URLs choose the purchase price as primary. The current bid stays separate; saved data labels, unconfirmed status/date rules and scope notices are preserved. Saved-data explanations use a neutral note instead of looking like a second price.
+- Home empty categories explicitly say there are no confirmed current offers and link to the saved catalog. Freshness filtering continues to prevent old records from appearing as live Home recommendations.
+- Default `/?catalog=1` requests all known records, with a neutral Catalog heading and an explicit All offers shortcut. Only an explicit category or category shortcut applies current eligibility/freshness. Removing that category returns to all known records; stale examples stay dated and unconfirmed.
+- Card identities retain exact VIN, LOT and platform. Distinct LOT/platform auctions survive deduplication, including a repeated VIN. Card links carry a relative `return_to` with the catalog filters; car-page validation is handled by its owner.
+- Browser history retains up to 200 loaded rows, next cursor and scroll for two minutes after the original list read. Appending does not put a cursor-only page in the bookmark URL. Older or mismatched snapshots require a new read; navigation does not extend snapshot freshness. Explicit return links preserve the filter URL.
+- Loading exposes `aria-busy`; errors retain criteria with an actionable retry. Invalid API shapes produce an error instead of a fabricated empty result. Empty results have a clear-filters action. Product errors do not show raw backend diagnostics.
+- Dedicated Home/Catalog CSS adjusts identity wrapping, price labels, saved notes, focus, current navigation and small-screen cards without editing the shared brand stylesheet.
+
+## Local evidence
+
+`node --test tests/catalog-public-ux.test.cjs tests/catalog-freshness.test.cjs tests/live-review-market.test.cjs`: **21/21 PASS** after the all-known/default versus current-category clarification and real shared-navigation initialization. The new DOM suite uses real public HTML and real handlers with synthetic responses. It does not establish browser layout, provider freshness or deployed behavior. Root performs actual browser QA after integrating all public changes.
+
+The additional `tests/stored-catalog-read.test.cjs` uses the 0004 schema in memory with old and fresh Copart/IAAI rows. **5/5 behavioral groups PASS**: isolated guard before D1 reads, all-known versus fresh category pagination, stale exact detail/history, missing/ambiguous/unavailable errors and partial filter scopes. Every group also asserts no global network fetch, no database mutation/timestamp rewrite and no `Set-Cookie`. Root corrected the per-record `read` envelope; the test requires it to prevent stale list rows from claiming live prices.
+
+Existing history/product tests were updated without removing their coverage: startup isolation no longer relies on a specific cache-free initialization string; repeated VIN/new LOT must survive pagination; cleared/default filters mean all known offers; the All shortcut exists only in Catalog while Home remains four categories; default cards show a separate Buy Now value. The combined history/product/stored suite passed **70/70** locally.
+
+Account audit found and reproduced a specific validation accessibility issue: actual login/signup HTML and auth script were mounted with synthetic configuration/me responses, then an empty submit was clicked. Both left focus on the submit button while showing an email validation message, with no `aria-invalid` or error association on inputs because native validation is disabled. Root then explicitly assigned the narrow `mountAuthForm` repair. The invalid field now receives focus, `aria-invalid=true` and a message association that preserves existing hint references. Editing clears only its invalid marking and validation message; a new submit clears previous marking before recomputing validation. API/session behavior remains unchanged. Two behavioral groups were added to the existing real DOM account suite for empty email and short password across login/signup, including correction/success and generic server failure. The account login/recovery/staging tests passed **32/32** locally. Labels, autocomplete, 48px form controls, bounded mobile boxes and focus CSS are present; physical mobile layout requires real browser QA. Portal access-error focus remains coordinated with its owning agent.
+
+Subtask external effects: no provider requests, discovery/backfill, email, deploy, migration, DNS changes or commit.
+
+Files: `public/index.html`, `public/rexbid-market.js`, new `public/rexbid-catalog.css`, narrow `public/rexbid-auth.js` validation edit, new `tests/catalog-public-ux.test.cjs`, new `tests/stored-catalog-read.test.cjs`, `tests/history.test.cjs`, `tests/product-feedback.test.cjs`, `tests/accounts-recovery-browser.test.cjs`, this progress note. Another agent owns the isolated vehicle-detail mock change in `tests/history.test.cjs`.

@@ -1,0 +1,166 @@
+/* Home and Catalog polish, scoped to these public surfaces. */
+.rex-portal .catalog-count { text-align: right; flex-shrink: 0; }
+.rex-portal .catalog-count > span { display: block; color: #536477; font-size: 11px; margin-bottom: 5px; }
+.rex-portal .catalog-toolbar { display: flex; align-items: end; flex-wrap: wrap; gap: 14px 24px; padding: 19px 22px; margin-bottom: 20px; border: 1px solid #d4dfe9; border-radius: 12px; background: #fff; }
+.rex-portal .catalog-sort-field { display: grid; gap: 7px; flex: 1 1 280px; max-width: 430px; }
+.rex-portal .catalog-sort-field label { font-size: 12px; color: #334d65; font-weight: 750; }
+.rex-portal .catalog-sort-field select { width: 100%; min-height: 46px; border: 1px solid #b9c9d7; border-radius: 8px; background: #fff; color: #102a3c; font: inherit; font-size: 14px; padding: 10px 34px 10px 12px; }
+.rex-portal .catalog-view-controls { display: flex; gap: 4px; padding: 3px; border-radius: 9px; background: #edf2f6; margin-left: auto; }
+.rex-portal .catalog-view-controls button { min-height: 40px; min-width: 83px; border: 1px solid transparent; border-radius: 7px; padding: 8px 14px; background: transparent; color: #334d65; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.rex-portal .catalog-view-controls button[aria-pressed="true"] { background: #132f43; color: #fff; box-shadow: 0 2px 5px #102a3c18; }
+.rex-portal .catalog-toolbar :is(select,button):focus-visible { outline: 3px solid #287bc1; outline-offset: 2px; }
+.rex-portal #catalogSortNote { flex-basis: 100%; margin: 0; color: #536477; font-size: 12px; line-height: 1.55; }
+.rex-portal .catalog-results.catalog-list-view .cars { grid-template-columns: minmax(0,1fr); gap: 17px; }
+.rex-portal .catalog-results.catalog-list-view .car-card > a { display: grid; grid-template-columns: minmax(200px,27%) minmax(0,1fr); }
+.rex-portal .catalog-results.catalog-list-view .car-image { width: 100%; min-width: 0; aspect-ratio: auto; height: 100%; min-height: 220px; border-radius: 12px 0 0 0; }
+.rex-portal .catalog-results.catalog-list-view .car-image img { object-fit: cover; }
+.rex-portal .catalog-results.catalog-list-view .car-content { display: grid; grid-template-columns: minmax(0,1fr) minmax(155px,24%); gap: 10px 24px; padding: 20px 24px; }
+.rex-portal .catalog-list-view :is(.car-title,.card-source-status,.car-vin,.auction-date-row,.car-grid) { grid-column: 1; }
+.rex-portal .catalog-results.catalog-list-view .car-title { font-size: 21px; }
+.rex-portal .catalog-results.catalog-list-view .car-grid { margin: 4px 0; }
+.rex-portal .catalog-results.catalog-list-view .car-bottom { grid-column: 2; grid-row: 1 / span 5; flex-direction: column; align-items: flex-start; justify-content: center; margin: 0; }
+.rex-portal .catalog-results.catalog-list-view .car-vin { padding-block: 7px; }
+.rex-portal .catalog-list-view .card-secondary-price { grid-column: 2; }
+.rex-portal .catalog-list-view .card-saved-note { grid-column: 1 / -1; margin-top: 0; }
+@media (max-width:700px) {
+  .rex-portal .catalog-toolbar { padding: 16px; gap: 12px; }
+  .rex-portal .catalog-sort-field { max-width: none; flex-basis: 100%; }
+  .rex-portal .catalog-view-controls { margin-left: 0; }
+  .rex-portal .catalog-count { text-align: left; }
+  .rex-portal .catalog-results.catalog-list-view .car-card > a { grid-template-columns: minmax(94px,30%) minmax(0,1fr); align-items: start; }
+  .rex-portal .catalog-results.catalog-list-view .car-image { min-height: 0; height: 140px; border-radius: 10px 0 0 0; }
+  .rex-portal .catalog-results.catalog-list-view .car-content { display: flex; padding: 13px; gap: 8px; }
+  .rex-portal .catalog-results.catalog-list-view .car-title { font-size: 17px; }
+  .rex-portal .catalog-results.catalog-list-view .car-grid { grid-template-columns: 1fr 1fr; gap: 9px; }
+  .rex-portal .catalog-results.catalog-list-view .car-grid .spec:last-child { grid-column: 1 / -1; }
+  .rex-portal .catalog-results.catalog-list-view .car-bottom { gap: 10px; }
+  .rex-portal .catalog-results.catalog-list-view .rex-card-price strong { font-size: 23px; }
+  .rex-portal .catalog-results.catalog-list-view .rex-card-price strong.rex-price-missing { font-size: 14px; }
+}
+.rex-portal:not(.rex-catalog-mode) #search .hero-copy { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "eyebrow search" "title search" "text search" "benefits benefits"; align-items: center; column-gap: 64px; max-width: 1320px; text-align: left; }
+.rex-portal:not(.rex-catalog-mode) #search .eyebrow { grid-area: eyebrow; align-self: end; margin-bottom: 16px; }
+.rex-portal:not(.rex-catalog-mode) #search h1 { grid-area: title; margin: 0; font-size: clamp(34px, 3.4vw, 49px); line-height: 1.13; }
+.rex-portal:not(.rex-catalog-mode) #search .hero-copy > p { grid-area: text; align-self: start; margin: 19px 0 0; max-width: 540px; font-size: 16px; }
+.rex-portal:not(.rex-catalog-mode) #search .search-panel { grid-area: search; width: 100%; margin: 0; padding: 28px; border-radius: 16px; }
+.rex-portal:not(.rex-catalog-mode) #search .search-panel h2 { margin-bottom: 18px; font-size: 21px; }
+.rex-portal:not(.rex-catalog-mode) #search .search-box { flex-direction: column; gap: 12px; }
+.rex-portal:not(.rex-catalog-mode) #search .search-box .btn { width: 100%; justify-content: space-between; }
+.rex-portal:not(.rex-catalog-mode) #search .search-hint { flex-direction: column; gap: 12px; font-size: 12px; }
+.rex-portal:not(.rex-catalog-mode) #search .search-hint a { width: fit-content; min-height: 32px; padding-block: 6px; }
+.rex-portal:not(.rex-catalog-mode) .hero-benefits { grid-area: benefits; justify-content: flex-start; gap: 16px 34px; margin-top: 32px; padding-top: 21px; border-top: 1px solid #ffffff1f; font-size: 13px; }
+.rex-portal.rex-catalog-mode #search h1 { font-size: clamp(25px, 2.6vw, 34px); }
+.rex-portal .filter-validation-message { margin: 0 0 18px; padding: 12px 14px; border: 1px solid #e8b8c1; border-radius: 8px; background: #fff4f6; color: #8e2336; font-size: 13px; line-height: 1.6; }
+.rex-portal .filter-validation-message[hidden] { display: none; }
+.rex-portal .filter-section [aria-invalid="true"] { border-color: #ba2138; background: #fff8f9; }
+.rex-portal .filter-section .clear-filters { min-height: 44px; padding-inline: 10px; font-size: 12px; }
+.rex-portal .filters-heading > div { display: grid; gap: 5px; }
+.rex-portal .filters-heading p { margin: 0; }
+.rex-portal .filter-panel-toggle { display: none; }
+.rex-portal header nav.rex-primary-nav a[aria-current="page"] { color: #fff !important; text-decoration: underline !important; text-decoration-color: #ef6175 !important; text-underline-offset: 9px; }
+.rex-portal .aisle-empty-link { display: block; width: fit-content; min-height: 44px; padding-top: 11px; color: #183e5b; font-weight: 750; }
+.rex-portal .filter-section .filter-chip { max-width: 100%; padding: 2px 4px 2px 12px; gap: 8px; }
+.rex-portal .filter-section .filter-chip > span { overflow-wrap: anywhere; }
+.rex-portal .filter-section .filter-chip button { flex: 0 0 auto; width: 40px; height: 40px; min-height: 40px; padding: 0; font-size: 22px; }
+.rex-portal .filter-section .active-filters { padding-bottom: 5px; }
+.rex-portal .catalog-result-note { max-width: 670px; margin: 3px 0 0; color: #536477; font-size: 13px; line-height: 1.55; }
+.rex-portal .catalog-coverage { margin: 0 0 18px; padding: 13px 16px; border: 1px solid #d4dfe9; border-left: 3px solid #536f89; border-radius: 9px; background: #eef3f7; color: #334d65; font-size: 13px; line-height: 1.6; }
+.rex-portal .catalog-coverage[hidden] { display: none; }
+.rex-portal .catalog-results .car-vin { white-space: normal; overflow-wrap: anywhere; text-overflow: clip; letter-spacing: .01em; }
+.rex-portal .catalog-results .cars { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.rex-portal .catalog-results .car-card { display: flex; flex-direction: column; }
+.rex-portal .catalog-results .car-card > a { display: flex; flex: 1; flex-direction: column; height: auto; }
+.rex-portal .catalog-results .car-content { display: flex; flex: 1; flex-direction: column; padding: 20px; }
+.rex-portal .catalog-results .car-title { min-height: 0; font-size: 20px; line-height: 1.35; }
+.rex-portal .catalog-results .card-source-status { font-size: 12px; }
+.rex-portal .catalog-results .car-vin { display: grid; gap: 5px; padding-block: 11px; border-block: 1px solid #edf1f5; font-size: 12px; }
+.rex-portal .card-identity-line { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 9px; }
+.rex-portal .card-identity-line > span { color: #667b8f; font-size: 11px; }
+.rex-portal .card-identity-line > strong { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; font-weight: 600; color: #334e65; overflow-wrap: anywhere; }
+.rex-portal .catalog-results .car-grid { grid-template-columns: .65fr 1fr 1.35fr; margin-block: 17px; gap: 12px; }
+.rex-portal .catalog-results .spec small { font-size: 11px; letter-spacing: 0; }
+.rex-portal .catalog-results .spec strong { font-size: 13px; }
+.rex-portal .catalog-results .car-bottom { margin-top: auto; gap: 12px; }
+.rex-portal .catalog-results .rex-card-price strong { font-size: 27px; }
+.rex-portal .catalog-results .rex-card-price strong.rex-price-missing { font-size: 15px; }
+.rex-portal .catalog-results .details-btn { flex: 0 0 auto; font-size: 12px; padding-inline: 12px; }
+.rex-portal .catalog-results .card-local-actions { padding: 0 20px 20px; }
+.rex-portal .catalog-results .card-local-actions button { font-family: inherit; font-size: 13px; }
+.rex-portal .catalog-results .card-source-status { margin-top: 9px; color: #536477; line-height: 1.5; }
+.rex-portal :is(.market-aisle-card, .car-card) > a:focus-visible { outline: 3px solid #287bc1; outline-offset: -3px; border-radius: 13px; }
+.rex-portal .market-aisle-card a { height: 100%; display: flex; flex-direction: column; }
+.rex-portal .aisle-card-body { flex: 1; }
+.rex-portal .rex-card-price small { color: #536477; font-size: 12px; }
+.rex-portal .rex-card-price strong > span { font-size: 12px; }
+.rex-portal :is(.card-secondary-price, .aisle-secondary-price) { display: block; margin-top: 7px; color: #536477; font-size: 12px; font-weight: 650; line-height: 1.5; }
+.rex-portal .card-saved-note { margin: 10px 0 0; padding: 9px 11px; border-radius: 7px; background: #f1f4f7; color: #4e6277; font-size: 12px; font-weight: 400; line-height: 1.55; }
+.rex-portal .message { padding: 26px 20px; gap: 8px; text-align: center; }
+.rex-portal .message > span { max-width: 520px; }
+.rex-portal .message button, .rex-portal .aisle-retry { min-height: 44px; margin-top: 6px; padding: 10px 16px; border: 1px solid #c4d0dd; border-radius: 8px; background: #fff; color: #173d59; font-family: inherit; font-size: 13px; font-weight: 700; line-height: 1.5; cursor: pointer; }
+.rex-portal .message button:hover, .rex-portal .aisle-retry:hover { border-color: #173d59; background: #f4f7fa; }
+.rex-portal .message-error strong { color: #9c263c; }
+.rex-portal #results { scroll-margin-top: 110px; }
+.rex-portal .catalog-results [aria-busy="true"] { cursor: progress; }
+@media (max-width: 1000px) {
+  .rex-portal:not(.rex-catalog-mode) #search .hero-copy { column-gap: 32px; }
+  .rex-portal:not(.rex-catalog-mode) #search .search-panel { padding: 23px; }
+  .rex-portal:not(.rex-catalog-mode) #search h1 { font-size: 36px; }
+  .rex-portal:not(.rex-catalog-mode) #search .hero-copy > p { font-size: 14px; }
+  .rex-portal .catalog-results .cars { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+}
+@media (max-width: 760px) {
+  .rex-portal:not(.rex-catalog-mode) #search .hero-copy { display: block; max-width: 620px; text-align: center; }
+  .rex-portal:not(.rex-catalog-mode) #search h1 { font-size: clamp(32px, 6vw, 42px); }
+  .rex-portal:not(.rex-catalog-mode) #search .hero-copy > p { margin: 16px auto 0; }
+  .rex-portal:not(.rex-catalog-mode) #search .search-panel { margin-top: 26px; padding: 21px; }
+  .rex-portal:not(.rex-catalog-mode) .hero-benefits { justify-content: center; gap: 9px 20px; margin-top: 22px; padding-top: 18px; font-size: 12px; }
+  .rex-portal.rex-catalog-mode #search.hero { padding: 20px 0; }
+  .rex-portal.rex-catalog-mode #search h1 { font-size: 25px; }
+  .rex-portal.rex-catalog-mode #search .hero-copy > p { margin-top: 7px; font-size: 12px; }
+  .rex-portal.rex-catalog-mode #search .search-panel { margin-top: 18px; }
+  .rex-portal .catalog-results .car-content { padding: 16px; }
+  .rex-portal .catalog-results .car-title { font-size: 18px; }
+  .rex-portal .catalog-results .car-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rex-portal .catalog-results .car-grid .spec:last-child { grid-column: 1 / -1; }
+  .rex-portal .catalog-results .car-bottom { flex-wrap: wrap; gap: 10px; }
+  .rex-portal .catalog-results .card-local-actions { padding: 0 16px 16px; }
+}
+@media (max-width: 700px) {
+  .rex-portal .filters-heading { flex-direction: row; align-items: center; margin-bottom: 0; gap: 12px; }
+  .rex-portal .filters-heading h2 { font-size: 15px; }
+  .rex-portal .filters-heading p { display: none; }
+  .rex-portal .filter-section .filters .filter-panel-toggle { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; min-height: 44px; height: auto; padding: 8px 12px; border: 1px solid #c8d5e1; border-radius: 8px; background: #fff; color: #183c58; font-size: 12px; font-weight: 750; }
+  .rex-portal #filterControls { margin-top: 16px; }
+  .rex-portal #filterControls.is-collapsed { display: none; }
+  .rex-portal .filter-submit-field { grid-column: 1 / -1; }
+  .rex-portal .filter-submit-field label { display: none; }
+  .rex-portal .filter-section .advanced-actions .btn { width: 100%; }
+  .rex-portal .filter-section .active-filters { gap: 5px; margin-top: 12px; }
+  .rex-portal .filter-section .clear-filters { align-self: flex-start; padding-left: 0; }
+  .rex-portal .catalog-result-note { font-size: 12px; }
+  .rex-portal .catalog-coverage { padding: 12px 13px; font-size: 12px; }
+  .rex-portal .marketplace-aisles { gap: 28px; }
+  .rex-portal .market-aisle-heading { align-items: center; gap: 12px; }
+  .rex-portal .market-aisle-heading .aisle-more { flex: 0 0 auto; }
+  .rex-portal .market-aisle-card .aisle-title { font-size: 15px; }
+}
+@media (max-width: 460px) {
+  .rex-portal .market-aisle-grid { grid-template-columns: minmax(0, 1fr); gap: 15px; }
+  .rex-portal .marketplace-aisles .aisle-photo { aspect-ratio: 16 / 10; }
+  .rex-portal .aisle-card-body { padding: 15px; }
+  .rex-portal .market-aisle-card .aisle-title { min-height: 0; font-size: 17px; }
+  .rex-portal .market-aisle-card .rex-card-facts { font-size: 13px; }
+}
+@media (max-width: 560px) {
+  .rex-portal .catalog-results .cars { grid-template-columns: minmax(0, 1fr); }
+  .rex-portal .catalog-results .car-content { padding: 18px; }
+  .rex-portal .catalog-results .car-title { font-size: 21px; }
+  .rex-portal .catalog-results .car-grid { grid-template-columns: .65fr 1fr 1.35fr; gap: 9px; }
+  .rex-portal .catalog-results .car-grid .spec:last-child { grid-column: auto; }
+  .rex-portal .catalog-results .spec strong { font-size: 13px; }
+  .rex-portal .catalog-results .card-local-actions { padding: 0 18px 18px; }
+  .rex-portal .catalog-results .market-shortcuts { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 14px; scrollbar-width: thin; }
+  .rex-portal .catalog-results .market-shortcuts button { flex: 0 0 auto; }
+  .rex-portal:not(.rex-catalog-mode) #search .search-panel h2 { font-size: 19px; }
+  .rex-portal.rex-catalog-mode #search .eyebrow { font-size: 10px; margin-bottom: 9px; }
+  .rex-portal .filter-section .filters { padding: 17px; }
+}

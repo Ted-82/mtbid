@@ -1,0 +1,126 @@
+# REXBID — naprawa synchronizacji, wynik etapu 26.11.2026
+
+Stan: **niepełny odbiór całego zlecenia**. Wprowadzono rzeczywiste zmiany i sprawdzono pracę produkcji. Nie potwierdzono pełnej aktualności całego katalogu, stabilności przez siedem dni ani likwidacji wszystkich kolejek. Aktualny kod produkcji i niewdrożona optymalizacja są rozdzielone.
+
+**Co było przyczyną potwierdzonych braków**
+
+Główny importer publikował paczki, lecz osobna kolejka ponownych wystawień zatrzymywała się na wewnętrznym przydziale 400/450 dziennych wywołań. To nie był limit opłaconego Pro. Copart dominował w kolejce. Dodatkowo limit wieku ostatniej paczki 75 minut zatrzymywał niezależną weryfikację przez API. Subaru 46496930 i Hyundai 46528339 były w źródle, ale nie w wynikach. Kontrola samego kursora paczek ukrywała ten problem.
+
+W tym etapie wykryto też obniżanie wspólnych przydziałów przez stare inicjalizatory, dodatkową rezerwę 30 tys. wywołań, stały limit 2000 nowych wpisów oraz blokowanie zdjęć/historii przez rezerwowanie zapisów z góry na wszystkie pozostałe dni miesiąca. Te bariery były w naszym kodzie. Oddzielnym problemem jest kanał plikowy dostawcy, który nadal udostępnia 24932. Nie ustalono przyczyny jego zatrzymania. API zwraca nowsze dane.
+
+**Co działa na produkcji**
+
+- Wspólny, trwały licznik API i blokada transakcyjna. Restart ani północ nie zerują przydziału nadrabiania. Zużyte wywołania pozostają policzone również po błędzie odpowiedzi.
+- Przydział zależy od uwierzytelnionej pozostałej puli, terminu subskrypcji i kolejki. Połowa dostępnej puli może zasilać nadrabianie; druga połowa zostaje na dalsze operacje. Dodatkowo pozostaje rezerwa 10% opłaconej puli. Nie przyznano nowej puli u dostawcy.
+- Licznik przydziału nadrabiania jest rozliczany atomowo razem z licznikami dziennym i miesięcznym. Nie ma obowiązku czekania na północ po wykorzystaniu dawnego progu około 3 tys. wywołań.
+- Copart i IAAI mają niezależne kursory oraz ważony podział według liczby i wieku zadań, z minimalną możliwością obsługi obu źródeł. Niewykorzystana możliwość może przejść do drugiego źródła.
+- Zbiorczy odczyt filtrowanych auction.rescheduled dostarcza pełne rekordy i ma własny trwały kursor. Próba rzeczywista zwróciła 50 rekordów w jednym wywołaniu. Nie przestawia głównego kursora importu.
+- Do 20 znanych, sprawdzonych ofert można zapisać w jednej transakcji. Konflikt wycofuje cały zestaw. VIN, platforma, LOT, źródłowa wersja i historia nadal są sprawdzane.
+- Starsza paczka nie powinna nadpisywać nowszej sprawdzonej wersji API. Nie przenosi się starej ceny sprzedaży jako bieżącej oferty.
+- Starsza ukończona paczka nie blokuje już niezależnej naprawy ponownych wystawień ani zdjęć. Trwające publikowanie i niezgodny punkt nadal blokują niebezpieczny zapis.
+- Zdjęcia z już sprawdzonej odpowiedzi o ponownym wystawieniu mogą wypełnić pustą galerię bez kolejnego wywołania API. Istniejąca galeria ma pierwszeństwo. Priorytet zdjęć obejmuje aukcje do siedmiu dni.
+- Zdjęcia i historia mają rezerwę dwóch największych zmierzonych dni z ostatnich trzech zamiast blokady na wszystkie przyszłe dni miesiąca. Obecna rezerwa to 4 846 620 zapisów. Twardy budżet okresu pozostaje osobno.
+- Monitoring w Cloudflare zapisuje próbki co 15 minut i rozpoznaje horyzonty 1/6/24/72/168 godzin od pierwszej próbki. Działa bez laptopa i otwartego czatu. Nie oznacza to, że 7 dni obserwacji już minęło.
+- Panel właściciela pokazuje kolejki, stany obu źródeł, wiek dostawy, pulę i przydziały. Odpowiedź jest chroniona istniejącą autoryzacją i MFA. Kontrola anonimowa zwróciła 401. Zielony status kompletności nie jest nadawany na podstawie samej paczki.
+- Alerty korzystają z istniejącego Resend i osobnej szyfrowanej kolejki, mają deduplikację i limit czterech prób dziennie. Potwierdzono jeden wysłany alert; nie kontrolowano folderu odbiorcy.
+
+**Rzeczywiste wyniki**
+
+Pomiar 2026-11-26T16:08:49.476Z: kolejka ponownych wystawień spadła z 26 431 do **20932**. Copart: 14185; IAAI: 6747. To liczba zadań weryfikacji, a nie liczba udowodnionych braków.
+
+Kolejne automatyczne próbki: 15:00 UTC — 23 596; 15:15 — 23 486; 15:30 — 22 384; 15:45 — 21 900. W ostatnim pełnym kwadransie ubyło 484, czyli 1936/h netto. Wcześniejszy kwadrans dawał 4408/h. Zmienność jest duża, a pliki nie napływały. Ekstrapolacja 21,9 tys. / 1936/h daje około 11,3 godziny, lecz **nie jest terminem ukończenia**: zadania niepotwierdzone wracają później, a wznowione pliki mogą dodać pracę. Nie zmierzono jeszcze normalnego dopływu po naprawie. Nie wykazano trwałej dwukrotnej nadwyżki wydajności.
+
+Subaru Forester VIN JF1SG63648G714701 / LOT 46496930 oraz Hyundai Elantra VIN KMHDH4AE0DU637914 / LOT 46528339 przywrócił normalny automat po nadaniu priorytetu istniejącym zadaniom. Nie wpisywano ręcznie danych aut. Kontrola publiczna 15:39 UTC znalazła obie prawidłowe tożsamości i termin **1 grudnia 17:30 PL**. Powtórzona próba równoległa również znalazła obie oferty.
+
+Mobilny Chrome 390×844 o 15:31 UTC: cztery sekcje po cztery oferty, 16/16 zdjęć odkodowanych, VIN Dakoty prowadzi do LOT 65917836. Zmiana 1100 → 2500 USD zmieniła kalkulator 13 891 → 20 567 zł. Sprawdzono reakcję kalkulatora, nie przeprowadzono ponownego audytu taryf. Nie wysyłano wiadomości ani wpłat i wyłączono rejestrowanie wizyt testowych.
+
+Próba równoległa 2026-11-26T15:53:31.193Z: Subaru 2025+ zwróciło 20 aut, wszystkie spełniały rocznik; elektryczne 20 aut, następna strona kolejne 20 bez powtórzeń. Czasy całego odczytu JSON wyniosły 1165–1547 ms przy czterech równoległych zapytaniach; kolejna strona 356 ms. To pojedynczy test, nie porównywalny benchmark przed/po ani wynik Core Web Vitals.
+
+**Zdjęcia w szerszym zakresie**
+
+Pomiar 2026-11-26T15:57:46.978Z: Copart 16690/45908 (36.36%) aktywnych wpisów z datą bez adresów zdjęć w dwóch kolumnach mediów; IAAI 4/32768. Do siedmiu dni brakuje adresów w 15058/41416 Copart i 1/28585 IAAI. To pomiar adresów w zapisanej bazie, nie test działania każdego zewnętrznego pliku. Ogólna liczba braków może wzrosnąć przy przywróceniu kolejnych aut, mimo uzupełnień.
+
+Po usunięciu blokady wieku paczki normalny automat 15:47 UTC uzupełnił m.in. Copart 67754256 — 12 zdjęć i 11 miniatur. Dodatkowy moduł wypełniający media również pozostałych aktywnych ofert z całej już pobranej strony API przeszedł testy, lecz **nie został jeszcze wdrożony**. Jego publikację zatrzymał odczyt zarządzania Cloudflare: HTTP503, kod10001, Unable to authenticate request. D1 i produkcyjny automat w tym czasie pracowały. Nie ustalono, czy to usterka autoryzacji czy usługi; nie przedstawia się tego jako wygaśnięcia konta ani awarii całej strony.
+
+**Limity i koszty**
+
+| Obszar | Potwierdzone warunki / decyzja |
+|---|---|
+| Apibara | Uwierzytelniony Pro: 100 tys. na okres, następny termin 26.12; listy 20 rekordów. Publiczny cennik: 70 USD/mies., 40 żądań/s, burst40, jeden feed i live w planie. Faktycznej płatności USDC nie weryfikowano. |
+| Przydział nadrabiania | 43584 łącznie w bieżącym okresie, bez zerowania o północy. Ostatni pomiar wykorzystania 813. Po zakończeniu kolejki tryb przechodzi do zwykłego rozdziału. |
+| D1 opłacony | 50 mln zapisów, 25 mld odczytów i 5 GB łącznie; dodatkowo 1 USD/mln zapisów, 0,001 USD/mln odczytów, 0,75 USD/GB-mies. |
+| Zgoda właściciela | Dodatkowo do 8 USD/mies. Wybrano do 5 USD na dodatkowe zapisy D1 i 3 USD rezerwy na inne zużycie. Brak nowego abonamentu. |
+| Reguła D1 | Dopuszcza 5 mln dodatkowych zapisów względem poprzedniej polityki, nie zeruje historii zużycia. Gdyby wszystkie były poza pakietem, odpowiadają 5 USD. Jeśli zmieścimy się w pakiecie, dopłata za nie wynosi 0 USD. |
+| Dostępny wewnętrzny zapas | 10 607 466 zapisów oraz 18 806 532 919 odczytów, po uwzględnieniu zadeklarowanych rezerw. |
+| Katalog D1 | 2.663 GB; 5.329 GB do zatwierdzonego sufitu 8 GB po 8 MB rezerwy roboczej. |
+| Konto Cloudflare | Rzeczywisty odczyt GraphQL 15:16 UTC: 40 026 331 zapisów i 1 082 181 520 odczytów od 6.11. Workers: 230 560 wywołań w tym okresie; w ostatniej dobie 6001 i zero błędów w tej agregacji. |
+
+Osiem dolarów jest zatwierdzonym dodatkowym budżetem, **nie techniczną blokadą całej faktury Cloudflare**. Twardo ograniczono dodatkowy przydział D1; pozostałe usługi nadal mają wcześniejsze własne mechanizmy ochronne. Nie wykonano jeszcze wspólnego automatycznego rozliczenia pieniężnego całego konta. Stałego kosztu całej strony i zerowych dopłat nie można deklarować wyłącznie na podstawie tych liczników.
+
+Przy powtórzeniu ostatniego szczytu 2,42 mln zapisów dziennie przez dalszych 10 dni potrzeba około 24,2 mln zapisów; dostępne wewnętrzne 10,6 mln nie wystarczy na taki nieprzerwany szczyt. To scenariusz, nie prognoza. Ostatnie dni obejmują nadrabianie i sprzątanie. Obecnie nie ma dowodu, że trzeba kupić wyższy abonament; nie ma też dowodu, że ta konfiguracja wytrzyma bez zmian obciążenie 10×. Konieczny jest pomiar po odzyskaniu normalnego dopływu plików.
+
+Próbki zachowanych plików pokazały 1129–3537 sygnałów zmiany terminu na półgodzinną paczkę podczas szczytu i 154 w spokojniejszej próbce rano. Nie wolno ekstrapolować tego szczytu na cały miesiąc. Punktowo 400 wywołań/dobę nie wystarczało. Zbiorcze rekordy, deduplikacja i wykorzystanie raz opłaconych danych ograniczają potrzebną liczbę wywołań.
+
+Źródła cen i kontraktów: [Apibara pricing](https://apibara.tech/en/pricing), [OpenAPI](https://apibara.tech/openapi/v1.json), [D1 pricing](https://developers.cloudflare.com/d1/platform/pricing/). Dane konta i skuteczne limity stron sprawdzono również bezpośrednio. Publiczny opis limitu 2000 zmian nie zastępuje pomiaru efektywnej strony 50 z pełnymi rekordami.
+
+**Istotne pozostałe ograniczenia**
+
+1. Kanał plikowy wciąż udostępnia 24932; ostatnia publikacja 07:49:56 UTC, sekwencja123100250. Prywatny nagłówek sprawdzono ponownie 16:01 UTC. Nie można potwierdzić dwóch nowych automatycznych publikacji, gdy źródło nie dostarczyło nowych plików. API uzupełnia wybrane dane; nie zastępuje jeszcze kompletnego kanału wszystkich cen i statusów podczas długiej przerwy w plikach.
+2. Stara kolejka reconcile ma 391381 wpisów, a pełne uzgadnianie tym mechanizmem było wyłączone. Nie usunięto ich i nie uznano bez dowodów za zbędne. Nie jest to dowód tylu brakujących aut. Pełna klasyfikacja i rozwiązanie tej kolejki pozostają otwarte.
+3. Archiwum zdjęć miało w osobnym pomiarze 11:30 UTC około 6,75 dnia opóźnienia. Jego przyspieszenia i końcowej przepustowości nie wdrożono w tym etapie. Nie zmieniono reguł usuwania historii ani zdjęć.
+4. Nadal pozostają liczne brakujące adresy zdjęć Copart. Dopiero przychodzące źródłowe adresy lub prawidłowa odpowiedź API mogą je wypełnić. Nie potwierdzono nowego pliku zdjęć od pomocy Apibary ani nie odczytano prywatnej rozmowy w tym etapie.
+5. Niektóre tożsamości trafiają do błędów, gdy API i zadanie nie zgadzają się co do LOT/VIN. Nie wolno ich publikować siłą. Oddzielnie wystąpiły błędy uzupełniania historii wymagające dalszej diagnozy.
+6. Pełny publiczny staging pakietu i kompleksowe symulacje awarii 500 tys. rzeczywistych rekordów end-to-end nie zostały wykonane. Zestawy lokalne obejmują SQLite, konflikty, wznowienia, liczniki, quota, 429 i regresje importu; symulacje budżetu 1/7/30 dni, obciążenia1/2/5/10× i kolejki10/30/100/500tys. sprawdzają ograniczenia zasobów, a nie całą produkcję.
+7. Wskaźniki napływu/wykonania oddzielnie i wiarygodne długoterminowe ETA wymagają dalszych pomiarów. Dostępna zmiana netto nie zastępuje tych dwóch strumieni.
+8. Nie wszystkie istniejące stałe w całym projekcie zostały zastąpione. W raporcie wymieniono potwierdzone bariery usunięte w tym etapie; nie deklaruje się zamknięcia pełnej inwentaryzacji ani wszystkich20 kryteriów.
+
+**Testy, wersje i powrót**
+
+Zestaw kandydata: 841/841; dodatkowo 46/46 wspólnego licznika i 169/169 WWW/panel/logowanie/powiadomienia. Ostatni aktywny wykonawca przechodził 840 testów przed dodatkową niewdrożoną próbą wykorzystania całej strony mediów. Odtworzono konflikty zbiorczej transakcji oraz granicę północy bez odnowienia przydziału. Nie było testów z prawdziwą płatnością.
+
+Wykonawca aktywny: 18b87ec2-b682-421b-9e52-ac0623e8cdf3; SHA256 0b1701709aa8d6b16e28053a5b725e29d0cd1fb5f7e0c0824d2c4fe73ba2d359. Powrót b8fd094e-0822-4251-8a36-0ff3fb3c8e8f. WWW: 7fbf788c-6d97-4fd6-b19a-98b3705d95c8; SHA256 d59219e11e9019517ab0493c4466e2100e9daf116b2e2249c05f62826eafd63b; powrót 6efb813c-8abf-4cea-975a-512390a436cd. Ustawienia, harmonogramy i bindingi porównano z poprzednimi wersjami. Nie zmieniono usług odbioru plików ani archiwum. Niewdrożony kandydat dodatkowego zbiorczego wypełniania mediów ma SHA256 34d8552139dcecb8da369dc12b9ae9471439ee544dbf1f4764d03f0f7d0cdbcb.
+
+Kanoniczny zapis kodu: release/autonomous-sync/executor. Suchy build tego katalogu potwierdził dokładnie aktywny bundle 0b1701709aa8d6b16e28053a5b725e29d0cd1fb5f7e0c0824d2c4fe73ba2d359. Dodatkowa zmiana wywołania mediów znajduje się osobno w media-reuse-candidate. Nie wdrażać jej jako już sprawdzonej produkcyjnie.
+
+Punkt pełnego odtworzenia D1 Time Travel: 26.11 15:28:17 UTC, dwa sprawdzone odczyty bookmarku, lokalne odtworzenie pięciu aut, integralność OK, zero błędów kluczy obcych. Nie jest to pobrany pełny eksport całej bazy. Dowody poza Git: session-deploy-20261125/backup/private-release-yJZFTw. Nie przywracać całej bazy automatycznie z powodu błędu jednego rekordu.
+
+Rollback kodu: po sprawdzeniu aktualnej wersji użyć odpowiadającego aktywnemu wydaniu operatora release-v11/release.cjs executor rollback albo web-release-v5/release.cjs web rollback. Nie wykonywać rollbacku, jeśli pojawiło się inne późniejsze wydanie. Nowe dane i poprawne galerie zachować. Stary kod nie wykorzystuje nowego dodatkowego przydziału kosztowego; liczników nie zerować.
+
+Pierwszy następny krok: uzyskać poprawny, świeży odczyt zarządzania Cloudflare i zweryfikować aktualne wersje. Dopiero wtedy kontynuować release-v12, ponownie potwierdzić manifest i naturalne wywołania. Niezależnie kontrolować dopływ nowej paczki oraz długoterminową tendencję wszystkich kolejek. Cały etap definitywnej naprawy pozostaje otwarty.
+
+**Dodatkowy dowód publicznej galerii**
+
+Na mobilnej karcie Copart 48049276 (2014 HONDA CR-V TOURING) odkodowało się zdjęcie główne po automatycznym uzupełnieniu. W bazie ma 13 zdjęć, VIN 2HKRM4H94EH121713. Pomiar 2026-11-26T16:03:04.268Z. Zrzut poza Git: autonomous-sync-20261126/evidence/automatic-photo-mobile.png.
+
+**Pliki zmienione logicznie względem bazy wykonawcy**
+
+- sync/automatic-refresh.cjs
+- sync/feed-account-budget.cjs
+- sync/feed-api-request.cjs
+- sync/feed-copart-relist.cjs
+- sync/feed-photo-repair.cjs
+- sync/feed-relist-budget.cjs
+- sync/feed-relist-maintenance.cjs
+- sync/feed-server-runner.cjs
+- sync/feed-sparse-repair.cjs
+- tests/automatic-refresh.test.cjs
+- tests/feed-api-request.test.cjs
+- tests/feed-known-relist.test.cjs
+- tests/feed-photo-repair.test.cjs
+- sync/feed-adaptive-quota.cjs
+- sync/feed-approved-cost.cjs
+- sync/feed-available-media.cjs
+- sync/feed-relist-batch.cjs
+- sync/feed-relist-fairness.cjs
+- sync/feed-relist-pages.cjs
+- sync/feed-relist-priority.cjs
+- sync/feed-relist-selection.cjs
+- sync/feed-supplemental-allocation.cjs
+- tests/feed-adaptive-quota.test.cjs
+- tests/feed-approved-cost.test.cjs
+- tests/feed-relist-fairness.test.cjs
+- tests/feed-relist-selection.test.cjs
+- tests/feed-supplemental-allocation.test.cjs
+- tests/fixtures/iaai-23956-reschedules.json
+
+Dodatkowo w WWW: portal/sync-health.cjs, portal/sync-monitor.cjs, portal/operations.cjs, portal/transactional-mail.cjs, worker.publication.js, public/administracja.html, public/rexbid-client-portal.js i testy. Pełny wykaz wraz z hashami jest w release/autonomous-sync/source-manifest.json. Pełna kopia źródeł służy odtwarzalności; nie oznacza, że każdy skopiowany plik został przerobiony.

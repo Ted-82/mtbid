@@ -1,0 +1,9 @@
+# Informacja o kalkulatorze kosztów
+
+**DRAFT — REQUIRES OWNER/LEGAL REVIEW**
+
+Operator i administrator danych w wariancie A: **REX AUTO CARGOLOOP L.L.C**, 1209 Mountain Road Pl NE, Ste N, Albuquerque, NM 87110, United States. Kontakt: kontakt@rexbid.pl. Użytkownik obsługuje korespondencję w imieniu spółki i pozostaje administratorem technicznym; bez zmiany uprawnień. NM Entity ID nieustalony; nie publikować numeru zastępczego.
+
+Stan pakietu na 15.10.2026: publiczny katalog, karty, galerie, historia aukcji i obserwacji, Calculator V4, lokalne ulubione i kontakt działają. Dane katalogu są odświeżane w kontrolowanym harmonogramie; otwarcie strony nie uruchamia pobierania z providera. Zakres auth-setup dodaje opcjonalne konto, potwierdzenie e-maila, logowanie, odzyskiwanie dostępu, ulubione w chmurze i eksport danych konta. Zatwierdzona 15.10.2026 faza portal-no-files dodaje profil, przypisane realizacje, rozmowy i osobisty eksport; załączniki pozostają wyłączone. Wdrożenie i zatwierdzenie zasad panelu dokumentuje bieżący raport etapu. Właściciel zatwierdził 14.10.2026 kryteria kont i ich kopii; nie jest to opinia prawna ani wynik produkcyjnego testu e-mail E2E. Zakres techniczny: [ACCOUNT_DATA_PRIVACY.md](../ACCOUNT_DATA_PRIVACY.md).
+
+Calculator V4 prezentuje szacunki informacyjne, nie ofertę ani gwarantowany koszt dostarczenia. Stawki transportowe partnera są konfiguracją roboczą w USD; wynik zależy od dopasowania lokalizacji i dostępności kompletnej trasy. Opłaty aukcyjne mogą wymagać wyboru/ potwierdzenia profilu. Podstawy celne, klasyfikacja, kursy, VAT/akcyza, port, broker, obsługa importowa i transport w Polsce pozostają częściowo nieznane lub konfigurowalne. Brak danych nie oznacza kosztu zero; niepełny wynik nie powinien być interpretowany jako pełna kwota pod dom. Potwierdzenie kosztu wymaga aktualnej wyceny partnera i właściwego specjalisty.

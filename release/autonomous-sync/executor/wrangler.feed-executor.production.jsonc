@@ -1,0 +1,78 @@
+{
+  "name": "rexbid-feed-executor-production",
+  "main": "./worker.feed-executor.js",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "workers_dev": false,
+  "preview_urls": false,
+  "vars": {
+    "REXBID_CATALOG_MEMBERSHIP_ENABLED": "enabled",
+    "REXBID_FEED_ACCOUNT_BUDGET": "{\"version\":2,\"billingDay\":6,\"measuredAt\":\"2026-11-22T19:02:05.919Z\",\"databaseMaxBytes\":8000000000,\"days\":[{\"day\":\"2026-11-06\",\"writes\":966271,\"reads\":16143380},{\"day\":\"2026-11-07\",\"writes\":953345,\"reads\":23246470},{\"day\":\"2026-11-08\",\"writes\":963608,\"reads\":23008698},{\"day\":\"2026-11-09\",\"writes\":6897324,\"reads\":87770583},{\"day\":\"2026-11-10\",\"writes\":7379382,\"reads\":144972088},{\"day\":\"2026-11-11\",\"writes\":0,\"reads\":463781},{\"day\":\"2026-11-12\",\"writes\":0,\"reads\":7126403},{\"day\":\"2026-11-13\",\"writes\":0,\"reads\":9544530},{\"day\":\"2026-11-14\",\"writes\":0,\"reads\":3706956},{\"day\":\"2026-11-15\",\"writes\":0,\"reads\":1589791},{\"day\":\"2026-11-16\",\"writes\":16864,\"reads\":26059223},{\"day\":\"2026-11-17\",\"writes\":529944,\"reads\":40781109},{\"day\":\"2026-11-18\",\"writes\":0,\"reads\":31259802},{\"day\":\"2026-11-19\",\"writes\":0,\"reads\":48758455},{\"day\":\"2026-11-20\",\"writes\":0,\"reads\":1622565}],\"prioritizePublication\":true,\"writeMeter\":{\"from\":\"2026-11-06\",\"through\":\"2026-11-20\",\"outsideWrites\":17146792}}",
+    "REXBID_FEED_API_RECOVERY_ID": "2026-10-31-gap",
+    "REXBID_FEED_API_RECOVERY_LIMIT": "12000",
+    "REXBID_FEED_API_RECOVERY_THROUGH": "51292006",
+    "REXBID_FEED_AUDIT_ARCHIVE": "enabled",
+    "REXBID_FEED_BATCH_PREPARATION": "enabled",
+    "REXBID_FEED_CATALOG_PROJECTION": "enabled",
+    "REXBID_FEED_D1_BUDGET_MODE": "account-cycle-v2",
+    "REXBID_FEED_DATABASE_ID": "b9733ac7-8da3-40ac-b163-8d4a592f6e13",
+    "REXBID_FEED_DETAIL_ENABLED": "disabled",
+    "REXBID_FEED_ENABLED": "enabled",
+    "REXBID_FEED_ID": "20",
+    "REXBID_FEED_MEDIA_COMPACTION": "enabled",
+    "REXBID_FEED_OPEN_COVERAGE": "enabled",
+    "REXBID_FEED_READ_ALLOWANCE_DAY": "2026-11-04",
+    "REXBID_FEED_READ_ALLOWANCE_LIMIT": "100000000",
+    "REXBID_FEED_REBASE_DRAIN": "enabled",
+    "REXBID_FEED_REBASE_DRAIN_UNTIL": "2026-11-10T11:45:54.332Z",
+    "REXBID_FEED_TARGET": "production",
+    "REXBID_TAXONOMY_BUILD_ENABLED": "enabled",
+    "REXBID_FEED_SUPPLEMENT_AUDIT_ARCHIVE": "enabled",
+    "REXBID_FEED_RELIST_REVIEW_GENERATION": "23248",
+    "REXBID_FEED_RELIST_REVIEW_THROUGH": "23316",
+    "REXBID_FEED_RELIST_REVIEW_START_BUCKET": "72"
+  },
+  "d1_databases": [
+    {
+      "binding": "REXBID_DB",
+      "database_name": "rexbid-active-catalog-meter-20261110",
+      "database_id": "b9733ac7-8da3-40ac-b163-8d4a592f6e13"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "REXBID_FEED_ARCHIVE",
+      "bucket_name": "rexbid-feed-sync-production"
+    }
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "REXBID_FEED_QUEUE",
+        "queue": "rexbid-feed-sync-production"
+      }
+    ]
+  },
+  "triggers": {
+    "crons": []
+  },
+  "limits": {
+    "cpu_ms": 300000
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "placement": {
+    "region": "gcp:europe-central2"
+  },
+  "services": [
+    {
+      "binding": "REXBID_CATALOG_BACKUP",
+      "service": "rexbid-production-preflight",
+      "entrypoint": "CatalogBackup"
+    }
+  ]
+}

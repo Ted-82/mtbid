@@ -1,0 +1,2 @@
+﻿surcharge_id;label_pl;amount;currency;unit;scope;applies_to;other_powertrains;multiply_by_land_factor;divide_by_container_count;source;confirmed_on;effective_from;status
+ev_container_packing;Pakowanie auta elektrycznego;150;USD;per_vehicle;packing_before_ocean;BEV;HEV/PHEV/FCEV/unknown: requires_confirmation;false;false;sources/OWNER_EV_PACKING_2026-10-04.md;2026-10-04;;owner_confirmed

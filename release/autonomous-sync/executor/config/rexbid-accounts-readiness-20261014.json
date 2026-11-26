@@ -1,0 +1,14 @@
+{
+  "production_supabase_project_confirmed": true,
+  "independent_production_secrets_verified": true,
+  "provider_key_present": true,
+  "limiter_namespace_confirmed_unique": true,
+  "accounts_portal_schema_verified": true,
+  "smtp_configuration_verified": true,
+  "fresh_backup_restore_verified": true,
+  "legal_retention_reviewed": true,
+  "owner_cutover_approved": true,
+  "production_owner_subject_confirmed": true,
+  "smtp_confirmation_recovery_verified": true,
+  "production_owner_mfa_verified": true
+}

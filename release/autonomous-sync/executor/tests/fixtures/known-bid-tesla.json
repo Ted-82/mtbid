@@ -1,0 +1,45 @@
+{
+  "note": "Only fields attested by saved public/source and D1 observations. The underlying responses are replayed from the projection. Unmeasured fields are omitted. Source identity checked when captured.",
+  "at": "2026-11-24T20:33:31.004Z",
+  "row": {
+    "listing_id": "listing|apibara|copart|source|65054066",
+    "source_key": "source|apibara|copart|vehicle|2026-tesla-model-y-7SAYGDED8TA458053",
+    "source_listing_id": "65054066",
+    "listing_generation": null,
+    "vin_normalized": "7SAYGDED8TA458053",
+    "auction_state": "open",
+    "source_status": "Nov 12, 2026 20:00",
+    "auction_at": "2026-11-25T06:00:00.000Z",
+    "is_timed": 0,
+    "timed_end_at": null,
+    "current_bid_usd": null,
+    "current_bid2_usd": null,
+    "source_updated_at": "2026-11-08T09:28:07.000000Z",
+    "last_seen_at": "2026-11-08T09:28:07.000Z",
+    "summary_synced_at": "2026-11-08T09:28:07.000Z",
+    "detail_synced_at": null,
+    "updated_at": "2026-11-08T09:28:07.000Z",
+    "platform": "copart",
+    "lot": "65054066"
+  },
+  "member": {
+    "active": 1,
+    "last_sequence": 75639067
+  },
+  "raw": {
+    "platform": "copart",
+    "lot_number": "65054066",
+    "vin": "7SAYGDED8TA458053",
+    "updated_at": "2026-11-24T13:03:37.000000Z",
+    "auction": {
+      "auction_at": "2026-11-25T06:00:00+00:00",
+      "state": "open",
+      "phase": "scheduled",
+      "result_confirmed": false,
+      "outcome_status": null
+    },
+    "pricing": {
+      "current_bid_usd": 70
+    }
+  }
+}

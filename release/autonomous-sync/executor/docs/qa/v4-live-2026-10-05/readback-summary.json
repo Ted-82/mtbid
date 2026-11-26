@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-05",
+  "staging_version": "6ca848f1-21a2-47d8-a3b3-0a5496cc7c2b",
+  "platform_counts": [
+    {
+      "platform": "copart",
+      "listings": 352,
+      "media": 134,
+      "fuel": 78,
+      "postal": 79
+    },
+    {
+      "platform": "iaai",
+      "listings": 227,
+      "media": 147,
+      "fuel": 107,
+      "postal": 55
+    }
+  ],
+  "provider_budget_counters": [
+    {
+      "provider": "apibara:all",
+      "budget_day": "2026-10-05",
+      "normal_limit": 500,
+      "retry_limit": 0,
+      "normal_consumed": 72,
+      "retry_consumed": 0,
+      "normal_reserved": 0,
+      "retry_reserved": 0,
+      "updated_at": "2026-10-05T21:34:04.830Z"
+    },
+    {
+      "provider": "apibara:detail",
+      "budget_day": "2026-10-05",
+      "normal_limit": 150,
+      "retry_limit": 0,
+      "normal_consumed": 10,
+      "retry_consumed": 0,
+      "normal_reserved": 0,
+      "retry_reserved": 0,
+      "updated_at": "2026-10-05T19:10:57.284Z"
+    },
+    {
+      "provider": "apibara:history",
+      "budget_day": "2026-10-05",
+      "normal_limit": 60,
+      "retry_limit": 0,
+      "normal_consumed": 35,
+      "retry_consumed": 0,
+      "normal_reserved": 0,
+      "retry_reserved": 0,
+      "updated_at": "2026-10-05T19:17:28.644Z"
+    },
+    {
+      "provider": "apibara:discovery",
+      "budget_day": "2026-10-05",
+      "normal_limit": 80,
+      "retry_limit": 0,
+      "normal_consumed": 18,
+      "retry_consumed": 0,
+      "normal_reserved": 0,
+      "retry_reserved": 0,
+      "updated_at": "2026-10-05T21:24:28.024Z"
+    },
+    {
+      "provider": "apibara:media_enrichment",
+      "budget_day": "2026-10-05",
+      "normal_limit": 30,
+      "retry_limit": 0,
+      "normal_consumed": 9,
+      "retry_consumed": 0,
+      "normal_reserved": 0,
+      "retry_reserved": 0,
+      "updated_at": "2026-10-05T21:34:04.830Z"
+    }
+  ],
+  "new_upstream_requests": 27,
+  "prior_day_consumed": 45,
+  "scope_complete": false,
+  "users": 1,
+  "user_favorites": 1,
+  "legacy_counts": [
+    0,
+    0,
+    0
+  ]
+}

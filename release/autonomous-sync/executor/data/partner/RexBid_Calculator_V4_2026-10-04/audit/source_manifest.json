@@ -1,0 +1,78 @@
+[
+  {
+    "file": "sources/sea_transport_rates_message.md",
+    "sha256": "dc96c9deef00416784ef38dad2e5145668559ad68cac2a7a5614eb0c1e6786d4",
+    "bytes": 483
+  },
+  {
+    "file": "sources/Zrzut ekranu 2026-10-04 144443.png",
+    "sha256": "02fcc53e7600ed2b63d1d62ba15ed31450114d983e1967a717bae72af8d6c38e",
+    "bytes": 128617
+  },
+  {
+    "file": "sources/Zrzut ekranu 2026-10-04 144508.png",
+    "sha256": "cd457e8b6b7c2934e92856768642197ee87e130a5c38b1bf4578fc0d1e421130",
+    "bytes": 15010
+  },
+  {
+    "file": "sources/Zrzut ekranu 2026-10-04 144208.png",
+    "sha256": "4bed67b5e2148612973bbf5112e6c331b764b72da5ad9dd47332e3331d85edbe",
+    "bytes": 262094
+  },
+  {
+    "file": "sources/Zrzut ekranu 2026-10-04 144345.png",
+    "sha256": "81039cb910135a30a9a4664893c6f631b93cf6107d2bebc2a44ae37ac24fa4d3",
+    "bytes": 278526
+  },
+  {
+    "file": "sources/Zrzut ekranu 2026-10-04 144145.png",
+    "sha256": "e7320eb1427a91391df11661b9772ea6ca47ae82b0526fd241ab8f72e3312404",
+    "bytes": 261320
+  },
+  {
+    "file": "sources/Zrzut ekranu 2026-10-04 144320.png",
+    "sha256": "e3bf8c6cb27f038df4325427e908e784de3a69ab118c96c4fd8819c43e469fdb",
+    "bytes": 264303
+  },
+  {
+    "file": "sources/IMG_20261002_120132335.jpg",
+    "sha256": "857d280e9ef0fd4f89b209986fe700f19d60eb8402e29557665dabc3ca0be15b",
+    "bytes": 407876
+  },
+  {
+    "file": "sources/Zrzut ekranu 2026-10-04 144410.png",
+    "sha256": "dba6b001b766daa89ddd4271a42a1b21f898ae3b74acf490f3139e121b0d2cf8",
+    "bytes": 264953
+  },
+  {
+    "file": "sources/IMG_20261002_120158716.jpg",
+    "sha256": "f7e8de6d5eb9c30c93a44b38d2f64928f6f5cbc658fb9b4619f0124c1fd127f5",
+    "bytes": 478090
+  },
+  {
+    "file": "sources/Zrzut ekranu 2026-10-04 144256.png",
+    "sha256": "cd93c398ec45374bb825afd65f81a0a0d812bd437b8a17d0b7cfbc0d776d706e",
+    "bytes": 267252
+  },
+  {
+    "file": "sources/Zrzut ekranu 2026-10-04 144117.png",
+    "sha256": "1c8bf8260fc7d4c82d26e7265a376d8089b6999e2af961c3f8da85d1447fabe7",
+    "bytes": 259023
+  },
+  {
+    "file": "sources/Wklejony kod markdown(20260930-082748).md",
+    "sha256": "481d00bc41f784ad448891af16ba684d301082317de4d472208e9d34059794bf",
+    "bytes": 97759
+  },
+  {
+    "file": "sources/Zrzut ekranu 2026-10-04 144234.png",
+    "sha256": "1f8426d0ff2e01707c62048a7a6a0129fc5b8a8f0a23baeb2ea5506179c288a1",
+    "bytes": 270360
+  },
+  {
+    "path": "sources/OWNER_EV_PACKING_2026-10-04.md",
+    "sha256": "20c5727c31981de1478eeed34406d39cdf74c4e25d3cd8b075d43c127a41226b",
+    "source_type": "owner_confirmation",
+    "received_on": "2026-10-04"
+  }
+]

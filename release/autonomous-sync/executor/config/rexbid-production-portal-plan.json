@@ -1,0 +1,131 @@
+{
+  "status": "PRODUCTION_AUTH_CONFIGURATION_PREPARED_NOT_ACTIVATED",
+  "origin": "https://rexbid.pl",
+  "worker": "mtbid",
+  "database": "rexbid-db",
+  "database_id": "971879fe-04ed-4e8c-9dc6-5306980bb872",
+  "base_profile": "wrangler.rexbid-production.jsonc",
+  "required_schema_for_accounts_and_portal": [
+    "0003_accounts_foundation.sql",
+    "0006_import_operations.sql"
+  ],
+  "optional_later_sync_schema": "0004_d1_sync_2.sql",
+  "proposed_private_bucket": "rexbid-production-private-files",
+  "bucket_binding": "REXBID_PRIVATE_FILES",
+  "bucket_class": "Standard",
+  "public_access": false,
+  "required_secret_names": [
+    "APIBARA_API_KEY",
+    "SUPABASE_URL",
+    "SUPABASE_PUBLISHABLE_KEY",
+    "REXBID_AUTH_COOKIE_SECRET",
+    "REXBID_OWNER_USER_ID",
+    "REXBID_PORTAL_DATA_KEYS",
+    "REXBID_PORTAL_ACTIVE_KEY_ID"
+  ],
+  "auth_variables_after_approval": {
+    "AUTH_ENABLED": "true",
+    "AUTH_D1_SCHEMA_VERSION": "0003",
+    "AUTH_CANONICAL_ORIGIN": "https://rexbid.pl",
+    "AUTH_ALLOWED_ORIGINS": "https://rexbid.pl",
+    "AUTH_RATE_LIMITING_MODE": "cloudflare",
+    "AUTH_RECOVERY_MODE": "email-token"
+  },
+  "portal_variables_after_approval": {
+    "REXBID_PORTAL_ENABLED": "enabled",
+    "REXBID_PORTAL_SCHEMA_VERSION": "0006",
+    "REXBID_PORTAL_FILES_ENABLED": "enabled"
+  },
+  "required_limiter_binding": "AUTH_RATE_LIMITER",
+  "limiter_namespace_id": "2026100601",
+  "supabase_site_url": "https://rexbid.pl",
+  "supabase_redirect_allowlist": [
+    "https://rexbid.pl/api/auth/callback?state=*"
+  ],
+  "production_supabase_project_ref": "kkwbqzndildovbblbkcx",
+  "production_supabase_project_url": "https://kkwbqzndildovbblbkcx.supabase.co",
+  "production_supabase_project_region": "eu-west-1",
+  "production_supabase_project_confirmed": true,
+  "production_owner_id_confirmed": false,
+  "production_owner_confirmation": "After the owner explicitly confirms the production identity, verify the exact production Auth issuer and subject (Supabase user UUID), find their users.auth_issuer + users.auth_subject mapping, and set REXBID_OWNER_USER_ID to the resulting RexBid D1 users.id. Never use a Supabase UUID as the application owner ID without that mapping. Never infer ownership from signup order, email likeness or a staging identity. Enroll a separate production MFA factor. Keep staging MFA unchanged.",
+  "supabase_email_templates": {
+    "confirmation": "config/supabase-production-confirmation-email.html",
+    "recovery": "config/supabase-production-recovery-email.html",
+    "confirmation_subject": "Potwierdź adres e-mail w REXBID",
+    "recovery_subject": "Ustaw nowe hasło do REXBID"
+  },
+  "recovery_policy": {
+    "mode": "email-token",
+    "link": "{{ .SiteURL }}/api/auth/recovery/confirm?token_hash={{ .TokenHash }}&type=recovery",
+    "consume_on_get": false,
+    "normal_session_on_link_open": false,
+    "restricted_grant_ttl_seconds": 600,
+    "cross_browser": "Recovery does not depend on the request browser's PKCE flow cookie. The browser opening the email gets only the restricted recovery cookie; OTP verification occurs on explicit same-origin password POST.",
+    "smtp_production_e2e": "NOT_VERIFIED"
+  },
+  "www_policy": {
+    "origin": "https://www.rexbid.pl",
+    "target_origin": "https://rexbid.pl",
+    "action": "Cloudflare redirect before Worker routing; preserve path and query, redirect GET/HEAD permanently, reject unsafe mutations on the alias. Do not add www to Auth origins or Supabase Site URL.",
+    "dns_or_routing_changed": false
+  },
+  "smtp": {
+    "preferred_provider": "Resend",
+    "host": "smtp.resend.com",
+    "port": 465,
+    "username": "resend",
+    "sender": "no-reply@powiadomienia.rexbid.pl",
+    "sender_name": "REXBID",
+    "reply_to": "kontakt@rexbid.pl",
+    "reply_to_notes": "Apply only where the Supabase SMTP/template UI supports reply-to; contact forwarding remains at OVH.",
+    "plan": "Free",
+    "production_key_policy": "Separate Resend Sending access API key limited to powiadomienia.rexbid.pl, supplied directly to production Supabase SMTP Password. Never copy staging SMTP credentials or record key values here.",
+    "configured_verified": true,
+    "verification_scope": "UI_STORAGE_AND_NON_SECRET_SETTINGS_VERIFIED_2026-10-07_NOT_DELIVERY_E2E",
+    "sender_and_username_evidence": "OWNER_REPORTED_EXACT_VALUES; tool redacted sender email and username fields",
+    "minimum_interval_per_user_seconds": 60,
+    "production_delivery_e2e_verified": false
+  },
+  "requires_before_activation": [
+    "fresh_backup",
+    "owner_schema_approval",
+    "confirmed_production_auth_project",
+    "independent_production_secrets",
+    "private_bucket_verification",
+    "verified_global_r2_free_usage_controls",
+    "production_limiter_binding",
+    "smtp_delivery_and_recovery_e2e",
+    "verified_owner_mfa",
+    "legal_retention_review"
+  ],
+  "copy_staging_accounts_orders_files_or_secrets": false,
+  "reset_existing_mfa": false,
+  "activation_phases": {
+    "owner_setup": "Auth and portal schema gate ON after separate approval; files OFF, no R2 binding; owner enrolls MFA, administrative operations still require verified AAL2",
+    "portal": "Full profile only after production owner MFA, SMTP confirmation/recovery E2E, private R2 verification and verified global free-usage controls covering storage plus Class A/Class B operations; alerts alone are insufficient. Files remain OFF if those controls are unavailable. No staging data transfer."
+  },
+  "required_limiter_config": {
+    "binding": "AUTH_RATE_LIMITER",
+    "namespace_id": "2026100601",
+    "namespace_scope": "bound_to_private_candidate_only; recheck before approved production binding",
+    "limit": 30,
+    "period_seconds": 60,
+    "key_scope": "operation_and_ip_or_authenticated_user",
+    "global_strict_quota": false
+  },
+  "supabase_redirect_notes": "Site URL must equal production origin. BFF confirmation/OAuth callback uses dynamic state query and the exact path allowlist with state wildcard. Production recovery template must use SiteURL + TokenHash rather than ConfirmationURL; it creates only a restricted grant. Do not add broad /** patterns, www or staging origins.",
+  "current_verification": {
+    "production_project_settings": "UI_VERIFIED_2026-10-07_INDEPENDENT_PROJECT_SITE_URL_AND_EXACT_REDIRECT_ALLOWLIST",
+    "production_email_templates": "POLISH_CONFIRMATION_AND_RESTRICTED_RECOVERY_SAVED_AND_FULL_TEXT_COMPARED_2026-10-07",
+    "production_email_provider_settings": "CONFIRM_EMAIL_ON_ANONYMOUS_OFF_MANUAL_ACCOUNT_LINKING_OFF",
+    "production_smtp_settings": "UI_CUSTOM_SMTP_ON_HOST_PORT_PASSWORD_PRESENT_INTERVAL_VERIFIED_SENDER_USERNAME_OWNER_REPORTED",
+    "production_recovery_email_e2e": "NOT_VERIFIED_AUTH_NOT_ACTIVATED_NO_REAL_EMAIL_SENT",
+    "production_files_free_usage_controls": "NOT_VERIFIED; GLOBAL_STORAGE_CLASS_A_CLASS_B_ENFORCEMENT_REQUIRED_NOT_ALERT_ONLY; FILES_REMAIN_OFF",
+    "staging_smtp_settings": "OWNER_CONFIGURED_RESEND_FREE",
+    "staging_login_and_confirmed_accounts": "VERIFIED",
+    "password_recovery_email_callback_e2e": "OWNER_CONFIRMED_STAGING_TEST_CLIENT_E2E_2026-10-06_MAIL_NEW_PASSWORD_OLD_REJECTED_NEW_LOGIN; OWNER_ACCOUNT_PASSWORD_NOT_TESTED_OR_CHANGED",
+    "owner_staging_mfa": "OWNER_VERIFIED_UNCHANGED",
+    "production_resources": "ISOLATED_D1_R2_PRIVATE_WORKER_LIMITER_AND_NEW_KEYS_PROVISIONED_NOT_CURRENT_PRODUCTION"
+  },
+  "provisioned_resources_manifest": "config/rexbid-production-resources.json"
+}

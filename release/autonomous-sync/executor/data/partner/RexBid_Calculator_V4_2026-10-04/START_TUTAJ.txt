@@ -1,0 +1,15 @@
+REX.BID — CALCULATOR V4 + UX — 04.10.2026
+
+1. Skopiuj cały folder RexBid_Calculator_V4_2026-10-04 do:
+   C:\Users\nowic\Desktop\stona_auta-www\data\partner\
+   Nie zastępuj całego repo ani dotychczasowych historycznych źródeł.
+2. Główne zadanie Codexa: CODEX_SPRINT_CALCULATOR_V4_UX.md.
+3. Nowa dopłata EV: data/surcharges.csv; potwierdzenie: sources/OWNER_EV_PACKING_2026-10-04.md.
+4. Arkusz do przeglądu i edycji: Cennik_transportu_RexBid_2026-10-04_EV.xlsx. Dopłata EV: Doplaty_EV!B6.
+5. Generator czyta CSV, nie Excel. Zmiana arkusza wymaga świadomego eksportu. Nie publikuje zmian sam.
+
+Testy pakietu:
+ node tools/build-partner-rates.cjs --check
+ node --test tools/validate-package.test.cjs
+
+Pakiet materiałów nie został wdrożony do strony i nie jest końcową ofertą importu. Wersja zawiera 610 lokalizacji, preferred routing, mnożniki lądu i 150 USD/BEV. Konflikty Albany i niepotwierdzone dane pozostają oznaczone.
