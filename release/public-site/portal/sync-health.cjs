@@ -16,7 +16,7 @@ async function readSyncHealth(db,now=Date.now()){
  const pending=queues.reduce((sum,q)=>sum+q.pending,0);
  const delay=generation?Math.max(0,Math.floor((now-Date.parse(generation.observed_at))/60000)):null;
  const blocked=health.some(r=>r.status==='blocked');
- let status='System działa prawidłowo';
+ let status='Brak bieżącej kontroli kompletności';
  if(pending)status='Oczekujące weryfikacje katalogu';
  if(delay===null||delay>75)status='Występuje opóźnienie danych';
  if(blocked)status='Wymagana jest interwencja właściciela';
