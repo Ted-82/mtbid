@@ -232,6 +232,10 @@ async function readPublicCatalog(request, env, context, strictMissing = false, {
 
 export default {
   async scheduled(controller, env, context) {
+    if(controller?.cron==='*/15 * * * *'&&configuredPublicationPhase(env)){
+      const monitor=import('./portal/sync-monitor.cjs').then(module=>module.default.monitorSync(env)).catch(()=>console.warn('REXBID synchronization monitor deferred'));
+      if(context?.waitUntil)context.waitUntil(monitor);else await monitor;
+    }
     if (controller?.cron === '*/15 * * * *' && configuredPublicationPhase(env) &&
         env.REXBID_PUBLIC_CATALOG_BACKUP === 'enabled') {
       const backup = refreshCatalogBackup(env).catch(() => console.warn('REXBID catalogue backup refresh unavailable'));

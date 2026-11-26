@@ -4,10 +4,10 @@ async function readSyncHealth(db,now=Date.now()){
  const at=new Date(now).toISOString(),day=at.slice(0,10);
  const statements=[
   "SELECT generation_id,status,observed_at,updated_at,last_sequence,last_error_code FROM server_feed_generations ORDER BY generation_id DESC LIMIT 1",
-  "SELECT platform,count(*) pending,min(last_attempt_at) oldest FROM automatic_refresh_tasks WHERE task_key>='feed-verify-relist:v1:' AND task_key<'feed-verify-relist:v1:~' AND status='pending' GROUP BY platform",
+  "SELECT platform,count(*) pending,min(json_extract(cursor,'$.relist.recordedAt')) oldest FROM automatic_refresh_tasks WHERE task_key>='feed-verify-relist:v1:' AND task_key<'feed-verify-relist:v1:~' AND status='pending' GROUP BY platform",
   "SELECT quota_checked_at,quota_limit,quota_used,quota_left FROM automatic_refresh_state WHERE singleton=1",
   "SELECT budget_key,limit_count,consumed FROM automatic_refresh_budgets WHERE budget_key IN ('day:"+day+"','month:"+day.slice(0,7)+"')",
-  "SELECT status,last_error_code FROM automatic_refresh_tasks WHERE task_key='server-api-health'"
+  "SELECT status,last_error_code FROM automatic_refresh_tasks WHERE task_key IN ('server-api-health','feed-relist-stream:v1')"
  ];
  const result=await db.batch(statements.map(q=>db.prepare(q)));
  if(result.some(r=>r.success===false))throw Error('unavailable');

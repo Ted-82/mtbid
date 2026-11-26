@@ -77,10 +77,15 @@
         if(state.role!=='owner')return;
         const s=data.sync;
         host.replaceChildren(node('strong','',s.status),node('p','','Oczekujące weryfikacje: '+s.pending));
-        for(const q of s.queues)host.append(node('p','',q.platform.toUpperCase()+': '+q.pending+' · Najstarsze zadanie: '+dateText(q.oldest,true)));
+        for(const q of s.queues)host.append(node('p','',q.platform.toUpperCase()+': '+q.pending+' · Najstarszy oczekujący sygnał źródła: '+dateText(q.oldest,true)));
         if(s.last_generation)host.append(node('p','','Paczka '+s.last_generation.generation_id+' · Ostatni zapis: '+dateText(s.last_generation.updated_at,true)+' · Wiek dostawy: '+s.delay_minutes+' min'));
         if(s.quota)host.append(node('p','','Pozostała pula API przy odczycie: '+s.quota.quota_left+' / '+s.quota.quota_limit+' · Odczyt: '+dateText(s.quota.quota_checked_at,true)));
         for(const b of s.budgets)host.append(node('p','',b.budget_key.startsWith('day:')?'Dziś: '+b.consumed+' / '+b.limit_count:'Miesiąc: '+b.consumed+' / '+b.limit_count));
+        if(s.observation){
+          const o=s.observation;
+          if(Number.isFinite(o.net_queue_per_hour))host.append(node('p','','Zmiana kolejki na godzinę: '+Math.round(o.net_queue_per_hour)+' · Pomiar: '+dateText(o.at,true)));
+          host.append(node('p','',Number.isFinite(o.estimate_hours)?'Szacowany czas nadrobienia przy zmierzonym tempie: '+o.estimate_hours.toFixed(1)+' godz.':'Czas nadrobienia nieustalony — potrzeba dodatniego tempa nadganiania.'));
+        }
         host.append(node('small','',s.completeness));
       }catch(error){if(!authError(error)&&state.role==='owner')host.textContent=errorMessage(error);}
     }

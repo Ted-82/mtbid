@@ -36,13 +36,23 @@ async function portalNotice(env,{messageId,order,owner,at}){
   text:(owner?'Masz nową odpowiedź od REXBID.':'Klient przesłał nową wiadomość w panelu REXBID.')+'\n\n'+String(order.title).slice(0,180)+'\n'+String(order.platform||'').toUpperCase()+' · LOT '+String(order.lot||'do uzupełnienia')+'\n\nOtwórz panel, aby przeczytać i odpowiedzieć:\n'+url+'\n\nTo automatyczne powiadomienie. Treść rozmowy jest dostępna po zalogowaniu do REXBID.'});
 }
 function schedule(env,context){if(!enabled(env))return;const task=dispatchAll(env).catch(()=>console.warn('REXBID mail delivery unavailable'));if(context?.waitUntil)context.waitUntil(task);return task;}
-async function dispatchAll(env){if(env.REXBID_ACCOUNT_NOTICES_ENABLED!=='yes')return dispatch(env);const messages=await dispatch(env,{maximum:1});const accounts=await dispatch(env,{maximum:1,queue:'accounts'});return{sent:messages.sent+accounts.sent};}
+async function dispatchAll(env){
+ const messages=await dispatch(env,{maximum:env.REXBID_ACCOUNT_NOTICES_ENABLED==='yes'?1:2});
+ const accounts=env.REXBID_ACCOUNT_NOTICES_ENABLED==='yes'?await dispatch(env,{maximum:1,queue:'accounts'}):{sent:0};
+ let monitoring={sent:0};
+ if(env.REXBID_ACTIVE_CATALOG)try{monitoring=await dispatch(env,{maximum:1,queue:'sync'});}catch{console.warn('REXBID synchronization notice retry deferred');}
+ return{sent:messages.sent+accounts.sent+monitoring.sent};
+}
 async function dispatch(env,{fetchImpl=(url,init)=>fetch(url,init),now=()=>new Date(),maximum=2,queue='messages'}={}){
  if(!enabled(env))return {status:'disabled',sent:0};
- if(!['messages','accounts'].includes(queue))throw Error('invalid_mail_queue');
+ if(!['messages','accounts','sync'].includes(queue))throw Error('invalid_mail_queue');
  if(queue==='accounts'&&(env.REXBID_ACCOUNT_NOTICES_ENABLED!=='yes'||env.REXBID_ACCOUNT_NOTICES_SCHEMA_VERSION!=='0016'))return{status:'disabled',sent:0};
- const table=queue==='accounts'?'account_notice_outbox':'transactional_mail_outbox',baseDb=env.REXBID_DB;
- const db={prepare:sql=>baseDb.prepare(sql.replace(/\btransactional_mail_outbox\b/g,table)),batch:items=>baseDb.batch(items)},at=now().toISOString(),day=at.slice(0,10);
+ const table=queue==='sync'?'sync_notification_outbox':queue==='accounts'?'account_notice_outbox':'transactional_mail_outbox',baseDb=queue==='sync'?env.REXBID_ACTIVE_CATALOG:env.REXBID_DB;
+ const translate=sql=>{
+  sql=sql.replace(/\btransactional_mail_outbox\b/g,table);
+  return queue==='sync'?sql.replace(/\btransactional_mail_daily_budget\b/g,'sync_notification_daily_budget').replace('attempts<80','attempts<4'):sql;
+ };
+ const db={prepare:sql=>baseDb.prepare(translate(sql)),batch:items=>baseDb.batch(items)},at=now().toISOString(),day=at.slice(0,10);
  // Only this new technical email copy expires. Authoritative portal messages,
  // existing customer files, auction history and all photographs are untouched.
  await db.prepare("UPDATE transactional_mail_outbox SET payload_ciphertext=NULL WHERE status='sent' AND kind='inquiry' AND submitted_at<? AND payload_ciphertext IS NOT NULL").bind(new Date(Date.parse(at)-30*86400000).toISOString()).run();

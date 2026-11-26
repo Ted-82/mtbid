@@ -130,7 +130,12 @@ function createImportPortalHandler({resolveAccount,cryptoImpl=globalThis.crypto,
       if(url.pathname===`${PREFIX}/sync-health`){
         if(!owner)return fail('forbidden',403,cookies);
         if(request.method!=='GET')return fail('method_not_allowed',405,cookies);
-        try{return reply({sync:await require('./sync-health.cjs').readSyncHealth(env.REXBID_ACTIVE_CATALOG)});}
+        try{
+          const sync=await require('./sync-health.cjs').readSyncHealth(env.REXBID_ACTIVE_CATALOG);
+          const sample=await env.REXBID_ACTIVE_CATALOG.prepare('SELECT measured_at,data_json FROM sync_monitor_samples ORDER BY slot DESC LIMIT 1').first();
+          if(sample){const measured=JSON.parse(sample.data_json);sync.observation={at:sample.measured_at,net_queue_per_hour:measured.net_queue_per_hour,estimate_hours:measured.estimate_hours,milestones:measured.milestones};}
+          return reply({sync});
+        }
         catch{return fail('unavailable',503,cookies);}
       }
       if(url.pathname===`${PREFIX}/registrations`){
