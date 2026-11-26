@@ -5,6 +5,8 @@ const vinInput=document.getElementById('ownerArchiveVin');
 const confirmInput=document.getElementById('ownerArchiveConfirm');
 const statusLine=document.getElementById('ownerArchiveStatus');
 const entries=document.getElementById('ownerArchiveResults');
+const archivePanel=document.getElementById('ownerArchive');
+const archiveCount=document.getElementById('ownerArchiveCount');
 let currentVin='';
 let busy=false;
 
@@ -15,6 +17,29 @@ const storageSummary=document.getElementById('ownerArchiveStorageSummary');
 let storageBusy=false;
 let lastStorageMeasurement=null;
 function storageMessage(text,tone){if(storageFeedback){storageFeedback.textContent=text;storageFeedback.dataset.tone=tone;}}
+let archiveCountRequest=0;
+let archiveCountTimer;
+async function refreshArchiveCount(){
+  if(!archivePanel?.open||!archiveCount||document.hidden)return;
+  const revision=++archiveCountRequest;
+  try{
+    const {archiveEntries}=await request('/api/portal/archive?count=1',{cache:'no-store',signal:AbortSignal.timeout(12000)});
+    if(!Number.isSafeInteger(archiveEntries)||archiveEntries<0)throw Error('unavailable');
+    if(revision===archiveCountRequest){
+      archiveCount.textContent='Wpisy pojazdów w archiwum: '+archiveEntries.toLocaleString('pl-PL')+
+        '. Kolejna aukcja tego samego VIN-u to osobny wpis.';
+    }
+  }catch{
+    if(revision===archiveCountRequest)archiveCount.textContent='Liczba wpisów chwilowo niedostępna. Otwórz sekcję ponownie, aby sprawdzić.';
+  }
+}
+archivePanel?.addEventListener('toggle',()=>{
+  clearInterval(archiveCountTimer);
+  if(archivePanel.open){
+    void refreshArchiveCount();
+    archiveCountTimer=setInterval(refreshArchiveCount,5*60*1000);
+  }
+});
 async function refreshStorage({userInitiated=false}={}){
   if(storageBusy||!storageLine)return;storageBusy=true;
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
@@ -110,6 +135,7 @@ remove.addEventListener('submit',async event=>{
       body:JSON.stringify({vin:currentVin,confirm,reason:document.getElementById('ownerArchiveReason').value})
     });
     abortPreview();
+    void refreshArchiveCount();
     statusLine.textContent=result.purgePending?'Wpisy zdjęto z archiwum. Usunięcie plików czeka na ponowienie.':
       'Usunięto wpisy i galerie tego VIN-u. Ponowna publikacja jest zablokowana.';
   } catch(err){statusLine.textContent=message(err.message);}

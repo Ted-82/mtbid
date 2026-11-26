@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="/rexbid-owner-tools.css?v=20261118-accounts">
   <script src="/rexbid-owner-mfa.js?v=eec0cf23a9a9" defer></script>
   <script src="/rexbid-client-portal.js?v=20261126-sync-health" defer></script>
-  <script src="/rexbid-archive-owner.js?v=20261118-compact" defer></script>
+  <script src="/rexbid-archive-owner.js?v=20261126-archive-count" defer></script>
 </head>
 <body data-portal-view="owner">
   <a class="portal-skip" href="#portalMain">Przejdź do treści</a>
@@ -71,6 +71,7 @@
       <details class="portal-gate portal-owner-tool" id="ownerArchive" name="owner-tools">
         <summary><strong>Zarządzaj archiwum</strong><span>Wyszukaj VIN i usuń wpisy</span></summary>
         <div class="portal-owner-tool-content">
+        <p id="ownerArchiveCount" role="status">Otwórz sekcję, aby sprawdzić liczbę zapisanych wpisów.</p>
         <form id="ownerArchiveLookup"><label for="ownerArchiveVin">VIN pojazdu</label>
           <input id="ownerArchiveVin" required minlength="17" maxlength="17" autocomplete="off" placeholder="Wpisz 17 znaków">
           <button class="portal-button portal-button-secondary" type="submit">Znajdź wpisy</button>

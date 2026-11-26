@@ -1,7 +1,7 @@
 'use strict';
 
 const {VIN,getIndex,saveIndex,restorableKeys,locked,purgeObjects,hash}=require('../sync/auction-archive-state.cjs');
-const {queryEntries,withoutVin}=require('../sync/auction-archive-segments.cjs');
+const {queryEntries,withoutVin,count}=require('../sync/auction-archive-segments.cjs');
 const PATH='/api/portal/archive';
 const reasons=new Set(['ownership','request','correction']);
 const MAX_SUPPRESSIONS=1200;
@@ -35,6 +35,10 @@ function createOwnerArchiveHandler(resolveAccount) {
       if(request.method==='GET'&&url.searchParams.get('storage')==='1'){
         const object=await env.REXBID_AUCTION_ARCHIVE.get('v2/private/storage-status.json');
         return response({ok:true,storage:object?await object.json():null},200,cookies);
+      }
+      if(request.method==='GET'&&url.searchParams.get('count')==='1'){
+        const {index}=await getIndex(env.REXBID_AUCTION_ARCHIVE);
+        return response({ok:true,archiveEntries:count(index)},200,cookies);
       }
 
       let body;

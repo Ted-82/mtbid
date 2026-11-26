@@ -2,6 +2,32 @@
 const fs=require('node:fs'),path=require('node:path'),{test}=require('node:test'),assert=require('node:assert/strict'),{JSDOM}=require('jsdom');
 const html=fs.readFileSync(path.join(__dirname,'../public/administracja.html'),'utf8'),script=fs.readFileSync(path.join(__dirname,'../public/rexbid-archive-owner.js'),'utf8');
 const tick=()=>new Promise(r=>setTimeout(r,15));
+test('archive management opens with the current count and reads again when reopened',async()=>{
+ const d=new JSDOM(html,{url:'https://rexbid.pl/administracja',runScripts:'outside-only',pretendToBeVisual:true});
+ try{
+  let count=812,calls=0;
+  d.window.fetch=async(url,options)=>{
+   assert.equal(url,'/api/portal/archive?count=1');
+   assert.equal(options.cache,'no-store');
+   calls++;
+   return {ok:true,json:async()=>({archiveEntries:count})};
+  };
+  d.window.eval(script);
+  const panel=d.window.document.getElementById('ownerArchive');
+  const label=d.window.document.getElementById('ownerArchiveCount');
+  assert.equal(calls,0);
+  panel.open=true;
+  await tick();
+  assert.match(label.textContent,/812/);
+  panel.open=false;
+  await tick();
+  count=813;
+  panel.open=true;
+  await tick();
+  assert.match(label.textContent,/813/);
+  assert.equal(calls,2);
+ }finally{d.window.close();}
+});
 test('owner panel displays budget, reserve and warning after the existing access gate opens',async()=>{
  const d=new JSDOM(html,{url:'https://rexbid.pl/administracja',runScripts:'outside-only'}),errors=[];d.window.addEventListener('error',e=>errors.push(e.message));let calls=0;
  d.window.fetch=async url=>{calls++;assert.equal(url,'/api/portal/archive?storage=1');return{ok:true,json:async()=>({storage:{at:new Date().toISOString(),archiveAllocatedBytes:249e9,galleries:80000,reservedTotalBytes:252e9,limitBytes:300e9,remainingBytes:48e9,estimatedStorageUSDMonthly:3.63,warning:'near_capacity',trend:null}})};};

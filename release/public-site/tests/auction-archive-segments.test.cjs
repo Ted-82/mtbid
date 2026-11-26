@@ -36,8 +36,16 @@ test('owner removes a VIN across sealed and hot pages with access controls intac
  const {b}=await fixture(800),{index,etag}=await getIndex(b);await saveIndex(b,index,etag);
  const handler=id=>createOwnerArchiveHandler(async()=>({status:200,user:{id},assurance_level:'aal2'})),env={REXBID_OWNER_USER_ID:'owner',AUTH_CANONICAL_ORIGIN:'https://rexbid.pl',REXBID_AUCTION_ARCHIVE:b};
  const request=()=>new Request('https://rexbid.pl/api/portal/archive',{method:'POST',headers:{Origin:'https://rexbid.pl','Content-Type':'application/json'},body:JSON.stringify({vin:VIN,confirm:VIN,reason:'ownership'})});
+ const countRequest=new Request('https://rexbid.pl/api/portal/archive?count=1');
+ assert.equal((await handler('client')(countRequest,env)).status,403);
+ b.reads.length=0;
+ const beforeCount=await handler('owner')(countRequest,env);
+ assert.equal(beforeCount.headers.get('Cache-Control'),'private, no-store');
+ assert.equal((await beforeCount.json()).archiveEntries,800);
+ assert.deepEqual(b.reads,[INDEX]);
  assert.equal((await handler('client')(request(),env)).status,403);const r=await handler('owner')(request(),env);assert.equal(r.status,200);assert.equal((await r.json()).removed,2);
  const after=(await getIndex(b)).index;assert.equal(count(after),798);assert.equal((await queryEntries(b,after,{q:VIN})).length,0);assert.equal(after.hidden.length,1);
+ assert.equal((await (await handler('owner')(countRequest,env)).json()).archiveEntries,798);
 });
 test('updates a confirmed outcome in a sealed page without replacing other auctions',async()=>{
  const {b}=await fixture(800),{index,etag}=await getIndex(b);const current=await saveIndex(b,index,etag);const [existing]=await queryEntries(b,index,{q:'60000013'});existing.status='sold';existing.saleCents=220000;await updateEntry(b,index,existing);await saveIndex(b,index,current);const after=(await getIndex(b)).index;assert.equal(count(after),800);assert.equal((await queryEntries(b,after,{q:'60000013'}))[0].saleCents,220000);
