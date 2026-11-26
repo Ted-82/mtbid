@@ -428,14 +428,6 @@ async function runMessage({env,body,now=Date.now,fetchImpl=fetch}={}){
     result.openCoverage={error:safeCode(error)};
    }
   }
-  // Share the existing supplemental-coverage opt-in; do not enable legacy full-detail reconciliation.
-  if(supplementalWrites && body.kind==='poll' && result.capturedPending===0 && env.REXBID_FEED_OPEN_COVERAGE==='enabled'
-    && state.accountBudget && state.activation?.receipt?.kind==='feed-projected-catalog-activation'
-    && !usage.unknown && usage.rowsWritten<1500 && usage.rowsRead<28000 && control.limit-usage.statements>=100){
-   try{const photos=await repairFeedPhotos({db,store,adapter:createApibaraProvider(),now,
-    getRequest:()=>countedFeedRequest({env,db,store,now,fetchImpl})});if(photos)result.photoRepair=photos;}
-   catch(error){result.photoRepair={error:safeCode(error)};}
-  }
   // Enrich after a committed file too, so history does not wait for an idle
   // polling slot. Import work and the same reservation remain authoritative.
   if(supplementalWrites && (body.kind==='poll' && result.capturedPending===0 || workPhase==='finish')
@@ -487,6 +479,18 @@ async function runMessage({env,body,now=Date.now,fetchImpl=fetch}={}){
    catch(error){result.nextCapture={error:safeCode(error)};}
   }
   await dispatchDue(env,state);
+  // Dispatch the next publication first. Give photos one supplemental request
+  // after the latest complete generation, or the usual allowance on idle polls.
+  const idlePhotoPoll=body.kind==='poll' && result.capturedPending===0;
+  const photoAfterPublish=workPhase==='finish' && result.complete && result.nextCapture?.capturedPending===0;
+  if(supplementalWrites && (idlePhotoPoll || photoAfterPublish) && env.REXBID_FEED_OPEN_COVERAGE==='enabled'
+    && state.accountBudget && state.activation?.receipt?.kind==='feed-projected-catalog-activation'
+    && !usage.unknown && usage.rowsWritten<1500 && usage.rowsRead<28000 && control.limit-usage.statements>=100){
+   try{const photos=await repairFeedPhotos({db,store,adapter:createApibaraProvider(),now,
+    ...(photoAfterPublish?{maxDetails:1}:{}),getRequest:()=>countedFeedRequest({env,db,store,now,fetchImpl})});
+    if(photos)result.photoRepair=photos;}
+   catch(error){result.photoRepair={error:safeCode(error)};}
+  }
   await maintainRelists({env,state,body,workPhase,result,control,usage,reservation,store,db,now,fetchImpl,loadManifest,safeCode});
   try{
    await require('./feed-known-bid.cjs').maintainKnownBid({env,state,body,workPhase,result,control,usage,reservation,store,db,now,fetchImpl,buildRequest:countedFeedRequest});

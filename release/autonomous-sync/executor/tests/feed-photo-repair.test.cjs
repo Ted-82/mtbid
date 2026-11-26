@@ -32,7 +32,7 @@ async function setup(t){
   sql.prepare('INSERT INTO feed_catalog_membership VALUES(?,?,1)').run('baseline',row.listing_id);
   h.extraLots.set(lot,{...entry,media:{items:[IMAGE],thumbs:[IMAGE]}});
  };
- h.raw={...raw,media:{items:[{large:IMAGE}],thumbs:[IMAGE]}};h.run=()=>repairFeedPhotos({db,store,adapter,now:()=>h.clock,getRequest:async()=>async spec=>{h.calls++;assert.ok(spec.identifier===LOT||h.extraLots.has(spec.identifier));assert.equal(spec.platform,'copart');await h.hook?.();if(h.fail)throw Object.assign(Error('UPSTREAM'),{code:'UPSTREAM'});return{response:{ok:true,data:h.extraLots.get(spec.identifier)??h.raw},observedAt:AT};}});h.task=()=>sql.prepare('SELECT * FROM automatic_refresh_tasks WHERE task_key=?').get(TASK);return h;
+ h.raw={...raw,media:{items:[{large:IMAGE}],thumbs:[IMAGE]}};h.run=(options={})=>repairFeedPhotos({db,store,adapter,now:()=>h.clock,...options,getRequest:async()=>async spec=>{h.calls++;assert.ok(spec.identifier===LOT||h.extraLots.has(spec.identifier));assert.equal(spec.platform,'copart');await h.hook?.();if(h.fail)throw Object.assign(Error('UPSTREAM'),{code:'UPSTREAM'});return{response:{ok:true,data:h.extraLots.get(spec.identifier)??h.raw},observedAt:AT};}});h.task=()=>sql.prepare('SELECT * FROM automatic_refresh_tasks WHERE task_key=?').get(TASK);return h;
 }
 test('idle cycle fills exact-lot media only, preserves price/time/history and skips next run',async t=>{
  const h=await setup(t),before={...h.row()},history=h.sql.prepare('SELECT count(*) n FROM auction_listing_snapshots').get().n;
@@ -82,6 +82,18 @@ test('reserves the first slot for an earlier Copart auction without repeating th
  assert.equal(r.results[0].lot,LOT);
  assert.equal(new Set(r.results.map(x=>x.lot)).size,3);
  assert.equal(JSON.parse(h.task().cursor).upcoming.at,'2026-11-17T13:00:00.000Z');
+});
+test('after publication one request prioritizes the next Copart auction without skipping the regular cursor',async t=>{
+ const h=await setup(t);
+ await h.insertMore('12345679');
+ h.sql.prepare('UPDATE auction_listings SET auction_at=? WHERE lot=?').run('2026-11-17T13:00:00.000Z',LOT);
+ await assert.rejects(h.run({maxDetails:4}),/FEED_PHOTO_REQUEST_LIMIT/);
+ const result=await h.run({maxDetails:1});
+ assert.equal(result.lot,LOT);
+ assert.equal(result.filled,true);
+ assert.equal(h.calls,1);
+ assert.equal(JSON.parse(h.task().cursor).after,0);
+ assert.equal(await h.run({maxDetails:1}),null);
 });
 test('accepts the alternate photo array and full-sized image field',async t=>{
  const h=await setup(t);

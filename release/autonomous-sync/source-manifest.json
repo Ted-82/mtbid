@@ -3,13 +3,13 @@
   "source": "executor",
   "baselineVersion": "9e664c82-559a-4a37-a7f6-614075ae56fb",
   "tests": {
-    "tests": 842,
-    "pass": 842,
+    "tests": 843,
+    "pass": 843,
     "fail": 0,
     "cancelled": 0,
     "skipped": 0,
     "todo": 0,
-    "duration_ms": 29990.4536
+    "duration_ms": 27346.71
   },
   "hashes": {
     "auth/identity.js": "15ea5dbeb5c6f0adf02a04cb61c5703ae4920f8be3dfc730758083899bcfcd97",
@@ -414,7 +414,7 @@
     "sync/feed-missing-reconcile.cjs": "9a357bb7da28e6f4d8386ea617345bf46afac20759244cf1e06303bc6a909d45",
     "sync/feed-open-coverage.cjs": "51466840d7d5c914dc42781bdc87932008fff2a2a91f166a8cf71d223d403965",
     "sync/feed-owned-lease-release.cjs": "dd3fe4322752a2007be516bfe9f4255504a348de695769befb764e1b4f78cd36",
-    "sync/feed-photo-repair.cjs": "62ea60529b0039ea130ed7c1c19c2b91db2354a862456c865c406f21a7ec2ee8",
+    "sync/feed-photo-repair.cjs": "06985f69d0453d62b3838e3d4c036aa826b5d508f529376994c07b1695229fd5",
     "sync/feed-reconcile-noise.cjs": "b3723fbc8d3655fa5606372240266bcf35ccc3a9d574ced923acf0de2d65cdf8",
     "sync/feed-record-hydration.cjs": "a67a84f3e6fdb16e0faccef9a43f36f13bef967a39434cab72a5f44d461dae98",
     "sync/feed-relist-batch.cjs": "f6dafc77a7655c91912616340166936f7aeacad7bd39489c11ba421a7e7edb32",
@@ -427,7 +427,7 @@
     "sync/feed-relist-selection.cjs": "0dba62778ee10d137dc369a978678ec14a1374b60fb4d954b57aacd2c014ce23",
     "sync/feed-server-batch-policy.cjs": "85f163009b648edba8b7a3e814fd59ad1521c6e84ca010538d3dd4d8d10c915b",
     "sync/feed-server-batch-width.cjs": "9ac04e072b15180f32741d2881291c486453fb5ab56af21018ffa1ce3648ed4f",
-    "sync/feed-server-runner.cjs": "45d99ecaf41da08e9b280b2179904029c6fe40a00be09f09f1810c68c3dbbe11",
+    "sync/feed-server-runner.cjs": "a7db068c8636aa5244748f6268273cfc3f6c6da104a263eddb4cf1d2721eaa6e",
     "sync/feed-server-state.cjs": "328e7d594f7fd2eafdd59643d89a1af29a79044ceeca88562bcc70f04c74d721",
     "sync/feed-server-window-plan.cjs": "26d5710f464cdfc5fce1f95f6b94bf32ae6fa6300acc6e992aed63d62a48a7d9",
     "sync/feed-snapshot-import.cjs": "bc592d9d00b856194bc5a28e820db695447e599bf69e218c3fed85af43032629",
@@ -547,7 +547,7 @@
     "tests/feed-missing-reconcile.test.cjs": "f3dfd9eb155ee08646548a3a00f502e50591b82168eac48d9a6a321fd1d0d4b5",
     "tests/feed-open-coverage.test.cjs": "969f8182a33ff6b42cfc6b8a70b223e758f6b6ba951f5fcc9c9bdb791c4a776c",
     "tests/feed-owned-lease-release.test.cjs": "a5de6e6adb7af8f8b3796579a4afbb0a44f0a52d4aa99bcab512c0ef083d313f",
-    "tests/feed-photo-repair.test.cjs": "578d6a6cff9382795645c40d211296da44477ffc9a2d6dfcb1df8144ca48bcbd",
+    "tests/feed-photo-repair.test.cjs": "c5544ecdba4dbd01839a7c78e16f836cbf4c82d0dca9af439a9ee727c38027e4",
     "tests/feed-quarantine.test.cjs": "c7dad87c6cf86f4be36c1a414c0a63f9115d9827790a0f053fc00d99b49ae5ba",
     "tests/feed-reconcile-noise.test.cjs": "a69a9af438d82df26e0a8e32bf6333aaf08ba20784cf8b00e4a33f801c729e6f",
     "tests/feed-record-hydration.test.cjs": "4a31ce61539cae7cc88a03c2fb663b88f7fc10f138faa2fd700841016416ff28",
@@ -672,14 +672,15 @@
     "wrangler.rexbid-production.jsonc": "af2bac93a2bcffcec75e87fa5db36cbae385843e6718474bb86daaae45cc156f",
     "wrangler.staging.jsonc": "80373eadc43b6482f6330c22585c97aa584c02576732df96208f74be330f12c0"
   },
-  "productionVersion": "61e0a130-b8f5-4987-a300-2b89693e66d6",
-  "productionBundleSha256": "e4b1c61915335d69f7ce7386ac681faadcc26a3f59884e13f862dc4167cd3590",
+  "productionVersion": "756d96b9-cbf7-443a-a028-043b40486267",
+  "productionBundleSha256": "eff805e8244787928c19a0a176cfa7ae85621162287591f458bcbb1ed559d00f",
   "candidate": {
-    "directory": "media-reuse-candidate",
-    "bundleSha256": "34d8552139dcecb8da369dc12b9ae9471439ee544dbf1f4764d03f0f7d0cdbcb",
+    "directory": "release-v15",
+    "bundleSha256": "eff805e8244787928c19a0a176cfa7ae85621162287591f458bcbb1ed559d00f",
     "deployed": true,
-    "version": "125e910f-c63a-4d0f-943a-0b1e62cd1c43",
-    "supersededBy": "61e0a130-b8f5-4987-a300-2b89693e66d6",
+    "version": "756d96b9-cbf7-443a-a028-043b40486267",
+    "rollback": "61e0a130-b8f5-4987-a300-2b89693e66d6",
+    "activatedAt": "2026-11-26T21:24:22.062Z",
     "blocker": null
   }
 }

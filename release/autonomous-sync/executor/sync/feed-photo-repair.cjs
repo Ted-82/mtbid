@@ -31,7 +31,8 @@ async function nextUpcoming(db,baselineId,progress,started){
 }
 // Photos do not certify price/availability freshness. This task updates only
 // empty media columns and its own checkpoint under the importer's shared lease.
-async function repairFeedPhotos({db,store,adapter,getRequest,now}){
+async function repairFeedPhotos({db,store,adapter,getRequest,now,maxDetails=MAX_DETAILS_PER_RUN}){
+ if(!Number.isInteger(maxDetails)||maxDetails<1||maxDetails>MAX_DETAILS_PER_RUN)throw Error('FEED_PHOTO_REQUEST_LIMIT');
  const started=now(),task=await store.task(TASK);
  if(Date.parse(task?.next_due_at)>started)return null;
  const progress=task?.cursor?JSON.parse(task.cursor):{after:0};
@@ -51,7 +52,7 @@ async function repairFeedPhotos({db,store,adapter,getRequest,now}){
  if(!Array.isArray(rows)||rows.length>PAGE)throw Error('FEED_PHOTO_READ_INVALID');
  const {candidate:urgent,upcoming}=await nextUpcoming(db,published.baseline_id,progress.upcoming??{},started);
  const regular=rows.filter(r=>r.listing_id!==urgent?.listing_id&&eligible(r));
- const candidates=(urgent?[urgent,...regular]:regular).slice(0,MAX_DETAILS_PER_RUN);
+ const candidates=(urgent?[urgent,...regular]:regular).slice(0,maxDetails);
  let after=regular.length?progress.after:(rows.length===PAGE?rows.at(-1).photo_rowid:0);
  const checkpoint=(result,delay=INTERVAL,success=false)=>store.taskStatement({key:TASK,platform:'all',
    cursor:JSON.stringify({after,upcoming,...result}),due:now()+delay,status:'scan',success});

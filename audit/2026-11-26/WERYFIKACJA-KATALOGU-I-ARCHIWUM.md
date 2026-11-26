@@ -1,0 +1,29 @@
+# Odbiór publikacji i diagnoza archiwum 26 listopada 2026
+
+## Katalog bieżący
+
+O 22:14 czasu polskiego ostatnia paczka odebrana i opublikowana to 25451. Przyjęcie pliku przez R2 nastąpiło o 22:06:15, a pełne zatwierdzenie przez D1 o 22:13:09. Od odbioru do publikacji upłynęło 6 min 54 s. Zatwierdzona sekwencja to 123899384. Wszystkie dziewięć paczek odebranych po dużej 25281 zostało opublikowanych. Najnowsze dostawy w obserwacji przychodziły co około 30 minut.
+
+W ośmiu dobranych ofertach z paczek 25394 i 25412, po cztery z Copart i IAAI, zgodne były VIN, LOT, bieżąca oferta w źródle, bazie i publicznej odpowiedzi oraz obecność na liście. Siedem miało adresy zdjęć. W źródłowych plikach obydwu paczek znaleziono po cztery pominięcia wewnętrznych numerów sekwencji. Nie ustalono ich przyczyny. Zgodność próbki i publikacja plików nie potwierdzają kompletności całego katalogu.
+
+O 22:15 oczekiwało 21 254 weryfikacji ponownych wystawień, w tym 14 002 Copart i 7 252 IAAI. Punkt wcześniejszego porównania wynosił 26 431. W krótkim oknie od 22:04 kolejka urosła o 73. Z tych stanów nie można wyliczyć czasu zakończenia ani udziału faktycznie brakujących pojazdów. Wewnętrzny zapas wynosił około 10,11 mln zapisów D1. Ostatni odczyt stanu Apibary pochodził z 17:34 i wykazywał 94 833 z 100 000 zapytań. Nie używać go jako pomiaru bieżącego zużycia.
+
+## Zdjęcia aktywnych ofert
+
+W odczycie z 22:05 brak obu pól z adresami zdjęć dotyczył 16 997 z 47 461 Copart i 5 z 38 751 IAAI wśród aktywnych ofert z datą. Odczyt mierzy brak adresów w bazie. Niedziałające pliki pod istniejącymi adresami wymagają osobnego pomiaru. Dla Copart LOT 76971556 publicznie brakowało galerii, podczas gdy szczegółowy odczyt Apibara o 22:17 zwrócił 13 zdjęć i 13 miniatur. Ten przypadek potwierdza możliwość uzupełnienia przez istniejącą integrację.
+
+Poprawka wykonawcy dodaje sprawdzenie galerii, gdy po publikacji nie ma następnej paczki, zachowując istniejące okno bezczynnego odpytywania. Wysłanie kolejnych zadań importu następuje przed sprawdzeniem galerii. Dodatkowa próba może wykonać najwyżej jedno zapytanie i nadal podlega wspólnemu budżetowi, odroczeniu po żądaniu oraz weryfikacji tożsamości i stanu. Osobny test sprawdza priorytet najbliższej aukcji, jednokrotne wywołanie i prawidłową pozycję skanowania.
+
+Wersję `756d96b9-cbf7-443a-a028-043b40486267` aktywowano około 22:24 po przejściu 843 testów synchronizacji. Sprawdzono identyczność 31 powiązań Cloudflare i harmonogramów, dowód sumy wdrożonego kodu oraz punkt odtworzenia Time Travel z 22:21:24. Pięć ofert kontrolnych odtworzono lokalnie z porównaniem danych i integralności. Poprzednia wersja do powrotu to `61e0a130-b8f5-4987-a300-2b89693e66d6`. Zbudowano również lokalny pakiet stagingu. Próba wszystkich plików testowych uruchomiona wewnątrz kopii wykonawcy zawierała niepowodzenia testów interfejsu korzystających z plików spoza tej kopii oraz wcześniejsze asercje HTML. Nie jest podstawą do oznaczenia pełnego odbioru serwisu.
+
+## Archiwum historyczne
+
+O 22:06 dostępnych było 18 890 galerii. Przetwarzanie wejścia zatrzymało się na 18968, sekwencja 106678308. Paczka miała oznaczenie usunięcia przez mechanizm retencji, a bezpośredni odczyt obiektu potwierdził jego brak w R2. Wcześniejszy status magazynu wykazywał około 239,8 GB zapasu. Pełny odczyt sześciu bucketów wykazał 59,40 GB fizycznego zużycia, w tym 56,51 GB w archiwum. Przyczyną blokady było wygaśnięcie pliku oczekującego na archiwizację. Retencja katalogu nie uwzględnia odrębnego kursora archiwum. Zachowano lokalnie 12 najstarszych dostępnych oryginałów począwszy od 18985, po sprawdzeniu rozmiaru i SHA-256.
+
+Z zakresu 106678309–106703213 odzyskano przez `/changes` 870 zdarzeń kandydatów na potwierdzoną sprzedaż. Parser czynnego archiwizatora zaakceptował 867, z czego 795 miało cenę sprzedaży. Pobranie nie odtwarza oryginalnego pliku i nie uzupełnia brakujących zdjęć. Próba lokalna przeszła odtworzenie od zapisanego punktu, wznowienie po 38 zdarzeniach oraz odmowę odczytu przy niewłaściwym punkcie albo sumie kontrolnej. Użyto testowego przypięcia obiektu, bez zdalnego zapisu i bez przesunięcia kursora.
+
+W przeglądzie odzyskanych zdarzeń 413 było poza granicą rocznika, 356 miało adresy zdjęć w obecnym katalogu i 9 w starszej bazie. Dla 76 rozpoznanych aukcji brakowało adresów, a 13 nie miało wiarygodnego dopasowania w tych bazach. Pomiar adresów nie obejmuje dekodowania zdjęć, deduplikacji historii ani weryfikacji zgłoszeń o usunięcie. Wznowienie musi odłożyć te 89 przypadków do niezależnej, trwałej weryfikacji, zanim przesunie punkt archiwum.
+
+Przetestowano także strumieniowe wyodrębnienie zakończonych aukcji tym samym parserem z 25281. Źródło miało 477 375 694 bajty po rozpakowaniu, czyli przekracza limit 256 MiB obecnego archiwizatora. Z 627 178 zdarzeń wydzielono 1025 zdarzeń w dziewięciu porcjach o łącznym rozmiarze 207 182 bajtów, największa miała 23 271 bajtów. W źródle brakowało 169 numerów wewnątrz zakresu. Te pomiary potwierdzają opcję zapisywania małych paczek archiwalnych podczas jednorazowego sprawdzania dużego pliku oraz niezależnej retencji do potwierdzenia odbioru. Sama próba nie mierzy produkcyjnego CPU ani przepustowości galerii. Produkcyjny limit 10 galerii co 5 minut oznacza najwyżej 2880 galerii dziennie, przed uwzględnieniem kosztu pobierania, błędów i ponowień.
+
+Aktywny archiwizator użyty do weryfikacji to `8805e4d5-4fcf-4958-8790-bee995902e8b`. Powrót archiwum do automatycznej pracy pozostaje warunkiem odbioru. Brakujący przypadek wymaga bezpiecznego wznowienia dla danych starszych niż dwudniowe okno ponowień zdjęć. Kursor i istniejąca historia zostały zachowane.
