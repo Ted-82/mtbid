@@ -113,6 +113,37 @@ test('a paid verified relist response fills missing media without another reques
  assert.equal((await second.run(()=>{},raw)).relisted,true);
  assert.equal(second.sql.prepare('SELECT media_urls_json FROM auction_listings WHERE listing_id=?').get(data.row.listing_id).media_urls_json,'["https://example.test/already-present.jpg"]');
 });
+test('the normal Copart page reuses images from the existing counted call and preserves the catalogue cursor',async t=>{
+ const h=await fixture(t),image='https://cs.copart.com/v1/AUTH_svc.pdoc00001/catalogue-page.jpg';
+ h.sql.exec("UPDATE auction_listings SET auction_state='open',media_urls_json=NULL,media_thumbs_json=NULL;UPDATE feed_catalog_membership SET active=1");
+ await h.store.guarded([h.store.taskStatement({key:'feed-relist-pages:v1',platform:'all',status:'complete',due:clock,
+  cursor:JSON.stringify({day:stamp.slice(0,10),platform:'copart'})})]);
+ const before=h.sql.prepare('SELECT committed_sequence FROM server_feed_state WHERE singleton=1').get();
+ const raw={...data.raw,media:{items:[image],thumbs:[image]}};
+ let calls=0;
+ const result=await require('../sync/feed-relist-pages.cjs').warmRelistPage({db:h.db,store:h.store,now:()=>clock,
+  getRequest:async()=>async request=>{
+   calls++;assert.equal(request.operation,'listVehicles');assert.equal(request.params.platform,'copart');
+   return {response:{data:[raw],meta:{next_cursor:'next'}},observedAt:stamp};
+  }});
+ assert.equal(result.mediaFilled,1);
+ assert.equal(calls,1);
+ assert.equal(JSON.parse((await h.store.task('feed-relist-pages:v1')).cursor).after,'next');
+ assert.deepEqual(h.sql.prepare('SELECT committed_sequence FROM server_feed_state WHERE singleton=1').get(),before);
+ const prepare=h.db.prepare.bind(h.db);
+ h.db.prepare=statement=>{
+  if(statement.startsWith('SELECT l.listing_id,l.platform,l.lot,l.vin_normalized FROM json_each'))throw Error('media storage unavailable');
+  return prepare(statement);
+ };
+ const deferred=await require('../sync/feed-relist-pages.cjs').warmRelistPage({db:h.db,store:h.store,now:()=>clock,
+  getRequest:async()=>async request=>{
+   calls++;assert.equal(request.params.cursor,'next');
+   return {response:{data:[raw],meta:{next_cursor:'next-2'}},observedAt:stamp};
+  }});
+ assert.equal(deferred.mediaDeferred,true);
+ assert.equal(calls,2);
+ assert.equal(JSON.parse((await h.store.task('feed-relist-pages:v1')).cursor).after,'next-2');
+});
 test('owner-requested priority reorders an existing task and still uses the strict normal writer',async t=>{
  const h=await fixture(t);await h.queue();
  const task=h.sql.prepare("SELECT task_key FROM automatic_refresh_tasks WHERE task_key LIKE 'feed-verify-relist:v1:%'").get();

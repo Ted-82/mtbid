@@ -72,6 +72,13 @@ async function warmRelistPage({db,store,getRequest,now}){
  const state={day,platform:after?platform:platform==='iaai'?'copart':'iaai',...(after?{after}:{})};
  writes.push(store.taskStatement({key:CLOCK,platform:'all',status:'complete',success:true,due:now(),cursor:JSON.stringify(state)}));
  await store.guarded(writes);
- return {platform,records:rows.length,matched,more:!!after,matchedKeys};
+ const result={platform,records:rows.length,matched,more:!!after,matchedKeys};
+ // The page has already been counted. Gallery recovery must be independent
+ // of the page cursor and must not block a verified relist.
+ try{
+  const media=await require('./feed-available-media.cjs').fillAvailableMedia({db,store,records:rows,now:now()});
+  result.mediaFilled=media.filled;
+ }catch{result.mediaDeferred=true;}
+ return result;
 }
 module.exports={warmRelistPage,warmRescheduled};

@@ -471,8 +471,12 @@ class ServerFeedState {
     if(!integer(writes)||!integer(reads))fail('SERVER_FEED_FLEX_BUDGET_INVALID');
     const writeBurst=this.flexibleBudget==='rolling-31d-v1'?FLEX_BUDGET_BURST:FLEX_WRITE_BURST_V2;
     const allowance=this.accountBudget?accountAllowance(this.accountBudget,firstDay,day):{writeLimit:FLEX_BUDGET_WRITES,readLimit:MAX_DAILY_READS*FLEX_BUDGET_DAYS};
+    // Spend a small share of measured monthly headroom on an unusually heavy
+    // day. The atomic account-window check still applies to every reservation.
+    const accountReadHeadroom=this.flexibleBudget==='account-cycle-v2'
+      ?Math.floor(Math.max(0,allowance.readLimit-reads)/100):0;
     return {firstDay,day,writes,reads,...allowance,burstWrites:MAX_DAILY_WRITES*(writeBurst-1),
-      burstReads:MAX_DAILY_READS*(FLEX_BUDGET_BURST-1)};
+      burstReads:MAX_DAILY_READS*(FLEX_BUDGET_BURST-1)+accountReadHeadroom};
   }
   d1RecoveryPolicy(){
     const policy=this.d1Recovery?.status()||{enabled:false};

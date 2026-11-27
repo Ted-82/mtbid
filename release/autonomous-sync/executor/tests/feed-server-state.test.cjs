@@ -574,6 +574,22 @@ test('a closed account measurement replaces past write estimates only for its ow
  for(const patch of [{from:'2026-11-07'},{through:'2026-11-31'},{through:'2026-11-22'},{outsideWrites:-1}])
   assert.throws(()=>read({...measured,writeMeter:{...measured.writeMeter,...patch}}),/ACCOUNT_POLICY_INVALID/);
 });
+test('account reads can recover above the old daily ceiling only with monthly headroom',async t=>{
+ const h=allowanceHarness(t),day='2026-11-27';
+ h.calls.clock=Date.parse(day+'T06:28:00Z');
+ allowanceBudget(h,{day_key:day,consumed_reads:152416804,consumed_writes:134078});
+ const p={version:2,billingDay:6,measuredAt:day+'T06:00:00Z',databaseMaxBytes:8e9,days:[]};
+ h.state.configureFlexibleBudget({REXBID_FEED_D1_BUDGET_MODE:'account-cycle-v2',REXBID_FEED_ACCOUNT_BUDGET:JSON.stringify(p)});
+ await h.store.acquire();
+ const reserve={rowsWritten:5000,rowsRead:50000};
+ const window=await h.state.flexibleBudgetUsage();
+ assert.equal(window.burstReads,100e6+Math.floor((window.readLimit-window.reads)/100));
+ await h.state.reserveBudget('restore-publication',reserve);
+ assert.equal(h.sqlite.prepare('SELECT consumed_reads FROM server_feed_daily_budgets WHERE day_key=?').get(day).consumed_reads,152416804);
+ allowanceBudget(h,{day_key:'2026-11-07',consumed_reads:window.readLimit-window.reads});
+ await assert.rejects(h.state.reserveBudget('window-full',reserve),/ROLLING_BUDGET_STOP/);
+ clean(h);
+});
 test('rolling feed budget uses unused capacity past the ordinary day cap and preserves a burst ceiling',async t=>{
  const h=allowanceHarness(t);allowanceBudget(h,{consumed_writes:995311,consumed_reads:49990000,reserved_writes:0,reserved_reads:0});
  await h.store.acquire();

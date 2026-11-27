@@ -10,7 +10,9 @@ async function fillAvailableMedia({db,store,records,now}){
  const scope=await db.prepare('SELECT s.committed_sequence,p.baseline_id FROM server_feed_state s JOIN feed_catalog_pointer p ON p.singleton=s.singleton WHERE s.singleton=1 AND s.active_generation IS NULL').bind().first();
  if(!scope)return {filled:0};
  const keys=candidates.map(r=>({platform:r.platform,lot:String(r.lot_number)}));
- const rows=(await db.prepare("SELECT l.listing_id,l.platform,l.lot,l.vin_normalized FROM json_each(?) j JOIN auction_listings l ON l.platform=json_extract(j.value,'$.platform') AND l.lot=json_extract(j.value,'$.lot') JOIN vehicle_sources s ON s.source_key=l.source_key AND s.platform=l.platform JOIN feed_catalog_membership m ON m.listing_id=l.listing_id AND m.baseline_id=? WHERE m.active=1 AND l.auction_state IN ('open','live') AND l.identity_state='resolved' AND s.identity_state='resolved' AND s.provider='apibara' AND l.media_urls_json IS NULL AND l.media_thumbs_json IS NULL")
+ // Keep the bounded input first. The automatic planner can otherwise scan the
+ // entire active membership for each page before checking the supplied lots.
+ const rows=(await db.prepare("SELECT l.listing_id,l.platform,l.lot,l.vin_normalized FROM json_each(?) j CROSS JOIN auction_listings l INDEXED BY idx_listings_lot_recent ON l.platform=json_extract(j.value,'$.platform') AND l.lot=json_extract(j.value,'$.lot') JOIN vehicle_sources s ON s.source_key=l.source_key AND s.platform=l.platform JOIN feed_catalog_membership m ON m.listing_id=l.listing_id AND m.baseline_id=? WHERE m.active=1 AND l.auction_state IN ('open','live') AND l.identity_state='resolved' AND s.identity_state='resolved' AND s.provider='apibara' AND l.media_urls_json IS NULL AND l.media_thumbs_json IS NULL")
   .bind(JSON.stringify(keys),scope.baseline_id).all()).results;
  const entries=[];
  for(const row of rows){
