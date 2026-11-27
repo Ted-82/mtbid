@@ -3,13 +3,13 @@
   "source": "executor",
   "baselineVersion": "9e664c82-559a-4a37-a7f6-614075ae56fb",
   "tests": {
-    "tests": 845,
-    "pass": 845,
+    "tests": 847,
+    "pass": 847,
     "fail": 0,
     "cancelled": 0,
     "skipped": 0,
     "todo": 0,
-    "duration_ms": 38026.0961
+    "duration_ms": 30220.7041
   },
   "hashes": {
     "auth/identity.js": "15ea5dbeb5c6f0adf02a04cb61c5703ae4920f8be3dfc730758083899bcfcd97",
@@ -414,7 +414,7 @@
     "sync/feed-missing-reconcile.cjs": "9a357bb7da28e6f4d8386ea617345bf46afac20759244cf1e06303bc6a909d45",
     "sync/feed-open-coverage.cjs": "51466840d7d5c914dc42781bdc87932008fff2a2a91f166a8cf71d223d403965",
     "sync/feed-owned-lease-release.cjs": "dd3fe4322752a2007be516bfe9f4255504a348de695769befb764e1b4f78cd36",
-    "sync/feed-photo-repair.cjs": "06985f69d0453d62b3838e3d4c036aa826b5d508f529376994c07b1695229fd5",
+    "sync/feed-photo-repair.cjs": "2ad14239f3e5085aee4d66c789d377aa5c163bb39b5769713ead37aaefe7ee05",
     "sync/feed-reconcile-noise.cjs": "b3723fbc8d3655fa5606372240266bcf35ccc3a9d574ced923acf0de2d65cdf8",
     "sync/feed-record-hydration.cjs": "a67a84f3e6fdb16e0faccef9a43f36f13bef967a39434cab72a5f44d461dae98",
     "sync/feed-relist-batch.cjs": "f6dafc77a7655c91912616340166936f7aeacad7bd39489c11ba421a7e7edb32",
@@ -547,7 +547,7 @@
     "tests/feed-missing-reconcile.test.cjs": "f3dfd9eb155ee08646548a3a00f502e50591b82168eac48d9a6a321fd1d0d4b5",
     "tests/feed-open-coverage.test.cjs": "969f8182a33ff6b42cfc6b8a70b223e758f6b6ba951f5fcc9c9bdb791c4a776c",
     "tests/feed-owned-lease-release.test.cjs": "a5de6e6adb7af8f8b3796579a4afbb0a44f0a52d4aa99bcab512c0ef083d313f",
-    "tests/feed-photo-repair.test.cjs": "c5544ecdba4dbd01839a7c78e16f836cbf4c82d0dca9af439a9ee727c38027e4",
+    "tests/feed-photo-repair.test.cjs": "40efcca84e1bcfce502eeb9974feef25118ca636e02d3ca9e760d4e301c6980a",
     "tests/feed-quarantine.test.cjs": "c7dad87c6cf86f4be36c1a414c0a63f9115d9827790a0f053fc00d99b49ae5ba",
     "tests/feed-reconcile-noise.test.cjs": "a69a9af438d82df26e0a8e32bf6333aaf08ba20784cf8b00e4a33f801c729e6f",
     "tests/feed-record-hydration.test.cjs": "4a31ce61539cae7cc88a03c2fb663b88f7fc10f138faa2fd700841016416ff28",
@@ -672,15 +672,15 @@
     "wrangler.rexbid-production.jsonc": "af2bac93a2bcffcec75e87fa5db36cbae385843e6718474bb86daaae45cc156f",
     "wrangler.staging.jsonc": "80373eadc43b6482f6330c22585c97aa584c02576732df96208f74be330f12c0"
   },
-  "productionVersion": "477aa3ce-96ee-4bfe-bcde-146c2fbf82bd",
-  "productionBundleSha256": "85f8c0b7734f80ecaaa21497c1e48085a1098a38ba5a1b574bea04862c62288d",
+  "productionVersion": "a58d065c-577e-4453-932c-f1a3ff48fab4",
+  "productionBundleSha256": "1f671ec5238f172bcb8c7c7e97af2223ed987439152dd760cf5fd8bdcb77b1ad",
   "candidate": {
-    "directory": "release-v16",
-    "bundleSha256": "85f8c0b7734f80ecaaa21497c1e48085a1098a38ba5a1b574bea04862c62288d",
+    "directory": "release-v17",
+    "bundleSha256": "1f671ec5238f172bcb8c7c7e97af2223ed987439152dd760cf5fd8bdcb77b1ad",
     "deployed": true,
-    "version": "477aa3ce-96ee-4bfe-bcde-146c2fbf82bd",
-    "rollback": "756d96b9-cbf7-443a-a028-043b40486267",
-    "activatedAt": "2026-11-27T06:35:40.014Z",
+    "version": "a58d065c-577e-4453-932c-f1a3ff48fab4",
+    "rollback": "477aa3ce-96ee-4bfe-bcde-146c2fbf82bd",
+    "activatedAt": "2026-11-27T07:13:44.192Z",
     "blocker": null
   }
 }

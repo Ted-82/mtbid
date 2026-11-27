@@ -20,9 +20,19 @@ Archiwizator `700b5244-51ed-4bfe-8547-cd7b566d1607` aktywowano o 07:49:54 PL. Pu
 
 Drugi cykl zakończył się o 07:56:19. Licznik wzrósł do 18 910, a kursor do 106679142. Po wygaśnięciu 30-sekundowej pamięci podręcznej wyszukiwanie publiczne znalazło Copart LOT 70038756 z potwierdzoną ceną 3 250 USD. Galeria miała 12 zdjęć, a pierwszy JPEG odpowiedział HTTP 200. Zapas R2 po uwzględnieniu rezerw wyniósł około 239,75 GB.
 
+O 08:11:52 archiwum miało 18 940 galerii, o 50 więcej niż przed wdrożeniem. Kursor przesunął się do 106680049. Publicznie potwierdzono również IAAI LOT 46131590, sprzedaż za 12 375 USD i 19 zdjęć. Próba JPEG zwróciła HTTP 200. Wznowienie potwierdzono dla obu domów aukcyjnych.
+
 ## Próby publiczne po wznowieniu
 
 Wyszukiwania Subaru od 2025, dwóch kontrolnych VIN i drugiej strony elektrycznych zadziałały. Osiem dobranych pojazdów z 25738 i 25758 było na liście i otwierało właściwe karty. Sześć cen zgadzało się z paczką. Dla dwóch pozostałych Copart bieżący odczyt szczegółów źródłowych zwrócił `null`, zgodny z publicznym brakiem ceny. Kwot z wcześniejszej obserwacji nie traktujemy jako ceny sprzedaży ani aktualnej oferty. Szersza kontrola pokazała 16 763 z 47 569 zapisanych aktywnych aukcji Copart bez adresu zdjęć i 5 z 37 973 IAAI. Częściowy brak adresów nadal wymaga sprawdzenia pokrycia i tempa uzupełniania.
+
+Wszystkie pięć oczekujących paczek zatwierdzono do sekwencji 124285699. Ostatnią 25816 opublikowano o 08:00:19 PL. Po wznowieniu 302 rozliczone uruchomienia zużyły 3 033 387 odczytów, a najwyższy pomiar pojedynczego uruchomienia wyniósł 20 488. Jest to pomiar w konkretnym oknie po wdrożeniu, obejmujący nadrabianie i pierwsze utrzymanie. Automat zarejestrował 72 ponowne użycia danych zdjęć z istniejącego ruchu API. Kolejna regularna paczka 25835 została automatycznie zarejestrowana około 08:06.
+
+W przypadku LOT 66217806 pracownik zdjęć zapisał 13 zdjęć, lecz oferta była ukryta przez `source_status='unscheduled'` mimo zapisanej przyszłej daty. Apibara dla dokładnego VIN i LOT potwierdziła tę samą datę, fazę `scheduled`, `auction_date_pending=false`, `lot_removed=false` i `result_confirmed=false`. Dwie późniejsze paczki zawierały dla tego pojazdu wyłącznie zmiany ofert w licytacji. Przygotowana poprawka zachowuje ostrożną regułę ukrywania i uzgadnia pojedynczy status po potwierdzeniu tej samej przyszłej daty przy odczycie zdjęć. Testy sprawdzają również odrzucenie starszej odpowiedzi, innego terminu, statusu oczekującego i wyniku końcowego. Zmiana etykiety nie modyfikuje ceny, historii, terminu, zdjęć ani kursora importu. Pakiet przeszedł 847 testów synchronizacji.
+
+Kontrola wykazała 92 aktywne wpisy Copart z datą w nadchodzących siedmiu dniach i statusem `unscheduled`. Ta liczba mierzy lokalne sprzeczności. Źródłowo potwierdzono na razie jeden przypadek, dlatego nie wymuszano publikacji wszystkich wpisów. Kontrola naprawy musi porównać dokładne wyniki VIN i LOT oraz kartę.
+
+Paczka 25835 zakończyła się bez błędu o 08:12:38, około 6 min 44 s od czasu źródła. Ostatnia zatwierdzona sekwencja to 124338412. Następnie o 08:13:44 uruchomiono zweryfikowaną wersję `a58d065c-577e-4453-932c-f1a3ff48fab4`. Wersja zapasowa to `477aa3ce-96ee-4bfe-bcde-146c2fbf82bd`. Punkt Time Travel D1 z 08:06:19 PL sprawdzono wraz z odtworzeniem pięciu ofert. Zmiana nie rejestruje nowych usług. Wynik pakietu testów strony publicznej wyniósł 2736/2736.
 
 ## Przepustowość archiwum
 

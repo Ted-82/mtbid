@@ -101,3 +101,27 @@ test('accepts the alternate photo array and full-sized image field',async t=>{
  assert.equal((await h.run()).filled,true);
  assert.deepEqual(JSON.parse(unpackMediaJson(h.row().media_urls_json)),[IMAGE,'https://example.com/other.jpg']);
 });
+test('a Copart detail with the same verified future date repairs only a stale archived schedule label', async t=>{
+ const h=await setup(t),date='2026-11-17T13:00:00.000Z';
+ h.sql.prepare("UPDATE auction_listings SET source_status='unscheduled',auction_at=?,is_timed=0,media_urls_json=?").run(date,JSON.stringify([IMAGE]));
+ h.raw.auction={...h.raw.auction,auction_at:date,phase:'scheduled',auction_date_pending:false,lot_removed:false,result_confirmed:false};
+ h.sql.prepare("INSERT INTO automatic_refresh_tasks(task_key,platform,cursor,next_due_at,status) VALUES(?, 'all',?,?,'scan')").run(TASK,
+  JSON.stringify({after:0,upcoming:{at:'2026-11-20T13:00:00.000Z',id:'advanced'},outcome:'filled',platform:'copart',lot:LOT}),AT);
+ const before={...h.row()};
+ const result=await h.run({maxDetails:1});
+ assert.equal(result.scheduleVerified,true);
+ assert.equal(h.calls,1);
+ assert.deepEqual({...h.row()},{...before,source_status:'scheduled'});
+ assert.equal(JSON.parse(h.task().cursor).upcoming.id,'advanced');
+ assert.equal(h.sql.prepare('SELECT committed_sequence FROM server_feed_state').get().committed_sequence,100);
+});
+test('a different date, stale detail or pending source never promotes a hidden Copart lot',async t=>{
+ for(const change of [r=>{r.auction.auction_at='2026-11-18T13:00:00.000Z';},r=>{r.updated_at='2026-11-15T14:00:00.000Z';},r=>{r.auction.auction_date_pending=true;},r=>{r.auction.result_confirmed=true;}]){
+  const h=await setup(t),date='2026-11-17T13:00:00.000Z';
+  h.sql.prepare("UPDATE auction_listings SET source_status='unscheduled',auction_at=?,is_timed=0,media_urls_json=?").run(date,JSON.stringify([IMAGE]));
+  h.raw.auction={...h.raw.auction,auction_at:date,phase:'scheduled',auction_date_pending:false,lot_removed:false,result_confirmed:false};
+  change(h.raw);const before={...h.row()};
+  assert.equal((await h.run()).scheduleVerified,undefined);
+  assert.deepEqual({...h.row()},before);
+ }
+});
