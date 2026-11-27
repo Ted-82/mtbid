@@ -22,6 +22,8 @@ Drugi cykl zakończył się o 07:56:19. Licznik wzrósł do 18 910, a kursor do 
 
 O 08:11:52 archiwum miało 18 940 galerii, o 50 więcej niż przed wdrożeniem. Kursor przesunął się do 106680049. Publicznie potwierdzono również IAAI LOT 46131590, sprzedaż za 12 375 USD i 19 zdjęć. Próba JPEG zwróciła HTTP 200. Wznowienie potwierdzono dla obu domów aukcyjnych.
 
+Pomiar o 08:16:55 potwierdził sześć zakończonych cykli i 18 950 galerii, czyli o 60 więcej niż przed wdrożeniem. Najnowsza pozycja archiwum wynosiła 106680615. Copart LOT 72986206 otwierał publiczną galerię z 12 zdjęciami i potwierdzoną ceną sprzedaży 3 550 USD. Główny katalog pozostał na w pełni zatwierdzonej sekwencji 124338412. Z 384 rozliczonych wywołań po porannej optymalizacji łączne zużycie wyniosło 4 003 677 odczytów, a maksymalne pojedyncze 22 511. Nie uruchomiono nowej usługi ani nowego planu.
+
 ## Próby publiczne po wznowieniu
 
 Wyszukiwania Subaru od 2025, dwóch kontrolnych VIN i drugiej strony elektrycznych zadziałały. Osiem dobranych pojazdów z 25738 i 25758 było na liście i otwierało właściwe karty. Sześć cen zgadzało się z paczką. Dla dwóch pozostałych Copart bieżący odczyt szczegółów źródłowych zwrócił `null`, zgodny z publicznym brakiem ceny. Kwot z wcześniejszej obserwacji nie traktujemy jako ceny sprzedaży ani aktualnej oferty. Szersza kontrola pokazała 16 763 z 47 569 zapisanych aktywnych aukcji Copart bez adresu zdjęć i 5 z 37 973 IAAI. Częściowy brak adresów nadal wymaga sprawdzenia pokrycia i tempa uzupełniania.
