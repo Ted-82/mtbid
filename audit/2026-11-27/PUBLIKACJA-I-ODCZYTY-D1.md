@@ -18,6 +18,14 @@ Archiwum stanęło wcześniej przy 18 890 galeriach na paczce 18968. Odtworzono 
 
 Archiwizator `700b5244-51ed-4bfe-8547-cd7b566d1607` aktywowano o 07:49:54 PL. Punkt powrotu `8805e4d5-4fcf-4958-8790-bee995902e8b`. Sprawdzono kopię indeksu, dwa nowe przypięcia wejścia, zgodność istniejących zasobów i ten sam harmonogram. O 07:51:50 indeks zawierał 18 900 galerii, o 10 więcej. Punkt przesunął się automatycznie na 106678658. Publiczny odczyt Copart LOT 71230196 potwierdził 13 zdjęć i cenę sprzedaży 7 000 USD. Pierwsze zdjęcie odpowiadało HTTP 200 jako JPEG. Pozostają do odbioru tempo nadrobienia, aktualność nowych galerii i automatyczne ponawianie prywatnie odłożonych zadań.
 
+Drugi cykl zakończył się o 07:56:19. Licznik wzrósł do 18 910, a kursor do 106679142. Po wygaśnięciu 30-sekundowej pamięci podręcznej wyszukiwanie publiczne znalazło Copart LOT 70038756 z potwierdzoną ceną 3 250 USD. Galeria miała 12 zdjęć, a pierwszy JPEG odpowiedział HTTP 200. Zapas R2 po uwzględnieniu rezerw wyniósł około 239,75 GB.
+
 ## Próby publiczne po wznowieniu
 
 Wyszukiwania Subaru od 2025, dwóch kontrolnych VIN i drugiej strony elektrycznych zadziałały. Osiem dobranych pojazdów z 25738 i 25758 było na liście i otwierało właściwe karty. Sześć cen zgadzało się z paczką. Dla dwóch pozostałych Copart bieżący odczyt szczegółów źródłowych zwrócił `null`, zgodny z publicznym brakiem ceny. Kwot z wcześniejszej obserwacji nie traktujemy jako ceny sprzedaży ani aktualnej oferty. Szersza kontrola pokazała 16 763 z 47 569 zapisanych aktywnych aukcji Copart bez adresu zdjęć i 5 z 37 973 IAAI. Częściowy brak adresów nadal wymaga sprawdzenia pokrycia i tempa uzupełniania.
+
+## Przepustowość archiwum
+
+Harmonogram co 5 minut i pułap 10 nowych galerii na uruchomienie dają maksymalnie 2 880 galerii na dobę nawet przy idealnych odczytach. W poprzednim pomiarze 5 238 nowych galerii odpowiadało 22,01 godz. czasu widocznego w zdarzeniach źródła, co daje około 5 710 galerii na 24 godz. danych z tego fragmentu. Jest to szacunek gęstości jednego okresu na podstawie poprawnie zarchiwizowanych galerii. Nie mierzy typowego napływu całej oferty ani pełnego tygodnia. W takim okresie dotychczasowy pułap nie wystarcza do nadrobienia całości. Gdy paczki są kompletne, kolejne pomiary powinny liczyć równolegle rozpoznane zdarzenia, galerie, odłożone zadania, przepustowość i wiek kursora. Sama rosnąca liczba zdjęć nie potwierdza malejącej zaległości.
+
+Obecna naprawa zabezpiecza pierwotne dane i rozdziela błędną galerię od możliwości postępu. Do stałego działania potrzeba trwałej, niewielkiej paczki zakończeń wytwarzanej podczas sprawdzania każdej dostawy i odrębnego, ograniczonego zapisu galerii. Retencja powinna uznawać za zabezpieczone tylko paczki odebrane przez archiwum albo objęte gotową, zweryfikowaną małą kopią zdarzeń. Główny import musi nadal mieć niezależne pierwszeństwo w budżecie i kolejce.
