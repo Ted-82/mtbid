@@ -12,4 +12,12 @@ Na kopii testowej odtworzono blokadę z 152 416 804 odczytami, poprawne przyjęc
 
 Wersję `477aa3ce-96ee-4bfe-bcde-146c2fbf82bd` włączono o 07:35 PL po sprawdzeniu zgodności 31 powiązań i kodu. Automat zarejestrował najstarszą oczekującą paczkę 25738 o 07:36:27 bez ręcznego przesuwania kursora. Punkt powrotu przywraca poprzedni pakiet kodu, pozostawiając dane bazowe.
 
-Archiwum nadal ma 18 890 galerii i zatrzymany punkt 18968. Przetestowano lokalnie także odczyt kolejnej wygasłej paczki 18985 z kopii, z dopasowaniem rozmiaru i SHA-256. Brak kopii nadal zatrzymuje wyłącznie archiwum na tej paczce. Historyczne zdarzenia bez zweryfikowanej galerii są trwale odkładane w symulowanym cyklu. Produkcyjne wznowienie archiwum i trwały odbiór tak odłożonych galerii wymagają jeszcze integracji i sprawdzenia. Bez zmian w danych historycznych.
+## Wznowienie archiwum
+
+Archiwum stanęło wcześniej przy 18 890 galeriach na paczce 18968. Odtworzono brakujący odcinek z wiarygodnych terminalnych zdarzeń Apibary i dołączono dwanaście kolejnych surowych plików po sprawdzeniu ich granic i sum SHA-256. Dla dużej 25281 przetestowano odczyt 1025 wydarzeń z dziewięciu małych porcji. Zapisano 23 przygotowane obiekty w istniejącym prywatnym R2, łącznie 28,36 MB. Wszystkie odczytano ponownie i zweryfikowano ich sumy. Zdalny zapis kopii nie zmienił w tym momencie indeksu publicznego.
+
+Archiwizator `700b5244-51ed-4bfe-8547-cd7b566d1607` aktywowano o 07:49:54 PL. Punkt powrotu `8805e4d5-4fcf-4958-8790-bee995902e8b`. Sprawdzono kopię indeksu, dwa nowe przypięcia wejścia, zgodność istniejących zasobów i ten sam harmonogram. O 07:51:50 indeks zawierał 18 900 galerii, o 10 więcej. Punkt przesunął się automatycznie na 106678658. Publiczny odczyt Copart LOT 71230196 potwierdził 13 zdjęć i cenę sprzedaży 7 000 USD. Pierwsze zdjęcie odpowiadało HTTP 200 jako JPEG. Pozostają do odbioru tempo nadrobienia, aktualność nowych galerii i automatyczne ponawianie prywatnie odłożonych zadań.
+
+## Próby publiczne po wznowieniu
+
+Wyszukiwania Subaru od 2025, dwóch kontrolnych VIN i drugiej strony elektrycznych zadziałały. Osiem dobranych pojazdów z 25738 i 25758 było na liście i otwierało właściwe karty. Sześć cen zgadzało się z paczką. Dla dwóch pozostałych Copart bieżący odczyt szczegółów źródłowych zwrócił `null`, zgodny z publicznym brakiem ceny. Kwot z wcześniejszej obserwacji nie traktujemy jako ceny sprzedaży ani aktualnej oferty. Szersza kontrola pokazała 16 763 z 47 569 zapisanych aktywnych aukcji Copart bez adresu zdjęć i 5 z 37 973 IAAI. Częściowy brak adresów nadal wymaga sprawdzenia pokrycia i tempa uzupełniania.
